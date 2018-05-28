@@ -971,6 +971,18 @@
 		    <version>0.9.0</version>
 		</dependency>
 		<!-- JWT  end -->
+
+		<!--大鱼短信-->
+		<dependency>
+			<groupId>com.aliyun</groupId>
+			<artifactId>aliyun-java-sdk-core</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.aliyun</groupId>
+			<artifactId>aliyun-java-sdk-dysmsapi</artifactId>
+			<version>1.1.0</version>
+		</dependency>
 	</dependencies>
 
 	<organization>
