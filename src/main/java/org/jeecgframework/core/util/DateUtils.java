@@ -1,5 +1,7 @@
 package org.jeecgframework.core.util;
 
+import org.springframework.util.StringUtils;
+
 import java.beans.PropertyEditorSupport;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -8,8 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
-import org.springframework.util.StringUtils;
 
 /**
  * 
@@ -142,9 +142,9 @@ public class DateUtils extends PropertyEditorSupport {
 	/**
 	 * 日期转换为字符串
 	 * 
-	 * @param date
+	 * @param
 	 *            日期
-	 * @param format
+	 * @param
 	 *            日期格式
 	 * @return 字符串
 	 */
@@ -178,8 +178,8 @@ public class DateUtils extends PropertyEditorSupport {
 	 * 
 	 * @param date
 	 *            日期
-	 * @param format
-	 *            日期格式
+	 * @param
+	 *
 	 * @return 字符串
 	 */
 	public static String date2Str(Date date, SimpleDateFormat date_sdf) {
@@ -191,8 +191,8 @@ public class DateUtils extends PropertyEditorSupport {
 	/**
 	 * 日期转换为字符串
 	 * 
-	 * @param date
-	 *            日期
+	 * @param
+	 *
 	 * @param format
 	 *            日期格式
 	 * @return 字符串
@@ -264,7 +264,7 @@ public class DateUtils extends PropertyEditorSupport {
 		Date dt = new Date();
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String nowTime = df.format(dt);
-		java.sql.Timestamp buydate = java.sql.Timestamp.valueOf(nowTime);
+		Timestamp buydate = Timestamp.valueOf(nowTime);
 		return buydate;
 	}
 
@@ -524,7 +524,7 @@ public class DateUtils extends PropertyEditorSupport {
 	 *            转换的匹配格式
 	 * @return 如果转换成功则返回转换后的日期
 	 * @throws ParseException
-	 * @throws AIDateFormatException
+	 * @throws
 	 */
 	public static Date parseDate(String src, String pattern)
 			throws ParseException {
@@ -541,7 +541,7 @@ public class DateUtils extends PropertyEditorSupport {
 	 *            转换的匹配格式
 	 * @return 如果转换成功则返回转换后的日期
 	 * @throws ParseException
-	 * @throws AIDateFormatException
+	 * @throws
 	 */
 	public static Calendar parseCalendar(String src, String pattern)
 			throws ParseException {
@@ -569,7 +569,7 @@ public class DateUtils extends PropertyEditorSupport {
 	 *            转换的匹配格式
 	 * @return 如果转换成功则返回转换后的时间戳
 	 * @throws ParseException
-	 * @throws AIDateFormatException
+	 * @throws
 	 */
 	public static Timestamp parseTimestamp(String src, String pattern)
 			throws ParseException {
@@ -652,5 +652,51 @@ public class DateUtils extends PropertyEditorSupport {
 	    calendar.setTime(getDate());
 	    return calendar.get(Calendar.YEAR);
 	  }
+
+	/**
+	 * 判断时间是否在时间段内
+	 * @param nowTime
+	 * @param beginTime
+	 * @param endTime
+	 * @return
+	 */
+	public static boolean belongCalendar(Date nowTime, Date beginTime, Date endTime) {
+		Calendar date = Calendar.getInstance();
+		date.setTime(nowTime);
+
+		Calendar begin = Calendar.getInstance();
+		begin.setTime(beginTime);
+
+		Calendar end = Calendar.getInstance();
+		end.setTime(endTime);
+
+		if (date.after(begin) && date.before(end)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * 判断时间是否在时间段内
+	 * @param nowTime
+	 * @param beginTime
+	 * @return
+	 */
+	public static String compateDate(Date nowTime, Date beginTime) {
+		Calendar date = Calendar.getInstance();
+		date.setTime(nowTime);
+
+		Calendar begin = Calendar.getInstance();
+		begin.setTime(beginTime);
+
+		if (date.after(begin) ) {
+			return "after";
+		} else if (date.before(begin)){
+			return "before";
+		}else {
+			return "equate";
+		}
+	}
 
 }

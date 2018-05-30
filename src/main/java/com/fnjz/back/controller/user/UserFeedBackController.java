@@ -1,7 +1,7 @@
-package com.fnjz.back.controller.appinfo;
+package com.fnjz.back.controller.user;
 
-import com.fnjz.back.entity.appinfo.AppVersionEntity;
-import com.fnjz.back.service.appinfo.AppVersionServiceI;
+import com.fnjz.back.entity.user.UserFeedBackEntity;
+import com.fnjz.back.service.user.UserFeedBackServiceI;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -33,22 +33,22 @@ import java.util.Set;
 
 /**   
  * @Title: Controller
- * @Description: App版本升级
+ * @Description: 用户反馈
  * @author zhangdaihao
- * @date 2018-05-29 13:48:12
+ * @date 2018-05-29 15:26:38
  * @version V1.0   
  *
  */
 @Controller
-@RequestMapping("/appVersionController")
-public class AppVersionController extends BaseController {
+@RequestMapping("/userFeedBackController")
+public class UserFeedBackController extends BaseController {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = Logger.getLogger(AppVersionController.class);
+	private static final Logger logger = Logger.getLogger(UserFeedBackController.class);
 
 	@Autowired
-	private AppVersionServiceI appVersionService;
+	private UserFeedBackServiceI userFeedBackService;
 	@Autowired
 	private SystemService systemService;
 	@Autowired
@@ -57,13 +57,13 @@ public class AppVersionController extends BaseController {
 
 
 	/**
-	 * App版本升级列表 页面跳转
+	 * 用户反馈列表 页面跳转
 	 * 
 	 * @return
 	 */
 	@RequestMapping(params = "list")
 	public ModelAndView list(HttpServletRequest request) {
-		return new ModelAndView("com/fnjz/back/appinfo/appVersionList");
+		return new ModelAndView("com/fnjz/back/user/userFeedBackList");
 	}
 
 	/**
@@ -76,27 +76,27 @@ public class AppVersionController extends BaseController {
 	 */
 
 	@RequestMapping(params = "datagrid")
-	public void datagrid(AppVersionEntity appVersion, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(AppVersionEntity.class, dataGrid);
+	public void datagrid(UserFeedBackEntity userFeedBack,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+		CriteriaQuery cq = new CriteriaQuery(UserFeedBackEntity.class, dataGrid);
 		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, appVersion, request.getParameterMap());
-		this.appVersionService.getDataGridReturn(cq, true);
+		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, userFeedBack, request.getParameterMap());
+		this.userFeedBackService.getDataGridReturn(cq, true);
 		TagUtil.datagrid(response, dataGrid);
 	}
 
 	/**
-	 * 删除App版本升级
+	 * 删除用户反馈
 	 * 
 	 * @return
 	 */
 	@RequestMapping(params = "del")
 	@ResponseBody
-	public AjaxJson del(AppVersionEntity appVersion, HttpServletRequest request) {
+	public AjaxJson del(UserFeedBackEntity userFeedBack, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		appVersion = systemService.getEntity(AppVersionEntity.class, appVersion.getId());
-		message = "App版本升级删除成功";
-		appVersionService.delete(appVersion);
+		userFeedBack = systemService.getEntity(UserFeedBackEntity.class, userFeedBack.getId());
+		message = "用户反馈删除成功";
+		userFeedBackService.delete(userFeedBack);
 		systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
 		
 		j.setMsg(message);
@@ -105,30 +105,30 @@ public class AppVersionController extends BaseController {
 
 
 	/**
-	 * 添加App版本升级
+	 * 添加用户反馈
 	 * 
 	 * @param ids
 	 * @return
 	 */
 	@RequestMapping(params = "save")
 	@ResponseBody
-	public AjaxJson save(AppVersionEntity appVersion, HttpServletRequest request) {
+	public AjaxJson save(UserFeedBackEntity userFeedBack, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		if (StringUtil.isNotEmpty(appVersion.getId())) {
-			message = "App版本升级更新成功";
-			AppVersionEntity t = appVersionService.get(AppVersionEntity.class, appVersion.getId());
+		if (StringUtil.isNotEmpty(userFeedBack.getId())) {
+			message = "用户反馈更新成功";
+			UserFeedBackEntity t = userFeedBackService.get(UserFeedBackEntity.class, userFeedBack.getId());
 			try {
-				MyBeanUtils.copyBeanNotNull2Bean(appVersion, t);
-				appVersionService.saveOrUpdate(t);
+				MyBeanUtils.copyBeanNotNull2Bean(userFeedBack, t);
+				userFeedBackService.saveOrUpdate(t);
 				systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
 			} catch (Exception e) {
 				e.printStackTrace();
-				message = "App版本升级更新失败";
+				message = "用户反馈更新失败";
 			}
 		} else {
-			message = "App版本升级添加成功";
-			appVersionService.save(appVersion);
+			message = "用户反馈添加成功";
+			userFeedBackService.save(userFeedBack);
 			systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
 		}
 		j.setMsg(message);
@@ -136,30 +136,30 @@ public class AppVersionController extends BaseController {
 	}
 
 	/**
-	 * App版本升级列表页面跳转
+	 * 用户反馈列表页面跳转
 	 * 
 	 * @return
 	 */
 	@RequestMapping(params = "addorupdate")
-	public ModelAndView addorupdate(AppVersionEntity appVersion, HttpServletRequest req) {
-		if (StringUtil.isNotEmpty(appVersion.getId())) {
-			appVersion = appVersionService.getEntity(AppVersionEntity.class, appVersion.getId());
-			req.setAttribute("appVersionPage", appVersion);
+	public ModelAndView addorupdate(UserFeedBackEntity userFeedBack, HttpServletRequest req) {
+		if (StringUtil.isNotEmpty(userFeedBack.getId())) {
+			userFeedBack = userFeedBackService.getEntity(UserFeedBackEntity.class, userFeedBack.getId());
+			req.setAttribute("userFeedBackPage", userFeedBack);
 		}
-		return new ModelAndView("com/fnjz/back/appinfo/appVersion");
+		return new ModelAndView("com/fnjz/back/user/userFeedBack");
 	}
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public List<AppVersionEntity> list() {
-		List<AppVersionEntity> listAppVersions=appVersionService.getList(AppVersionEntity.class);
-		return listAppVersions;
+	public List<UserFeedBackEntity> list() {
+		List<UserFeedBackEntity> listUserFeedBacks=userFeedBackService.getList(UserFeedBackEntity.class);
+		return listUserFeedBacks;
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<?> get(@PathVariable("id") String id) {
-		AppVersionEntity task = appVersionService.get(AppVersionEntity.class, id);
+		UserFeedBackEntity task = userFeedBackService.get(UserFeedBackEntity.class, id);
 		if (task == null) {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
 		}
@@ -168,19 +168,19 @@ public class AppVersionController extends BaseController {
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> create(@RequestBody AppVersionEntity appVersion, UriComponentsBuilder uriBuilder) {
+	public ResponseEntity<?> create(@RequestBody UserFeedBackEntity userFeedBack, UriComponentsBuilder uriBuilder) {
 		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
-		Set<ConstraintViolation<AppVersionEntity>> failures = validator.validate(appVersion);
+		Set<ConstraintViolation<UserFeedBackEntity>> failures = validator.validate(userFeedBack);
 		if (!failures.isEmpty()) {
 			return new ResponseEntity(BeanValidators.extractPropertyAndMessage(failures), HttpStatus.BAD_REQUEST);
 		}
 
 		//保存
-		appVersionService.save(appVersion);
+		userFeedBackService.save(userFeedBack);
 
 		//按照Restful风格约定，创建指向新任务的url, 也可以直接返回id或对象.
-		String id = appVersion.getId();
-		URI uri = uriBuilder.path("/rest/appVersionController/" + id).build().toUri();
+		String id = userFeedBack.getId();
+		URI uri = uriBuilder.path("/rest/userFeedBackController/" + id).build().toUri();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setLocation(uri);
 
@@ -188,15 +188,15 @@ public class AppVersionController extends BaseController {
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> update(@RequestBody AppVersionEntity appVersion) {
+	public ResponseEntity<?> update(@RequestBody UserFeedBackEntity userFeedBack) {
 		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
-		Set<ConstraintViolation<AppVersionEntity>> failures = validator.validate(appVersion);
+		Set<ConstraintViolation<UserFeedBackEntity>> failures = validator.validate(userFeedBack);
 		if (!failures.isEmpty()) {
 			return new ResponseEntity(BeanValidators.extractPropertyAndMessage(failures), HttpStatus.BAD_REQUEST);
 		}
 
 		//保存
-		appVersionService.saveOrUpdate(appVersion);
+		userFeedBackService.saveOrUpdate(userFeedBack);
 
 		//按Restful约定，返回204状态码, 无内容. 也可以返回200状态码.
 		return new ResponseEntity(HttpStatus.NO_CONTENT);
@@ -205,6 +205,6 @@ public class AppVersionController extends BaseController {
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable("id") String id) {
-		appVersionService.deleteEntityById(AppVersionEntity.class, id);
+		userFeedBackService.deleteEntityById(UserFeedBackEntity.class, id);
 	}
 }

@@ -1,19 +1,11 @@
 package com.fnjz.back.entity.appinfo;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
+
+import javax.persistence.*;
+import java.util.Date;
 
 /**   
  * @Title: Entity
@@ -30,46 +22,46 @@ import javax.persistence.SequenceGenerator;
 @SuppressWarnings("serial")
 public class AppVersionEntity implements java.io.Serializable {
 	/**id*/
-	private java.lang.String id;
+	private String id;
 	/**app版本号*/
-	private java.lang.String version;
+	private String version;
 	/**终端系统标识*/
-	private java.lang.Integer mobileSystem;
+	private Integer mobileSystem;
 	/**app状态,是否强制升级*/
-	private java.lang.Integer installStatus;
+	private Integer installStatus;
 	/**app状态,是否有效*/
-	private java.lang.Integer appStatus;
+	private Integer appStatus;
 	/**系统适配范围max*/
-	private java.lang.String systemMax;
+	private String systemMax;
 	/**系统适配范围min*/
-	private java.lang.String systemMin;
+	private String systemMin;
 	/**app路径*/
-	private java.lang.String url;
+	private String url;
 	/**app大小*/
-	private java.lang.Integer size;
+	private Integer size;
 	/**更新日志*/
-	private java.lang.String updateLog;
+	private String updateLog;
 	/**创建时间*/
-	private java.util.Date createDate;
+	private Date createDate;
 	/**创建人*/
-	private java.lang.String createBy;
+	private String createBy;
 	/**创建人名称*/
-	private java.lang.String createName;
+	private String createName;
 	/**删除标记*/
-	private java.lang.Integer delflag;
+	private Integer delflag;
 	/**删除时间*/
-	private java.util.Date delDate;
-	
+	private Date delDate;
+
 	/**
 	 *方法: 取得java.lang.String
 	 *@return: java.lang.String  id
 	 */
-	
+
 	@Id
 	@GeneratedValue(generator = "paymentableGenerator")
 	@GenericGenerator(name = "paymentableGenerator", strategy = "uuid")
 	@Column(name ="ID",nullable=false,length=36)
-	public java.lang.String getId(){
+	public String getId(){
 		return this.id;
 	}
 
@@ -77,7 +69,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  id
 	 */
-	public void setId(java.lang.String id){
+	public void setId(String id){
 		this.id = id;
 	}
 	/**
@@ -85,7 +77,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.String  app版本号
 	 */
 	@Column(name ="VERSION",nullable=true,length=255)
-	public java.lang.String getVersion(){
+	public String getVersion(){
 		return this.version;
 	}
 
@@ -93,7 +85,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  app版本号
 	 */
-	public void setVersion(java.lang.String version){
+	public void setVersion(String version){
 		this.version = version;
 	}
 	/**
@@ -101,7 +93,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.Integer  终端系统标识
 	 */
 	@Column(name ="MOBILE_SYSTEM",nullable=true,precision=10,scale=0)
-	public java.lang.Integer getMobileSystem(){
+	public Integer getMobileSystem(){
 		return this.mobileSystem;
 	}
 
@@ -109,7 +101,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  终端系统标识
 	 */
-	public void setMobileSystem(java.lang.Integer mobileSystem){
+	public void setMobileSystem(Integer mobileSystem){
 		this.mobileSystem = mobileSystem;
 	}
 	/**
@@ -117,7 +109,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.Integer  app状态,是否强制升级
 	 */
 	@Column(name ="INSTALL_STATUS",nullable=true,precision=10,scale=0)
-	public java.lang.Integer getInstallStatus(){
+	public Integer getInstallStatus(){
 		return this.installStatus;
 	}
 
@@ -125,7 +117,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  app状态,是否强制升级
 	 */
-	public void setInstallStatus(java.lang.Integer installStatus){
+	public void setInstallStatus(Integer installStatus){
 		this.installStatus = installStatus;
 	}
 	/**
@@ -133,7 +125,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.Integer  app状态,是否有效
 	 */
 	@Column(name ="APP_STATUS",nullable=true,precision=10,scale=0)
-	public java.lang.Integer getAppStatus(){
+	public Integer getAppStatus(){
 		return this.appStatus;
 	}
 
@@ -141,7 +133,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  app状态,是否有效
 	 */
-	public void setAppStatus(java.lang.Integer appStatus){
+	public void setAppStatus(Integer appStatus){
 		this.appStatus = appStatus;
 	}
 	/**
@@ -149,7 +141,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.String  系统适配范围max
 	 */
 	@Column(name ="SYSTEM_MAX",nullable=true,length=32)
-	public java.lang.String getSystemMax(){
+	public String getSystemMax(){
 		return this.systemMax;
 	}
 
@@ -157,7 +149,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  系统适配范围max
 	 */
-	public void setSystemMax(java.lang.String systemMax){
+	public void setSystemMax(String systemMax){
 		this.systemMax = systemMax;
 	}
 	/**
@@ -165,7 +157,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.String  系统适配范围min
 	 */
 	@Column(name ="SYSTEM_MIN",nullable=true,length=32)
-	public java.lang.String getSystemMin(){
+	public String getSystemMin(){
 		return this.systemMin;
 	}
 
@@ -173,7 +165,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  系统适配范围min
 	 */
-	public void setSystemMin(java.lang.String systemMin){
+	public void setSystemMin(String systemMin){
 		this.systemMin = systemMin;
 	}
 	/**
@@ -181,7 +173,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.String  app路径
 	 */
 	@Column(name ="URL",nullable=true,length=255)
-	public java.lang.String getUrl(){
+	public String getUrl(){
 		return this.url;
 	}
 
@@ -189,7 +181,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  app路径
 	 */
-	public void setUrl(java.lang.String url){
+	public void setUrl(String url){
 		this.url = url;
 	}
 	/**
@@ -197,7 +189,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.Integer  app大小
 	 */
 	@Column(name ="SIZE",nullable=true,precision=10,scale=0)
-	public java.lang.Integer getSize(){
+	public Integer getSize(){
 		return this.size;
 	}
 
@@ -205,7 +197,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  app大小
 	 */
-	public void setSize(java.lang.Integer size){
+	public void setSize(Integer size){
 		this.size = size;
 	}
 	/**
@@ -213,7 +205,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.String  更新日志
 	 */
 	@Column(name ="UPDATE_LOG",nullable=true,length=1024)
-	public java.lang.String getUpdateLog(){
+	public String getUpdateLog(){
 		return this.updateLog;
 	}
 
@@ -221,7 +213,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  更新日志
 	 */
-	public void setUpdateLog(java.lang.String updateLog){
+	public void setUpdateLog(String updateLog){
 		this.updateLog = updateLog;
 	}
 	/**
@@ -229,7 +221,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.util.Date  创建时间
 	 */
 	@Column(name ="CREATE_DATE",nullable=true)
-	public java.util.Date getCreateDate(){
+	public Date getCreateDate(){
 		return this.createDate;
 	}
 
@@ -237,7 +229,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.util.Date
 	 *@param: java.util.Date  创建时间
 	 */
-	public void setCreateDate(java.util.Date createDate){
+	public void setCreateDate(Date createDate){
 		this.createDate = createDate;
 	}
 	/**
@@ -245,7 +237,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.String  创建人
 	 */
 	@Column(name ="CREATE_BY",nullable=true,length=36)
-	public java.lang.String getCreateBy(){
+	public String getCreateBy(){
 		return this.createBy;
 	}
 
@@ -253,7 +245,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  创建人
 	 */
-	public void setCreateBy(java.lang.String createBy){
+	public void setCreateBy(String createBy){
 		this.createBy = createBy;
 	}
 	/**
@@ -261,7 +253,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.String  创建人名称
 	 */
 	@Column(name ="CREATE_NAME",nullable=true,length=32)
-	public java.lang.String getCreateName(){
+	public String getCreateName(){
 		return this.createName;
 	}
 
@@ -269,7 +261,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  创建人名称
 	 */
-	public void setCreateName(java.lang.String createName){
+	public void setCreateName(String createName){
 		this.createName = createName;
 	}
 	/**
@@ -277,7 +269,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.lang.Integer  删除标记
 	 */
 	@Column(name ="DELFLAG",nullable=true,precision=10,scale=0)
-	public java.lang.Integer getDelflag(){
+	public Integer getDelflag(){
 		return this.delflag;
 	}
 
@@ -285,7 +277,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  删除标记
 	 */
-	public void setDelflag(java.lang.Integer delflag){
+	public void setDelflag(Integer delflag){
 		this.delflag = delflag;
 	}
 	/**
@@ -293,7 +285,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *@return: java.util.Date  删除时间
 	 */
 	@Column(name ="DEL_DATE",nullable=true)
-	public java.util.Date getDelDate(){
+	public Date getDelDate(){
 		return this.delDate;
 	}
 
@@ -301,7 +293,7 @@ public class AppVersionEntity implements java.io.Serializable {
 	 *方法: 设置java.util.Date
 	 *@param: java.util.Date  删除时间
 	 */
-	public void setDelDate(java.util.Date delDate){
+	public void setDelDate(Date delDate){
 		this.delDate = delDate;
 	}
 }
