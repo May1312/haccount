@@ -18,7 +18,7 @@ import javax.persistence.SequenceGenerator;
 /**   
  * @Title: Entity
  * @Description: 用户登录表相关
- * @date 2018-05-30 14:04:25
+ * @date 2018-05-30 22:41:49
  * @version V1.0   
  *
  */

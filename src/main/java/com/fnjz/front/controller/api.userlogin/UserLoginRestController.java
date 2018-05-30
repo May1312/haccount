@@ -1,4 +1,5 @@
 package com.fnjz.front.controller.api.userlogin;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -7,8 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import org.jeecgframework.core.common.controller.BaseController;
@@ -27,15 +27,13 @@ import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
+
+import java.util.Map;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -46,13 +44,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 /**   
  * @Title: Controller
  * @Description: 用户登录表相关
- * @author zhangdaihao
- * @date 2018-05-30 14:04:24
+ * @date 2018-05-30 22:41:49
  * @version V1.0   
  *
  */
 @Controller
-@RequestMapping("/userLoginRestController")
+@RequestMapping("/api/v1")
 public class UserLoginRestController extends BaseController {
 	/**
 	 * Logger for this class
@@ -69,50 +66,18 @@ public class UserLoginRestController extends BaseController {
 
 
 	/**
-	 * 用户登录表相关列表 页面跳转
-	 * 
+	 * 用户登录表相关列表 登陆
 	 * @return
 	 */
-	@RequestMapping(params = "list")
-	public ModelAndView list(HttpServletRequest request) {
-		return new ModelAndView("com/fnjz/front/api.userlogin/userLoginRestList");
+	@RequestMapping(value = "/login/{type}" , method = RequestMethod.POST)
+    @ResponseBody
+	public Map list(@PathVariable("type") String type,@RequestBody Map<String, String> map) {
+		/*Map map = new HashMap();
+		map.put("mobile",mobile);
+        map.put("password",password);*/
+		return map;
 	}
 
-	/**
-	 * easyui AJAX请求数据
-	 * 
-	 * @param request
-	 * @param response
-	 * @param dataGrid
-	 */
-
-	@RequestMapping(params = "datagrid")
-	public void datagrid(UserLoginRestEntity userLoginRest,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(UserLoginRestEntity.class, dataGrid);
-		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, userLoginRest, request.getParameterMap());
-		this.userLoginRestService.getDataGridReturn(cq, true);
-		TagUtil.datagrid(response, dataGrid);
-	}
-
-	/**
-	 * 删除用户登录表相关
-	 * 
-	 * @return
-	 */
-	@RequestMapping(params = "del")
-	@ResponseBody
-	public AjaxJson del(UserLoginRestEntity userLoginRest, HttpServletRequest request) {
-		String message = null;
-		AjaxJson j = new AjaxJson();
-		userLoginRest = systemService.getEntity(UserLoginRestEntity.class, userLoginRest.getId());
-		message = "用户登录表相关删除成功";
-		userLoginRestService.delete(userLoginRest);
-		systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
-		
-		j.setMsg(message);
-		return j;
-	}
 
 
 	/**
@@ -144,28 +109,9 @@ public class UserLoginRestController extends BaseController {
 		return j;
 	}
 
-	/**
-	 * 用户登录表相关列表页面跳转
-	 * 
-	 * @return
-	 */
-	@RequestMapping(params = "addorupdate")
-	public ModelAndView addorupdate(UserLoginRestEntity userLoginRest, HttpServletRequest req) {
-		if (StringUtil.isNotEmpty(userLoginRest.getId())) {
-			userLoginRest = userLoginRestService.getEntity(UserLoginRestEntity.class, userLoginRest.getId());
-			req.setAttribute("userLoginRestPage", userLoginRest);
-		}
-		return new ModelAndView("com/fnjz/front/api.userlogin/userLoginRest");
-	}
+
 	
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	public List<UserLoginRestEntity> list() {
-		List<UserLoginRestEntity> listUserLoginRests=userLoginRestService.getList(UserLoginRestEntity.class);
-		return listUserLoginRests;
-	}
-	
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	//@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<?> get(@PathVariable("id") String id) {
 		UserLoginRestEntity task = userLoginRestService.get(UserLoginRestEntity.class, id);
@@ -196,7 +142,7 @@ public class UserLoginRestController extends BaseController {
 		return new ResponseEntity(headers, HttpStatus.CREATED);
 	}
 
-	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+	//@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> update(@RequestBody UserLoginRestEntity userLoginRest) {
 		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
 		Set<ConstraintViolation<UserLoginRestEntity>> failures = validator.validate(userLoginRest);
@@ -211,9 +157,4 @@ public class UserLoginRestController extends BaseController {
 		return new ResponseEntity(HttpStatus.NO_CONTENT);
 	}
 
-	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable("id") String id) {
-		userLoginRestService.deleteEntityById(UserLoginRestEntity.class, id);
-	}
 }
