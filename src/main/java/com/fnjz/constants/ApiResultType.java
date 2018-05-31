@@ -21,9 +21,15 @@ public enum ApiResultType {
     VERIFYCODE_IS_NULL("01009","验证码为空，请检查！"),
     WECHAT_PARAM_ERROR("01010","微信登录参数异常！"),
     GESTURE_PW_ERROR("01011","手势密码错误！"),
+    USER_NOT_EXIST("01012","用户不存在！"),
     //用户修改手机号-->手机号未做修改时
-    MOBILE_IS_NOT_EDIT("01012","手机号未做修改！"),
-    USER_IS_NOT_LOGIN("01013","未登录状态，请登录！"),
+    MOBILE_IS_NOT_EDIT("01013","手机号未做修改！"),
+    USER_IS_NOT_LOGIN("01014","未登录状态，请登录！"),
+    MOBILE_IS_NULL("01015","手机号为空，请检查！"),
+    SEND_VERIFYCODE_ERROR("01016","验证码发送失败，请重试！"),
+    USERNAME_OR_VERIFYCODE_ISNULL("01017","用户名或验证码为空，请检查！"),
+    WXAPPLET_CODE_ISNULL("01018","小程序登录code为空，请检查！"),
+    WXAPPLET_LOGIN_ERROR("01019","小程序登录异常，请检查！"),
 
     //手势密码相关
     GESTURE_PARAMS_ERROR("02001","参数异常，请检查"),

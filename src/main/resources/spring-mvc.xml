@@ -125,6 +125,7 @@
 			<mvc:mapping path="/**" />
 			<bean class="org.jeecgframework.core.interceptors.EncodingInterceptor" />
 		</mvc:interceptor>
+		<!--api拦截器作用？  暂时注释-->
 		<!--<mvc:interceptor>
 			<mvc:mapping path="/api/**" />
 			<bean class="org.jeecgframework.core.interceptors.SignInterceptor" />
@@ -143,7 +144,7 @@
 				<property name="excludeContainUrls">
 					<list>
 						<value>/rest/tokens</value>
-						<value>/rest/api/v1/login</value>
+						<value>/rest/api</value>
 					</list>
 				</property>
 			</bean>
@@ -185,7 +186,7 @@
 						<value>webpage/common/functionIconStyleList.jsp</value>
 						<value>timeTaskController.do?remoteTask</value>
 						<value>rest/v2/api-docs</value>
-						<value>rest/api/v1/login</value>
+						<value>rest/api/*</value>
 					</list>
 				</property>
 				<!-- 模糊匹配 -->

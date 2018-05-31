@@ -9,6 +9,7 @@ import java.util.Date;
 
 public class DySms {
 
+    //单条发送
     public static SendSmsResponse sendSms(String phoneNumbers,String templateCode,String templateParam){
         DySmsServiceImpl dySmsService = new DySmsServiceImpl();
         SendSmsResponse sendSmsResponse = dySmsService.sendSms(phoneNumbers, templateCode, templateParam);
