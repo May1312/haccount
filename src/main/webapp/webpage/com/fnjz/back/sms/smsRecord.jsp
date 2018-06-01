@@ -6,7 +6,7 @@
   <title>短信发送记录</title>
   <t:base type="jquery,easyui,tools,DatePicker"></t:base>
  </head>
- <body style="overflow-y: hidden" scroll="no">
+ <body style="overflow-y: " scroll="yes">
   <t:formvalid formid="formobj" dialog="true" usePlugin="password" layout="table" action="smsRecordController.do?save">
 			<input id="id" name="id" type="hidden" value="${smsRecordPage.id }">
 			<table style="width: 600px;" cellpadding="0" cellspacing="1" class="formtable">
@@ -47,18 +47,18 @@
 						</label>
 					</td>
 					<td class="value">
-						<input class="inputxt" id="sendmobile" name="sendmobile" ignore="ignore"  value="${smsRecordPage.sendmobile}" />
+						<input class="inputxt" id="sendmobile" name="sendmobile" ignore="ignore"  value="${smsRecordPage.sendmobile}" placeholder="多个按逗号分隔"/>
 						<span class="Validform_checktip"></span>
 					</td>
 				</tr>
 				<tr>
 					<td align="right">
 						<label class="Validform_label">
-							发送内容:
+							模板id:
 						</label>
 					</td>
 					<td class="value">
-						<input class="inputxt" id="sendcontent" name="sendcontent"  value="${smsRecordPage.sendcontent}" datatype="s"  />
+						<input class="inputxt" id="sendTemplateCode" name="sendTemplateCode"  value="${smsRecordPage.sendTemplateCode}" datatype="s"  />
 						<span class="Validform_checktip"></span>
 					</td>
 				</tr>
@@ -69,7 +69,7 @@
 						</label>
 					</td>
 					<td class="value">
-						<input class="Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'%y-%M-{%d+1}'})"  style="width: 150px" id="sendtime" name="sendtime" datatype="*"    value="<fmt:formatDate value='${smsRecordPage.sendtime}' type="date" pattern="yyyy-MM-dd hh:mm:ss"/>" />
+						<input class="Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'%y-%M-{%d}'})"  style="width: 150px" id="sendtime" name="sendtime" datatype="*"    value="<fmt:formatDate value='${smsRecordPage.sendtime}' type="date" pattern="yyyy-MM-dd hh:mm:ss"/>" />
 						<span class="Validform_checktip"></span>
 					</td>
 				</tr>

@@ -143,9 +143,9 @@ public class DateUtils extends PropertyEditorSupport {
 	 * 日期转换为字符串
 	 * 
 	 * @param
-	 *            日期
+	 *
 	 * @param
-	 *            日期格式
+	 *
 	 * @return 字符串
 	 */
 	public static String date2Str(SimpleDateFormat date_sdf) {
@@ -695,8 +695,59 @@ public class DateUtils extends PropertyEditorSupport {
 		} else if (date.before(begin)){
 			return "before";
 		}else {
-			return "equate";
+			return "equal";
 		}
 	}
 
+	/**
+	 * 获取两个时间的时间差，精确到毫秒
+	 * @param
+	 * @return
+	 */
+	public static Long TimeDifference(long start, long end) {
+
+		long between = end - start;
+		long day = between / (24 * 60 * 60 * 1000);
+		long hour = (between / (60 * 60 * 1000) - day * 24);
+		long min = ((between / (60 * 1000)) - day * 24 * 60 - hour * 60);
+		long s = (between / 1000 - day * 24 * 60 * 60 - hour * 60 * 60 - min * 60);
+		long ms = (between - day * 24 * 60 * 60 * 1000 - hour * 60 * 60 * 1000
+				- min * 60 * 1000 - s * 1000);
+		/*String timeDifference = day + "天" + hour + "小时" + min + "分" + s + "秒" + ms
+				+ "毫秒";*/
+		return min;
+	}
+
+	public static String TimeDifference2(long start, long end) {
+
+		long between = end - start;
+		long day = between / (24 * 60 * 60 * 1000);
+		long hour = (between / (60 * 60 * 1000) - day * 24);
+		long min = ((between / (60 * 1000)) - day * 24 * 60 - hour * 60);
+		long s = (between / 1000 - day * 24 * 60 * 60 - hour * 60 * 60 - min * 60);
+		long ms = (between - day * 24 * 60 * 60 * 1000 - hour * 60 * 60 * 1000
+				- min * 60 * 1000 - s * 1000);
+		String timeDifference = day + "天" + hour + "小时" + min + "分" + s + "秒" + ms
+				+ "毫秒";
+		return timeDifference;
+	}
+
+	//时间计算
+	public static Date TimeComputation() {
+		Date date = null;
+		Calendar nowTime = Calendar.getInstance();
+		nowTime.add(Calendar.MINUTE, 1);
+		String format = time_sdf.format(nowTime.getTime());
+		try {
+			date = time_sdf.parse(format);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		return date;
+	}
+
+	public static void main(String[] args) {
+		TimeComputation();
+	}
 }

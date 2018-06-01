@@ -1,71 +1,82 @@
 package com.fnjz.back.entity.sms;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.SequenceGenerator;
 
 /**   
  * @Title: Entity
- * @Description: 短信发送管理
- * @author zhangdaihao
- * @date 2018-05-30 10:11:54
+ * @Description: 发送记录
+ * @date 2018-06-01 13:58:27
  * @version V1.0   
  *
  */
 @Entity
-@Table(name = "hbird_sms_record", schema = "")
+@Table(name = "hbird_sms_recordinfo", schema = "")
 @DynamicUpdate(true)
 @DynamicInsert(true)
 @SuppressWarnings("serial")
-public class SmsRecordEntity implements java.io.Serializable {
+public class SmsRecordInfoEntity implements java.io.Serializable {
 	/**GUID主键*/
-	private String id;
-	/**发送状态*/
-	private String sendstate;
-	/**终端类型*/
-	private String terminaltype;
-	/**发送手机号*/
-	private String sendmobile;
+	private java.lang.String id;
+	/**创建发送记录id*/
+	private java.lang.String smsrecordid;
 	/**发送内容*/
-	private String sendTemplateCode;
+	private java.lang.String sendcontent;
+	/**发送状态*/
+	private java.lang.String sendstate;
+	/**终端类型*/
+	private java.lang.String terminaltype;
+	/**发送手机号*/
+	private java.lang.String sendmobile;
+	/**发送模板id*/
+	private java.lang.String sendtemplatecode;
 	/**发送时间*/
-	private Date sendtime;
+	private java.util.Date sendtime;
 	/**返回时间*/
-	private Date returntime;
+	private java.util.Date returntime;
 	/**创建人*/
-	private String createBy;
+	private java.lang.String createBy;
 	/**创建人名字*/
-	private String createName;
+	private java.lang.String createName;
 	/**创建时间*/
-	private Date createDate;
+	private java.util.Date createDate;
 	/**修改人*/
-	private String updateBy;
+	private java.lang.String updateBy;
 	/**修改人名字*/
-	private String updateName;
+	private java.lang.String updateName;
 	/**修改时间*/
-	private Date updateDate;
+	private java.util.Date updateDate;
 	/**删除标记*/
-	private Integer delFalg;
+	private java.lang.Integer delFalg;
 	/**删除时间*/
-	private Date delDate;
+	private java.util.Date delDate;
 	/**备注说明*/
-	private String remark;
+	private java.lang.String remark;
 	/**备用字段*/
-	private String tag;
-
+	private java.lang.String tag;
+	
 	/**
 	 *方法: 取得java.lang.String
 	 *@return: java.lang.String  GUID主键
 	 */
-
+	
 	@Id
 	@GeneratedValue(generator = "paymentableGenerator")
 	@GenericGenerator(name = "paymentableGenerator", strategy = "uuid")
 	@Column(name ="ID",nullable=false,length=36)
-	public String getId(){
+	public java.lang.String getId(){
 		return this.id;
 	}
 
@@ -73,15 +84,47 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  GUID主键
 	 */
-	public void setId(String id){
+	public void setId(java.lang.String id){
 		this.id = id;
+	}
+	/**
+	 *方法: 取得java.lang.String
+	 *@return: java.lang.String  创建发送记录id
+	 */
+	@Column(name ="SMSRECORDID",nullable=true,length=36)
+	public java.lang.String getSmsrecordid(){
+		return this.smsrecordid;
+	}
+
+	/**
+	 *方法: 设置java.lang.String
+	 *@param: java.lang.String  创建发送记录id
+	 */
+	public void setSmsrecordid(java.lang.String smsrecordid){
+		this.smsrecordid = smsrecordid;
+	}
+	/**
+	 *方法: 取得java.lang.String
+	 *@return: java.lang.String  发送内容
+	 */
+	@Column(name ="SENDCONTENT",nullable=true,length=36)
+	public java.lang.String getSendcontent(){
+		return this.sendcontent;
+	}
+
+	/**
+	 *方法: 设置java.lang.String
+	 *@param: java.lang.String  发送内容
+	 */
+	public void setSendcontent(java.lang.String sendcontent){
+		this.sendcontent = sendcontent;
 	}
 	/**
 	 *方法: 取得java.lang.String
 	 *@return: java.lang.String  发送状态
 	 */
 	@Column(name ="SENDSTATE",nullable=true,length=36)
-	public String getSendstate(){
+	public java.lang.String getSendstate(){
 		return this.sendstate;
 	}
 
@@ -89,7 +132,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  发送状态
 	 */
-	public void setSendstate(String sendstate){
+	public void setSendstate(java.lang.String sendstate){
 		this.sendstate = sendstate;
 	}
 	/**
@@ -97,7 +140,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.lang.String  终端类型
 	 */
 	@Column(name ="TERMINALTYPE",nullable=true,length=36)
-	public String getTerminaltype(){
+	public java.lang.String getTerminaltype(){
 		return this.terminaltype;
 	}
 
@@ -105,7 +148,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  终端类型
 	 */
-	public void setTerminaltype(String terminaltype){
+	public void setTerminaltype(java.lang.String terminaltype){
 		this.terminaltype = terminaltype;
 	}
 	/**
@@ -113,7 +156,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.lang.String  发送手机号
 	 */
 	@Column(name ="SENDMOBILE",nullable=true,length=56)
-	public String getSendmobile(){
+	public java.lang.String getSendmobile(){
 		return this.sendmobile;
 	}
 
@@ -121,31 +164,31 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  发送手机号
 	 */
-	public void setSendmobile(String sendmobile){
+	public void setSendmobile(java.lang.String sendmobile){
 		this.sendmobile = sendmobile;
 	}
 	/**
-	 *方法: 取得java.lang.String TemplateCode
-	 *@return: java.lang.String  发送内容
+	 *方法: 取得java.lang.String
+	 *@return: java.lang.String  发送模板id
 	 */
 	@Column(name ="SENDTEMPLATECODE",nullable=true,length=1024)
-	public String getSendTemplateCode(){
-		return this.sendTemplateCode;
+	public java.lang.String getSendtemplatecode(){
+		return this.sendtemplatecode;
 	}
 
 	/**
 	 *方法: 设置java.lang.String
-	 *@param: java.lang.String  发送内容
+	 *@param: java.lang.String  发送模板id
 	 */
-	public void setSendTemplateCode(String sendcontent){
-		this.sendTemplateCode = sendcontent;
+	public void setSendtemplatecode(java.lang.String sendtemplatecode){
+		this.sendtemplatecode = sendtemplatecode;
 	}
 	/**
 	 *方法: 取得java.util.Date
 	 *@return: java.util.Date  发送时间
 	 */
 	@Column(name ="SENDTIME",nullable=true)
-	public Date getSendtime(){
+	public java.util.Date getSendtime(){
 		return this.sendtime;
 	}
 
@@ -153,7 +196,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.util.Date
 	 *@param: java.util.Date  发送时间
 	 */
-	public void setSendtime(Date sendtime){
+	public void setSendtime(java.util.Date sendtime){
 		this.sendtime = sendtime;
 	}
 	/**
@@ -161,7 +204,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.util.Date  返回时间
 	 */
 	@Column(name ="RETURNTIME",nullable=true)
-	public Date getReturntime(){
+	public java.util.Date getReturntime(){
 		return this.returntime;
 	}
 
@@ -169,7 +212,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.util.Date
 	 *@param: java.util.Date  返回时间
 	 */
-	public void setReturntime(Date returntime){
+	public void setReturntime(java.util.Date returntime){
 		this.returntime = returntime;
 	}
 	/**
@@ -177,7 +220,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.lang.String  创建人
 	 */
 	@Column(name ="CREATE_BY",nullable=true,length=36)
-	public String getCreateBy(){
+	public java.lang.String getCreateBy(){
 		return this.createBy;
 	}
 
@@ -185,7 +228,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  创建人
 	 */
-	public void setCreateBy(String createBy){
+	public void setCreateBy(java.lang.String createBy){
 		this.createBy = createBy;
 	}
 	/**
@@ -193,7 +236,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.lang.String  创建人名字
 	 */
 	@Column(name ="CREATE_NAME",nullable=true,length=32)
-	public String getCreateName(){
+	public java.lang.String getCreateName(){
 		return this.createName;
 	}
 
@@ -201,7 +244,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  创建人名字
 	 */
-	public void setCreateName(String createName){
+	public void setCreateName(java.lang.String createName){
 		this.createName = createName;
 	}
 	/**
@@ -209,7 +252,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.util.Date  创建时间
 	 */
 	@Column(name ="CREATE_DATE",nullable=true)
-	public Date getCreateDate(){
+	public java.util.Date getCreateDate(){
 		return this.createDate;
 	}
 
@@ -217,7 +260,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.util.Date
 	 *@param: java.util.Date  创建时间
 	 */
-	public void setCreateDate(Date createDate){
+	public void setCreateDate(java.util.Date createDate){
 		this.createDate = createDate;
 	}
 	/**
@@ -225,7 +268,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.lang.String  修改人
 	 */
 	@Column(name ="UPDATE_BY",nullable=true,length=36)
-	public String getUpdateBy(){
+	public java.lang.String getUpdateBy(){
 		return this.updateBy;
 	}
 
@@ -233,7 +276,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  修改人
 	 */
-	public void setUpdateBy(String updateBy){
+	public void setUpdateBy(java.lang.String updateBy){
 		this.updateBy = updateBy;
 	}
 	/**
@@ -241,7 +284,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.lang.String  修改人名字
 	 */
 	@Column(name ="UPDATE_NAME",nullable=true,length=32)
-	public String getUpdateName(){
+	public java.lang.String getUpdateName(){
 		return this.updateName;
 	}
 
@@ -249,7 +292,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  修改人名字
 	 */
-	public void setUpdateName(String updateName){
+	public void setUpdateName(java.lang.String updateName){
 		this.updateName = updateName;
 	}
 	/**
@@ -257,7 +300,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.util.Date  修改时间
 	 */
 	@Column(name ="UPDATE_DATE",nullable=true)
-	public Date getUpdateDate(){
+	public java.util.Date getUpdateDate(){
 		return this.updateDate;
 	}
 
@@ -265,7 +308,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.util.Date
 	 *@param: java.util.Date  修改时间
 	 */
-	public void setUpdateDate(Date updateDate){
+	public void setUpdateDate(java.util.Date updateDate){
 		this.updateDate = updateDate;
 	}
 	/**
@@ -273,7 +316,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.lang.Integer  删除标记
 	 */
 	@Column(name ="DEL_FALG",nullable=true,precision=3,scale=0)
-	public Integer getDelFalg(){
+	public java.lang.Integer getDelFalg(){
 		return this.delFalg;
 	}
 
@@ -281,7 +324,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  删除标记
 	 */
-	public void setDelFalg(Integer delFalg){
+	public void setDelFalg(java.lang.Integer delFalg){
 		this.delFalg = delFalg;
 	}
 	/**
@@ -289,7 +332,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.util.Date  删除时间
 	 */
 	@Column(name ="DEL_DATE",nullable=true)
-	public Date getDelDate(){
+	public java.util.Date getDelDate(){
 		return this.delDate;
 	}
 
@@ -297,7 +340,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.util.Date
 	 *@param: java.util.Date  删除时间
 	 */
-	public void setDelDate(Date delDate){
+	public void setDelDate(java.util.Date delDate){
 		this.delDate = delDate;
 	}
 	/**
@@ -305,7 +348,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.lang.String  备注说明
 	 */
 	@Column(name ="REMARK",nullable=true,length=1024)
-	public String getRemark(){
+	public java.lang.String getRemark(){
 		return this.remark;
 	}
 
@@ -313,7 +356,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  备注说明
 	 */
-	public void setRemark(String remark){
+	public void setRemark(java.lang.String remark){
 		this.remark = remark;
 	}
 	/**
@@ -321,7 +364,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *@return: java.lang.String  备用字段
 	 */
 	@Column(name ="TAG",nullable=true,length=256)
-	public String getTag(){
+	public java.lang.String getTag(){
 		return this.tag;
 	}
 
@@ -329,7 +372,7 @@ public class SmsRecordEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  备用字段
 	 */
-	public void setTag(String tag){
+	public void setTag(java.lang.String tag){
 		this.tag = tag;
 	}
 }

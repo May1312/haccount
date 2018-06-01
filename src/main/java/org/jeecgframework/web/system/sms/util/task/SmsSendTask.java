@@ -1,5 +1,6 @@
 package org.jeecgframework.web.system.sms.util.task;
 
+import com.fnjz.back.service.sms.SmsRecordServiceI;
 import org.jeecgframework.web.system.sms.service.TSSmsServiceI;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -20,13 +21,17 @@ import org.springframework.stereotype.Service;
 public class SmsSendTask implements Job{
 	
 	@Autowired
-	private TSSmsServiceI tSSmsService; 
+	private TSSmsServiceI tSSmsService;
+
+	@Autowired
+	private SmsRecordServiceI smsRecordService;
 	
 	public void run() {
 		long start = System.currentTimeMillis();
 		org.jeecgframework.core.util.LogUtil.info("===================推送消息定时任务开始===================");
 		try {			
-			tSSmsService.send();
+			//tSSmsService.send();
+			smsRecordService.dySmsTimingSending();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
