@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
+import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.utils.DateUtils;
 import com.fnjz.utils.ResdisRestUtils;
 import com.fnjz.front.utils.WXAppletUtils;
@@ -50,7 +52,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 @Controller
 @RequestMapping("/api/v1")
-@Api(value = "applogin", description = "移动端登录接口", tags = "applogin")
+@Api(value = "applogin", description = "移动端----->登录接口", tags = "applogin")
 public class UserLoginRestController extends BaseController {
 	/**
 	 * Logger for this class
@@ -60,9 +62,7 @@ public class UserLoginRestController extends BaseController {
 	@Autowired
 	private UserLoginRestServiceI userLoginRestService;
 	@Autowired
-	private SystemService systemService;
-	@Autowired
-	private Validator validator;
+	private UserInfoRestServiceI userInfoRestServiceI;
 
 	/**
 	 * 用户登录表相关列表 登陆
@@ -176,7 +176,7 @@ public class UserLoginRestController extends BaseController {
 	 * @param type
 	 * @return
 	 */
-	@ApiOperation(value = "微信小程序登录")
+	@ApiOperation(value = "微信小程序登录+注册")
 	@RequestMapping(value = "/loginByWXApplet/{type}" , method = RequestMethod.POST)
 	@ResponseBody
 	public ResultBean loginByWXApplet(@PathVariable("type") String type,@RequestBody Map<String, String> map) {
@@ -193,101 +193,58 @@ public class UserLoginRestController extends BaseController {
             rb.setFailMsg(ApiResultType.WXAPPLET_LOGIN_ERROR);
         }else{
             //openid 存库  缓存redis  待做
-            //{"session_key":"i2VyPTkFlFNh8bThTGXShg==","openid":"ojYTl5RhdfPo9hKspMa8sfJ3Fvno"}
-            rb.setSucResult(ApiResultType.OK);
-            //返回token  expire
-            Map<String,Object> map2 = new HashMap<>();
-            map2.put("token","111111");
-            map2.put("expire", DateUtils.addNDay(30));
-            rb.setResult(map2);
+			String openid = jsonObject.getString("openid");
+			//查看openid是否存在
+			UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth",openid);
+			if(task==null){
+				//执行注册流程
+				UserInfoRestEntity uire = new UserInfoRestEntity();
+				uire.setWechatAuth(openid);
+				int insert = userInfoRestServiceI.insert(uire);
+				if(insert>0){
+					rb.setSucResult(ApiResultType.OK);
+					//返回token  expire
+					Map<String,Object> map2 = new HashMap<>();
+					map2.put("token","111111");
+					map2.put("expire", DateUtils.addNDay(30));
+					rb.setResult(map2);
+				}else{
+					rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
+				}
+			}else {
+				//{"session_key":"i2VyPTkFlFNh8bThTGXShg==","openid":"ojYTl5RhdfPo9hKspMa8sfJ3Fvno"}
+				rb.setSucResult(ApiResultType.OK);
+				//返回token  expire
+				Map<String, Object> map2 = new HashMap<>();
+				map2.put("token", "111111");
+				map2.put("expire", DateUtils.addNDay(30));
+				rb.setResult(map2);
+			}
         }
 		return rb;
 	}
 
 	@RequestMapping(value = "/login" , method = RequestMethod.POST)
 	@ResponseBody
-	public ResultBean list(@RequestBody Map<String, String> map) {
-
+	public ResultBean login(@RequestBody Map<String, String> map) {
 		return this.login(null,map);
 	}
 
-
-
-	/**
-	 * 添加用户登录表相关
-	 * @return
-	 */
-	@RequestMapping(params = "save")
+	@RequestMapping(value = "/loginByCode" , method = RequestMethod.POST)
 	@ResponseBody
-	public AjaxJson save(UserLoginRestEntity userLoginRest, HttpServletRequest request) {
-		String message = null;
-		AjaxJson j = new AjaxJson();
-		if (StringUtil.isNotEmpty(userLoginRest.getId())) {
-			message = "用户登录表相关更新成功";
-			UserLoginRestEntity t = userLoginRestService.get(UserLoginRestEntity.class, userLoginRest.getId());
-			try {
-				MyBeanUtils.copyBeanNotNull2Bean(userLoginRest, t);
-				userLoginRestService.saveOrUpdate(t);
-				systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
-			} catch (Exception e) {
-				e.printStackTrace();
-				message = "用户登录表相关更新失败";
-			}
-		} else {
-			message = "用户登录表相关添加成功";
-			userLoginRestService.save(userLoginRest);
-			systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
-		}
-		j.setMsg(message);
-		return j;
+	public ResultBean loginByCode(@RequestBody Map<String, String> map) {
+		return this.loginByCode(null,map);
 	}
 
-
-	
-	//@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/loginByWeChat" , method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<?> get(@PathVariable("id") String id) {
-		UserLoginRestEntity task = userLoginRestService.get(UserLoginRestEntity.class, id);
-		if (task == null) {
-			return new ResponseEntity(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity(task, HttpStatus.OK);
+	public ResultBean loginByWeChat(@RequestBody Map<String, String> map) {
+		return this.loginByWeChat(null,map);
 	}
 
-	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/loginByWXApplet" , method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<?> create(@RequestBody UserLoginRestEntity userLoginRest, UriComponentsBuilder uriBuilder) {
-		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
-		Set<ConstraintViolation<UserLoginRestEntity>> failures = validator.validate(userLoginRest);
-		if (!failures.isEmpty()) {
-			return new ResponseEntity(BeanValidators.extractPropertyAndMessage(failures), HttpStatus.BAD_REQUEST);
-		}
-
-		//保存
-		userLoginRestService.save(userLoginRest);
-
-		//按照Restful风格约定，创建指向新任务的url, 也可以直接返回id或对象.
-		String id = userLoginRest.getId()+"";
-		URI uri = uriBuilder.path("/rest/userLoginRestController/" + id).build().toUri();
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(uri);
-
-		return new ResponseEntity(headers, HttpStatus.CREATED);
+	public ResultBean loginByWXApplet(@RequestBody Map<String, String> map) {
+		return this.loginByWXApplet(null,map);
 	}
-
-	//@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> update(@RequestBody UserLoginRestEntity userLoginRest) {
-		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
-		Set<ConstraintViolation<UserLoginRestEntity>> failures = validator.validate(userLoginRest);
-		if (!failures.isEmpty()) {
-			return new ResponseEntity(BeanValidators.extractPropertyAndMessage(failures), HttpStatus.BAD_REQUEST);
-		}
-
-		//保存
-		userLoginRestService.saveOrUpdate(userLoginRest);
-
-		//按Restful约定，返回204状态码, 无内容. 也可以返回200状态码.
-		return new ResponseEntity(HttpStatus.NO_CONTENT);
-	}
-
 }

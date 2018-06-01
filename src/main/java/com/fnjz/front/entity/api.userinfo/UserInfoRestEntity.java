@@ -116,7 +116,7 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *方法: 取得java.lang.String
 	 *@return: java.lang.String  昵称
 	 */
-	@Column(name ="NICK_NAME",nullable=false,length=32)
+	@Column(name ="NICK_NAME",length=32)
 	public java.lang.String getNickName(){
 		return this.nickName;
 	}
@@ -196,7 +196,7 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *方法: 取得java.lang.String
 	 *@return: java.lang.String  密码
 	 */
-	@Column(name ="PASSWORD",nullable=false,length=64)
+	@Column(name ="PASSWORD",length=64)
 	public java.lang.String getPassword(){
 		return this.password;
 	}
@@ -580,7 +580,7 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *方法: 取得java.util.Date
 	 *@return: java.util.Date  注册时间
 	 */
-	@Column(name ="REGISTER_DATE",nullable=false)
+	@Column(name ="REGISTER_DATE")
 	public java.util.Date getRegisterDate(){
 		return this.registerDate;
 	}

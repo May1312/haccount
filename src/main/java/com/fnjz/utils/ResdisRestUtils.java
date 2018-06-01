@@ -20,6 +20,8 @@ public class ResdisRestUtils {
 
     //用户登录验证码前缀
     public static final String PROFIX_USER_VERIFYCODE_LOGIN = "user_verifycode_login:";
+    //用户注册验证码前缀
+    public static final String PROFIX_USER_VERIFYCODE_REGISTER = "user_verifycode_register:";
 
     //初始化redis
     static {

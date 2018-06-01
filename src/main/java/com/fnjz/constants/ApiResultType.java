@@ -30,6 +30,7 @@ public enum ApiResultType {
     USERNAME_OR_VERIFYCODE_ISNULL("01017","用户名或验证码为空，请检查！"),
     WXAPPLET_CODE_ISNULL("01018","小程序登录code为空，请检查！"),
     WXAPPLET_LOGIN_ERROR("01019","小程序登录异常，请检查！"),
+    REGISTER_IS_ERROR("01020","注册用户失败，请重试！"),
 
     //手势密码相关
     GESTURE_PARAMS_ERROR("02001","参数异常，请检查"),
