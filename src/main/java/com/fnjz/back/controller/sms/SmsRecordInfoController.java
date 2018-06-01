@@ -1,4 +1,4 @@
-package com.fnjz.back.controller.user;
+package com.fnjz.back.controller.sms;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,8 +22,8 @@ import org.jeecgframework.web.system.pojo.base.TSDepart;
 import org.jeecgframework.web.system.service.SystemService;
 import org.jeecgframework.core.util.MyBeanUtils;
 
-import com.fnjz.back.entity.user.UserInfoEntity;
-import com.fnjz.back.service.user.UserInfoServiceI;
+import com.fnjz.back.entity.sms.SmsRecordInfoEntity;
+import com.fnjz.back.service.sms.SmsRecordInfoServiceI;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -45,22 +45,22 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 /**   
  * @Title: Controller
- * @Description: 用户信息
+ * @Description: 发送记录
  * @author zhangdaihao
- * @date 2018-06-01 14:59:20
+ * @date 2018-06-01 13:58:26
  * @version V1.0   
  *
  */
 @Controller
-@RequestMapping("/userInfoController")
-public class UserInfoController extends BaseController {
+@RequestMapping("/smsRecordInfoController")
+public class SmsRecordInfoController extends BaseController {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = Logger.getLogger(UserInfoController.class);
+	private static final Logger logger = Logger.getLogger(SmsRecordInfoController.class);
 
 	@Autowired
-	private UserInfoServiceI userInfoService;
+	private SmsRecordInfoServiceI smsRecordInfoService;
 	@Autowired
 	private SystemService systemService;
 	@Autowired
@@ -69,13 +69,13 @@ public class UserInfoController extends BaseController {
 
 
 	/**
-	 * 用户信息列表 页面跳转
+	 * 发送记录列表 页面跳转
 	 * 
 	 * @return
 	 */
 	@RequestMapping(params = "list")
 	public ModelAndView list(HttpServletRequest request) {
-		return new ModelAndView("com/fnjz/back/user/userInfoList");
+		return new ModelAndView("com/fnjz/back/sms/smsRecordInfoList");
 	}
 
 	/**
@@ -84,31 +84,31 @@ public class UserInfoController extends BaseController {
 	 * @param request
 	 * @param response
 	 * @param dataGrid
-	 * @param
+	 * @param user
 	 */
 
 	@RequestMapping(params = "datagrid")
-	public void datagrid(UserInfoEntity userInfo,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(UserInfoEntity.class, dataGrid);
+	public void datagrid(SmsRecordInfoEntity smsRecordInfo,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+		CriteriaQuery cq = new CriteriaQuery(SmsRecordInfoEntity.class, dataGrid);
 		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, userInfo, request.getParameterMap());
-		this.userInfoService.getDataGridReturn(cq, true);
+		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, smsRecordInfo, request.getParameterMap());
+		this.smsRecordInfoService.getDataGridReturn(cq, true);
 		TagUtil.datagrid(response, dataGrid);
 	}
 
 	/**
-	 * 删除用户信息
+	 * 删除发送记录
 	 * 
 	 * @return
 	 */
 	@RequestMapping(params = "del")
 	@ResponseBody
-	public AjaxJson del(UserInfoEntity userInfo, HttpServletRequest request) {
+	public AjaxJson del(SmsRecordInfoEntity smsRecordInfo, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		userInfo = systemService.getEntity(UserInfoEntity.class, userInfo.getId());
-		message = "用户信息删除成功";
-		userInfoService.delete(userInfo);
+		smsRecordInfo = systemService.getEntity(SmsRecordInfoEntity.class, smsRecordInfo.getId());
+		message = "发送记录删除成功";
+		smsRecordInfoService.delete(smsRecordInfo);
 		systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
 		
 		j.setMsg(message);
@@ -117,30 +117,30 @@ public class UserInfoController extends BaseController {
 
 
 	/**
-	 * 添加用户信息
+	 * 添加发送记录
 	 * 
-	 * @param
+	 * @param ids
 	 * @return
 	 */
 	@RequestMapping(params = "save")
 	@ResponseBody
-	public AjaxJson save(UserInfoEntity userInfo, HttpServletRequest request) {
+	public AjaxJson save(SmsRecordInfoEntity smsRecordInfo, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
-		if (StringUtil.isNotEmpty(userInfo.getId())) {
-			message = "用户信息更新成功";
-			UserInfoEntity t = userInfoService.get(UserInfoEntity.class, userInfo.getId());
+		if (StringUtil.isNotEmpty(smsRecordInfo.getId())) {
+			message = "发送记录更新成功";
+			SmsRecordInfoEntity t = smsRecordInfoService.get(SmsRecordInfoEntity.class, smsRecordInfo.getId());
 			try {
-				MyBeanUtils.copyBeanNotNull2Bean(userInfo, t);
-				userInfoService.saveOrUpdate(t);
+				MyBeanUtils.copyBeanNotNull2Bean(smsRecordInfo, t);
+				smsRecordInfoService.saveOrUpdate(t);
 				systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
 			} catch (Exception e) {
 				e.printStackTrace();
-				message = "用户信息更新失败";
+				message = "发送记录更新失败";
 			}
 		} else {
-			message = "用户信息添加成功";
-			userInfoService.save(userInfo);
+			message = "发送记录添加成功";
+			smsRecordInfoService.save(smsRecordInfo);
 			systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
 		}
 		j.setMsg(message);
@@ -148,30 +148,30 @@ public class UserInfoController extends BaseController {
 	}
 
 	/**
-	 * 用户信息列表页面跳转
+	 * 发送记录列表页面跳转
 	 * 
 	 * @return
 	 */
 	@RequestMapping(params = "addorupdate")
-	public ModelAndView addorupdate(UserInfoEntity userInfo, HttpServletRequest req) {
-		if (StringUtil.isNotEmpty(userInfo.getId())) {
-			userInfo = userInfoService.getEntity(UserInfoEntity.class, userInfo.getId());
-			req.setAttribute("userInfoPage", userInfo);
+	public ModelAndView addorupdate(SmsRecordInfoEntity smsRecordInfo, HttpServletRequest req) {
+		if (StringUtil.isNotEmpty(smsRecordInfo.getId())) {
+			smsRecordInfo = smsRecordInfoService.getEntity(SmsRecordInfoEntity.class, smsRecordInfo.getId());
+			req.setAttribute("smsRecordInfoPage", smsRecordInfo);
 		}
-		return new ModelAndView("com/fnjz/back/user/userInfo");
+		return new ModelAndView("com/fnjz/back/sms/smsRecordInfo");
 	}
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public List<UserInfoEntity> list() {
-		List<UserInfoEntity> listUserInfos=userInfoService.getList(UserInfoEntity.class);
-		return listUserInfos;
+	public List<SmsRecordInfoEntity> list() {
+		List<SmsRecordInfoEntity> listSmsRecordInfos=smsRecordInfoService.getList(SmsRecordInfoEntity.class);
+		return listSmsRecordInfos;
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<?> get(@PathVariable("id") String id) {
-		UserInfoEntity task = userInfoService.get(UserInfoEntity.class, id);
+		SmsRecordInfoEntity task = smsRecordInfoService.get(SmsRecordInfoEntity.class, id);
 		if (task == null) {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
 		}
@@ -180,19 +180,19 @@ public class UserInfoController extends BaseController {
 
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> create(@RequestBody UserInfoEntity userInfo, UriComponentsBuilder uriBuilder) {
+	public ResponseEntity<?> create(@RequestBody SmsRecordInfoEntity smsRecordInfo, UriComponentsBuilder uriBuilder) {
 		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
-		Set<ConstraintViolation<UserInfoEntity>> failures = validator.validate(userInfo);
+		Set<ConstraintViolation<SmsRecordInfoEntity>> failures = validator.validate(smsRecordInfo);
 		if (!failures.isEmpty()) {
 			return new ResponseEntity(BeanValidators.extractPropertyAndMessage(failures), HttpStatus.BAD_REQUEST);
 		}
 
 		//保存
-		userInfoService.save(userInfo);
+		smsRecordInfoService.save(smsRecordInfo);
 
 		//按照Restful风格约定，创建指向新任务的url, 也可以直接返回id或对象.
-		String id = String.valueOf(userInfo.getId());
-		URI uri = uriBuilder.path("/rest/userInfoController/" + id).build().toUri();
+		String id = smsRecordInfo.getId();
+		URI uri = uriBuilder.path("/rest/smsRecordInfoController/" + id).build().toUri();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setLocation(uri);
 
@@ -200,15 +200,15 @@ public class UserInfoController extends BaseController {
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> update(@RequestBody UserInfoEntity userInfo) {
+	public ResponseEntity<?> update(@RequestBody SmsRecordInfoEntity smsRecordInfo) {
 		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
-		Set<ConstraintViolation<UserInfoEntity>> failures = validator.validate(userInfo);
+		Set<ConstraintViolation<SmsRecordInfoEntity>> failures = validator.validate(smsRecordInfo);
 		if (!failures.isEmpty()) {
 			return new ResponseEntity(BeanValidators.extractPropertyAndMessage(failures), HttpStatus.BAD_REQUEST);
 		}
 
 		//保存
-		userInfoService.saveOrUpdate(userInfo);
+		smsRecordInfoService.saveOrUpdate(smsRecordInfo);
 
 		//按Restful约定，返回204状态码, 无内容. 也可以返回200状态码.
 		return new ResponseEntity(HttpStatus.NO_CONTENT);
@@ -217,6 +217,6 @@ public class UserInfoController extends BaseController {
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable("id") String id) {
-		userInfoService.deleteEntityById(UserInfoEntity.class, id);
+		smsRecordInfoService.deleteEntityById(SmsRecordInfoEntity.class, id);
 	}
 }

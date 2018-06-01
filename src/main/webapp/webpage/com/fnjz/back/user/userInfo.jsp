@@ -6,7 +6,7 @@
   <title>用户信息</title>
   <t:base type="jquery,easyui,tools,DatePicker"></t:base>
  </head>
- <body style="overflow-y: hidden" scroll="no">
+ <body style="overflow-y: " scroll="yes">
   <t:formvalid formid="formobj" dialog="true" usePlugin="password" layout="table" action="userInfoController.do?save">
 			<input id="id" name="id" type="hidden" value="${userInfoPage.id }">
 			<table style="width: 600px;" cellpadding="0" cellspacing="1" class="formtable">
@@ -17,7 +17,7 @@
 						</label>
 					</td>
 					<td class="value">
-						<input class="inputxt" id="nickName" name="nickName"   value="${userInfoPage.nickName}" datatype="*" />
+						<input class="inputxt" id="nickName" name="nickName" ignore="ignore"  value="${userInfoPage.nickName}" />
 						<span class="Validform_checktip"></span>
 					</td>
 				</tr>
@@ -65,7 +65,7 @@
 						<span class="Validform_checktip"></span>
 					</td>
 				</tr>
-				<tr>
+				<%--<tr>
 					<td align="right">
 						<label class="Validform_label">
 							密码:
@@ -90,6 +90,17 @@
 				<tr>
 					<td align="right">
 						<label class="Validform_label">
+							手势密码打开关闭状态 0关闭  1打开:
+						</label>
+					</td>
+					<td class="value">
+						<input class="inputxt" id="gesturePwType" name="gesturePwType" ignore="ignore"  value="${userInfoPage.gesturePwType}" />
+						<span class="Validform_checktip"></span>
+					</td>
+				</tr>
+				<tr>
+					<td align="right">
+						<label class="Validform_label">
 							微信授权token:
 						</label>
 					</td>
@@ -108,8 +119,8 @@
 						<input class="inputxt" id="weiboAuth" name="weiboAuth" ignore="ignore"  value="${userInfoPage.weiboAuth}" />
 						<span class="Validform_checktip"></span>
 					</td>
-				</tr>
-				<tr>
+				</tr>--%>
+				<%--<tr>
 					<td align="right">
 						<label class="Validform_label">
 							省份_id:
@@ -196,7 +207,7 @@
 						<input class="inputxt" id="userType" name="userType" ignore="ignore"  value="${userInfoPage.userType}" />
 						<span class="Validform_checktip"></span>
 					</td>
-				</tr>
+				</tr>--%>
 				<tr>
 					<td align="right">
 						<label class="Validform_label">
@@ -252,7 +263,7 @@
 						<span class="Validform_checktip"></span>
 					</td>
 				</tr>
-				<tr>
+				<%--<tr>
 					<td align="right">
 						<label class="Validform_label">
 							终端系统版本:
@@ -317,7 +328,7 @@
 						<input class="inputxt" id="avatarUrl" name="avatarUrl" ignore="ignore"  value="${userInfoPage.avatarUrl}" />
 						<span class="Validform_checktip"></span>
 					</td>
-				</tr>
+				</tr>--%>
 				<tr>
 					<td align="right">
 						<label class="Validform_label">

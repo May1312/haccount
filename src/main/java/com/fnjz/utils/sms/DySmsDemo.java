@@ -182,13 +182,17 @@ public class DySmsDemo {
         System.out.println("Message=" + sendBatchSmsResponse.getMessage());
         System.out.println("RequestId=" + sendBatchSmsResponse.getRequestId());
         System.out.println("BizId=" + sendBatchSmsResponse.getBizId());*/
+
         String templateCode = TemplateCode.REGISTER_CODE.getTemplateCode();
+
         SendSmsResponse response = DySms.sendSms("15712878576", templateCode, "{\"code\":\"1234\"}");
         System.out.println("短信接口返回的数据----------------");
         System.out.println("Code=" + response.getCode());
         System.out.println("Message=" + response.getMessage());
         System.out.println("RequestId=" + response.getRequestId());
-        System.out.println("BizId=" + response.getBizId());
+        System.out.println("BizId=" + response.getBizId());*/
+
+
 
     }
 }
