@@ -190,7 +190,7 @@ public class DySmsDemo {
         System.out.println("Code=" + response.getCode());
         System.out.println("Message=" + response.getMessage());
         System.out.println("RequestId=" + response.getRequestId());
-        System.out.println("BizId=" + response.getBizId());*/
+        System.out.println("BizId=" + response.getBizId());
 
 
 
