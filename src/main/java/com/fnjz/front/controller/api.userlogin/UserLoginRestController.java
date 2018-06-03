@@ -1,47 +1,36 @@
 package com.fnjz.front.controller.api.userlogin;
 import java.util.HashMap;
 
-import javax.servlet.http.HttpServletRequest;
-
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
-import com.fnjz.utils.DateUtils;
-import com.fnjz.utils.ResdisRestUtils;
+import com.fnjz.front.utils.CreateTokenUtils;
+import com.fnjz.front.utils.MD5Utils;
 import com.fnjz.front.utils.WXAppletUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import org.jeecgframework.core.common.controller.BaseController;
-import org.jeecgframework.core.common.model.json.AjaxJson;
-import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.StringUtil;
-import org.jeecgframework.web.system.service.SystemService;
-import org.jeecgframework.core.util.MyBeanUtils;
 
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.jeecgframework.core.beanvalidator.BeanValidators;
 
 import java.util.Map;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import java.net.URI;
-import org.springframework.http.MediaType;
-import org.springframework.web.util.UriComponentsBuilder;
+import java.util.concurrent.TimeUnit;
+
 
 /**   
  * @Title: Controller
@@ -63,6 +52,10 @@ public class UserLoginRestController extends BaseController {
 	private UserLoginRestServiceI userLoginRestService;
 	@Autowired
 	private UserInfoRestServiceI userInfoRestServiceI;
+	@Autowired
+    private CreateTokenUtils createTokenUtils;
+	@Autowired
+    private RedisTemplate redisTemplate;
 
 	/**
 	 * 用户登录表相关列表 登陆
@@ -91,9 +84,19 @@ public class UserLoginRestController extends BaseController {
 				rb.setSucResult(ApiResultType.OK);
 				//返回token  expire
 				Map<String,Object> map2 = new HashMap<>();
-				map2.put("token","111111");
-				map2.put("expire", DateUtils.addNDay(30));
-				rb.setResult(map2);
+                String token = createTokenUtils.createToken(map.get("mobile"));
+                System.out.println("生成的token："+token);
+                map2.put("token",token);
+				map2.put("expire", 30*24*6060*1000);
+				//设置redis缓存 缓存用户信息 30天 毫秒
+                String user = JSON.toJSONString(task);
+                //先判断是否存在
+                if(StringUtil.isEmpty((String)redisTemplate.opsForValue().get(MD5Utils.getMD5(map.get("mobile"))))){
+                    //执行删除
+                    redisTemplate.delete(MD5Utils.getMD5(map.get("mobile")));
+                }
+                redisTemplate.opsForValue().set(MD5Utils.getMD5(map.get("mobile")), user,30,  TimeUnit.DAYS);
+                rb.setResult(map2);
 			}else{
 				rb.setFailMsg(ApiResultType.USERNAME_OR_PASSWORD_ERROR);
 			}
@@ -118,18 +121,27 @@ public class UserLoginRestController extends BaseController {
 			return rb;
 		}
 		///获取验证码
-		String code = ResdisRestUtils.get(ResdisRestUtils.PROFIX_USER_VERIFYCODE_LOGIN + map.get("mobile"), null, 0);
+        String code = (String)redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"));
 		if(StringUtil.isEmpty(code)){
 			//验证码为空
 			rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
 		}else{
 			if(StringUtil.equals(code,map.get("verifycode"))){
-				rb.setSucResult(ApiResultType.OK);
+                UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
+                rb.setSucResult(ApiResultType.OK);
 				//返回token  expire
 				Map<String,Object> map2 = new HashMap<>();
 				map2.put("token","111111");
-				map2.put("expire", DateUtils.addNDay(30));
-				rb.setResult(map2);
+				map2.put("expire", 30*24*6060*1000);
+                //设置redis缓存 缓存用户信息 30天 毫秒
+                String user = JSON.toJSONString(task);
+                //先判断是否存在
+                if(StringUtil.isEmpty((String)redisTemplate.opsForValue().get(MD5Utils.getMD5(map.get("mobile"))))){
+                    //执行删除
+                    redisTemplate.delete(MD5Utils.getMD5(map.get("mobile")));
+                }
+                redisTemplate.opsForValue().set(MD5Utils.getMD5(map.get("mobile")), user,30,  TimeUnit.DAYS);
+                rb.setResult(map2);
 			}
 		}
 		return rb;
@@ -162,7 +174,7 @@ public class UserLoginRestController extends BaseController {
 				//返回token  expire
 				Map<String,Object> map2 = new HashMap<>();
 				map2.put("token","111111");
-				map2.put("expire", DateUtils.addNDay(30));
+				map2.put("expire", 30*24*6060*1000);
 				rb.setResult(map2);
 			}else{
 				rb.setFailMsg(ApiResultType.USERNAME_OR_PASSWORD_ERROR);
@@ -206,7 +218,7 @@ public class UserLoginRestController extends BaseController {
 					//返回token  expire
 					Map<String,Object> map2 = new HashMap<>();
 					map2.put("token","111111");
-					map2.put("expire", DateUtils.addNDay(30));
+					map2.put("expire", 30*24*6060*1000);
 					rb.setResult(map2);
 				}else{
 					rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
@@ -217,7 +229,7 @@ public class UserLoginRestController extends BaseController {
 				//返回token  expire
 				Map<String, Object> map2 = new HashMap<>();
 				map2.put("token", "111111");
-				map2.put("expire", DateUtils.addNDay(30));
+				map2.put("expire", 30*24*6060*1000);
 				rb.setResult(map2);
 			}
         }
@@ -247,4 +259,10 @@ public class UserLoginRestController extends BaseController {
 	public ResultBean loginByWXApplet(@RequestBody Map<String, String> map) {
 		return this.loginByWXApplet(null,map);
 	}
+
+    @RequestMapping(value = "/test" , method = RequestMethod.POST)
+    @ResponseBody
+    public Map login() {
+	    return null;
+    }
 }

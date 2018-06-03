@@ -3,17 +3,20 @@ package com.fnjz.front.controller.api.verifycode;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.utils.CreateVerifyCodeUtils;
-import com.fnjz.utils.ResdisRestUtils;
 import com.fnjz.utils.sms.DySms;
 import com.fnjz.utils.sms.TemplateCode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecgframework.core.util.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 发送短信相关接口
@@ -23,6 +26,9 @@ import java.util.Map;
 @Controller
 @RequestMapping("/api/v1")
 public class VerifyCodeRestController {
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 登录验证码获取接口
@@ -40,9 +46,9 @@ public class VerifyCodeRestController {
         String random = CreateVerifyCodeUtils.createRandom(6);
         SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.LOGIN_CODE.getTemplateCode(), "{\"code\":\""+random+"\"}");
         //防止已经缓存验证码，先执行删除
-        ResdisRestUtils.del(ResdisRestUtils.PROFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"),null);
+        redisTemplate.delete(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"));
         //验证码存放redis,验证码有效期3分钟
-        ResdisRestUtils.set(ResdisRestUtils.PROFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"),random,60*3,null);
+        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"), random,3, TimeUnit.MINUTES);
         if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
                 rb.setSucResult(ApiResultType.OK);
         }else{
@@ -67,9 +73,9 @@ public class VerifyCodeRestController {
         String random = CreateVerifyCodeUtils.createRandom(6);
         SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.LOGIN_CODE.getTemplateCode(), "{\"code\":\""+random+"\"}");
         //防止已经缓存验证码，先执行删除
-        ResdisRestUtils.del(ResdisRestUtils.PROFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"),null);
+        redisTemplate.delete(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"));
         //验证码存放redis,验证码有效期3分钟
-        ResdisRestUtils.set(ResdisRestUtils.PROFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"),random,60*10,null);
+        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"), random,3, TimeUnit.MINUTES);
         if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
             rb.setSucResult(ApiResultType.OK);
         }else{

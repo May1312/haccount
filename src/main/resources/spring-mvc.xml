@@ -198,6 +198,36 @@
 				</property>
 			</bean>
 		</mvc:interceptor>
+		<!-- 自定义拦截器 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<bean class="com.fnjz.front.controller.interceptor.ApiInterceptor">
+				<property name="excludeUrls">
+					<list>
+						<value>/rest/api/v1/login</value>
+						<value>/rest/api/v1/register</value>
+						<value>/rest/api/v1/checkMobile</value>
+						<value>/rest/api/v1/loginByCode</value>
+						<value>/rest/api/v1/loginByWXApplet</value>
+						<value>/rest/api/v1/loginByWeChat</value>
+						<value>/rest/api/v1/vertifycodeToLogin</value>
+						<value>/rest/api/v1/vertifycodeToRegister</value>
+					</list>
+				</property>
+				<property name="excludeContainUrls">
+					<list>
+						<value>/rest/api/v1/login</value>
+						<value>/rest/api/v1/register</value>
+						<value>/rest/api/v1/checkMobile</value>
+						<value>/rest/api/v1/loginByCode</value>
+						<value>/rest/api/v1/loginByWXApplet</value>
+						<value>/rest/api/v1/loginByWeChat</value>
+						<value>/rest/api/v1/vertifycodeToLogin</value>
+						<value>/rest/api/v1/vertifycodeToRegister</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:interceptor>
 	</mvc:interceptors>
 	<!-- 智能表单配置引入 -->
 	<import resource="classpath*:org/jeecgframework/web/cgform/common/spring-mvc-cgform.xml" />

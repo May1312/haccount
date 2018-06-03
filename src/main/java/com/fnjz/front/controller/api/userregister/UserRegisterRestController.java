@@ -2,16 +2,17 @@ package com.fnjz.front.controller.api.userregister;
 
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
-import com.fnjz.utils.ResdisRestUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -31,6 +32,9 @@ public class UserRegisterRestController extends BaseController {
     @Autowired
     private UserInfoRestServiceI userInfoRestService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @ApiOperation(value = "手机号验证码注册")
     @RequestMapping(value = "/register/{type}" , method = RequestMethod.POST)
     @ResponseBody
@@ -49,7 +53,7 @@ public class UserRegisterRestController extends BaseController {
             return rb;
         }
         //校验验证码
-        String code = ResdisRestUtils.get(ResdisRestUtils.PROFIX_USER_VERIFYCODE_REGISTER + map.get("mobile"), null, 0);
+        String code = (String)redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"));
         //验证码已失效
         if(code==null){
             rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
@@ -83,7 +87,7 @@ public class UserRegisterRestController extends BaseController {
             int insertId = userInfoRestService.insert(userInfo);
             if(insertId>0){
                 //删除短信验证码
-                ResdisRestUtils.del(ResdisRestUtils.PROFIX_USER_VERIFYCODE_REGISTER + map.get("mobile"), null);
+                redisTemplate.delete(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"));
                 rb.setSucResult(ApiResultType.OK);
             }else{
                 rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
