@@ -72,4 +72,18 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         int insert3 = userAccountBookRestDao.insert(uabre);
         return insert3;
     }
+
+    /**
+     * 更新密码
+     * @return
+     */
+    public int updatePWD(String mobile,String password) {
+        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `password` = " + password + " , `update_date` = NOW() WHERE `mobile` = " + mobile + ";");
+       if(i>0){
+           //更新info表
+           int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `password` = " + password + " , `update_date` = NOW() WHERE `mobile` = " + mobile + ";");
+            return j;
+       }
+        return i;
+    }
 }

@@ -1,4 +1,4 @@
-package com.fnjz.front.controller.interceptor;
+package com.fnjz.front.interceptor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;

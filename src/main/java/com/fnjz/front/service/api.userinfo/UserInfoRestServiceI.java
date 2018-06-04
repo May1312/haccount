@@ -7,4 +7,6 @@ public interface UserInfoRestServiceI extends CommonService{
 
     int insert(UserInfoRestEntity userInfoRestEntity);
 
+    //更新密码
+    int updatePWD(String mobile,String password) ;
 }

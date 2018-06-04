@@ -32,6 +32,7 @@ public enum ApiResultType {
     WXAPPLET_LOGIN_ERROR("01019","小程序登录异常，请检查！"),
     REGISTER_IS_ERROR("01020","注册用户失败，请重试！"),
     TOKEN_IS_INVALID("01021","TOKEN无效，请检查！"),
+    PASSWORD_UPDATE_ERROR("01022","用户密码修改失败，请重试！"),
 
     //手势密码相关
     GESTURE_PARAMS_ERROR("02001","参数异常，请检查"),

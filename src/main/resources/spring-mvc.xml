@@ -201,7 +201,7 @@
 		<!-- 自定义拦截器 -->
 		<mvc:interceptor>
 			<mvc:mapping path="/**" />
-			<bean class="com.fnjz.front.controller.interceptor.ApiInterceptor">
+			<bean class="com.fnjz.front.interceptor.ApiInterceptor">
 				<property name="excludeUrls">
 					<list>
 						<value>/rest/api/v1/login</value>
@@ -212,6 +212,8 @@
 						<value>/rest/api/v1/loginByWeChat</value>
 						<value>/rest/api/v1/vertifycodeToLogin</value>
 						<value>/rest/api/v1/vertifycodeToRegister</value>
+						<value>/rest/api/v1/verifycodeToResetpwd</value>
+						<value>/rest/api/v1/resetpwd</value>
 					</list>
 				</property>
 				<property name="excludeContainUrls">
@@ -224,6 +226,8 @@
 						<value>/rest/api/v1/loginByWeChat</value>
 						<value>/rest/api/v1/vertifycodeToLogin</value>
 						<value>/rest/api/v1/vertifycodeToRegister</value>
+						<value>/rest/api/v1/verifycodeToResetpwd</value>
+						<value>/rest/api/v1/resetpwd</value>
 					</list>
 				</property>
 			</bean>
