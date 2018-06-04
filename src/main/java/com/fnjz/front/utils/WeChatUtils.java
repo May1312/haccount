@@ -20,6 +20,7 @@ public class WeChatUtils {
     private static String AppId;
     private static String AppSecret;
     private static String grant_type = "authorization_code";
+
     static {
         // 获取小程序配置参数
         Properties p = new Properties();
@@ -33,9 +34,23 @@ public class WeChatUtils {
             e.printStackTrace();
         }
     }
+
     //获取用户信息
-    public static String getUser(String code){
-        String hurl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid="+AppId+"&secret="+AppSecret+"&code="+code+"&grant_type="+grant_type+"";
+    public static JSONObject getUser(String code) {
+        String hurl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + AppId + "&secret=" + AppSecret + "&code=" + code + "&grant_type=" + grant_type + "";
+
+        JSONObject jsonObject = http(hurl);
+        //刷新refresh_token  生效时间30天
+        String hur2 = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + AppId + "&grant_type=refresh_token&refresh_token=" + jsonObject.getString("refresh_token") + "";
+        JSONObject jsonObject_refresh_token = http(hur2);
+        //授权成功  refresh token更新成功之后
+        //根据openid获取用户信息
+        String hur3 = "https://api.weixin.qq.com/sns/userinfo?access_token=" + jsonObject_refresh_token.getString("access_token") + "&openid=" + jsonObject_refresh_token.getString("openid") + "";
+        JSONObject jsonObject_user_info = http(hur3);
+        return jsonObject_user_info;
+    }
+
+    public static JSONObject http(String hurl) {
         try {
             URL url = new URL(hurl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -48,33 +63,28 @@ public class WeChatUtils {
             BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
             StringBuffer bs = new StringBuffer();
             String l = null;
-            while((l=buffer.readLine())!=null){
+            while ((l = buffer.readLine()) != null) {
                 bs.append(l);
             }
             System.out.println(bs.toString());
             //转换成json对象
             JSONObject jsonObject = JSONObject.parseObject(bs.toString());
-            if(jsonObject.getString("errcode")!=null){
+            if (jsonObject.getString("errcode") != null) {
                 //授权异常
+                System.out.println(jsonObject.getString("errmsg"));
                 return null;
             }
-            //刷新refresh_token  生效时间30天
-            String hur2 = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid="+AppId+"&grant_type=refresh_token&refresh_token="+jsonObject.getString("refresh_token")+"";
-            //查看授权作用域
-            //openid----->判断是否首次登录！！ 判断作用域范围？？？
-            //if(jsonObject.getString("scope")){
-
-            //}
-            return bs.toString();
+            return jsonObject;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } ;
+        }
         return null;
     }
+
     @Test
-    public void run(){
+    public void run() {
         getUser("023o6EiE1Izze10y6TjE1BbDiE1o6Eii");
     }
 }

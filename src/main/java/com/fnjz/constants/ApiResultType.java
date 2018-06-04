@@ -33,9 +33,13 @@ public enum ApiResultType {
     REGISTER_IS_ERROR("01020","注册用户失败，请重试！"),
     TOKEN_IS_INVALID("01021","TOKEN无效，请检查！"),
     PASSWORD_UPDATE_ERROR("01022","用户密码修改失败，请重试！"),
+    WECHAT_LOGIN_ERROR("01023","微信授权登录异常，请重试！"),
 
     //手势密码相关
-    GESTURE_PARAMS_ERROR("02001","参数异常，请检查"),
+    GESTURE_PARAMS_ERROR("02001","参数异常，请检查！"),
+    GESTURE_UPDATE_ERROR("02002","手势修改失败，请检查！"),
+    GESTURE_PARAMS_LENGTH_ERROR("02003","参数长度异常，请检查！"),
+    GESTURE_PASSWORD_IS_ERROR("02004","手势密码错误，请检查！"),
 
     //版本更新相关
     CHECK_VERSION_PARAMS_ERROR("03001","参数异常，请检查"),

@@ -198,7 +198,7 @@
 				</property>
 			</bean>
 		</mvc:interceptor>
-		<!-- 自定义拦截器 -->
+		<!-- 移动端 /rest/api 拦截器 -->
 		<mvc:interceptor>
 			<mvc:mapping path="/**" />
 			<bean class="com.fnjz.front.interceptor.ApiInterceptor">

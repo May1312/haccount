@@ -1,13 +1,16 @@
 package com.fnjz.front.interceptor;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.utils.MD5Utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
+import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.util.MD5Util;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.core.util.oConvertUtils;
@@ -50,12 +53,14 @@ public class ApiInterceptor implements HandlerInterceptor {
 
         //从header中得到token
         String authHeader = request.getHeader("token");
+        ResultBean rb = new ResultBean();
         if (authHeader == null) {
-            throw new ServletException("Missing or invalid token header.");
+            rb.setFailMsg(ApiResultType.USER_IS_NOT_LOGIN);
+            this.sendJsonMessage(response,rb);
+            return false;
         }
         // 验证token
         Claims claims = null;
-        ResultBean rb = new ResultBean();
         try {
             claims = Jwts.parser().setSigningKey(JwtConstants.JWT_SECRET).parseClaimsJws(authHeader).getBody();
         }catch (final SignatureException e) {
@@ -76,8 +81,14 @@ public class ApiInterceptor implements HandlerInterceptor {
             this.sendJsonMessage(response,rb);
             return false;
         } else {
+            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
             //如果token验证成功，将token对应的用户id存在request中，便于之后注入
-            //request.setAttribute("","");
+            if(StringUtils.isNotEmpty(userLoginRestEntity.getMobile())){
+                request.setAttribute("code",userLoginRestEntity.getMobile());
+            }else if(StringUtils.isNotEmpty(userLoginRestEntity.getWechatAuth())){
+                request.setAttribute("code",userLoginRestEntity.getWechatAuth());
+            }
+            request.setAttribute("userInfoId",userLoginRestEntity.getUserInfoId()+"");
             return true;
         }
     }
