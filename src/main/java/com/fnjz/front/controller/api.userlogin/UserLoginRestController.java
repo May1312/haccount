@@ -13,8 +13,7 @@ import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.MD5Utils;
 import com.fnjz.front.utils.WXAppletUtils;
 import com.fnjz.front.utils.WeChatUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +29,7 @@ import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -67,9 +67,13 @@ public class UserLoginRestController extends BaseController {
      * @return
      */
     @ApiOperation(value = "账号密码登录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String"),
+            @ApiImplicitParam(name="password",value = "密码 md5加密",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/login/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean login(@PathVariable("type") String type, @RequestBody Map<String, String> map) {
+    public ResultBean login(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         //用户名或密码错误
@@ -89,7 +93,7 @@ public class UserLoginRestController extends BaseController {
                 Map<String, Object> map2 = new HashMap<>();
                 String token = createTokenUtils.createToken(map.get("mobile"));
                 System.out.println("生成的token：" + token);
-                map2.put("token", token);
+                map2.put("X-AUTH-TOKEN", token);
                 map2.put("expire", 30 * 24 * 60 * 60 * 1000);
                 //设置redis缓存 缓存用户信息 30天 毫秒
                 String user = JSON.toJSONString(task);
@@ -114,9 +118,13 @@ public class UserLoginRestController extends BaseController {
      * @return
      */
     @ApiOperation(value = "短信验证码登录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String"),
+            @ApiImplicitParam(name="verifycode",value = "验证码",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/loginByCode/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean loginByCode(@PathVariable("type") String type, @RequestBody Map<String, String> map) {
+    public ResultBean loginByCode(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         //用户名或验证码错误
@@ -137,7 +145,7 @@ public class UserLoginRestController extends BaseController {
                 String token = createTokenUtils.createToken(map.get("mobile"));
                 System.out.println("生成的token：" + token);
                 Map<String, Object> map2 = new HashMap<>();
-                map2.put("token", token);
+                map2.put("X-AUTH-TOKEN", token);
                 map2.put("expire", 30 * 24 * 60 * 60 * 1000);
                 //设置redis缓存 缓存用户信息 30天 毫秒
                 String user = JSON.toJSONString(task);
@@ -160,9 +168,13 @@ public class UserLoginRestController extends BaseController {
      * @return
      */
     @ApiOperation(value = "app微信授权登录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="code",value = "code码",required = true,dataType = "String"),
+            @ApiImplicitParam(name="state",value = "state域",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/loginByWeChat/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean loginByWeChat(@PathVariable("type") String type, @RequestParam("code") String code, @RequestParam("state") String state) {
+    public ResultBean loginByWeChat(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestParam("code") String code, @RequestParam("state") String state) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         //请求参数错误
@@ -187,7 +199,7 @@ public class UserLoginRestController extends BaseController {
                 String token = createTokenUtils.createToken(user.getString("unionid"));
                 System.out.println("生成的token：" + token);
                 Map<String, Object> map2 = new HashMap<>();
-                map2.put("token", token);
+                map2.put("X-AUTH-TOKEN", token);
                 map2.put("expire", 30 * 24 * 60 * 60 * 1000);
                 //设置redis缓存 缓存用户信息 30天 毫秒
                 UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
@@ -229,7 +241,7 @@ public class UserLoginRestController extends BaseController {
             }
             System.out.println("生成的token：" + token);
             Map<String, Object> map2 = new HashMap<>();
-            map2.put("token", token);
+            map2.put("X-AUTH-TOKEN", token);
             map2.put("expire", 30 * 24 * 60 * 60 * 1000);
             rb.setResult(map2);
         }
@@ -243,9 +255,12 @@ public class UserLoginRestController extends BaseController {
      * @return
      */
     @ApiOperation(value = "微信小程序登录+注册")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="code",value = "code码",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/loginByWXApplet/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean loginByWXApplet(@PathVariable("type") String type, @RequestBody Map<String, String> map) {
+    public ResultBean loginByWXApplet(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         //code为空
@@ -273,7 +288,7 @@ public class UserLoginRestController extends BaseController {
                     String token = createTokenUtils.createToken(openid);
                     System.out.println("生成的token：" + token);
                     Map<String, Object> map2 = new HashMap<>();
-                    map2.put("token", token);
+                    map2.put("X-AUTH-TOKEN", token);
                     map2.put("expire", 30 * 24 * 60 * 60 * 1000);
                     //设置redis缓存 缓存用户信息 30天 毫秒
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", openid);
@@ -317,7 +332,7 @@ public class UserLoginRestController extends BaseController {
                 }
                 System.out.println("生成的token：" + token);
                 Map<String, Object> map2 = new HashMap<>();
-                map2.put("token", token);
+                map2.put("X-AUTH-TOKEN", token);
                 map2.put("expire", 30 * 24 * 60 * 60 * 1000);
                 rb.setResult(map2);
             }
@@ -332,9 +347,14 @@ public class UserLoginRestController extends BaseController {
      * @return
      */
     @ApiOperation(value = "找回密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String"),
+            @ApiImplicitParam(name="password",value = "密码",required = true,dataType = "String"),
+            @ApiImplicitParam(name="verifycode",value = "验证码",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/resetpwd/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean resetpwd(@PathVariable("type") String type, @RequestBody Map<String, String> map) {
+    public ResultBean resetpwd(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         //用户名或验证码或密码错误
@@ -360,7 +380,7 @@ public class UserLoginRestController extends BaseController {
                 String token = createTokenUtils.createToken(map.get("mobile"));
                 System.out.println("生成的token：" + token);
                 Map<String, Object> map2 = new HashMap<>();
-                map2.put("token", token);
+                map2.put("X-AUTH-TOKEN", token);
                 map2.put("expire", 30 * 24 * 60 * 60 * 1000);
                 //设置redis缓存 缓存用户信息 30天 毫秒
                 String user = JSON.toJSONString(task);

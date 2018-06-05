@@ -52,7 +52,7 @@ public class ApiInterceptor implements HandlerInterceptor {
         }
 
         //从header中得到token
-        String authHeader = request.getHeader("token");
+        String authHeader = request.getHeader("X-AUTH-TOKEN");
         ResultBean rb = new ResultBean();
         if (authHeader == null) {
             rb.setFailMsg(ApiResultType.USER_IS_NOT_LOGIN);

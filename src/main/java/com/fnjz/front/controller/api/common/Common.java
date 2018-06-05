@@ -4,13 +4,13 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Map;
 
@@ -28,9 +28,12 @@ public class Common extends BaseController {
     private UserLoginRestServiceI userLoginRestService;
 
     @ApiOperation(value = "查询手机号是否注册")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/checkMobile/{type}" , method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean checkMobile(@PathVariable("type") String type, @RequestBody Map<String, String> map) {
+    public ResultBean checkMobile(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
 
         System.out.println("登录终端："+type);
         ResultBean rb = new ResultBean();

@@ -4,10 +4,7 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +19,7 @@ import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -58,7 +56,7 @@ public class UserInfoRestController extends BaseController {
 		})
 	@RequestMapping(value = "/bindMobile/{type}" , method = RequestMethod.POST)
 	@ResponseBody
-	public ResultBean login(@PathVariable("type") String type, @RequestBody Map<String, String> map, HttpServletRequest request) {
+	public ResultBean login(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map, HttpServletRequest request) {
 		System.out.println("登录终端：" + type);
 		ResultBean rb = new ResultBean();
 		//判断手机号

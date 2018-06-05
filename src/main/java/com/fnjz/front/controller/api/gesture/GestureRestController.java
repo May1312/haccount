@@ -6,14 +6,14 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.MD5Utils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public class GestureRestController extends BaseController{
     @ApiOperation(value = "查询手势开关状态及手势密码")
     @RequestMapping(value = "/checkGestureType/{type}" , method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean checkGestureType(@PathVariable("type") String type,HttpServletRequest request) {
+    public ResultBean checkGestureType(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         System.out.println("登录终端："+type);
         ResultBean rb = new ResultBean();
         //从缓存中查询开关状态
@@ -55,9 +55,12 @@ public class GestureRestController extends BaseController{
     }
 
     @ApiOperation(value = "修改手势开关状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="gesturePwType",value = "开关状态 0：打开 1：关闭",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/updateGestureType/{type}" , method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean updateGestureType(@PathVariable("type") String type,HttpServletRequest request,@RequestBody Map<String, String> map) {
+    public ResultBean updateGestureType(@PathVariable("type") String type,HttpServletRequest request,@RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端："+type);
         ResultBean rb = new ResultBean();
         if(StringUtils.isEmpty(map.get("gesturePwType"))){
@@ -87,9 +90,12 @@ public class GestureRestController extends BaseController{
     }
 
     @ApiOperation(value = "修改手势密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="gesturePw",value = "手势密码",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/updateGesture/{type}" , method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean updateGesture(@PathVariable("type") String type,HttpServletRequest request,@RequestBody Map<String, String> map) {
+    public ResultBean updateGesture(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,HttpServletRequest request,@RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端："+type);
         ResultBean rb = new ResultBean();
         //去掉手势密码为空校验 ，为空表示取消
@@ -116,9 +122,12 @@ public class GestureRestController extends BaseController{
     }
 
     @ApiOperation(value = "手势密码登录接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="gesturePw",value = "手势密码",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/gestureToLogin/{type}" , method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean gestureToLogin(@PathVariable("type") String type,HttpServletRequest request,@RequestBody Map<String, String> map) {
+    public ResultBean gestureToLogin(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,HttpServletRequest request,@RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端："+type);
         ResultBean rb = new ResultBean();
         if(StringUtils.isEmpty(map.get("gesturePw"))){

@@ -7,14 +7,15 @@ import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
+
 import java.util.Map;
 
 /**
@@ -36,9 +37,18 @@ public class UserRegisterRestController extends BaseController {
     private RedisTemplate redisTemplate;
 
     @ApiOperation(value = "手机号验证码注册")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String"),
+            @ApiImplicitParam(name="password",value = "密码",required = true,dataType = "String"),
+            @ApiImplicitParam(name="verifycode",value = "验证码",required = true,dataType = "String"),
+            @ApiImplicitParam(name="mobileSystem",value = "终端系统",required = false,dataType = "String"),
+            @ApiImplicitParam(name="mobileSystemVersion",value = "系统版本号",required = false,dataType = "String"),
+            @ApiImplicitParam(name="mobileManufacturer",value = "终端厂商",required = false,dataType = "String"),
+            @ApiImplicitParam(name="mobileDevice",value = "终端设备号",required = false,dataType = "String")
+    })
     @RequestMapping(value = "/register/{type}" , method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean register(@PathVariable("type") String type, @RequestBody Map<String, String> map) {
+    public ResultBean register(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端："+type);
         ResultBean rb = new ResultBean();
         //手机号或验证码或密码为空
