@@ -5,6 +5,8 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -50,6 +52,10 @@ public class UserInfoRestController extends BaseController {
 	private RedisTemplate redisTemplate;
 
 	@ApiOperation(value = "绑定手机号")
+		@ApiImplicitParams({
+				@ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String"),
+				@ApiImplicitParam(name="verifycode",value = "验证码",required = true,dataType = "String")
+		})
 	@RequestMapping(value = "/bindMobile/{type}" , method = RequestMethod.POST)
 	@ResponseBody
 	public ResultBean login(@PathVariable("type") String type, @RequestBody Map<String, String> map, HttpServletRequest request) {

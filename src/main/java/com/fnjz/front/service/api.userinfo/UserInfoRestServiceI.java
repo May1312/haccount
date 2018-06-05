@@ -7,7 +7,7 @@ import org.jeecgframework.core.common.service.CommonService;
 public interface UserInfoRestServiceI extends CommonService{
 
     //小程序注册用户
-    int wxappletinsert(UserInfoRestEntity userInfoRestEntity);
+    int insert(UserInfoRestEntity userInfoRestEntity);
     //微信注册用户
     int wechatinsert(JSONObject jsonObject);
     //更新密码

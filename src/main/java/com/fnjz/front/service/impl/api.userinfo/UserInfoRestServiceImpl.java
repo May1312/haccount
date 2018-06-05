@@ -32,7 +32,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     private UserAccountBookRestDao userAccountBookRestDao;
 
     @Override
-    public int wxappletinsert(UserInfoRestEntity userInfoRestEntity) {
+    public int insert(UserInfoRestEntity userInfoRestEntity) {
         int insertId = userInfoRestDao.insert(userInfoRestEntity);
         //获取主键,insert-->user login 表
         UserLoginRestEntity userLogin = new UserLoginRestEntity();

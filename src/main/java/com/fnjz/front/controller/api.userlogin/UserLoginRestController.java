@@ -266,7 +266,7 @@ public class UserLoginRestController extends BaseController {
                 //执行注册流程  TODO 用户手机号在这一步可以获取到么？  需要移动端传递解密数据获取unionid
                 UserInfoRestEntity uire = new UserInfoRestEntity();
                 uire.setWechatAuth(openid);
-                int insert = userInfoRestServiceI.wxappletinsert(uire);
+                int insert = userInfoRestServiceI.insert(uire);
                 if (insert > 0) {
                     rb.setSucResult(ApiResultType.OK);
                     //根据openid生成token  expire
