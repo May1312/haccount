@@ -60,7 +60,7 @@ public class GestureRestController extends BaseController{
     })
     @RequestMapping(value = "/updateGestureType/{type}" , method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean updateGestureType(@PathVariable("type") String type,HttpServletRequest request,@RequestBody @ApiIgnore Map<String, String> map) {
+    public ResultBean updateGestureType(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,HttpServletRequest request,@RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端："+type);
         ResultBean rb = new ResultBean();
         if(StringUtils.isEmpty(map.get("gesturePwType"))){

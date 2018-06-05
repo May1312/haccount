@@ -210,8 +210,8 @@
 						<value>/rest/api/v1/loginByCode</value>
 						<value>/rest/api/v1/loginByWXApplet</value>
 						<value>/rest/api/v1/loginByWeChat</value>
-						<value>/rest/api/v1/vertifycodeToLogin</value>
-						<value>/rest/api/v1/vertifycodeToRegister</value>
+						<value>/rest/api/v1/verifycodeToLogin</value>
+						<value>/rest/api/v1/verifycodeToRegister</value>
 						<value>/rest/api/v1/verifycodeToResetpwd</value>
 						<value>/rest/api/v1/resetpwd</value>
 					</list>
@@ -224,8 +224,8 @@
 						<value>/rest/api/v1/loginByCode</value>
 						<value>/rest/api/v1/loginByWXApplet</value>
 						<value>/rest/api/v1/loginByWeChat</value>
-						<value>/rest/api/v1/vertifycodeToLogin</value>
-						<value>/rest/api/v1/vertifycodeToRegister</value>
+						<value>/rest/api/v1/verifycodeToLogin</value>
+						<value>/rest/api/v1/verifycodeToRegister</value>
 						<value>/rest/api/v1/verifycodeToResetpwd</value>
 						<value>/rest/api/v1/resetpwd</value>
 					</list>

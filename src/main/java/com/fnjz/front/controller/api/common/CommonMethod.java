@@ -2,12 +2,15 @@ package com.fnjz.front.controller.api.common;
 
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import io.swagger.annotations.*;
+import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -22,7 +25,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/api/v1")
 @Api(value = "appcommonmethod", description = "移动端----->公用接口", tags = "appcommonmethod")
-public class Common extends BaseController {
+public class CommonMethod extends BaseController {
 
     @Autowired
     private UserLoginRestServiceI userLoginRestService;

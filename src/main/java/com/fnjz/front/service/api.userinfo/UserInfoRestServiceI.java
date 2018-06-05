@@ -18,4 +18,6 @@ public interface UserInfoRestServiceI extends CommonService{
     int updateGesture(String userInfoId, String gesturePw);
     //更新手机号
     int updateMobile(String userInfoId, String mobile);
+    //绑定手机号密码
+    int updateMobileAndPWD(String userInfoId, String mobile, String password);
 }

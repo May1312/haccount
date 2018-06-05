@@ -1,9 +1,11 @@
 package com.fnjz.front.controller.api.userinfo;
+import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
+import com.fnjz.front.utils.MD5Utils;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -23,6 +25,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Title: Controller
@@ -49,39 +52,95 @@ public class UserInfoRestController extends BaseController {
 	@Autowired
 	private RedisTemplate redisTemplate;
 
-	@ApiOperation(value = "绑定手机号")
+	@ApiOperation(value = "绑定/更换手机号")
 		@ApiImplicitParams({
 				@ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String"),
-				@ApiImplicitParam(name="verifycode",value = "验证码",required = true,dataType = "String")
+				@ApiImplicitParam(name="verifycode",value = "验证码",required = true,dataType = "String"),
+				@ApiImplicitParam(name="password",value = "微信用户首次绑定手机号时需设置密码（MD5加密）",dataType = "String")
 		})
 	@RequestMapping(value = "/bindMobile/{type}" , method = RequestMethod.POST)
 	@ResponseBody
-	public ResultBean login(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map, HttpServletRequest request) {
+	public ResultBean bindMobile(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map, HttpServletRequest request) {
 		System.out.println("登录终端：" + type);
 		ResultBean rb = new ResultBean();
-		//判断手机号
-		if (StringUtil.isEmpty(map.get("mobile")) || StringUtil.isEmpty(map.get("verifycode"))) {
-			rb.setFailMsg(ApiResultType.USERNAME_OR_VERIFYCODE_ISNULL);
-			return rb;
-		}
-		//获取验证码
-		String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
-		if (StringUtils.isEmpty(code)) {
-			//验证码为空
-			rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
-			return rb;
-		}
-		if (StringUtil.equals(code, map.get("verifycode"))) {
-			UserLoginRestEntity task = userLoginRestServiceI.findUniqueByProperty(UserLoginRestEntity.class, "mobile", map.get("mobile"));
-			//执行更新手机号流程
-			String userInfoId = (String) request.getAttribute("userInfoId");
-			int i = userInfoRestService.updateMobile(userInfoId, map.get("mobile"));
-			if (i < 1) {
-				rb.setFailMsg(ApiResultType.PASSWORD_UPDATE_ERROR);
+		String r_redis = (String) request.getAttribute("code");
+		UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_redis, UserLoginRestEntity.class);
+		if(StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())){
+			//判断手机号 验证码
+			if (StringUtil.isEmpty(map.get("mobile")) || StringUtil.isEmpty(map.get("verifycode"))) {
+				rb.setFailMsg(ApiResultType.USERNAME_OR_VERIFYCODE_ISNULL);
 				return rb;
 			}
-			rb.setSucResult(ApiResultType.OK);
+			//获取验证码
+			String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
+			if (StringUtils.isEmpty(code)) {
+				//验证码为空
+				rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
+				return rb;
+			}
+			if (StringUtil.equals(code, map.get("verifycode"))) {
+				//执行更新手机号流程
+				String userInfoId = (String) request.getAttribute("userInfoId");
+				int i = userInfoRestService.updateMobile(userInfoId, map.get("mobile"));
+				if (i < 1) {
+					rb.setFailMsg(ApiResultType.PASSWORD_UPDATE_ERROR);
+					return rb;
+				}
+				//更新用户缓存
+				userLoginRestEntity.setMobile(map.get("mobile"));
+				String user = JSON.toJSONString(userLoginRestEntity);
+				//先判断是否存在
+				if (StringUtil.isNotEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code)))) {
+					//执行删除
+					redisTemplate.delete(MD5Utils.getMD5(code));
+				}
+				redisTemplate.opsForValue().set(MD5Utils.getMD5(map.get("mobile")), user, 30, TimeUnit.DAYS);
+				rb.setSucResult(ApiResultType.OK);
+			}else{
+				rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
+			}
+		}else {//微信绑定手机号密码
+			//判断手机号 密码 验证码
+			if (StringUtils.isEmpty(map.get("mobile")) || StringUtils.isEmpty(map.get("verifycode")) || StringUtils.isEmpty(map.get("password"))) {
+				rb.setFailMsg(ApiResultType.REQ_PARAMS_ERROR);
+				return rb;
+			}
+			//获取验证码
+			String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
+			if (StringUtils.isEmpty(code)) {
+				//验证码为空
+				rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
+				return rb;
+			}
+			if (StringUtils.equals(code, map.get("verifycode"))) {
+				//执行更新手机号 密码 流程
+				String userInfoId = (String) request.getAttribute("userInfoId");
+				int i = userInfoRestService.updateMobileAndPWD(userInfoId, map.get("mobile"),map.get("password"));
+				if (i < 1) {
+					rb.setFailMsg(ApiResultType.BIND_MOBILE_PWD_ERROR);
+					return rb;
+				}
+				//更新用户缓存
+				userLoginRestEntity.setMobile(map.get("mobile"));
+				userLoginRestEntity.setPassword(map.get("password"));
+				String user = JSON.toJSONString(userLoginRestEntity);
+				//先判断是否存在
+				if (StringUtil.isNotEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code)))) {
+					//执行删除
+					redisTemplate.delete(MD5Utils.getMD5(code));
+				}
+				redisTemplate.opsForValue().set(MD5Utils.getMD5(map.get("mobile")), user, 30, TimeUnit.DAYS);
+				rb.setSucResult(ApiResultType.OK);
+			}else{
+				rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
+			}
 		}
 		return rb;
+	}
+
+	@RequestMapping(value = "/bindMobile" , method = RequestMethod.POST)
+	@ResponseBody
+	public ResultBean bindMobile(@RequestBody Map<String, String> map, HttpServletRequest request) {
+		return this.bindMobile(null,map,request);
 	}
 }

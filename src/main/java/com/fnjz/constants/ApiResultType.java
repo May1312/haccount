@@ -34,6 +34,8 @@ public enum ApiResultType {
     TOKEN_IS_INVALID("01021","TOKEN无效，请检查！"),
     PASSWORD_UPDATE_ERROR("01022","用户密码修改失败，请重试！"),
     WECHAT_LOGIN_ERROR("01023","微信授权登录异常，请重试！"),
+    PASSWORD_ERROR("01024","密码错误，请重试！"),
+    BIND_MOBILE_PWD_ERROR("01025","绑定手机号密码失败，请重试！"),
 
     //手势密码相关
     GESTURE_PARAMS_ERROR("02001","参数异常，请检查！"),

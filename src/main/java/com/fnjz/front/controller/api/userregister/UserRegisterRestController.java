@@ -1,5 +1,6 @@
 package com.fnjz.front.controller.api.userregister;
 
+import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -7,6 +8,8 @@ import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
+import com.fnjz.front.utils.CreateTokenUtils;
+import com.fnjz.front.utils.MD5Utils;
 import io.swagger.annotations.*;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
@@ -16,7 +19,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 用户手机号 验证码注册接口
@@ -35,6 +40,9 @@ public class UserRegisterRestController extends BaseController {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private CreateTokenUtils createTokenUtils;
 
     @ApiOperation(value = "手机号验证码注册")
     @ApiImplicitParams({
@@ -98,7 +106,20 @@ public class UserRegisterRestController extends BaseController {
             if(insertId>0){
                 //删除短信验证码
                 redisTemplate.delete(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"));
+                //缓存用户信息
+                task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
+                String user = JSON.toJSONString(task);
+                //先判断是否存在
+                if (StringUtil.isNotEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(map.get("mobile"))))) {
+                    //执行删除
+                    redisTemplate.delete(MD5Utils.getMD5(map.get("mobile")));
+                }
+                redisTemplate.opsForValue().set(MD5Utils.getMD5(map.get("mobile")), user, 30, TimeUnit.DAYS);
                 rb.setSucResult(ApiResultType.OK);
+                Map<String, Object> map2 = new HashMap<>();
+                String token = createTokenUtils.createToken(map.get("mobile"));
+                map2.put("X-AUTH-TOKEN", token);
+                map2.put("expire", 30 * 24 * 60 * 60 * 1000);
             }else{
                 rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
             }

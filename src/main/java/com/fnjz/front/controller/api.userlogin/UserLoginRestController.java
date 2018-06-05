@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -68,8 +69,8 @@ public class UserLoginRestController extends BaseController {
      */
     @ApiOperation(value = "账号密码登录")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String"),
-            @ApiImplicitParam(name="password",value = "密码 md5加密",required = true,dataType = "String")
+            @ApiImplicitParam(name = "mobile", value = "手机号", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "password", value = "密码 md5加密", required = true, dataType = "String")
     })
     @RequestMapping(value = "/login/{type}", method = RequestMethod.POST)
     @ResponseBody
@@ -119,8 +120,8 @@ public class UserLoginRestController extends BaseController {
      */
     @ApiOperation(value = "短信验证码登录")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String"),
-            @ApiImplicitParam(name="verifycode",value = "验证码",required = true,dataType = "String")
+            @ApiImplicitParam(name = "mobile", value = "手机号", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "verifycode", value = "验证码", required = true, dataType = "String")
     })
     @RequestMapping(value = "/loginByCode/{type}", method = RequestMethod.POST)
     @ResponseBody
@@ -169,8 +170,8 @@ public class UserLoginRestController extends BaseController {
      */
     @ApiOperation(value = "app微信授权登录")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="code",value = "code码",required = true,dataType = "String"),
-            @ApiImplicitParam(name="state",value = "state域",required = true,dataType = "String")
+            @ApiImplicitParam(name = "code", value = "code码", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "state", value = "state域", required = true, dataType = "String")
     })
     @RequestMapping(value = "/loginByWeChat/{type}", method = RequestMethod.GET)
     @ResponseBody
@@ -234,6 +235,8 @@ public class UserLoginRestController extends BaseController {
                 token = createTokenUtils.createToken(user.getString("unionid"));
                 //先判断是否存在
                 if (StringUtil.isEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(user.getString("unionid"))))) {
+                    redisTemplate.opsForValue().set(MD5Utils.getMD5(user.getString("unionid")), userToString, 30, TimeUnit.DAYS);
+                }else{
                     //执行删除
                     redisTemplate.delete(MD5Utils.getMD5(user.getString("unionid")));
                     redisTemplate.opsForValue().set(MD5Utils.getMD5(user.getString("unionid")), userToString, 30, TimeUnit.DAYS);
@@ -256,7 +259,7 @@ public class UserLoginRestController extends BaseController {
      */
     @ApiOperation(value = "微信小程序登录+注册")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="code",value = "code码",required = true,dataType = "String")
+            @ApiImplicitParam(name = "code", value = "code码", required = true, dataType = "String")
     })
     @RequestMapping(value = "/loginByWXApplet/{type}", method = RequestMethod.POST)
     @ResponseBody
@@ -306,6 +309,7 @@ public class UserLoginRestController extends BaseController {
                     rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
                 }
             } else {
+                //登录流程
                 //{"session_key":"i2VyPTkFlFNh8bThTGXShg==","openid":"ojYTl5RhdfPo9hKspMa8sfJ3Fvno"}
                 rb.setSucResult(ApiResultType.OK);
                 //根据openid生成token  expire
@@ -325,6 +329,8 @@ public class UserLoginRestController extends BaseController {
                     token = createTokenUtils.createToken(openid);
                     //先判断是否存在
                     if (StringUtil.isEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(openid)))) {
+                        redisTemplate.opsForValue().set(MD5Utils.getMD5(openid), userToString, 30, TimeUnit.DAYS);
+                    }else{
                         //执行删除
                         redisTemplate.delete(MD5Utils.getMD5(openid));
                         redisTemplate.opsForValue().set(MD5Utils.getMD5(openid), userToString, 30, TimeUnit.DAYS);
@@ -348,9 +354,9 @@ public class UserLoginRestController extends BaseController {
      */
     @ApiOperation(value = "找回密码")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String"),
-            @ApiImplicitParam(name="password",value = "密码",required = true,dataType = "String"),
-            @ApiImplicitParam(name="verifycode",value = "验证码",required = true,dataType = "String")
+            @ApiImplicitParam(name = "mobile", value = "手机号", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "password", value = "密码", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "verifycode", value = "验证码", required = true, dataType = "String")
     })
     @RequestMapping(value = "/resetpwd/{type}", method = RequestMethod.POST)
     @ResponseBody
@@ -369,7 +375,6 @@ public class UserLoginRestController extends BaseController {
             rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
         } else {
             if (StringUtil.equals(code, map.get("verifycode"))) {
-                UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", map.get("mobile"));
                 //执行更新密码流程
                 int i = userInfoRestServiceI.updatePWD(map.get("mobile"), map.get("password"));
                 if (i < 1) {
@@ -383,6 +388,7 @@ public class UserLoginRestController extends BaseController {
                 map2.put("X-AUTH-TOKEN", token);
                 map2.put("expire", 30 * 24 * 60 * 60 * 1000);
                 //设置redis缓存 缓存用户信息 30天 毫秒
+                UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", map.get("mobile"));
                 String user = JSON.toJSONString(task);
                 //先判断是否存在
                 if (StringUtil.isNotEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(map.get("mobile"))))) {
@@ -393,6 +399,61 @@ public class UserLoginRestController extends BaseController {
                 rb.setSucResult(ApiResultType.OK);
                 rb.setResult(map2);
             }
+        }
+        return rb;
+    }
+
+    /**
+     * 修改密码功能
+     *
+     * @param type
+     * @return
+     */
+    @ApiOperation(value = "修改密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "oldpwd", value = "旧密码", dataType = "String"),
+            @ApiImplicitParam(name = "newpwd", value = "新密码 MD5加密", dataType = "String")
+    })
+    @RequestMapping(value = "/updatepwd/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean updatepwd(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map, HttpServletRequest request) {
+        System.out.println("登录终端：" + type);
+        ResultBean rb = new ResultBean();
+        //验证密码
+        if (StringUtil.isEmpty(map.get("oldpwd")) || StringUtil.isEmpty(map.get("newpwd"))) {
+            rb.setFailMsg(ApiResultType.REQ_PARAMS_ERROR);
+            return rb;
+        }
+        String code = (String) request.getAttribute("code");
+        String r_user = (String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code));
+        //转成对象
+        UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
+        if (StringUtils.equals(userLoginRestEntity.getPassword(), map.get("oldpwd"))) {
+            //执行更新密码流程
+            int i = userInfoRestServiceI.updatePWD(code, map.get("newpwd"));
+            if (i < 1) {
+                rb.setFailMsg(ApiResultType.PASSWORD_UPDATE_ERROR);
+                return rb;
+            }
+            //返回token  expire
+            String token = createTokenUtils.createToken(code);
+            System.out.println("生成的token：" + token);
+            Map<String, Object> map2 = new HashMap<>();
+            map2.put("X-AUTH-TOKEN", token);
+            map2.put("expire", 30 * 24 * 60 * 60 * 1000);
+            //设置redis缓存 缓存用户信息 30天 毫秒
+            userLoginRestEntity.setPassword(map.get("newpwd"));
+            String user = JSON.toJSONString(userLoginRestEntity);
+            //先判断是否存在
+            if (StringUtil.isNotEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code)))) {
+                //执行删除
+                redisTemplate.delete(MD5Utils.getMD5(code));
+            }
+            redisTemplate.opsForValue().set(MD5Utils.getMD5(code), user, 30, TimeUnit.DAYS);
+            rb.setSucResult(ApiResultType.OK);
+            rb.setResult(map2);
+        } else {
+            rb.setFailMsg(ApiResultType.PASSWORD_ERROR);
         }
         return rb;
     }

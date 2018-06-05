@@ -9,13 +9,14 @@ import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.utils.CreateVerifyCodeUtils;
 import com.fnjz.utils.sms.DySms;
 import com.fnjz.utils.sms.TemplateCode;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
+import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -39,9 +40,13 @@ public class VerifyCodeRestController {
      * 登录验证码获取接口
      */
     @ApiOperation(value = "登录验证码获取")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/verifycodeToLogin/{type}" , method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean verifycodeToLogin(@PathVariable("type") String type, @RequestBody Map<String, String> map) {
+    public ResultBean verifycodeToLogin(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
+        System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         if(StringUtil.isEmpty(map.get("mobile"))){
             rb.setFailMsg(ApiResultType.MOBILE_IS_NULL);
@@ -72,12 +77,22 @@ public class VerifyCodeRestController {
      * 注册验证码获取接口
      */
     @ApiOperation(value = "注册验证码获取")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/verifycodeToRegister/{type}" , method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean verifycodeToRegister(@PathVariable("type") String type, @RequestBody Map<String, String> map) {
+    public ResultBean verifycodeToRegister(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
+        System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         if(StringUtil.isEmpty(map.get("mobile"))){
             rb.setFailMsg(ApiResultType.MOBILE_IS_NULL);
+            return rb;
+        }
+        //验证手机号是否存在
+        UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
+        if(task!=null){
+            rb.setFailMsg(ApiResultType.MOBILE_IS_EXISTED);
             return rb;
         }
         //生成六位随机验证码
@@ -99,9 +114,13 @@ public class VerifyCodeRestController {
      * 找回密码验证码获取接口
      */
     @ApiOperation(value = "找回密码验证码获取")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/verifycodeToResetpwd/{type}" , method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean verifycodeToResetpwd(@PathVariable("type") String type, @RequestBody Map<String, String> map) {
+    public ResultBean verifycodeToResetpwd(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
+        System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         if(StringUtil.isEmpty(map.get("mobile"))){
             rb.setFailMsg(ApiResultType.MOBILE_IS_NULL);
@@ -131,10 +150,13 @@ public class VerifyCodeRestController {
     /**
      * 绑定手机号获取验证码接口
      */
-    @ApiOperation(value = "绑定手机号验证码获取")
+    @ApiOperation(value = "绑定/更换手机号验证码获取")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String")
+    })
     @RequestMapping(value = "/verifycodeToBind/{type}" , method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean verifycodeToBind(@PathVariable("type") String type, @RequestBody Map<String, String> map) {
+    public ResultBean verifycodeToBind(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
         ResultBean rb = new ResultBean();
         if(StringUtil.isEmpty(map.get("mobile"))){
             rb.setFailMsg(ApiResultType.MOBILE_IS_NULL);
@@ -161,6 +183,35 @@ public class VerifyCodeRestController {
         return rb;
     }
 
+    @ApiOperation(value = "更换手机号校验原手机号接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="mobile",value = "手机号",required = true,dataType = "String"),
+            @ApiImplicitParam(name="verifycode",value = "验证码",required = true,dataType = "String")
+    })
+    @RequestMapping(value = "/checkOldMobile/{type}" , method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean checkOldMobile(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
+
+        System.out.println("登录终端："+type);
+        ResultBean rb = new ResultBean();
+        if(StringUtil.isEmpty(map.get("mobile")) || StringUtil.isEmpty(map.get("verifycode"))){
+            rb.setFailMsg(ApiResultType.REQ_PARAMS_ERROR);
+            return rb;
+        }
+        //校验验证码
+        String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE);
+        if(StringUtils.isEmpty(code)){
+            rb.setSucResult(ApiResultType.VERIFYCODE_TIME_OUT);
+            return rb;
+        }
+        if(StringUtils.equals(code,map.get("verifycode"))){
+            rb.setSucResult(ApiResultType.OK);
+        }else{
+            rb.setSucResult(ApiResultType.VERIFYCODE_IS_ERROR);
+        }
+        return rb;
+    }
+
     @RequestMapping(value = "/verifycodeToLogin" , method = RequestMethod.POST)
     @ResponseBody
     public ResultBean verifycodeToLogin(@RequestBody Map<String, String> map) {
@@ -182,6 +233,12 @@ public class VerifyCodeRestController {
     @RequestMapping(value = "/verifycodeToBind" , method = RequestMethod.POST)
     @ResponseBody
     public ResultBean verifycodeToBind(@RequestBody Map<String, String> map) {
-        return this.verifycodeToResetpwd(null,map);
+        return this.verifycodeToBind(null,map);
+    }
+
+    @RequestMapping(value = "/checkOldMobile" , method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean checkOldMobile(@RequestBody Map<String, String> map) {
+        return this.checkOldMobile(null,map);
     }
 }
