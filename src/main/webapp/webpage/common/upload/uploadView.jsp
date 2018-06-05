@@ -43,7 +43,9 @@
        <label class="Validform_label"></label>
      </td>
      <td class="value">
-      <t:upload name="instruction" dialog="false" multi="false" extend="" queueID="instructionfile" view="false" auto="true" uploader="cgUploadController.do?ajaxSaveFile" onUploadSuccess="uploadSuccess"  id="instruction" formData="documentTitle"></t:upload>
+      <t:upload name="instruction" dialog="false" multi="false" extend="" queueID="instructionfile"
+                view="false" auto="true" uploader="cgUploadController.do?ajaxSaveFile"
+                onUploadSuccess="uploadSuccess"  id="instruction" formData="documentTitle"></t:upload>
      </td>
     </tr>
     <tr>
