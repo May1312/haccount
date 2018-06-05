@@ -42,7 +42,9 @@
 					<td class="value">
 								<table></table>
 								<div class="form jeecgDetail"> 
-									<t:upload name="testFile2" id="testFile2" queueID="filediv_testFile2" uploader="cgUploadController.do?saveFiles" extend="" formData="cgFormId,cgFormName,cgFormField_testFile2" outhtml="false"></t:upload> 
+									<t:upload name="testFile2" id="testFile2" queueID="filediv_testFile2"
+											  uploader="cgUploadController.do?saveFiles" extend=""
+											  formData="cgFormId,cgFormName,cgFormField_testFile2" outhtml="false"></t:upload>
 								</div> 
 								<div class="form" id="filediv_testFile2"></div>
 							<span class="Validform_checktip"></span>

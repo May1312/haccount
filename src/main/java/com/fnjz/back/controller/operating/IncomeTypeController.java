@@ -2,6 +2,8 @@ package com.fnjz.back.controller.operating;
 
 import com.fnjz.back.entity.operating.IncomeTypeEntity;
 import com.fnjz.back.service.operating.IncomeTypeServiceI;
+import com.fnjz.utils.upload.QiNiuStorageSpace;
+import com.fnjz.utils.upload.UploadFile;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -9,7 +11,9 @@ import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
 import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.constant.Globals;
+import org.jeecgframework.core.util.DateUtils;
 import org.jeecgframework.core.util.MyBeanUtils;
+import org.jeecgframework.core.util.ResourceUtil;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
 import org.jeecgframework.web.system.service.SystemService;
@@ -19,7 +23,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -27,10 +34,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+
+import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author zhangdaihao
@@ -153,6 +160,72 @@ public class IncomeTypeController extends BaseController {
         CompareIncomeTypePriorty(incomeType.getParentId());
         return j;
     }
+
+
+    @RequestMapping(params = "uploadFiles")
+    @ResponseBody
+    public AjaxJson uploadFiles(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        MultipartFile File  =  request.getFile("file");
+        Iterator<String> itr = request.getFileNames();
+        MultipartFile mpf = null;
+        while (itr.hasNext()) {
+            mpf = request.getFile(itr.next());
+        }
+        //String fileName= DateUtils.formatTime()+File.getName();
+        String originalFilename = mpf.getOriginalFilename();
+        String fileName=DateUtils.getMillis()+"_"+originalFilename;
+        String s = new UploadFile().bytesUpload(QiNiuStorageSpace.LABEL_PICTURE.getDomain(),
+                mpf.getBytes(),
+                QiNiuStorageSpace.LABEL_PICTURE.getStorageSpaceName(),
+                fileName);
+
+        //System.out.println("结果========="+s);
+        AjaxJson j = new AjaxJson();
+        j.setObj(s);
+        return j;
+    }
+
+/*
+
+    @RequestMapping(params = "uploadQiniu2", method = RequestMethod.POST)
+    @ResponseBody
+    public LinkedList<FileMeta> uploadQiniu2(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+        LinkedList<FileMeta> files = new LinkedList<FileMeta>();
+        FileMeta fileMeta = null;
+
+        MultipartFile File  =  request.getFile("filename");
+        Iterator<String> itr = request.getFileNames();
+        MultipartFile mpf = null;
+
+        while (itr.hasNext()) {
+            mpf = request.getFile(itr.next());
+            fileMeta = new FileMeta();
+
+            fileMeta.setFileSize(mpf.getSize() / 1024 + " Kb");
+            fileMeta.setFileType(mpf.getContentType());
+            try {
+                fileMeta.setBytes(mpf.getBytes());
+
+                //String realPath = request.getSession().getServletContext().getRealPath("/")  + path ;// 文件的硬盘真实路径
+                //String realPath = path;
+                //String savePath = path + filename+mpf.getOriginalFilename();// 文件保存全路径
+                //FileCopyUtils.copy(mpf.getBytes(),new File(savePath));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            files.add(fileMeta);
+        }
+        String localUpload = QiNiuController.bytesUpload("",mpf.getBytes(),"jpg");
+        fileMeta.setFileName(localUpload);
+        HashMap<Object,Object> map = new HashMap<>();
+        fileMeta = new FileMeta();
+        fileMeta.setFileName(localUpload);
+        return files;
+    }
+*/
+
 
     public void CompareIncomeTypePriorty(String parentId) {
 
