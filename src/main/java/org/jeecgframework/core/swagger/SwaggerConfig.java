@@ -32,20 +32,21 @@ public class SwaggerConfig {
     public Docket api() { 
         return new Docket(DocumentationType.SWAGGER_2)
           .apiInfo(apiInfo())
-          .pathMapping("/rest/")//对请求的路径增加rest前缀
+          .pathMapping("/api/")//对请求的路径增加rest前缀
           .globalOperationParameters(setHeaderToken())
-          .select()  
-          .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class)) //只过滤包含有ApiOperation注解的方法              
+          .select()   // 选择那些路径和api会生成document
+           //只过滤包含有ApiOperation注解的方法
+          .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
           .paths(PathSelectors.any()) //对所有的路径进行监控
-          .build();                                           
+          .build();
     }
     
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("基础平台 RESTful APIs")
-                .description("基础平台 RESTful 风格的接口文档，内容详细，极大的减少了前后端的沟通成本，同时确保代码与文档保持高度一致，极大的减少维护文档的时间。")
-                .termsOfServiceUrl("http://www.jeeecg.org")
-                .contact("JEECG")
+                .title("蜂鸟记账 RESTful APIs")
+                .description("蜂鸟记账 RESTful 风格的接口文档，内容详细，极大的减少了前后端的沟通成本，同时确保代码与文档保持高度一致，极大的减少维护文档的时间。")
+                .termsOfServiceUrl("http://www.fengniaojizhang.com")
+                .contact("fengniaojizhang")
                 .version("1.0.0")
                 .build();
     }
@@ -53,7 +54,12 @@ public class SwaggerConfig {
     private List<Parameter> setHeaderToken() {
         ParameterBuilder tokenPar = new ParameterBuilder();
         List<Parameter> pars = new ArrayList<Parameter>();
-        tokenPar.name(JwtConstants.AUTHORIZATION).description("token").modelRef(new ModelRef("string")).parameterType("header").required(false).build();
+        tokenPar.name(JwtConstants.AUTHORIZATION)
+                .description("token")
+                .modelRef(new ModelRef("string"))
+                .parameterType("header")
+                .required(false)
+                .build();
         pars.add(tokenPar.build());
         return pars;
     }

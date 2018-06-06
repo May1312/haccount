@@ -114,6 +114,7 @@
 		<listener-class>org.jeecgframework.web.system.listener.OnlineListener</listener-class>
 	</listener>
 
+	<!-- 通用Url风格配置 -->
 	<servlet>
 		<description>spring mvc servlet</description>
 		<servlet-name>springMvc</servlet-name>
@@ -161,6 +162,21 @@
 	<servlet-mapping>
 		<servlet-name>restSpringMvc</servlet-name>
 		<url-pattern>/rest/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- apiUrl风格配置 -->
+	<servlet>
+		<servlet-name>apiSpringMvc</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<description>spring mvc 配置文件</description>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath*:spring-mvc.xml</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>apiSpringMvc</servlet-name>
+		<url-pattern>/api/*</url-pattern>
 	</servlet-mapping>
 	
 	<!-- druid -->
