@@ -66,6 +66,14 @@ public class SpendTypeController extends BaseController {
             if (req.getParameter("labelGrade").equalsIgnoreCase("2")) {
                 return new ModelAndView("com/fnjz/back/operating/spendTypeList2");
             } else if (req.getParameter("labelGrade").equalsIgnoreCase("3")) {
+                //父类名称对应id
+                List<SpendTypeEntity> SpendTypeEntitys = spendTypeService.findHql("from SpendTypeEntity where  parentId is not null and parentId !=''");
+                String parentName = "";
+                for (SpendTypeEntity SpendTypeEntity : SpendTypeEntitys) {
+                    parentName +=SpendTypeEntity.getSpendName()+"_"+SpendTypeEntity.getParentId()+",";
+                }
+                parentName = parentName.substring(0,parentName.length() - 1);
+                req.setAttribute("parentName",parentName);
                 return new ModelAndView("com/fnjz/back/operating/spendTypeList3");
             }
         }
@@ -90,12 +98,32 @@ public class SpendTypeController extends BaseController {
                 cq.isNull("parentId");
             } else {
                 cq.isNotNull("parentId");
+
             }
         }
         //查询条件组装器
         org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, spendType, request.getParameterMap());
         this.spendTypeService.getDataGridReturn(cq, true);
         TagUtil.datagrid(response, dataGrid);
+    }
+
+    @RequestMapping(params = "online")
+    @ResponseBody
+    public AjaxJson online(HttpServletRequest request) {
+        AjaxJson j = new AjaxJson();
+        String id = request.getParameter("id");
+        String msg= "";
+        if (StringUtil.isNotEmpty(id)){
+            String sql = "UPDATE hbird_spend_type SET `status`='1'   WHERE id='"+id+"'";
+            Integer i = spendTypeService.executeSql(sql);
+            if (i>0){
+                msg="上线成功";
+            }else {
+                msg="上线失败";
+            }
+        }
+        j.setMsg(msg);
+        return j;
     }
 
     /**
@@ -134,6 +162,7 @@ public class SpendTypeController extends BaseController {
             SpendTypeEntity t = spendTypeService.get(SpendTypeEntity.class, spendType.getId());
             try {
                 MyBeanUtils.copyBeanNotNull2Bean(spendType, t);
+                t.setStatus("0");
                 spendTypeService.saveOrUpdate(t);
 
                 systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);

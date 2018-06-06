@@ -4,24 +4,21 @@ import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
+import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
-import com.qiniu.util.Base64;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import org.jeecgframework.core.util.DateUtils;
+import java.io.IOException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.UUID;
-
-public class UploadFile {
+public class QiNiuUploadFileUtils {
     String ak = "cKJY4fTe4aaUX3I1xp0TWdXsjKBGYFA7l2nyVI7t";
     String sk = "AOyos15XUofQQN22qd2TJleC5pJp9sKB3FhgNgir";    // 密钥配置
+
 
     Auth auth = Auth.create(ak, sk);    // TODO Auto-generated constructor stub
 
@@ -30,7 +27,7 @@ public class UploadFile {
     }
 
 
-    public String base64Upload(String imageBase64, int length, String domain, String bucketname, String fileName) throws Exception {
+    public String base64Upload(String imageBase64, int length, String domain, String bucketname, String fileName) throws IOException {
 
         String returnStr = "";
 
@@ -86,25 +83,56 @@ public class UploadFile {
 
     }
 
+    /**
+     * 删除文件
+     * @param bucket
+     * @param key
+     */
+    public void delFile(String bucket, String key){
+
+        //实例化一个BucketManager对象
+        BucketManager bucketManager = new BucketManager(auth,null);
+        if (bucket.trim().isEmpty()){
+            bucket = "";
+        }
+        //要测试的空间和key，并且这个key在你空间中存在
+        try {
+            //调用delete方法移动文件
+            bucketManager.delete(bucket, key);
+        } catch (QiniuException e) {
+            //捕获异常信息
+            Response r = e.response;
+            System.out.println(r.toString());
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         String file = "C:\\Users\\zyh\\Pictures\\Saved Pictures\\1.jpg";//图片路径
-        FileInputStream fis = null;
+
+        /*FileInputStream fis = null;
         int l = (int) (new File(file).length());
         byte[] src = new byte[l];
         fis = new FileInputStream(new File(file));
         fis.read(src);
         String file64 = Base64.encodeToString(src, 0);
 
-        UploadFile uploadFile = new UploadFile();
+        QiNiuUploadFileUtils qiNiuUploadFileUtils = new QiNiuUploadFileUtils();
 
         String fileName = DateUtils.getMillis() + "_" + new File(file).getName();
 
-        String s = uploadFile.base64Upload(file64, l, QiNiuStorageSpace.LABEL_PICTURE.getDomain(),
+        String s = qiNiuUploadFileUtils.base64Upload(file64, l, QiNiuStorageSpace.LABEL_PICTURE.getDomain(),
                 QiNiuStorageSpace.LABEL_PICTURE.getStorageSpaceName(),
-                fileName);
+                fileName);*/
 
-        System.out.println("返回地址====" + s);
+        //byte[] bytes = decodeBase64(file64);
+        //String s = new QiNiuUploadFileUtils().bytesUpload(QiNiuStorageSpace.LABEL_PICTURE.getDomain(), bytes, QiNiuStorageSpace.LABEL_PICTURE.getStorageSpaceName(), "9999.jpg");
+
+        //System.out.println("返回地址====" + s);
     }
+
+
+
+
 
 
 }

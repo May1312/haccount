@@ -60,14 +60,18 @@
                     <input class="inputxt" id="icon" name="icon" value="${incomeTypePage.icon}"/>
 
                     <input type="file" name="FileUpload" id="FileUpload" accept="image/*">
-                    <a class="layui-btn layui-btn-mini" id="btn_uploadimg" >上传图片</a>
-                    <img src="${incomeTypePage.icon}" id="show" style="width: 100px;height:100px;"/>
+                    <a class="layui-btn layui-btn-mini" id="btn_uploadimg">上传图片</a>
+
+                    <c:if test="${not empty  incomeTypePage.icon}">
+                        <img src="${incomeTypePage.icon}" id="show" style="width: 100px;height:100px"/>
+                    </c:if>
+                    <img src="${incomeTypePage.icon}" id="show" style="width: 100px;height:100px;display: none"/>
 
                     <span class="Validform_checktip"></span>
                 </div>
             </td>
         </tr>
-        <tr>
+        <%--<tr >
             <td align="right">
                 <label class="Validform_label">
                     状态(0:下线,1:上线):
@@ -78,7 +82,7 @@
                 <input class="inputxt" id="status" name="status" value="${incomeTypePage.status}" datatype="*"/>
                 <span class="Validform_checktip"></span>
             </td>
-        </tr>
+        </tr>--%>
         <tr>
             <td align="right">
                 <label class="Validform_label">
@@ -98,8 +102,10 @@
                 </label>
             </td>
             <td class="value">
-                <input class="inputxt" id="mark" name="mark" ignore="ignore" value="${incomeTypePage.mark}"
-                       datatype="n"/>
+                <%--<input class="inputxt" id="mark" name="mark" ignore="ignore" value="${incomeTypePage.mark}"
+                       datatype="n"/>--%>
+                    不常用<input id="mark" type="radio" name="mark" ignore="ignore" <c:if test="${'1' !=   incomeTypePage.mark }">checked="checked"</c:if>  value="0"/>
+                    常用<input id="mark2" type="radio" name="mark" ignore="ignore" <c:if test="${'1' ==   incomeTypePage.mark }">checked="checked"</c:if>  value="1"/>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
@@ -132,8 +138,8 @@
 
     $(function () {
         $("#btn_uploadimg").click(function () {
-            var url = "${webRoot}/"+"/incomeTypeController.do?uploadFiles";
-            qiNiuupload(url);
+            var url = "${webRoot}/"+ "/qiNiuUploadController.do?uploadFiles";
+            qiNiuupload(url, "FileUpload", "icon", "show");
         })
     })
 
