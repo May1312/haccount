@@ -109,17 +109,12 @@ public class UserRegisterRestController extends BaseController {
                 //缓存用户信息
                 task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
                 String user = JSON.toJSONString(task);
-                //先判断是否存在
-                if (StringUtil.isNotEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(map.get("mobile"))))) {
-                    //执行删除
-                    redisTemplate.delete(MD5Utils.getMD5(map.get("mobile")));
-                }
-                redisTemplate.opsForValue().set(MD5Utils.getMD5(map.get("mobile")), user, 30, TimeUnit.DAYS);
+                updateCache(user,map.get("mobile"));
                 rb.setSucResult(ApiResultType.OK);
                 Map<String, Object> map2 = new HashMap<>();
                 String token = createTokenUtils.createToken(map.get("mobile"));
                 map2.put("X-AUTH-TOKEN", token);
-                map2.put("expire", 30 * 24 * 60 * 60 * 1000);
+                map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
             }else{
                 rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
             }
@@ -129,6 +124,16 @@ public class UserRegisterRestController extends BaseController {
             return rb;
         }
         return rb;
+    }
+
+    //更新redis缓存通用方法
+    private void updateCache(String user,String code){
+        //先判断是否存在
+        if (StringUtil.isNotEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code)))) {
+            //执行删除
+            redisTemplate.delete(MD5Utils.getMD5(code));
+        }
+        redisTemplate.opsForValue().set(MD5Utils.getMD5(code), user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)

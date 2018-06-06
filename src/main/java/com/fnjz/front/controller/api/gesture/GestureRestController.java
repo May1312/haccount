@@ -3,6 +3,7 @@ package com.fnjz.front.controller.api.gesture;
 import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.MD5Utils;
@@ -85,7 +86,7 @@ public class GestureRestController extends BaseController{
         userLoginRestEntity.setGesturePwType(map.get("gesturePwType"));
         redisTemplate.delete(MD5Utils.getMD5(code));
         String user2 = JSON.toJSONString(userLoginRestEntity);
-        redisTemplate.opsForValue().set(MD5Utils.getMD5(code), user2,30,  TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(MD5Utils.getMD5(code), user2,RedisPrefix.USER_VALID_TIME,  TimeUnit.DAYS);
         return rb;
     }
 

@@ -38,11 +38,16 @@ public class WeChatUtils {
     //获取用户信息
     public static JSONObject getUser(String code) {
         String hurl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + AppId + "&secret=" + AppSecret + "&code=" + code + "&grant_type=" + grant_type + "";
-
         JSONObject jsonObject = http(hurl);
-        //刷新refresh_token  生效时间30天
+        if(jsonObject==null){
+            return null;
+        }
+        //刷新refresh_token  生效时间7100s
         String hur2 = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + AppId + "&grant_type=refresh_token&refresh_token=" + jsonObject.getString("refresh_token") + "";
         JSONObject jsonObject_refresh_token = http(hur2);
+        if(jsonObject_refresh_token==null){
+            return null;
+        }
         //授权成功  refresh token更新成功之后
         //根据openid获取用户信息
         String hur3 = "https://api.weixin.qq.com/sns/userinfo?access_token=" + jsonObject_refresh_token.getString("access_token") + "&openid=" + jsonObject_refresh_token.getString("openid") + "";

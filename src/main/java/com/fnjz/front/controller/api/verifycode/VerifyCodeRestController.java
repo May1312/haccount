@@ -1,9 +1,11 @@
 package com.fnjz.front.controller.api.verifycode;
 
+import com.alibaba.fastjson.JSON;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.controller.api.userlogin.UserLoginRestController;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.utils.CreateVerifyCodeUtils;
@@ -11,6 +13,7 @@ import com.fnjz.utils.sms.DySms;
 import com.fnjz.utils.sms.TemplateCode;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -29,6 +32,9 @@ import java.util.concurrent.TimeUnit;
 @Controller
 @RequestMapping("/api/v1")
 public class VerifyCodeRestController {
+
+    private static final Logger logger = Logger.getLogger(VerifyCodeRestController.class);
+
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -64,10 +70,13 @@ public class VerifyCodeRestController {
         //防止已经缓存验证码，先执行删除
         redisTemplate.delete(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"));
         //验证码存放redis,验证码有效期3分钟
-        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"), random,3, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
         if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
                 rb.setSucResult(ApiResultType.OK);
+        }else if(StringUtil.equals(sendSmsResponse.getCode(),"isv.BUSINESS_LIMIT_CONTROL")){
+            rb.setSucResult(ApiResultType.VERIFYCODE_LIMIT);
         }else{
+            logger.error(JSON.toJSONString(sendSmsResponse));
             rb.setFailMsg(ApiResultType.SEND_VERIFYCODE_ERROR);
         }
         return rb;
@@ -101,10 +110,13 @@ public class VerifyCodeRestController {
         //防止已经缓存验证码，先执行删除
         redisTemplate.delete(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"));
         //验证码存放redis,验证码有效期3分钟
-        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"), random,3, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
         if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
             rb.setSucResult(ApiResultType.OK);
+        }else if(StringUtil.equals(sendSmsResponse.getCode(),"isv.BUSINESS_LIMIT_CONTROL")){
+            rb.setSucResult(ApiResultType.VERIFYCODE_LIMIT);
         }else{
+            logger.error(JSON.toJSONString(sendSmsResponse));
             rb.setFailMsg(ApiResultType.SEND_VERIFYCODE_ERROR);
         }
         return rb;
@@ -138,10 +150,13 @@ public class VerifyCodeRestController {
         //防止已经缓存验证码，先执行删除
         redisTemplate.delete(RedisPrefix.PREFIX_USER_VERIFYCODE_RESETPWD+map.get("mobile"));
         //验证码存放redis,验证码有效期3分钟
-        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_RESETPWD+map.get("mobile"), random,3, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_RESETPWD+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
         if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
             rb.setSucResult(ApiResultType.OK);
+        }else if(StringUtil.equals(sendSmsResponse.getCode(),"isv.BUSINESS_LIMIT_CONTROL")){
+            rb.setSucResult(ApiResultType.VERIFYCODE_LIMIT);
         }else{
+            logger.error(JSON.toJSONString(sendSmsResponse));
             rb.setFailMsg(ApiResultType.SEND_VERIFYCODE_ERROR);
         }
         return rb;
@@ -174,10 +189,13 @@ public class VerifyCodeRestController {
         //防止已经缓存验证码，先执行删除
         redisTemplate.delete(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE+map.get("mobile"));
         //验证码存放redis,验证码有效期3分钟
-        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE+map.get("mobile"), random,3, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
         if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
             rb.setSucResult(ApiResultType.OK);
+        }else if(StringUtil.equals(sendSmsResponse.getCode(),"isv.BUSINESS_LIMIT_CONTROL")){
+            rb.setSucResult(ApiResultType.VERIFYCODE_LIMIT);
         }else{
+            logger.error(JSON.toJSONString(sendSmsResponse));
             rb.setFailMsg(ApiResultType.SEND_VERIFYCODE_ERROR);
         }
         return rb;

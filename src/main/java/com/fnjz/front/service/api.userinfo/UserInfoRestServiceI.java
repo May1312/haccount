@@ -20,4 +20,6 @@ public interface UserInfoRestServiceI extends CommonService{
     int updateMobile(String userInfoId, String mobile);
     //绑定手机号密码
     int updateMobileAndPWD(String userInfoId, String mobile, String password);
+    //绑定(更新)wechat_auth
+    int updateWeChat(String code, String unionid);
 }
