@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * 发送短信相关接口
  * Created by yhang on 2018/5/31.
  */
-@Api( description = "app",tags = "验证码相关接口")
+@Api( description = "android/ios",tags = "验证码相关接口")
 @Controller
 @RequestMapping("/api/v1")
 public class VerifyCodeRestController {

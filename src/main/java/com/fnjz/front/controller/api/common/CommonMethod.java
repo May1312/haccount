@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/api/v1")
-@Api(description = "app",tags = "公用调用接口")
+@Api(description = "android/ios",tags = "公用调用接口")
 public class CommonMethod extends BaseController {
 
     @Autowired
