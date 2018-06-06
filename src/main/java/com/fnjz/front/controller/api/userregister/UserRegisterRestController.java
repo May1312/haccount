@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping("/api/v1")
-@Api(value = "appregister", description = "移动端----->注册接口", tags = "appregister")
+@Api(description = "app",tags = "用户注册接口")
 public class UserRegisterRestController extends BaseController {
     @Autowired
     private UserLoginRestServiceI userLoginRestService;

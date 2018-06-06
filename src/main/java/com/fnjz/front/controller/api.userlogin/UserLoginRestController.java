@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Controller
 @RequestMapping("/api/v1")
-@Api(value = "applogin", description = "移动端----->登录接口", tags = "applogin")
+@Api(description = "app",tags = "用户登录接口")
 public class UserLoginRestController extends BaseController {
     /**
      * Logger for this class

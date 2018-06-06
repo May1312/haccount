@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Controller
 @RequestMapping("/api/v1")
-@Api(value = "app_user_info", description = "移动端----->账户安全相关接口", tags = "app_user_info")
+@Api(description = "app",tags = "账户安全接口")
 public class UserInfoRestController extends BaseController {
     /**
      * Logger for this class

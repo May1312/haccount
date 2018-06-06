@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping("/api/v1")
-@Api(value = "appgesture", description = "移动端----->手势密码相关", tags = "appgesture")
+@Api(description = "app",tags = "手势密码相关")
 public class GestureRestController extends BaseController{
 
     @Autowired
