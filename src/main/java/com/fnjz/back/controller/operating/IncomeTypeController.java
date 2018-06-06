@@ -3,7 +3,7 @@ package com.fnjz.back.controller.operating;
 import com.fnjz.back.entity.operating.IncomeTypeEntity;
 import com.fnjz.back.service.operating.IncomeTypeServiceI;
 import com.fnjz.utils.upload.QiNiuStorageSpace;
-import com.fnjz.utils.upload.UploadFile;
+import com.fnjz.utils.upload.QiNiuUploadFileUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -13,7 +13,6 @@ import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.DateUtils;
 import org.jeecgframework.core.util.MyBeanUtils;
-import org.jeecgframework.core.util.ResourceUtil;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
 import org.jeecgframework.web.system.service.SystemService;
@@ -69,10 +68,22 @@ public class IncomeTypeController extends BaseController {
      */
     @RequestMapping(params = "list")
     public ModelAndView list(HttpServletRequest req) {
+
+
+
+
         if (StringUtil.isNotEmpty(req.getParameter("labelGrade"))) {
             if (req.getParameter("labelGrade").equalsIgnoreCase("2")) {
                 return new ModelAndView("com/fnjz/back/operating/incomeTypeList2");
             } else if (req.getParameter("labelGrade").equalsIgnoreCase("3")) {
+                //父类名称对应id
+                List<IncomeTypeEntity> IncomeTypeEntitys = incomeTypeService.findHql("from IncomeTypeEntity where  parentId is not null and parentId !=''");
+                String parentName = "";
+                for (IncomeTypeEntity incomeTypeEntity : IncomeTypeEntitys) {
+                    parentName +=incomeTypeEntity.getIncomeType()+"_"+incomeTypeEntity.getParentId()+",";
+                }
+                parentName = parentName.substring(0,parentName.length() - 1);
+                req.setAttribute("parentName",parentName);
                 return new ModelAndView("com/fnjz/back/operating/incomeTypeList3");
             }
         }
@@ -100,10 +111,11 @@ public class IncomeTypeController extends BaseController {
             }
         }
 
-        //
+
         //查询条件组装器
         org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, incomeType, request.getParameterMap());
         this.incomeTypeService.getDataGridReturn(cq, true);
+
         TagUtil.datagrid(response, dataGrid);
     }
 
@@ -143,6 +155,7 @@ public class IncomeTypeController extends BaseController {
             IncomeTypeEntity t = incomeTypeService.get(IncomeTypeEntity.class, incomeType.getId());
             try {
                 MyBeanUtils.copyBeanNotNull2Bean(incomeType, t);
+                t.setStatus("0");
                 incomeTypeService.saveOrUpdate(t);
                 systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
             } catch (Exception e) {
@@ -161,70 +174,26 @@ public class IncomeTypeController extends BaseController {
         return j;
     }
 
-
-    @RequestMapping(params = "uploadFiles")
+    @RequestMapping(params = "online")
     @ResponseBody
-    public AjaxJson uploadFiles(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        MultipartFile File  =  request.getFile("file");
-        Iterator<String> itr = request.getFileNames();
-        MultipartFile mpf = null;
-        while (itr.hasNext()) {
-            mpf = request.getFile(itr.next());
-        }
-        //String fileName= DateUtils.formatTime()+File.getName();
-        String originalFilename = mpf.getOriginalFilename();
-        String fileName=DateUtils.getMillis()+"_"+originalFilename;
-        String s = new UploadFile().bytesUpload(QiNiuStorageSpace.LABEL_PICTURE.getDomain(),
-                mpf.getBytes(),
-                QiNiuStorageSpace.LABEL_PICTURE.getStorageSpaceName(),
-                fileName);
-
-        //System.out.println("结果========="+s);
+    public AjaxJson online(HttpServletRequest request) {
         AjaxJson j = new AjaxJson();
-        j.setObj(s);
+        String id = request.getParameter("id");
+        String msg= "";
+        if (StringUtil.isNotEmpty(id)){
+            String sql = "UPDATE hbird_income_type SET `status`='1'   WHERE id='"+id+"'";
+            Integer i = incomeTypeService.executeSql(sql);
+            if (i>0){
+                msg="上线成功";
+            }else {
+                msg="上线失败";
+            }
+        }
+        j.setMsg(msg);
         return j;
     }
 
-/*
 
-    @RequestMapping(params = "uploadQiniu2", method = RequestMethod.POST)
-    @ResponseBody
-    public LinkedList<FileMeta> uploadQiniu2(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
-        LinkedList<FileMeta> files = new LinkedList<FileMeta>();
-        FileMeta fileMeta = null;
-
-        MultipartFile File  =  request.getFile("filename");
-        Iterator<String> itr = request.getFileNames();
-        MultipartFile mpf = null;
-
-        while (itr.hasNext()) {
-            mpf = request.getFile(itr.next());
-            fileMeta = new FileMeta();
-
-            fileMeta.setFileSize(mpf.getSize() / 1024 + " Kb");
-            fileMeta.setFileType(mpf.getContentType());
-            try {
-                fileMeta.setBytes(mpf.getBytes());
-
-                //String realPath = request.getSession().getServletContext().getRealPath("/")  + path ;// 文件的硬盘真实路径
-                //String realPath = path;
-                //String savePath = path + filename+mpf.getOriginalFilename();// 文件保存全路径
-                //FileCopyUtils.copy(mpf.getBytes(),new File(savePath));
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            files.add(fileMeta);
-        }
-        String localUpload = QiNiuController.bytesUpload("",mpf.getBytes(),"jpg");
-        fileMeta.setFileName(localUpload);
-        HashMap<Object,Object> map = new HashMap<>();
-        fileMeta = new FileMeta();
-        fileMeta.setFileName(localUpload);
-        return files;
-    }
-*/
 
 
     public void CompareIncomeTypePriorty(String parentId) {

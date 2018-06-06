@@ -5,8 +5,9 @@
 <head>
     <title>支出标签管理</title>
     <t:base type="jquery,easyui,tools,DatePicker"></t:base>
+    <script src="${webRoot}/plug-in/qiniu/qiniu.js"></script>
 </head>
-<body style="overflow-y: hidden" scroll="no">
+<body style="overflow-y: scroll" scroll="yes">
 <t:formvalid formid="formobj" dialog="true" usePlugin="password" layout="table" action="spendTypeController.do?save">
     <input id="id" name="id" type="hidden" value="${spendTypePage.id }">
     <table style="width: 600px;" cellpadding="0" cellspacing="1" class="formtable">
@@ -49,21 +50,35 @@
                 </label>
             </td>
             <td class="value">
-                <input class="inputxt" id="icon" name="icon" ignore="ignore" value="${spendTypePage.icon}"/>
-                <span class="Validform_checktip"></span>
+                    <%--<input class="inputxt" id="icon" name="icon" ignore="ignore" value="${spendTypePage.icon}"/>
+                    <span class="Validform_checktip"></span>--%>
+                <div class="datagrid-toolbar" style="width: 700px; padding: 20px">
+
+                    <input class="inputxt" id="icon" name="icon" value="${spendTypePage.icon}"/>
+
+                    <input type="file" name="FileUpload" id="FileUpload" accept="image/*">
+                    <a class="layui-btn layui-btn-mini" id="btn_uploadimg">上传图片</a>
+
+                    <c:if test="${not empty  spendTypePage.icon}">
+                        <img src="${spendTypePage.icon}" id="show" style="width: 100px;height:100px"/>
+                    </c:if>
+                    <img src="${spendTypePage.icon}" id="show" style="width: 100px;height:100px;display: none"/>
+
+                    <span class="Validform_checktip"></span>
+                </div>
             </td>
         </tr>
-            <tr>
-                <td align="right">
-                    <label class="Validform_label">
-                        状态(0:下线,1:上线):
-                    </label>
-                </td>
-                <td class="value">
-                    <input class="inputxt" id="status" name="status"   value="${spendTypePage.status}" datatype="*" />
-                    <span class="Validform_checktip"></span>
-                </td>
-            </tr>
+        <%--<tr >
+            <td align="right">
+                <label class="Validform_label">
+                    状态(0:下线,1:上线):
+                </label>
+            </td>
+            <td class="value">
+                <input class="inputxt" id="status" name="status" value="${spendTypePage.status}" datatype="*"/>
+                <span class="Validform_checktip"></span>
+            </td>
+        </tr>--%>
         <tr>
             <td align="right">
                 <label class="Validform_label">
@@ -71,7 +86,7 @@
                 </label>
             </td>
             <td class="value">
-                <input class="inputxt" id="priority" name="priority"  value="${spendTypePage.priority}"
+                <input class="inputxt" id="priority" name="priority" value="${spendTypePage.priority}"
                        datatype="n"/>
                 <span class="Validform_checktip"></span>
             </td>
@@ -83,8 +98,20 @@
                 </label>
             </td>
             <td class="value">
-                <input class="inputxt" id="mark" name="mark" ignore="ignore" value="${spendTypePage.mark}"
-                       datatype="n"/>
+                    <%--<input class="inputxt" id="mark" name="mark" ignore="ignore" value="${spendTypePage.mark}"
+                           datatype="n"/>--%>
+                    <%--<c:if test="${'1' == spendTypePage.mark}">
+                        <input id="mark" type="radio" name="mark"
+                               value="${spendTypePage.mark}"
+                               checked="checked"/>
+                    </c:if>
+                    <c:if test="${'1' !=  spendTypePage.mark }"></c:if>--%>
+                <%--<input class="inputxt" id="mark" name="mark" ignore="ignore" value="${spendTypePage.mark}"
+                       datatype="n"/>--%>
+
+                    不常用<input id="mark" type="radio" name="mark" ignore="ignore" <c:if test="${'1' !=   spendTypePage.mark }">checked="checked"</c:if>  value="0"/>
+                    常用<input id="mark2" type="radio" name="mark" ignore="ignore" <c:if test="${'1' ==   spendTypePage.mark }">checked="checked"</c:if>  value="1"/>
+
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
@@ -113,3 +140,11 @@
     </table>
 </t:formvalid>
 </body>
+<script>
+    $(function () {
+        $("#btn_uploadimg").click(function () {
+            var url = "${webRoot}/" + "/qiNiuUploadController.do?uploadFiles";
+            qiNiuupload(url, "FileUpload", "icon", "show");
+        })
+    })
+</script>
