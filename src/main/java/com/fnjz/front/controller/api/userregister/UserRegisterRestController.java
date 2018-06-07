@@ -115,6 +115,7 @@ public class UserRegisterRestController extends BaseController {
                 String token = createTokenUtils.createToken(map.get("mobile"));
                 map2.put("X-AUTH-TOKEN", token);
                 map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
+                rb.setResult(map2);
             }else{
                 rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
             }

@@ -5,7 +5,6 @@ import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.controller.api.userlogin.UserLoginRestController;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.utils.CreateVerifyCodeUtils;

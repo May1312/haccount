@@ -1,8 +1,11 @@
 package com.fnjz.constants;
 
+import io.swagger.annotations.ApiModel;
+
 /**
  * 错误码枚举类
  */
+@ApiModel
 public enum ApiResultType {
 
     OK("200", "success"),

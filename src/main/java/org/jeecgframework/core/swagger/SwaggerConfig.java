@@ -32,7 +32,7 @@ public class SwaggerConfig {
     public Docket api() { 
         return new Docket(DocumentationType.SWAGGER_2)
           .apiInfo(apiInfo())
-          .pathMapping("/api/")//对请求的路径增加rest前缀
+          .pathMapping("/rest/")//对请求的路径增加rest前缀
           .globalOperationParameters(setHeaderToken())
           .select()   // 选择那些路径和api会生成document
            //只过滤包含有ApiOperation注解的方法

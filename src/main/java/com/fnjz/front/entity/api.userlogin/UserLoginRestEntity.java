@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import io.swagger.annotations.ApiModel;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
@@ -27,6 +28,7 @@ import javax.persistence.SequenceGenerator;
 @DynamicUpdate(true)
 @DynamicInsert(true)
 @SuppressWarnings("serial")
+@ApiModel
 public class UserLoginRestEntity implements java.io.Serializable {
 	/**id*/
 	private java.lang.Integer id;

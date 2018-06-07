@@ -99,7 +99,7 @@ public class UserLoginRestController extends BaseController {
                 //设置redis缓存 缓存用户信息 30天 毫秒
                 String user = JSON.toJSONString(task);
                 updateCache(user,map.get("mobile"));
-                rb.setResult(map2);
+                    rb.setResult(map2);
             } else {
                 rb.setFailMsg(ApiResultType.USERNAME_OR_PASSWORD_ERROR);
             }
