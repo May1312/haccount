@@ -168,32 +168,17 @@
         <small>移动设备访问请扫描以下二维码：</small>
         <br>
         <br>
-        <img src="plug-in/login/images/jeecg.jpg" width="100%" style="max-width:264px;">
+        <img src="plug-in/login/images/guanli.png" width="100%" style="max-width:264px;">
         <br>
     </div>
     <div class="col-sm-5">
         <h2>
             Jeecg 微云快速开发平台
         </h2>
-        <p>JEECG是一款基于代码生成器的J2EE快速开发平台，开源界“小普元”超越传统商业企业级开发平台。引领新的开发模式(Online Coding模式(自定义表单)->代码生成器模式->手工MERGE智能开发)， 可以帮助解决Java项目60%的重复工作，让开发更多关注业务逻辑。既能快速提高开发效率，帮助公司节省人力成本，同时又不失灵活性。她可以用于所有的Web应用程序，如:<b>MIS</b>，<b>CRM</b>，<b>OA</b>，<b>ERP</b>，<b>CMS</b>，<b>网站后台</b>，<b>微信管家</b>，等等，当然，您也可以对她进行深度定制，以做出更强系统。</p>
-        <p>
-            <b>当前版本：</b>v_3.7.5-beta
-        </p>
-        <p>
-            <span class="label label-warning">开源     &nbsp; | &nbsp; 免费  | &nbsp; 更多插件</span>
-        </p>
+
+
         <br>
-        <p>
-        	<a class="btn btn-success btn-outline" href="http://yun.jeecg.org" target="_blank">
-                <i class="fa fa-cloud"></i> 云应用中心
-            </a>
-            <a class="btn btn-white btn-bitbucket" href="http://www.jeecg.org/" target="_blank">
-                <i class="fa fa-qq"> </i> 联系我们
-            </a>
-            <a class="btn btn-white btn-bitbucket" href="http://blog.csdn.net/zhangdaiscott" target="_blank">
-                <i class="fa fa-home"></i> 官方博客
-            </a>
-        </p>
+
     </div>
     <div class="col-sm-4">
         <h4>Jeecg具有以下特点：</h4>

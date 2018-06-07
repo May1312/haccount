@@ -118,6 +118,7 @@ public class SmsRecordServiceImpl extends CommonServiceImpl implements SmsRecord
             smsRecordInfoEntity.setSendtime(smsRecordEntity.getSendtime());
             smsRecordInfoEntity.setReturntime(DateUtils.TimeComputation());
             smsRecordInfoEntity.setSmsrecordid(smsRecordEntity.getId());
+            smsRecordInfoEntity.setSendcontent(smsRecordEntity.getRemark());
             smsRecordInfoService.save(smsRecordInfoEntity);
         }
     }
