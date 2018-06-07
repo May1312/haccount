@@ -43,7 +43,7 @@
 						<span class="Validform_checktip"></span>
 					</td>
 				</tr>--%>
-				<tr>
+				<%--<tr>
 					<td align="right">
 						<label class="Validform_label">
 							状态(0:下线,1:上线):
@@ -53,7 +53,7 @@
 						<input class="inputxt" id="status" name="status"   value="${incomeTypePage.status}" datatype="*" />
 						<span class="Validform_checktip"></span>
 					</td>
-				</tr>
+				</tr>--%>
 				<tr>
 					<td align="right">
 						<label class="Validform_label">

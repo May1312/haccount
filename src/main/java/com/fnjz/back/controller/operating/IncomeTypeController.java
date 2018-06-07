@@ -2,8 +2,6 @@ package com.fnjz.back.controller.operating;
 
 import com.fnjz.back.entity.operating.IncomeTypeEntity;
 import com.fnjz.back.service.operating.IncomeTypeServiceI;
-import com.fnjz.utils.upload.QiNiuStorageSpace;
-import com.fnjz.utils.upload.QiNiuUploadFileUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -11,7 +9,6 @@ import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
 import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.constant.Globals;
-import org.jeecgframework.core.util.DateUtils;
 import org.jeecgframework.core.util.MyBeanUtils;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
@@ -22,10 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -33,10 +27,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-
-import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author zhangdaihao
@@ -70,8 +64,6 @@ public class IncomeTypeController extends BaseController {
     public ModelAndView list(HttpServletRequest req) {
 
 
-
-
         if (StringUtil.isNotEmpty(req.getParameter("labelGrade"))) {
             if (req.getParameter("labelGrade").equalsIgnoreCase("2")) {
                 return new ModelAndView("com/fnjz/back/operating/incomeTypeList2");
@@ -80,10 +72,13 @@ public class IncomeTypeController extends BaseController {
                 List<IncomeTypeEntity> IncomeTypeEntitys = incomeTypeService.findHql("from IncomeTypeEntity where  parentId is not null and parentId !=''");
                 String parentName = "";
                 for (IncomeTypeEntity incomeTypeEntity : IncomeTypeEntitys) {
-                    parentName +=incomeTypeEntity.getIncomeType()+"_"+incomeTypeEntity.getParentId()+",";
+                    parentName += incomeTypeEntity.getIncomeType() + "_" + incomeTypeEntity.getParentId() + ",";
                 }
-                parentName = parentName.substring(0,parentName.length() - 1);
-                req.setAttribute("parentName",parentName);
+                if (StringUtil.isNotEmpty(parentName)) {
+                    parentName = parentName.substring(0, parentName.length() - 1);
+                    req.setAttribute("parentName", parentName);
+                }
+
                 return new ModelAndView("com/fnjz/back/operating/incomeTypeList3");
             }
         }
@@ -158,6 +153,7 @@ public class IncomeTypeController extends BaseController {
                 t.setStatus("0");
                 incomeTypeService.saveOrUpdate(t);
                 systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
+                CompareIncomeTypePriorty(incomeType.getParentId(), incomeType.getPrority(), t.getPrority(), "update");
             } catch (Exception e) {
                 e.printStackTrace();
                 message = "收入标签管理更新失败";
@@ -167,10 +163,10 @@ public class IncomeTypeController extends BaseController {
             incomeType.setStatus("0");
             incomeTypeService.save(incomeType);
             systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
+            CompareIncomeTypePriorty(incomeType.getParentId(), incomeType.getPrority(), 0, "update");
         }
         j.setMsg(message);
-        //更新优先级
-        CompareIncomeTypePriorty(incomeType.getParentId());
+
         return j;
     }
 
@@ -179,14 +175,14 @@ public class IncomeTypeController extends BaseController {
     public AjaxJson online(HttpServletRequest request) {
         AjaxJson j = new AjaxJson();
         String id = request.getParameter("id");
-        String msg= "";
-        if (StringUtil.isNotEmpty(id)){
-            String sql = "UPDATE hbird_income_type SET `status`='1'   WHERE id='"+id+"'";
+        String msg = "";
+        if (StringUtil.isNotEmpty(id)) {
+            String sql = "UPDATE hbird_income_type SET `status`='1'   WHERE id='" + id + "'";
             Integer i = incomeTypeService.executeSql(sql);
-            if (i>0){
-                msg="上线成功";
-            }else {
-                msg="上线失败";
+            if (i > 0) {
+                msg = "上线成功";
+            } else {
+                msg = "上线失败";
             }
         }
         j.setMsg(msg);
@@ -194,10 +190,7 @@ public class IncomeTypeController extends BaseController {
     }
 
 
-
-
-    public void CompareIncomeTypePriorty(String parentId) {
-
+    public void CompareIncomeTypePriorty(String parentId, int inSertPriority, int Priority, String saveOrUpdagte) {
 
         String hql = "from IncomeTypeEntity where 1=1 ";
 
@@ -207,7 +200,21 @@ public class IncomeTypeController extends BaseController {
             hql += " and parentId is not null or parentId !='' ";
         }
 
-        hql += " order by updateDate desc ,createDate desc";
+        if (saveOrUpdagte.equalsIgnoreCase("save")) {
+            hql += " order by createDate desc";
+        } else {
+            try {
+                if (inSertPriority > Priority) {
+                    hql += " order by updateDate desc ,createDate asc";
+                } else {
+                    hql += " order by updateDate desc ,createDate desc";
+                }
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+
+        }
+
 
         List<IncomeTypeEntity> list = incomeTypeService.findHql(hql);
 

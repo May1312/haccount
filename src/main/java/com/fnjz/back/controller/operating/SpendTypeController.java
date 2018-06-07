@@ -3,6 +3,7 @@ package com.fnjz.back.controller.operating;
 import com.fnjz.back.entity.operating.SpendTypeEntity;
 import com.fnjz.back.service.operating.SpendTypeServiceI;
 import org.apache.log4j.Logger;
+import org.hibernate.cache.ehcache.internal.util.HibernateUtil;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -70,10 +72,14 @@ public class SpendTypeController extends BaseController {
                 List<SpendTypeEntity> SpendTypeEntitys = spendTypeService.findHql("from SpendTypeEntity where  parentId is not null and parentId !=''");
                 String parentName = "";
                 for (SpendTypeEntity SpendTypeEntity : SpendTypeEntitys) {
-                    parentName +=SpendTypeEntity.getSpendName()+"_"+SpendTypeEntity.getParentId()+",";
+                    parentName += SpendTypeEntity.getSpendName() + "_" + SpendTypeEntity.getParentId() + ",";
                 }
-                parentName = parentName.substring(0,parentName.length() - 1);
-                req.setAttribute("parentName",parentName);
+                if (StringUtil.isNotEmpty(parentName)) {
+                    parentName = parentName.substring(0, parentName.length() - 1);
+                    req.setAttribute("parentName", parentName);
+                }
+
+
                 return new ModelAndView("com/fnjz/back/operating/spendTypeList3");
             }
         }
@@ -112,14 +118,14 @@ public class SpendTypeController extends BaseController {
     public AjaxJson online(HttpServletRequest request) {
         AjaxJson j = new AjaxJson();
         String id = request.getParameter("id");
-        String msg= "";
-        if (StringUtil.isNotEmpty(id)){
-            String sql = "UPDATE hbird_spend_type SET `status`='1'   WHERE id='"+id+"'";
+        String msg = "";
+        if (StringUtil.isNotEmpty(id)) {
+            String sql = "UPDATE hbird_spend_type SET `status`='1'   WHERE id='" + id + "'";
             Integer i = spendTypeService.executeSql(sql);
-            if (i>0){
-                msg="上线成功";
-            }else {
-                msg="上线失败";
+            if (i > 0) {
+                msg = "上线成功";
+            } else {
+                msg = "上线失败";
             }
         }
         j.setMsg(msg);
@@ -166,24 +172,26 @@ public class SpendTypeController extends BaseController {
                 spendTypeService.saveOrUpdate(t);
 
                 systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
+                CompareSpendTypePriorty(spendType.getParentId(), spendType.getPriority(), t.getPriority(), "update");
             } catch (Exception e) {
                 e.printStackTrace();
                 message = "支出标签管理更新失败";
+
             }
         } else {
             message = "支出标签管理添加成功";
             spendType.setStatus("0");
             spendTypeService.save(spendType);
             systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
+
+            CompareSpendTypePriorty(spendType.getParentId(), spendType.getPriority(), 0, "save");
         }
         j.setMsg(message);
-        //更新优先级
-        CompareSpendTypePriorty(spendType.getParentId());
+
         return j;
     }
 
-    public void CompareSpendTypePriorty(String parentId) {
-
+    public void CompareSpendTypePriorty(String parentId, int inSertPriority, int Priority, String saveOrUpdagte) {
 
         String hql = "from SpendTypeEntity where 1=1 ";
 
@@ -193,7 +201,20 @@ public class SpendTypeController extends BaseController {
             hql += " and parentId is not null or parentId !='' ";
         }
 
-        hql += " order by updateDate desc ,createDate desc";
+        if (saveOrUpdagte.equalsIgnoreCase("save")) {
+            hql += " order by createDate desc";
+        } else {
+            try {
+                if (inSertPriority > Priority) {
+                    hql += " order by updateDate desc ,createDate asc";
+                } else {
+                    hql += " order by updateDate desc ,createDate desc";
+                }
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+
+        }
 
         List<SpendTypeEntity> list = spendTypeService.findHql(hql);
 
@@ -207,6 +228,32 @@ public class SpendTypeController extends BaseController {
             spendTypeService.updateEntitie(spendTypeEntity);
         }
 
+    }
+
+    //选中常用添加到常用二类中
+
+    public  void addOftenUsed (SpendTypeEntity spendTypeEntity){
+
+        String parentId="";
+        String hql = "from SpendTypeEntity where 1=1 and spendName = '常用' ";
+        List<SpendTypeEntity> SpendTypeEntitys = spendTypeService.findHql(hql);
+
+
+        if (SpendTypeEntitys.size()>0){
+            SpendTypeEntity spendTypeEntity1 = SpendTypeEntitys.get(0);
+            parentId = spendTypeEntity.getId();
+        }else {
+            SpendTypeEntity spendTypeEntity1 = new SpendTypeEntity();
+            spendTypeEntity1.setSpendName("常用");
+            spendTypeEntity1.setPriority(0);
+            spendTypeEntity1.setStatus("0");
+            Serializable save = spendTypeService.save(spendTypeEntity1);
+            parentId = spendTypeEntity1.getId();
+        }
+        //更新三级标签
+
+        spendTypeEntity.setParentId(parentId);
+        spendTypeService.saveOrUpdate(spendTypeEntity);
     }
 
     /**
