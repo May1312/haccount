@@ -4,6 +4,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
+import com.fnjz.front.entity.api.income.IncomeRestEntity;
+import com.fnjz.front.service.api.income.IncomeRestServiceI;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,8 +25,8 @@ import org.jeecgframework.web.system.pojo.base.TSDepart;
 import org.jeecgframework.web.system.service.SystemService;
 import org.jeecgframework.core.util.MyBeanUtils;
 
-import com.fnjz.front.entity.api.income.IncomeRestEntity;
-import com.fnjz.front.service.api.income.IncomeRestServiceI;
+
+
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -87,7 +90,7 @@ public class IncomeRestController extends BaseController {
 	 */
 
 	@RequestMapping(params = "datagrid")
-	public void datagrid(IncomeRestEntity incomeRest,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+	public void datagrid(IncomeRestEntity incomeRest, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
 		CriteriaQuery cq = new CriteriaQuery(IncomeRestEntity.class, dataGrid);
 		//查询条件组装器
 		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, incomeRest, request.getParameterMap());

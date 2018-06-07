@@ -11,12 +11,12 @@
             <t:dgCol title="图标" field="icon" width="120"></t:dgCol>
             <t:dgCol title="状态(0:下线,1:上线)" field="status" width="120" replace="下线_0,上线_1" query="true"></t:dgCol>
             <t:dgCol title="优先级" field="priority" width="120"></t:dgCol>
-            <t:dgCol title="常用字段,0:非常用,1:常用" field="mark" width="120" replace="常用_0,不常用_1"></t:dgCol>
+            <t:dgCol title="常用字段,0:非常用,1:常用" field="mark" width="120" replace="常用_1,不常用_0"></t:dgCol>
             <t:dgCol title="创建时间" field="createDate" formatter="yyyy-MM-dd hh:mm:ss"  width="120"></t:dgCol>
             <%--<t:dgCol title="删除标记" field="delflag" width="120"></t:dgCol>
             <t:dgCol title="删除时间" field="delDate" formatter="yyyy-MM-dd hh:mm:ss" width="120"></t:dgCol>--%>
             <t:dgCol title="操作" field="opt" width="100"></t:dgCol>
-            <t:dgFunOpt funname="online(id)" title="上线"></t:dgFunOpt>
+            <t:dgFunOpt funname="online(id)" title="上线" urlclass="ace_button" urlStyle="background-color:#1a7bb9;" urlfont="fa-database"></t:dgFunOpt>
             <t:dgDelOpt title="删除" url="spendTypeController.do?del&id={id}" urlclass="ace_button" urlfont="fa-trash-o"/>
             <%--<t:dgToolBar title="录入二级标签" icon="icon-add" url="spendTypeController.do?addorupdate&labelGrade=2"
                          funname="add"></t:dgToolBar>--%>
