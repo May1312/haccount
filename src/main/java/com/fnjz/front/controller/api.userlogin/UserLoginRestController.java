@@ -64,6 +64,7 @@ public class UserLoginRestController extends BaseController {
      *
      * @return
      */
+    //@SystemLog
     @ApiOperation(value = "账号密码登录")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "mobile", value = "手机号", required = true, dataType = "String"),
@@ -149,7 +150,6 @@ public class UserLoginRestController extends BaseController {
                     rb.setSucResult(ApiResultType.OK);
                     //返回token  expire
                     String token = createTokenUtils.createToken(map.get("mobile"));
-                    System.out.println("生成的token：" + token);
                     Map<String, Object> map2 = new HashMap<>();
                     map2 = SetTokenToAppUtils.getTokenResult(map2, token);
                     //设置redis缓存 缓存用户信息 30天 毫秒
@@ -206,7 +206,6 @@ public class UserLoginRestController extends BaseController {
                     rb.setSucResult(ApiResultType.OK);
                     //根据openid生成token  expire
                     String token = createTokenUtils.createToken(user.getString("unionid"));
-                    System.out.println("生成的token：" + token);
                     Map<String, Object> map2 = new HashMap<>();
                     map2 = SetTokenToAppUtils.getTokenResult(map2, token);
                     //设置redis缓存 缓存用户信息 30天 毫秒
@@ -228,10 +227,8 @@ public class UserLoginRestController extends BaseController {
                     token = createTokenUtils.createToken(user.getString("unionid"));
                     updateCache(userToString, user.getString("unionid"));
                 }
-                System.out.println("生成的token：" + token);
                 Map<String, Object> map2 = new HashMap<>();
-                map2.put("X-AUTH-TOKEN", token);
-                map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
+                map2 = SetTokenToAppUtils.getTokenResult(map2, token);
                 rb.setResult(map2);
             }
         } catch (Exception e) {
@@ -280,10 +277,8 @@ public class UserLoginRestController extends BaseController {
                     rb.setSucResult(ApiResultType.OK);
                     //根据openid生成token  expire
                     String token = createTokenUtils.createToken(openid);
-                    System.out.println("生成的token：" + token);
                     Map<String, Object> map2 = new HashMap<>();
-                    map2.put("X-AUTH-TOKEN", token);
-                    map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
+                    map2 = SetTokenToAppUtils.getTokenResult(map2, token);
                     //设置redis缓存 缓存用户信息 30天 毫秒
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", openid);
                     String userToString2 = JSON.toJSONString(task2);
@@ -305,10 +300,8 @@ public class UserLoginRestController extends BaseController {
                     token = createTokenUtils.createToken(openid);
                     updateCache(userToString, openid);
                 }
-                System.out.println("生成的token：" + token);
                 Map<String, Object> map2 = new HashMap<>();
-                map2.put("X-AUTH-TOKEN", token);
-                map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
+                map2 = SetTokenToAppUtils.getTokenResult(map2, token);
                 rb.setResult(map2);
             }
         }
@@ -357,7 +350,6 @@ public class UserLoginRestController extends BaseController {
                     }
                     //返回token  expire
                     String token = createTokenUtils.createToken(map.get("mobile"));
-                    System.out.println("生成的token：" + token);
                     Map<String, Object> map2 = new HashMap<>();
                     map2 = SetTokenToAppUtils.getTokenResult(map2, token);
                     //设置redis缓存 缓存用户信息 30天 毫秒
