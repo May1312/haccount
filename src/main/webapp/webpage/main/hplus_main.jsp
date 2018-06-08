@@ -14,11 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="renderer" content="webkit">
 
-    <title><t:mutiLang langKey="jeect.platform"/></title>
-
-    <meta name="keywords" content="JEECG 企业级快速开发平台">
-    <meta name="description" content="JEECG 企业级快速开发平台，她采用强大代码生成，在线开发能力">
-
+    <title>蜂鸟记账</title>
     <link rel="shortcut icon" href="images/favicon.ico">
     <link href="plug-in/hplus/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
     <link href="plug-in/hplus/css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
@@ -44,32 +40,10 @@
             <ul class="nav" id="side-menu">
                 <li class="nav-header">
                     <div class="dropdown profile-element">
-                                <span><img alt="image" width="180" height="61" src="plug-in/login/images/jeecg-aceplus.png" /></span>
-                            <%--dangzhenghui end 20170502 for 增加添加头像功能--%>
-                            <%--//update-start--Author: chenj Date:20160726 for: TASK #1207 [改造]h+风格下，去掉logo下面的内容，迁移位置到右上角，主题位置
-                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                                <span class="clear">
-                                <span class="block m-t-xs"><strong class="font-bold">${userName }</strong></span>
-                                <span class="text-muted text-xs block">${roleName }<b class="caret"></b></span>
-                                </span>
-                        </a> 
-                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                            <li>
-                                <a href="javascript:add('<t:mutiLang langKey="common.change.password"/>','userController.do?changepassword','',550,200)">
-                                    <t:mutiLang langKey="common.change.password"/>
-                                </a>
-                            </li>
-                            <li><a href="javascript:openwindow('<t:mutiLang langKey="common.profile"/>','userController.do?userinfo')"><t:mutiLang langKey="common.profile"/></a></li>
-                            <li><a href="javascript:openwindow('<t:mutiLang langKey="common.ssms.getSysInfos"/>','tSSmsController.do?getSysInfos')"><t:mutiLang langKey="common.ssms.getSysInfos"/></a></li>
-                            <li><a href="javascript:add('<t:mutiLang langKey="common.change.style"/>','userController.do?changestyle','',550,250)"><t:mutiLang langKey="common.my.style"/></a></li>
-                            <li><a href="javascript:clearLocalstorage()"><t:mutiLang langKey="common.clear.localstorage"/></a></li>
-                            <li><a href="http://yun.jeecg.org" target="_blank">云应用中心</li>
-                            <li class="divider"></li>
-                            <li><a href="javascript:logout()">注销</a></li>
-                        </ul>
-                         //update-end--Author: chenj Date:20160726 for: TASK #1207 [改造]h+风格下，去掉logo下面的内容，迁移位置到右上角，主题位置 --%>
+                        <span><img alt="image" width="180" height="61" src="plug-in/login/images/default_up.png" /></span>
+
                     </div>
-                    <div class="logo-element">JEECG
+                    <div class="logo-element">蜂鸟
                     </div>
                 </li>
 
@@ -86,60 +60,14 @@
                 <div class="navbar-header" style="height: 60px;"><a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
                     <form role="search" class="navbar-form-custom" method="post" action="search_results.html">
                         <div class="form-group">
-                            <input type="text" placeholder="欢迎使用Jeecg快速开发平台 …" class="form-control" name="top-search" id="top-search">
+                            <input type="text" placeholder="欢迎登陆蜂鸟记账后台管理系统" class="form-control" name="top-search" id="top-search">
                         </div>
                     </form>
                 </div>
                 
                 
                 <ul class="nav navbar-top-links navbar-right">
-                   <%--  <li class="dropdown">
-                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                            <i class="fa fa-envelope"></i> <span class="label label-warning">0</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-alerts">
-                            <li>
-                                <a>
-                                    <div>
-                                        <i class="fa fa-envelope fa-fw"></i> 您有0条未读消息
-                                        <span class="pull-right text-muted small">4分钟前</span>
-                                    </div>
-                                </a>
-                            </li>
-                            <li class="divider"></li>
-                            <li>
-                                <div class="text-center link-block">
-                                    <a class="" href="javascript:goAllNotice();">
-                                        <i class="fa fa-envelope"></i> <strong> 查看所有消息</strong>
-                                    </a>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                            <i class="fa fa-bell"></i> <span class="label label-primary">0</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-alerts">
-                            <li>
-                                <a>
-                                    <div>
-                                        <i class="fa fa-envelope fa-fw"></i> 您有0条未读消息
-                                        <span class="pull-right text-muted small">4分钟前</span>
-                                    </div>
-                                </a>
-                            </li>
-                            <li class="divider"></li>
-                            <li>
-                                <div class="text-center link-block">
-                                    <a class="" href="javascript:goAllMessage();">
-                                        <strong>查看所有 </strong>
-                                        <i class="fa fa-angle-right"></i>
-                                    </a>
-                                </div>
-                            </li>
-                        </ul>
-                    </li> --%>
+
                     
                     <li class="dropdown" onfocus="bindFrameClick()">
                     	<a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
