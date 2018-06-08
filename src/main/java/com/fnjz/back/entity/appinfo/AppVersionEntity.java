@@ -296,4 +296,5 @@ public class AppVersionEntity implements java.io.Serializable {
 	public void setDelDate(Date delDate){
 		this.delDate = delDate;
 	}
+
 }
