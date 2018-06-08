@@ -9,10 +9,7 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
-import com.fnjz.front.utils.CreateTokenUtils;
-import com.fnjz.front.utils.MD5Utils;
-import com.fnjz.front.utils.WXAppletUtils;
-import com.fnjz.front.utils.WeChatUtils;
+import com.fnjz.front.utils.*;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -44,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Controller
 @RequestMapping("/api/v1")
-@Api(description = "android/ios",tags = "用户登录接口")
+@Api(description = "android/ios", tags = "用户登录接口")
 public class UserLoginRestController extends BaseController {
     /**
      * Logger for this class
@@ -82,27 +79,35 @@ public class UserLoginRestController extends BaseController {
             rb.setFailMsg(ApiResultType.USERNAME_OR_PASSWORD_ISNULL);
             return rb;
         }
-        //验证用户名密码
-        UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", map.get("mobile"));
-        if (task == null) {
-            rb.setFailMsg(ApiResultType.USER_NOT_EXIST);
-        } else {
-            //判断密码
-            if (StringUtil.equals(task.getPassword(), map.get("password"))) {
-                rb.setSucResult(ApiResultType.OK);
-                //返回token  expire
-                Map<String, Object> map2 = new HashMap<>();
-                String token = createTokenUtils.createToken(map.get("mobile"));
-                System.out.println("生成的token：" + token);
-                map2.put("X-AUTH-TOKEN", token);
-                map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
-                //设置redis缓存 缓存用户信息 30天 毫秒
-                String user = JSON.toJSONString(task);
-                updateCache(user,map.get("mobile"));
-                    rb.setResult(map2);
+        if (!ValidateUtils.isMobile(map.get("mobile"))) {
+            rb.setFailMsg(ApiResultType.MOBILE_FORMAT_ERROR);
+            return rb;
+        }
+        try {
+            //验证用户名密码
+            UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", map.get("mobile"));
+            if (task == null) {
+                rb.setFailMsg(ApiResultType.USER_NOT_EXIST);
             } else {
-                rb.setFailMsg(ApiResultType.USERNAME_OR_PASSWORD_ERROR);
+                //判断密码
+                if (StringUtil.equals(task.getPassword(), map.get("password"))) {
+                    //设置redis缓存 缓存用户信息 30天 毫秒
+                    String user = JSON.toJSONString(task);
+                    updateCache(user, map.get("mobile"));
+                    rb.setSucResult(ApiResultType.OK);
+                    //返回token  expire
+                    Map<String, Object> map2 = new HashMap<>();
+                    String token = createTokenUtils.createToken(map.get("mobile"));
+                    map2 = SetTokenToAppUtils.getTokenResult(map2, token);
+                    rb.setResult(map2);
+                } else {
+                    rb.setFailMsg(ApiResultType.USERNAME_OR_PASSWORD_ERROR);
+                }
             }
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
         }
         return rb;
     }
@@ -128,27 +133,38 @@ public class UserLoginRestController extends BaseController {
             rb.setFailMsg(ApiResultType.USERNAME_OR_VERIFYCODE_ISNULL);
             return rb;
         }
-        ///获取验证码
-        String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN + map.get("mobile"));
-        if (StringUtil.isEmpty(code)) {
-            //验证码为空
-            rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
-        } else {
-            if (StringUtil.equals(code, map.get("verifycode"))) {
-                UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", map.get("mobile"));
-                rb.setSucResult(ApiResultType.OK);
-                //返回token  expire
-                String token = createTokenUtils.createToken(map.get("mobile"));
-                System.out.println("生成的token：" + token);
-                Map<String, Object> map2 = new HashMap<>();
-                map2.put("X-AUTH-TOKEN", token);
-                map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
-                //设置redis缓存 缓存用户信息 30天 毫秒
-                String user = JSON.toJSONString(task);
-                //先判断是否存在
-                updateCache(user,map.get("mobile"));
-                rb.setResult(map2);
+        if (!ValidateUtils.isMobile(map.get("mobile"))) {
+            rb.setFailMsg(ApiResultType.MOBILE_FORMAT_ERROR);
+            return rb;
+        }
+        try {
+            ///获取验证码
+            String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN + map.get("mobile"));
+            if (StringUtil.isEmpty(code)) {
+                //验证码为空
+                rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
+            } else {
+                if (StringUtil.equals(code, map.get("verifycode"))) {
+                    UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", map.get("mobile"));
+                    rb.setSucResult(ApiResultType.OK);
+                    //返回token  expire
+                    String token = createTokenUtils.createToken(map.get("mobile"));
+                    System.out.println("生成的token：" + token);
+                    Map<String, Object> map2 = new HashMap<>();
+                    map2 = SetTokenToAppUtils.getTokenResult(map2, token);
+                    //设置redis缓存 缓存用户信息 30天 毫秒
+                    String user = JSON.toJSONString(task);
+                    //先判断是否存在
+                    updateCache(user, map.get("mobile"));
+                    rb.setResult(map2);
+                } else {
+                    rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
+                }
             }
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
         }
         return rb;
     }
@@ -179,44 +195,49 @@ public class UserLoginRestController extends BaseController {
             rb.setFailMsg(ApiResultType.WECHAT_LOGIN_ERROR);
             return rb;
         }
-        //查看openid是否存在
-        UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
-        String userToString = JSON.toJSONString(task);
-        if (task == null) {
-            //注册
-            int insert = userInfoRestServiceI.wechatinsert(user);
-            if (insert > 0) {
+        try {
+            //查看openid是否存在
+            UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
+            String userToString = JSON.toJSONString(task);
+            if (task == null) {
+                //注册
+                int insert = userInfoRestServiceI.wechatinsert(user);
+                if (insert > 0) {
+                    rb.setSucResult(ApiResultType.OK);
+                    //根据openid生成token  expire
+                    String token = createTokenUtils.createToken(user.getString("unionid"));
+                    System.out.println("生成的token：" + token);
+                    Map<String, Object> map2 = new HashMap<>();
+                    map2 = SetTokenToAppUtils.getTokenResult(map2, token);
+                    //设置redis缓存 缓存用户信息 30天 毫秒
+                    UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
+                    String userToString2 = JSON.toJSONString(task2);
+                    updateCache(userToString2, user.getString("unionid"));
+                    rb.setResult(map2);
+                } else {
+                    rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
+                }
+            } else {
+                //登录流程
                 rb.setSucResult(ApiResultType.OK);
-                //根据openid生成token  expire
-                String token = createTokenUtils.createToken(user.getString("unionid"));
+                String token;
+                if (StringUtils.isNotEmpty(task.getMobile())) {
+                    token = createTokenUtils.createToken(task.getMobile());
+                    updateCache(userToString, task.getMobile());
+                } else {
+                    token = createTokenUtils.createToken(user.getString("unionid"));
+                    updateCache(userToString, user.getString("unionid"));
+                }
                 System.out.println("生成的token：" + token);
                 Map<String, Object> map2 = new HashMap<>();
                 map2.put("X-AUTH-TOKEN", token);
                 map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
-                //设置redis缓存 缓存用户信息 30天 毫秒
-                UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
-                String userToString2 = JSON.toJSONString(task2);
-                updateCache(userToString2,user.getString("unionid"));
                 rb.setResult(map2);
-            } else {
-                rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
             }
-        } else {
-            //登录流程
-            rb.setSucResult(ApiResultType.OK);
-            String token;
-            if (StringUtils.isNotEmpty(task.getMobile())) {
-                token = createTokenUtils.createToken(task.getMobile());
-                updateCache(userToString,task.getMobile());
-            } else {
-                token = createTokenUtils.createToken(user.getString("unionid"));
-                updateCache(userToString,user.getString("unionid"));
-            }
-            System.out.println("生成的token：" + token);
-            Map<String, Object> map2 = new HashMap<>();
-            map2.put("X-AUTH-TOKEN", token);
-            map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
-            rb.setResult(map2);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
         }
         return rb;
     }
@@ -266,7 +287,7 @@ public class UserLoginRestController extends BaseController {
                     //设置redis缓存 缓存用户信息 30天 毫秒
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", openid);
                     String userToString2 = JSON.toJSONString(task2);
-                    updateCache(userToString,openid);
+                    updateCache(userToString, openid);
                     rb.setResult(map2);
                 } else {
                     rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
@@ -279,10 +300,10 @@ public class UserLoginRestController extends BaseController {
                 String token;
                 if (StringUtils.isNotEmpty(task.getMobile())) {
                     token = createTokenUtils.createToken(task.getMobile());
-                    updateCache(userToString,task.getMobile());
+                    updateCache(userToString, task.getMobile());
                 } else {
                     token = createTokenUtils.createToken(openid);
-                    updateCache(userToString,openid);
+                    updateCache(userToString, openid);
                 }
                 System.out.println("生成的token：" + token);
                 Map<String, Object> map2 = new HashMap<>();
@@ -316,32 +337,43 @@ public class UserLoginRestController extends BaseController {
             rb.setFailMsg(ApiResultType.REQ_PARAMS_ERROR);
             return rb;
         }
-        ///获取验证码
-        String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_RESETPWD + map.get("mobile"));
-        if (StringUtil.isEmpty(code)) {
-            //验证码为空
-            rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
-        } else {
-            if (StringUtil.equals(code, map.get("verifycode"))) {
-                //执行更新密码流程
-                int i = userInfoRestServiceI.updatePWD(map.get("mobile"), map.get("password"));
-                if (i < 1) {
-                    rb.setFailMsg(ApiResultType.PASSWORD_UPDATE_ERROR);
-                    return rb;
+        if (!ValidateUtils.isMobile(map.get("mobile"))) {
+            rb.setFailMsg(ApiResultType.MOBILE_FORMAT_ERROR);
+            return rb;
+        }
+        try {
+            ///获取验证码
+            String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_RESETPWD + map.get("mobile"));
+            if (StringUtil.isEmpty(code)) {
+                //验证码为空
+                rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
+            } else {
+                if (StringUtil.equals(code, map.get("verifycode"))) {
+                    //执行更新密码流程
+                    int i = userInfoRestServiceI.updatePWD(map.get("mobile"), map.get("password"));
+                    if (i < 1) {
+                        rb.setFailMsg(ApiResultType.PASSWORD_UPDATE_ERROR);
+                        return rb;
+                    }
+                    //返回token  expire
+                    String token = createTokenUtils.createToken(map.get("mobile"));
+                    System.out.println("生成的token：" + token);
+                    Map<String, Object> map2 = new HashMap<>();
+                    map2 = SetTokenToAppUtils.getTokenResult(map2, token);
+                    //设置redis缓存 缓存用户信息 30天 毫秒
+                    UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", map.get("mobile"));
+                    String user = JSON.toJSONString(task);
+                    updateCache(user, map.get("mobile"));
+                    rb.setSucResult(ApiResultType.OK);
+                    rb.setResult(map2);
+                } else {
+                    rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
                 }
-                //返回token  expire
-                String token = createTokenUtils.createToken(map.get("mobile"));
-                System.out.println("生成的token：" + token);
-                Map<String, Object> map2 = new HashMap<>();
-                map2.put("X-AUTH-TOKEN", token);
-                map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
-                //设置redis缓存 缓存用户信息 30天 毫秒
-                UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", map.get("mobile"));
-                String user = JSON.toJSONString(task);
-                updateCache(user,map.get("mobile"));
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(map2);
             }
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
         }
         return rb;
     }
@@ -367,36 +399,57 @@ public class UserLoginRestController extends BaseController {
             rb.setFailMsg(ApiResultType.REQ_PARAMS_ERROR);
             return rb;
         }
-        String code = (String) request.getAttribute("code");
-        String r_user = (String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code));
-        //转成对象
-        UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
-        if (StringUtils.equals(userLoginRestEntity.getPassword(), map.get("oldpwd"))) {
-            //执行更新密码流程
-            int i = userInfoRestServiceI.updatePWD(code, map.get("newpwd"));
-            if (i < 1) {
-                rb.setFailMsg(ApiResultType.PASSWORD_UPDATE_ERROR);
-                return rb;
+        try {
+            String code = (String) request.getAttribute("code");
+            String r_user = getUserCache(code);
+            //转成对象
+            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
+            if (StringUtils.equals(userLoginRestEntity.getPassword(), map.get("oldpwd"))) {
+                //执行更新密码流程
+                int i = userInfoRestServiceI.updatePWD(code, map.get("newpwd"));
+                if (i < 1) {
+                    rb.setFailMsg(ApiResultType.PASSWORD_UPDATE_ERROR);
+                    return rb;
+                }
+                //设置redis缓存 缓存用户信息
+                userLoginRestEntity.setPassword(map.get("newpwd"));
+                String user = JSON.toJSONString(userLoginRestEntity);
+                updateCache(user, code);
+                rb.setSucResult(ApiResultType.OK);
+            } else {
+                rb.setFailMsg(ApiResultType.PASSWORD_ERROR);
             }
-            //设置redis缓存 缓存用户信息
-            userLoginRestEntity.setPassword(map.get("newpwd"));
-            String user = JSON.toJSONString(userLoginRestEntity);
-            updateCache(user,code);
-            rb.setSucResult(ApiResultType.OK);
-        } else {
-            rb.setFailMsg(ApiResultType.PASSWORD_ERROR);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
         }
         return rb;
     }
 
-    //更新redis缓存通用方法
-    private void updateCache(String user,String code){
-        //先判断是否存在
-        if (StringUtil.isNotEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code)))) {
-            //执行删除
-            redisTemplate.delete(MD5Utils.getMD5(code));
+    //从cache获取用户信息
+    private String getUserCache(String code) {
+        String user = (String) redisTemplate.opsForValue().get(code);
+        //为null 重新获取缓存
+        if (StringUtils.isEmpty(user)) {
+            UserLoginRestEntity task;
+            //判断code类型
+            if (ValidateUtils.isMobile(code)) {
+                task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", code);
+            } else {
+                task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechat_auth", code);
+            }
+            //设置redis缓存 缓存用户信息 30天 毫秒
+            String r_user = JSON.toJSONString(task);
+            updateCache(r_user, code);
+            return r_user;
         }
-        redisTemplate.opsForValue().set(MD5Utils.getMD5(code), user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+        return user;
+    }
+
+    //更新redis缓存通用方法
+    private void updateCache(String user, String code) {
+        redisTemplate.opsForValue().set(code, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -431,7 +484,7 @@ public class UserLoginRestController extends BaseController {
 
     @RequestMapping(value = "/updatepwd", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean updatepwd(@RequestBody Map<String, String> map,HttpServletRequest request) {
-        return this.updatepwd(null, map,request);
+    public ResultBean updatepwd(@RequestBody Map<String, String> map, HttpServletRequest request) {
+        return this.updatepwd(null, map, request);
     }
 }

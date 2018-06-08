@@ -56,6 +56,6 @@ public class ResultBean implements Serializable {
     public void setSucResult(Object result) {
         setCode(ApiResultType.OK.getCode());
         setMsg(ApiResultType.OK.getStr());
-        setResult(result);
+        //setResult(result);
     }
 }

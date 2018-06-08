@@ -89,6 +89,21 @@
 		<filter-name>CorsFilter</filter-name>
 		<url-pattern>/rest/*</url-pattern>
 	</filter-mapping>
+
+	<!-- 自定义 api 过滤器-->
+	<filter>
+		<filter-name>apiFilter</filter-name>
+		<filter-class>com.fnjz.front.filter.Apifilter</filter-class>
+		<init-param>
+			<param-name>fnjzapi</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>apiFilter</filter-name>
+		<url-pattern>/rest/api/*</url-pattern>
+	</filter-mapping>
+
 	<!-- CORS 解决跨域请求问题 end -->
 	<listener>
 		<description>Introspector缓存清除监听器</description>

@@ -6,9 +6,11 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
-import com.fnjz.front.utils.MD5Utils;
+import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
+import com.fnjz.front.utils.ValidateUtils;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,11 +33,16 @@ import java.util.concurrent.TimeUnit;
 @Api(description = "android/ios",tags = "手势密码相关")
 public class GestureRestController extends BaseController{
 
+    private static final Logger logger = Logger.getLogger(GestureRestController.class);
+
     @Autowired
     private RedisTemplate redisTemplate;
 
     @Autowired
     private UserInfoRestServiceI userInfoRestServiceI;
+
+    @Autowired
+    private UserLoginRestServiceI userLoginRestService;
 
     @ApiOperation(value = "查询手势开关状态及手势密码")
     @RequestMapping(value = "/checkGestureType/{type}" , method = RequestMethod.GET)
@@ -44,14 +51,20 @@ public class GestureRestController extends BaseController{
         System.out.println("登录终端："+type);
         ResultBean rb = new ResultBean();
         //从缓存中查询开关状态
-        String code = (String) request.getAttribute("code");
-        String user = (String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code));
-        UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
-        rb.setSucResult(ApiResultType.OK);
-        Map<String,String> map = new HashMap<>();
-        map.put("gesturePwType",userLoginRestEntity.getGesturePwType());
-        map.put("gesturePw",userLoginRestEntity.getGesturePw());
-        rb.setResult(map);
+        try {
+            String code = (String) request.getAttribute("code");
+            String user = getUserCache(code);
+            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
+            rb.setSucResult(ApiResultType.OK);
+            Map<String,String> map = new HashMap<>();
+            map.put("gesturePwType",userLoginRestEntity.getGesturePwType());
+            map.put("gesturePw",userLoginRestEntity.getGesturePw());
+            rb.setResult(map);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
+        }
         return rb;
     }
 
@@ -59,7 +72,7 @@ public class GestureRestController extends BaseController{
     @ApiImplicitParams({
             @ApiImplicitParam(name="gesturePwType",value = "开关状态 0：打开 1：关闭",required = true,dataType = "String")
     })
-    @RequestMapping(value = "/updateGestureType/{type}" , method = RequestMethod.POST)
+    @RequestMapping(value = "/updateGestureType/{type}" , method = RequestMethod.PUT)
     @ResponseBody
     public ResultBean updateGestureType(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,HttpServletRequest request,@RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端："+type);
@@ -72,21 +85,26 @@ public class GestureRestController extends BaseController{
             rb.setFailMsg(ApiResultType.GESTURE_PARAMS_LENGTH_ERROR);
             return rb;
         }
-        String userInfoId = (String) request.getAttribute("userInfoId");
-        int i = userInfoRestServiceI.updateGestureType(userInfoId,map.get("gesturePwType"));
-        if(i<1){
-            rb.setFailMsg(ApiResultType.GESTURE_UPDATE_ERROR);
+        try {
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            int i = userInfoRestServiceI.updateGestureType(userInfoId,map.get("gesturePwType"));
+            if(i<1){
+                rb.setFailMsg(ApiResultType.GESTURE_UPDATE_ERROR);
+                return rb;
+            }
+            //更新redis缓存
+            String code = (String) request.getAttribute("code");
+            String user = (String) redisTemplate.opsForValue().get(code);
+            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
+            userLoginRestEntity.setGesturePwType(map.get("gesturePwType"));
+            String user2 = JSON.toJSONString(userLoginRestEntity);
+            updateCache(user2,code);
+            rb.setSucResult(ApiResultType.OK);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
             return rb;
         }
-        rb.setSucResult(ApiResultType.OK);
-        //更新redis缓存
-        String code = (String) request.getAttribute("code");
-        String user = (String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code));
-        UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
-        userLoginRestEntity.setGesturePwType(map.get("gesturePwType"));
-        redisTemplate.delete(MD5Utils.getMD5(code));
-        String user2 = JSON.toJSONString(userLoginRestEntity);
-        redisTemplate.opsForValue().set(MD5Utils.getMD5(code), user2,RedisPrefix.USER_VALID_TIME,  TimeUnit.DAYS);
         return rb;
     }
 
@@ -94,7 +112,7 @@ public class GestureRestController extends BaseController{
     @ApiImplicitParams({
             @ApiImplicitParam(name="gesturePw",value = "手势密码",required = true,dataType = "String")
     })
-    @RequestMapping(value = "/updateGesture/{type}" , method = RequestMethod.POST)
+    @RequestMapping(value = "/updateGesture/{type}" , method = RequestMethod.PUT)
     @ResponseBody
     public ResultBean updateGesture(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,HttpServletRequest request,@RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端："+type);
@@ -105,24 +123,29 @@ public class GestureRestController extends BaseController{
             return rb;
         }*/
         String userInfoId = (String) request.getAttribute("userInfoId");
-        int i = userInfoRestServiceI.updateGesture(userInfoId,map.get("gesturePw"));
-        if(i<1){
-            rb.setFailMsg(ApiResultType.GESTURE_UPDATE_ERROR);
-            return rb;
+        if(map.containsKey("gesturePw")){
+            int i = userInfoRestServiceI.updateGesture(userInfoId,map.get("gesturePw"));
+            if(i<1){
+                rb.setFailMsg(ApiResultType.GESTURE_UPDATE_ERROR);
+                return rb;
+            }
+            //更新redis缓存
+            String code = (String) request.getAttribute("code");
+            String user = (String) redisTemplate.opsForValue().get(code);
+            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
+            userLoginRestEntity.setGesturePw(map.get("gesturePw"));
+            String user2 = JSON.toJSONString(userLoginRestEntity);
+            updateCache(user2,code);
+            rb.setSucResult(ApiResultType.OK);
+        }else{
+            rb.setFailMsg(ApiResultType.GESTURE_PARAMS_ERROR);
         }
-        rb.setSucResult(ApiResultType.OK);
-        //更新redis缓存
-        String code = (String) request.getAttribute("code");
-        String user = (String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code));
-        UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
-        userLoginRestEntity.setGesturePw(map.get("gesturePw"));
-        redisTemplate.delete(MD5Utils.getMD5(code));
-        String user2 = JSON.toJSONString(userLoginRestEntity);
-        redisTemplate.opsForValue().set(MD5Utils.getMD5(code), user2,30,  TimeUnit.DAYS);
+
         return rb;
     }
 
-    @ApiOperation(value = "手势密码登录接口")
+    //TODO 留在移动端判断？？？  暂时注掉
+    /*@ApiOperation(value = "手势密码登录接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name="gesturePw",value = "手势密码",required = true,dataType = "String")
     })
@@ -145,6 +168,30 @@ public class GestureRestController extends BaseController{
             rb.setFailMsg(ApiResultType.GESTURE_PASSWORD_IS_ERROR);
         }
         return rb;
+    }*/
+
+    //从cache获取用户信息
+    private String getUserCache(String code){
+        String user = (String) redisTemplate.opsForValue().get(code);
+        //为null 重新获取缓存
+        if(StringUtils.isEmpty(user)){
+            UserLoginRestEntity task;
+            //判断code类型
+            if(ValidateUtils.isMobile(code)){
+                task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", code);
+            }else{
+                task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechat_auth", code);
+            }
+            //设置redis缓存 缓存用户信息 30天 毫秒
+            String r_user = JSON.toJSONString(task);
+            updateCache(r_user,code);
+            return r_user;
+        }
+        return user;
+    }
+    //更新redis缓存通用方法
+    private void updateCache(String user,String code){
+        redisTemplate.opsForValue().set(code, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
     }
 
     @RequestMapping(value = "/checkGestureType" , method = RequestMethod.GET)
@@ -153,21 +200,21 @@ public class GestureRestController extends BaseController{
         return this.checkGestureType(null,request);
     }
 
-    @RequestMapping(value = "/updateGestureType" , method = RequestMethod.POST)
+    @RequestMapping(value = "/updateGestureType" , method = RequestMethod.PUT)
     @ResponseBody
     public ResultBean updateGestureType(HttpServletRequest request,@RequestBody Map<String, String> map) {
         return this.updateGestureType(null,request,map);
     }
 
-    @RequestMapping(value = "/updateGesture" , method = RequestMethod.POST)
+    @RequestMapping(value = "/updateGesture" , method = RequestMethod.PUT)
     @ResponseBody
     public ResultBean updateGesture(HttpServletRequest request,@RequestBody Map<String, String> map) {
         return this.updateGesture(null,request,map);
     }
 
-    @RequestMapping(value = "/gestureToLogin" , method = RequestMethod.POST)
+    /*@RequestMapping(value = "/gestureToLogin" , method = RequestMethod.POST)
     @ResponseBody
     public ResultBean gestureToLogin(HttpServletRequest request,@RequestBody Map<String, String> map) {
         return this.gestureToLogin(null,request,map);
-    }
+    }*/
 }

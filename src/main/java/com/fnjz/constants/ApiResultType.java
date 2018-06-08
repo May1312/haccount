@@ -40,11 +40,13 @@ public enum ApiResultType {
     PASSWORD_ERROR("01024","密码错误，请重试！"),
     BIND_MOBILE_PWD_ERROR("01025","绑定手机号密码失败，请重试！"),
     VERIFYCODE_LIMIT("01026","业务限流，对同一个手机号码发送短信验证码，支持1条/分钟，5条/小时 ，累计10条/天！"),
-    NOT_ALLOW_BIND_WECHAT("01027","该用户不允许绑定微信！"),
+    NOT_ALLOW_BIND_WECHAT("01027","微信注册用户不允许再绑定微信！"),
     WECHAT_CODE_ISNULL("01028","微信code为空，请检查！"),
     WECHAT_BIND_ERROR("01029","微信授权绑定异常，请重试！"),
     NOT_ALLOW_UNBIND_WECHAT("01030","当前用户为微信注册用户，无法解绑微信！"),
     WECHAT_UNBIND_ERROR("01031","微信解绑失败，请重试！"),
+    MOBILE_UPDATE_ERROR("01032","用户手机号修改失败，请重试！"),
+    WECHAT_IS_BINDED("01033","该微信号已被使用，请检查！"),
 
     //手势密码相关
     GESTURE_PARAMS_ERROR("02001","参数异常，请检查！"),

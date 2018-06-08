@@ -12,6 +12,7 @@ import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,7 +29,9 @@ public class RedisTokenManager implements TokenManager {
     public void setRedis(RedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
         //泛型设置成Long后必须更改对应的序列化方案
-        redisTemplate.setKeySerializer(new JdkSerializationRedisSerializer());
+        /*redisTemplate.setKeySerializer(new JdkSerializationRedisSerializer());*/
+        //设置redis key以字符串显示
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
     }
 
     /**

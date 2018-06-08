@@ -9,7 +9,8 @@ import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.CreateTokenUtils;
-import com.fnjz.front.utils.MD5Utils;
+import com.fnjz.front.utils.SetTokenToAppUtils;
+import com.fnjz.front.utils.ValidateUtils;
 import io.swagger.annotations.*;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
@@ -22,6 +23,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.apache.log4j.Logger;
 
 /**
  * 用户手机号 验证码注册接口
@@ -32,6 +34,9 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/v1")
 @Api(description = "android/ios",tags = "用户注册接口")
 public class UserRegisterRestController extends BaseController {
+
+    private static final Logger logger = Logger.getLogger(UserRegisterRestController.class);
+
     @Autowired
     private UserLoginRestServiceI userLoginRestService;
 
@@ -64,6 +69,10 @@ public class UserRegisterRestController extends BaseController {
             rb.setFailMsg(ApiResultType.REQ_PARAMS_ERROR);
             return rb;
         }
+        if(!ValidateUtils.isMobile(map.get("mobile"))){
+            rb.setFailMsg(ApiResultType.MOBILE_FORMAT_ERROR);
+            return rb;
+        }
         //验证手机号是否已存在
         UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
         if (task != null) {
@@ -71,57 +80,60 @@ public class UserRegisterRestController extends BaseController {
             return rb;
         }
         //校验验证码
-        String code = (String)redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"));
+        String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"));
         //验证码已失效
         if(code==null){
             rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
             return rb;
         }
-        if(StringUtil.equals(code,map.get("verifycode"))){
-            //验证码校验通过
-            //先生成用户详情表获取id--->存入用户登录表
-            UserInfoRestEntity userInfo = new UserInfoRestEntity();
-            //设置手机号
-            userInfo.setMobile(map.get("mobile"));
-            //设置密码
-            userInfo.setPassword(map.get("password"));
-            if(map.get("mobileSystem")!=null){
-                //终端系统
-                userInfo.setMobileSystem(map.get("mobileSystem"));
-            }
-            if(map.get("mobileSystemVersion")!=null){
-                //系统版本号
-                userInfo.setMobileSystemVersion(map.get("mobileSystemVersion"));
-            }
-            if(map.get("mobileManufacturer")!=null){
-                //终端厂商
-                userInfo.setMobileManufacturer(map.get("mobileManufacturer"));
-            }
-            if(map.get("mobileDevice")!=null){
-                //终端设备号
-                userInfo.setMobileDevice(map.get("mobileDevice"));
-            }
-            //执行新增
-            int insertId = userInfoRestService.insert(userInfo);
-            if(insertId>0){
-                //删除短信验证码
-                redisTemplate.delete(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"));
-                //缓存用户信息
-                task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
-                String user = JSON.toJSONString(task);
-                updateCache(user,map.get("mobile"));
-                rb.setSucResult(ApiResultType.OK);
-                Map<String, Object> map2 = new HashMap<>();
-                String token = createTokenUtils.createToken(map.get("mobile"));
-                map2.put("X-AUTH-TOKEN", token);
-                map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
-                rb.setResult(map2);
+        try {
+            if(StringUtil.equals(code,map.get("verifycode"))){
+                //验证码校验通过
+                //先生成用户详情表获取id--->存入用户登录表
+                UserInfoRestEntity userInfo = new UserInfoRestEntity();
+                //设置手机号
+                userInfo.setMobile(map.get("mobile"));
+                //设置密码
+                userInfo.setPassword(map.get("password"));
+                if(map.get("mobileSystem")!=null){
+                    //终端系统
+                    userInfo.setMobileSystem(map.get("mobileSystem"));
+                }
+                if(map.get("mobileSystemVersion")!=null){
+                    //系统版本号
+                    userInfo.setMobileSystemVersion(map.get("mobileSystemVersion"));
+                }
+                if(map.get("mobileManufacturer")!=null){
+                    //终端厂商
+                    userInfo.setMobileManufacturer(map.get("mobileManufacturer"));
+                }
+                if(map.get("mobileDevice")!=null){
+                    //终端设备号
+                    userInfo.setMobileDevice(map.get("mobileDevice"));
+                }
+                //执行新增
+                int insertId = userInfoRestService.insert(userInfo);
+                if(insertId>0){
+                    //缓存用户信息
+                    task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
+                    String user = JSON.toJSONString(task);
+                    updateCache(user,map.get("mobile"));
+                    rb.setSucResult(ApiResultType.OK);
+                    Map<String, Object> map2 = new HashMap<>();
+                    String token = createTokenUtils.createToken(map.get("mobile"));
+                    map2 = SetTokenToAppUtils.getTokenResult(map2,token);
+                    rb.setResult(map2);
+                }else{
+                    rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
+                }
             }else{
-                rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
+                //验证错误
+                rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
+                return rb;
             }
-        }else{
-            //验证错误
-            rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
             return rb;
         }
         return rb;
@@ -129,12 +141,7 @@ public class UserRegisterRestController extends BaseController {
 
     //更新redis缓存通用方法
     private void updateCache(String user,String code){
-        //先判断是否存在
-        if (StringUtil.isNotEmpty((String) redisTemplate.opsForValue().get(MD5Utils.getMD5(code)))) {
-            //执行删除
-            redisTemplate.delete(MD5Utils.getMD5(code));
-        }
-        redisTemplate.opsForValue().set(MD5Utils.getMD5(code), user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(code, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)

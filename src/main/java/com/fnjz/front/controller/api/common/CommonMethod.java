@@ -2,15 +2,14 @@ package com.fnjz.front.controller.api.common;
 
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
-import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
+import com.fnjz.front.utils.ValidateUtils;
 import io.swagger.annotations.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -27,6 +26,8 @@ import java.util.Map;
 @Api(description = "android/ios",tags = "公用调用接口")
 public class CommonMethod extends BaseController {
 
+    private static final Logger logger = Logger.getLogger(CommonMethod.class);
+
     @Autowired
     private UserLoginRestServiceI userLoginRestService;
 
@@ -37,17 +38,25 @@ public class CommonMethod extends BaseController {
     @RequestMapping(value = "/checkMobile/{type}" , method = RequestMethod.POST)
     @ResponseBody
     public ResultBean checkMobile(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
-
         System.out.println("登录终端："+type);
         ResultBean rb = new ResultBean();
         if(StringUtil.isEmpty(map.get("mobile") )){
             rb.setFailMsg(ApiResultType.REQ_PARAMS_ERROR);
             return rb;
         }
-        UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
-        if (task != null) {
-            rb.setFailMsg(ApiResultType.MOBILE_IS_EXISTED);
+        if(!ValidateUtils.isMobile(map.get("mobile"))){
+            rb.setFailMsg(ApiResultType.MOBILE_FORMAT_ERROR);
             return rb;
+        }
+        try {
+            UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
+            if (task != null) {
+                rb.setFailMsg(ApiResultType.MOBILE_IS_EXISTED);
+                return rb;
+            }
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
         }
         rb.setSucResult(ApiResultType.OK);
         return rb;
