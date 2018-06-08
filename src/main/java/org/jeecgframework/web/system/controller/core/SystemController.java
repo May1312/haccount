@@ -10,15 +10,7 @@ import java.net.SocketException;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -227,8 +219,8 @@ public class SystemController extends BaseController {
 	/**
 	 *
 	 * @param request
-	 * @param comboTree
-	 * @param code
+	 * @param
+	 * @param
 	 * @return
 	 */
 	@RequestMapping(params = "formTree")
@@ -1541,29 +1533,35 @@ public class SystemController extends BaseController {
         String msg="啥都没干-没传参数吧！";
         String upFlag=request.getParameter("isup");
         String delFlag=request.getParameter("isdel");
-        //String ctxPath = request.getSession().getServletContext().getRealPath("");
-        String ctxPath=ResourceUtil.getConfigByName("webUploadpath");//demo中设置为D://upFiles,实际项目应因事制宜
+        //String ctxPath = request.getSession().getServletContext().getRealPath("")+File.separator+"webapps";
+		String ctxPath=ResourceUtil.getConfigByName("webUploadpath");//demo中设置为D://upFiles,实际项目应因事制宜
+		//String tempPath = request.getSession().getServletContext().getRealPath("/")+"/uploadFiles";//文件上传路径
         try {
 	        //如果是上传操作
 	        if("1".equals(upFlag)){
 	        	String fileName = null;
 	        	String bizType=request.getParameter("bizType");//上传业务名称
 	        	String bizPath=StoreUploadFilePathEnum.getPath(bizType);//根据业务名称判断上传路径
-	        	String nowday=new SimpleDateFormat("yyyyMMdd").format(new Date());
+				File file = new File(ctxPath);
+				if (!file.exists()) {
+					file.mkdirs();// 创建文件根目录
+				}
+	        	/*String nowday=new SimpleDateFormat("yyyyMMdd").format(new Date());
 	    		File file = new File(ctxPath+File.separator+bizPath+File.separator+nowday);
-	    		if (!file.exists()) {
-	    			file.mkdirs();// 创建文件根目录
-	    		}
+	    		*/
 	            MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
 	            MultipartFile mf=multipartRequest.getFile("file");// 获取上传文件对象
 	    		fileName = mf.getOriginalFilename();// 获取文件名
 	    		String savePath = file.getPath() + File.separator + fileName;
 	    		File savefile = new File(savePath);
-	    		FileCopyUtils.copy(mf.getBytes(), savefile);
+				System.out.println("文件保存地址========================================"+savefile);
+				FileCopyUtils.copy(mf.getBytes(), savefile);
 				msg="上传成功";
 				j.setMsg(msg);
-				String dbpath=bizPath+File.separator+nowday+File.separator+fileName;
-				j.setObj(dbpath);
+
+				String requestURL ="http://"+request.getServerName()+ ":"+ request.getServerPort()+ request.getContextPath();
+				j.setObj(requestURL+"/uploadFiles/"+fileName);
+				System.out.println("访问地址========="+"http://"+requestURL+"/uploadFiles/"+fileName);
 				//1、将文件路径赋值给obj,前台可获取之,随表单提交,然后数据库中存储该路径
 				//2、demo这里用的是AjaxJson对象,开发者可自定义返回对象,但是用t标签的时候路径属性名需为  obj或 filePath 或自己在标签内指定若在标签内指定则action返回路径的名称应保持一致
 	          //如果是删除操作
@@ -1651,5 +1649,6 @@ public class SystemController extends BaseController {
 			}
 		}
 	}
-	
+
+
 }

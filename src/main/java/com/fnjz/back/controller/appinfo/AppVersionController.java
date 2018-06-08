@@ -72,7 +72,7 @@ public class AppVersionController extends BaseController {
 	 * @param request
 	 * @param response
 	 * @param dataGrid
-	 * @param user
+	 * @param
 	 */
 
 	@RequestMapping(params = "datagrid")
@@ -107,7 +107,7 @@ public class AppVersionController extends BaseController {
 	/**
 	 * 添加App版本升级
 	 * 
-	 * @param ids
+	 * @param
 	 * @return
 	 */
 	@RequestMapping(params = "save")
@@ -119,6 +119,11 @@ public class AppVersionController extends BaseController {
 			message = "App版本升级更新成功";
 			AppVersionEntity t = appVersionService.get(AppVersionEntity.class, appVersion.getId());
 			try {
+				if (appVersion.getUrl().contains(",")){
+					String getSignInfo = appVersion.getUrl().substring(appVersion.getUrl().indexOf(",") + 1);
+					appVersion.setUrl(getSignInfo);
+					t.setUrl(getSignInfo);
+				}
 				MyBeanUtils.copyBeanNotNull2Bean(appVersion, t);
 				appVersionService.saveOrUpdate(t);
 				systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
