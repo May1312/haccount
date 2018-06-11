@@ -6,24 +6,19 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
-import com.fnjz.front.utils.MD5Utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
 import org.apache.commons.lang.StringUtils;
-import org.jeecgframework.core.util.MD5Util;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.core.util.oConvertUtils;
 import org.jeecgframework.jwt.def.JwtConstants;
-import org.jeecgframework.jwt.model.TokenModel;
-import org.jeecgframework.jwt.service.TokenManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
@@ -75,7 +70,7 @@ public class ApiInterceptor implements HandlerInterceptor {
             this.sendJsonMessage(response,rb);
             return false;
         }
-        String user = (String)redisTemplate.opsForValue().get(MD5Utils.getMD5(username.toString()));
+        String user = (String)redisTemplate.opsForValue().get(username.toString());
         if (StringUtil.isEmpty(user)) {
             rb.setFailMsg(ApiResultType.TOKEN_TIME_OUT);
             this.sendJsonMessage(response,rb);
