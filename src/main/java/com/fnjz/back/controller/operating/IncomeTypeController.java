@@ -72,7 +72,7 @@ public class IncomeTypeController extends BaseController {
                 List<IncomeTypeEntity> IncomeTypeEntitys = incomeTypeService.findHql("from IncomeTypeEntity where  parentId is not null and parentId !=''");
                 String parentName = "";
                 for (IncomeTypeEntity incomeTypeEntity : IncomeTypeEntitys) {
-                    parentName += incomeTypeEntity.getIncomeType() + "_" + incomeTypeEntity.getParentId() + ",";
+                    parentName += incomeTypeEntity.getIncomeName() + "_" + incomeTypeEntity.getParentId() + ",";
                 }
                 if (StringUtil.isNotEmpty(parentName)) {
                     parentName = parentName.substring(0, parentName.length() - 1);

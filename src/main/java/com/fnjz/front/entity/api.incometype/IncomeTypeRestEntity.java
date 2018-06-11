@@ -168,6 +168,7 @@ public class IncomeTypeRestEntity implements java.io.Serializable {
 	 *@return: java.util.Date  更新时间
 	 */
 	@Column(name ="UPDATE_DATE",nullable=true)
+	@Transient
 	public java.util.Date getUpdateDate(){
 		return this.updateDate;
 	}
@@ -184,6 +185,7 @@ public class IncomeTypeRestEntity implements java.io.Serializable {
 	 *@return: java.util.Date  创建时间
 	 */
 	@Column(name ="CREATE_DATE",nullable=true)
+	@Transient
 	public java.util.Date getCreateDate(){
 		return this.createDate;
 	}
@@ -200,6 +202,7 @@ public class IncomeTypeRestEntity implements java.io.Serializable {
 	 *@return: java.lang.Integer  删除标记
 	 */
 	@Column(name ="DELFLAG",nullable=true,precision=10,scale=0)
+	@Transient
 	public java.lang.Integer getDelflag(){
 		return this.delflag;
 	}
@@ -216,6 +219,7 @@ public class IncomeTypeRestEntity implements java.io.Serializable {
 	 *@return: java.util.Date  删除时间
 	 */
 	@Column(name ="DEL_DATE",nullable=true)
+	@Transient
 	public java.util.Date getDelDate(){
 		return this.delDate;
 	}

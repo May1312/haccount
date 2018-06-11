@@ -87,4 +87,10 @@ public class UserCommUseIncomeRestController extends BaseController {
             return rb;
         }
     }
+
+    @RequestMapping(value = "/getIncomeTypeList", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean list(HttpServletRequest request) {
+        return this.list(null,request);
+    }
 }

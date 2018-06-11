@@ -49,7 +49,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 /**   
  * @Title: Controller
  * @Description: 账本-收入表相关
- * @author zhangdaihao
  * @date 2018-06-06 13:27:56
  * @version V1.0   
  *
@@ -66,37 +65,7 @@ public class IncomeRestController extends BaseController {
 	private IncomeRestServiceI incomeRestService;
 	@Autowired
 	private SystemService systemService;
-	@Autowired
-	private Validator validator;
-	
 
-
-	/**
-	 * 账本-收入表相关列表 页面跳转
-	 * 
-	 * @return
-	 */
-	@RequestMapping(params = "list")
-	public ModelAndView list(HttpServletRequest request) {
-		return new ModelAndView("com/fnjz/front/api.income/incomeRestList");
-	}
-
-	/**
-	 * easyui AJAX请求数据
-	 * 
-	 * @param request
-	 * @param response
-	 * @param dataGrid
-	 */
-
-	@RequestMapping(params = "datagrid")
-	public void datagrid(IncomeRestEntity incomeRest, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(IncomeRestEntity.class, dataGrid);
-		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, incomeRest, request.getParameterMap());
-		this.incomeRestService.getDataGridReturn(cq, true);
-		TagUtil.datagrid(response, dataGrid);
-	}
 
 	/**
 	 * 删除账本-收入表相关
@@ -116,7 +85,6 @@ public class IncomeRestController extends BaseController {
 		j.setMsg(message);
 		return j;
 	}
-
 
 	/**
 	 * 添加账本-收入表相关
@@ -146,78 +114,5 @@ public class IncomeRestController extends BaseController {
 		}
 		j.setMsg(message);
 		return j;
-	}
-
-	/**
-	 * 账本-收入表相关列表页面跳转
-	 * 
-	 * @return
-	 */
-	@RequestMapping(params = "addorupdate")
-	public ModelAndView addorupdate(IncomeRestEntity incomeRest, HttpServletRequest req) {
-		if (StringUtil.isNotEmpty(incomeRest.getId())) {
-			incomeRest = incomeRestService.getEntity(IncomeRestEntity.class, incomeRest.getId());
-			req.setAttribute("incomeRestPage", incomeRest);
-		}
-		return new ModelAndView("com/fnjz/front/api.income/incomeRest");
-	}
-	
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	public List<IncomeRestEntity> list() {
-		List<IncomeRestEntity> listIncomeRests=incomeRestService.getList(IncomeRestEntity.class);
-		return listIncomeRests;
-	}
-	
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<?> get(@PathVariable("id") String id) {
-		IncomeRestEntity task = incomeRestService.get(IncomeRestEntity.class, id);
-		if (task == null) {
-			return new ResponseEntity(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity(task, HttpStatus.OK);
-	}
-
-	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public ResponseEntity<?> create(@RequestBody IncomeRestEntity incomeRest, UriComponentsBuilder uriBuilder) {
-		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
-		Set<ConstraintViolation<IncomeRestEntity>> failures = validator.validate(incomeRest);
-		if (!failures.isEmpty()) {
-			return new ResponseEntity(BeanValidators.extractPropertyAndMessage(failures), HttpStatus.BAD_REQUEST);
-		}
-
-		//保存
-		incomeRestService.save(incomeRest);
-
-		//按照Restful风格约定，创建指向新任务的url, 也可以直接返回id或对象.
-		String id = incomeRest.getId()+"";
-		URI uri = uriBuilder.path("/rest/incomeRestController/" + id).build().toUri();
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(uri);
-
-		return new ResponseEntity(headers, HttpStatus.CREATED);
-	}
-
-	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> update(@RequestBody IncomeRestEntity incomeRest) {
-		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
-		Set<ConstraintViolation<IncomeRestEntity>> failures = validator.validate(incomeRest);
-		if (!failures.isEmpty()) {
-			return new ResponseEntity(BeanValidators.extractPropertyAndMessage(failures), HttpStatus.BAD_REQUEST);
-		}
-
-		//保存
-		incomeRestService.saveOrUpdate(incomeRest);
-
-		//按Restful约定，返回204状态码, 无内容. 也可以返回200状态码.
-		return new ResponseEntity(HttpStatus.NO_CONTENT);
-	}
-
-	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable("id") String id) {
-		incomeRestService.deleteEntityById(IncomeRestEntity.class, id);
 	}
 }

@@ -88,4 +88,10 @@ public class UserCommUseSpendRestController extends BaseController {
             return rb;
         }
     }
+
+    @RequestMapping(value = "/getSpendTypeList", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean list(HttpServletRequest request) {
+        return this.list(null,request);
+    }
 }

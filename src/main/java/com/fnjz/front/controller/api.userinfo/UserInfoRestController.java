@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.ValidateUtils;
@@ -229,6 +230,30 @@ public class UserInfoRestController extends BaseController {
             return rb;
         }
         return rb;
+    }
+
+    @ApiOperation(value = "获取用户详情")
+    @RequestMapping(value = "/userInfo/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean userinfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
+        System.out.println("登录终端：" + type);
+        ResultBean rb = new ResultBean();
+        try {
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            UserInfoRestEntity task = userInfoRestServiceI.findUniqueByProperty(UserInfoRestEntity.class, "id", Integer.valueOf(userInfoId));
+            if(task!=null){
+                rb.setSucResult(ApiResultType.OK);
+                rb.setResult(task);
+                return rb;
+            }else{
+                rb.setFailMsg(ApiResultType.USER_NOT_EXIST);
+                return rb;
+            }
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
+        }
     }
 
     //从cache获取用户信息通用方法
