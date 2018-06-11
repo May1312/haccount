@@ -153,7 +153,7 @@ public class IncomeTypeController extends BaseController {
                 t.setStatus("0");
                 incomeTypeService.saveOrUpdate(t);
                 systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
-                CompareIncomeTypePriorty(incomeType.getParentId(), incomeType.getPrority(), t.getPrority(), "update");
+                CompareIncomeTypePriorty(incomeType.getParentId(), incomeType.getPriority(), t.getPriority(), "update");
             } catch (Exception e) {
                 e.printStackTrace();
                 message = "收入标签管理更新失败";
@@ -163,7 +163,7 @@ public class IncomeTypeController extends BaseController {
             incomeType.setStatus("0");
             incomeTypeService.save(incomeType);
             systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
-            CompareIncomeTypePriorty(incomeType.getParentId(), incomeType.getPrority(), 0, "update");
+            CompareIncomeTypePriorty(incomeType.getParentId(), incomeType.getPriority(), 0, "update");
         }
         j.setMsg(message);
 
@@ -224,7 +224,7 @@ public class IncomeTypeController extends BaseController {
 
         for (int i = 0; i < list.size(); i++) {
             IncomeTypeEntity incomeTypeEntity = list.get(i);
-            incomeTypeEntity.setPrority(i + 1);
+            incomeTypeEntity.setPriority(i + 1);
             incomeTypeService.updateEntitie(incomeTypeEntity);
         }
 

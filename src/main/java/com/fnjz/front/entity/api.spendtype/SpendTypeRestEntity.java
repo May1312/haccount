@@ -1,19 +1,12 @@
 package com.fnjz.front.entity.api.spendtype;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.*;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
 
 /**   
  * @Title: Entity
@@ -26,6 +19,7 @@ import javax.persistence.SequenceGenerator;
 @Table(name = "hbird_spend_type", schema = "")
 @DynamicUpdate(true)
 @DynamicInsert(true)
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @SuppressWarnings("serial")
 public class SpendTypeRestEntity implements java.io.Serializable {
 	/**类目id*/
@@ -50,7 +44,7 @@ public class SpendTypeRestEntity implements java.io.Serializable {
 	private java.lang.Integer delflag;
 	/**删除时间*/
 	private java.util.Date delDate;
-	
+	private List<SpendTypeRestEntity> SpendTypeSons;
 	/**
 	 *方法: 取得java.lang.String
 	 *@return: java.lang.String  类目id
@@ -230,5 +224,13 @@ public class SpendTypeRestEntity implements java.io.Serializable {
 	 */
 	public void setDelDate(java.util.Date delDate){
 		this.delDate = delDate;
+	}
+	@Transient
+	public List<SpendTypeRestEntity> getSpendTypeSons() {
+		return SpendTypeSons;
+	}
+
+	public void setSpendTypeSons(List<SpendTypeRestEntity> spendTypeSons) {
+		SpendTypeSons = new ArrayList<>();
 	}
 }

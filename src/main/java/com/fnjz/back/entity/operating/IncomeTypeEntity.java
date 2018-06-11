@@ -26,7 +26,7 @@ public class IncomeTypeEntity implements java.io.Serializable, Comparable<Income
     /**
      * 收入类目名称
      */
-    private java.lang.String incomeType;
+    private java.lang.String incomeName;
     /**
      * 收入父级类目
      */
@@ -42,7 +42,7 @@ public class IncomeTypeEntity implements java.io.Serializable, Comparable<Income
     /**
      * 优先级
      */
-    private java.lang.Integer prority;
+    private java.lang.Integer priority;
     /**
      * 常用标记,0:不常用,1:常用
      */
@@ -94,9 +94,9 @@ public class IncomeTypeEntity implements java.io.Serializable, Comparable<Income
      *
      * @return: java.lang.String  收入类目名称
      */
-    @Column(name = "INCOME_TYPE", nullable = true, length = 32)
-    public java.lang.String getIncomeType() {
-        return this.incomeType;
+    @Column(name = "INCOME_NAME", nullable = true, length = 32)
+    public java.lang.String getIncomeName() {
+        return this.incomeName;
     }
 
     /**
@@ -104,8 +104,8 @@ public class IncomeTypeEntity implements java.io.Serializable, Comparable<Income
      *
      * @param: java.lang.String  收入类目名称
      */
-    public void setIncomeType(java.lang.String incomeType) {
-        this.incomeType = incomeType;
+    public void setIncomeName(java.lang.String incomeName) {
+        this.incomeName = incomeName;
     }
 
     /**
@@ -170,9 +170,9 @@ public class IncomeTypeEntity implements java.io.Serializable, Comparable<Income
      *
      * @return: java.lang.Integer  优先级
      */
-    @Column(name = "PRORITY", nullable = true, precision = 10, scale = 0)
-    public java.lang.Integer getPrority() {
-        return this.prority;
+    @Column(name = "PRIORITY", nullable = true, precision = 10, scale = 0)
+    public java.lang.Integer getPriority() {
+        return this.priority;
     }
 
     /**
@@ -180,8 +180,8 @@ public class IncomeTypeEntity implements java.io.Serializable, Comparable<Income
      *
      * @param: java.lang.Integer  优先级
      */
-    public void setPrority(java.lang.Integer prority) {
-        this.prority = prority;
+    public void setPriority(java.lang.Integer priority) {
+        this.priority = priority;
     }
 
     /**
@@ -282,6 +282,6 @@ public class IncomeTypeEntity implements java.io.Serializable, Comparable<Income
 
     @Override
     public int compareTo(IncomeTypeEntity o) {
-        return this.prority - o.prority;
+        return this.priority - o.priority;
     }
 }

@@ -1,19 +1,13 @@
 package com.fnjz.front.entity.api.incometype;
 
-import java.math.BigDecimal;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
+import javax.persistence.*;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
 
 /**   
  * @Title: Entity
@@ -26,12 +20,13 @@ import javax.persistence.SequenceGenerator;
 @Table(name = "hbird_income_type", schema = "")
 @DynamicUpdate(true)
 @DynamicInsert(true)
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @SuppressWarnings("serial")
 public class IncomeTypeRestEntity implements java.io.Serializable {
 	/**id*/
 	private java.lang.String id;
 	/**收入类目名称*/
-	private java.lang.String incomeType;
+	private java.lang.String incomeName;
 	/**收入父级类目*/
 	private java.lang.String parentId;
 	/**图标*/
@@ -39,7 +34,7 @@ public class IncomeTypeRestEntity implements java.io.Serializable {
 	/**状态(0:下线,1:上线)*/
 	private java.lang.String status;
 	/**优先级*/
-	private java.lang.Integer prority;
+	private java.lang.Integer priority;
 	/**常用标记,0:不常用,1:常用*/
 	private java.lang.Integer mark;
 	/**更新时间*/
@@ -50,6 +45,7 @@ public class IncomeTypeRestEntity implements java.io.Serializable {
 	private java.lang.Integer delflag;
 	/**删除时间*/
 	private java.util.Date delDate;
+	private List<IncomeTypeRestEntity> IncomeTypeSons;
 	
 	/**
 	 *方法: 取得java.lang.String
@@ -75,17 +71,17 @@ public class IncomeTypeRestEntity implements java.io.Serializable {
 	 *方法: 取得java.lang.String
 	 *@return: java.lang.String  收入类目名称
 	 */
-	@Column(name ="INCOME_TYPE",nullable=true,length=32)
-	public java.lang.String getIncomeType(){
-		return this.incomeType;
+	@Column(name ="INCOME_NAME",nullable=true,length=32)
+	public java.lang.String getIncomeName(){
+		return this.incomeName;
 	}
 
 	/**
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  收入类目名称
 	 */
-	public void setIncomeType(java.lang.String incomeType){
-		this.incomeType = incomeType;
+	public void setIncomeName(java.lang.String incomeName){
+		this.incomeName = incomeName;
 	}
 	/**
 	 *方法: 取得java.lang.String
@@ -139,17 +135,17 @@ public class IncomeTypeRestEntity implements java.io.Serializable {
 	 *方法: 取得java.lang.Integer
 	 *@return: java.lang.Integer  优先级
 	 */
-	@Column(name ="PRORITY",nullable=true,precision=10,scale=0)
-	public java.lang.Integer getPrority(){
-		return this.prority;
+	@Column(name ="PRIORITY",nullable=true,precision=10,scale=0)
+	public java.lang.Integer getPriority(){
+		return this.priority;
 	}
 
 	/**
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  优先级
 	 */
-	public void setPrority(java.lang.Integer prority){
-		this.prority = prority;
+	public void setPriority(java.lang.Integer priority){
+		this.priority = priority;
 	}
 	/**
 	 *方法: 取得java.lang.Integer
@@ -230,5 +226,13 @@ public class IncomeTypeRestEntity implements java.io.Serializable {
 	 */
 	public void setDelDate(java.util.Date delDate){
 		this.delDate = delDate;
+	}
+	@Transient
+	public List<IncomeTypeRestEntity> getIncomeTypeSons() {
+		return IncomeTypeSons;
+	}
+
+	public void setIncomeTypeSons(List<IncomeTypeRestEntity> incomeTypeSons) {
+		IncomeTypeSons = new ArrayList<>();
 	}
 }
