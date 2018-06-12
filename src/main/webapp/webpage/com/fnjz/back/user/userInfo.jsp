@@ -32,7 +32,7 @@
 						<span class="Validform_checktip"></span>
 					</td>
 				</tr>
-				<tr>
+				<%--<tr>
 					<td align="right">
 						<label class="Validform_label">
 							邮箱:
@@ -42,7 +42,7 @@
 						<input class="inputxt" id="email" name="email" ignore="ignore"  value="${userInfoPage.email}" />
 						<span class="Validform_checktip"></span>
 					</td>
-				</tr>
+				</tr>--%>
 				<tr>
 					<td align="right">
 						<label class="Validform_label">

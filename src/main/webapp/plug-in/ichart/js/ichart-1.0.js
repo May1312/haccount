@@ -707,6 +707,7 @@
 				return v;
 			},
 			parseFloat : function(v, d) {
+				alert("v----------"+v+"d--------------"+d);
 				if (!_.isNumber(v)) {
 					v = pF(v);
 					if (!_.isNumber(v))
