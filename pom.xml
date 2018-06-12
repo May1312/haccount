@@ -989,6 +989,14 @@
 			<artifactId>qiniu-java-sdk</artifactId>
 			<version>[7.2.0, 7.2.99]</version>
 		</dependency>
+		<!--信鸽jar包-->
+		<!--<dependency>
+			<groupId>com.tencent</groupId>
+			<artifactId>xinge</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/main/webapp/WEB-INF/lib/PushJavaSDK.jar</systemPath>
+		</dependency>-->
 	</dependencies>
 
 	<organization>

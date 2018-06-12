@@ -9,7 +9,7 @@
             <t:dgCol title="编号" field="id"></t:dgCol>
             <t:dgCol title="昵称" field="nickName" width="120"></t:dgCol>
             <t:dgCol title="手机" field="mobile" width="120"></t:dgCol>
-            <t:dgCol title="邮箱" field="email" width="120"></t:dgCol>
+            <%--<t:dgCol title="邮箱" field="email" width="120"></t:dgCol>--%>
             <t:dgCol title="性别" field="sex" width="120"></t:dgCol>
             <t:dgCol title="出生年月日" field="birthday" formatter="yyyy-MM-dd" width="120"></t:dgCol>
             <%--<t:dgCol title="密码" field="password"   width="120"></t:dgCol>
@@ -40,7 +40,7 @@
             <t:dgCol title="注册时间" field="registerDate" formatter="yyyy-MM-dd hh:mm:ss" width="120"
             ></t:dgCol>
             <t:dgCol title="操作" field="opt" width="100"></t:dgCol>
-            <t:dgDelOpt title="删除" url="userInfoController.do?del&id={id}" urlclass="ace_button" urlfont="fa-trash-o"/>
+            <%--<t:dgDelOpt title="删除" url="userInfoController.do?del&id={id}" urlclass="ace_button" urlfont="fa-trash-o"/>--%>
             <%--<t:dgToolBar title="录入" icon="icon-add" url="userInfoController.do?addorupdate" funname="add"></t:dgToolBar>--%>
             <t:dgToolBar title="编辑" icon="icon-edit" url="userInfoController.do?addorupdate"
                          funname="update"></t:dgToolBar>

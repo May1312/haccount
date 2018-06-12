@@ -60,9 +60,9 @@
                     <a class="layui-btn layui-btn-mini" id="btn_uploadimg">上传图片</a>
 
                     <c:if test="${not empty  spendTypePage.icon}">
-                        <img src="${spendTypePage.icon}" id="show" style="width: 100px;height:100px"/>
+                        <img src="${spendTypePage.icon}" id="show" style="width: 52px;height:52px"/>
                     </c:if>
-                    <img src="${spendTypePage.icon}" id="show" style="width: 100px;height:100px;display: none"/>
+                    <img src="${spendTypePage.icon}" id="show" style="width: 52px;height:52px;display: none"/>
 
                     <span class="Validform_checktip"></span>
                 </div>

@@ -116,7 +116,6 @@ function doBar(){
 }
 function doLine(){
 	var labels = [], data_l = [];
-	console.log(DATA_)
 	for ( var i = 0; i < DATA_.length; i++) {
 		labels.push(DATA_[i].name);
 		data_l.push(DATA_[i].value);
