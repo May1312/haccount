@@ -59,9 +59,12 @@ public enum ApiResultType {
 
     //明细相关
     ACCOUNT_PARAMS_ERROR("04001","参数异常，请检查"),
-    ACCOUNT_TYPE_ERROR("04001","记账类型错误，请检查！"),
-    DELETE_RECORD_ERROR("04002","删除记录异常，请重试！"),
-    ADD_RECORD_ERROR("04003","添加记录异常，请重试！");
+    ACCOUNT_TYPE_ERROR("04002","记账类型异常，请检查！"),
+    DELETE_RECORD_ERROR("04003","删除记录异常，请重试！"),
+    ADD_RECORD_ERROR("04004","添加记录异常，请重试！"),
+    ACCOUNT_MONEY_IS_NULL("04005","记账金额为空，请检查！"),
+    ACCOUNT_MONEY_ERROR("04006","记账金额格式校验错误，请检查！"),
+    ACCOUNT_SPENDDATE_ERROR("04007","记账时间为空，请检查！");
 
     //图表相关
 

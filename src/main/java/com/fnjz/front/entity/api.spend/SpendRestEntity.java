@@ -3,17 +3,14 @@ package com.fnjz.front.entity.api.spend;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Pattern;
 
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
+import com.fnjz.front.entity.api.stagedinfo.StagedInfoRestEntity;
+import org.hibernate.annotations.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**   
  * @Title: Entity
@@ -57,6 +54,7 @@ public class SpendRestEntity implements java.io.Serializable {
 	/**创建时间*/
 	private java.util.Date createDate;
 	/**记账时间*/
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private java.util.Date spendDate;
 	/**删除时间*/
 	private java.util.Date delDate;
@@ -72,6 +70,8 @@ public class SpendRestEntity implements java.io.Serializable {
 	private java.lang.Integer delflag;
 	/**备注*/
 	private java.lang.String remark;
+	//封装分期详情对象
+	private StagedInfoRestEntity stagedInfo;
 	
 	/**
 	 *方法: 取得java.lang.Integer
@@ -427,5 +427,13 @@ public class SpendRestEntity implements java.io.Serializable {
 	 */
 	public void setRemark(java.lang.String remark){
 		this.remark = remark;
+	}
+	@Transient
+	public StagedInfoRestEntity getStagedInfo() {
+		return stagedInfo;
+	}
+
+	public void setStagedInfo(StagedInfoRestEntity stagedInfo) {
+		this.stagedInfo = stagedInfo;
 	}
 }

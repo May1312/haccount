@@ -7,7 +7,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
+import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.*;
 import io.swagger.annotations.*;
@@ -56,6 +58,8 @@ public class UserLoginRestController extends BaseController {
     private CreateTokenUtils createTokenUtils;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private UserAccountBookRestServiceI userAccountBookRestServiceI;
 
     /**
      * 用户登录表相关列表 登陆
@@ -95,6 +99,8 @@ public class UserLoginRestController extends BaseController {
                     //设置redis缓存 缓存用户信息 30天 毫秒
                     String user = JSON.toJSONString(task);
                     updateCache(user, map.get("mobile"));
+                    //缓存用户-账本
+                    setAccountBookCache(task.getUserInfoId(),map.get("mobile"));
                     rb.setSucResult(ApiResultType.OK);
                     //返回token  expire
                     Map<String, Object> map2 = new HashMap<>();
@@ -156,6 +162,8 @@ public class UserLoginRestController extends BaseController {
                     String user = JSON.toJSONString(task);
                     //先判断是否存在
                     updateCache(user, map.get("mobile"));
+                    //缓存用户-账本
+                    setAccountBookCache(task.getUserInfoId(),map.get("mobile"));
                     rb.setResult(map2);
                 } else {
                     rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
@@ -212,6 +220,8 @@ public class UserLoginRestController extends BaseController {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
                     String userToString2 = JSON.toJSONString(task2);
                     updateCache(userToString2, user.getString("unionid"));
+                    //缓存用户-账本
+                    setAccountBookCache(task.getUserInfoId(),user.getString("unionid"));
                     rb.setResult(map2);
                 } else {
                     rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
@@ -223,9 +233,13 @@ public class UserLoginRestController extends BaseController {
                 if (StringUtils.isNotEmpty(task.getMobile())) {
                     token = createTokenUtils.createToken(task.getMobile());
                     updateCache(userToString, task.getMobile());
+                    //缓存用户-账本
+                    setAccountBookCache(task.getUserInfoId(),task.getMobile());
                 } else {
                     token = createTokenUtils.createToken(user.getString("unionid"));
                     updateCache(userToString, user.getString("unionid"));
+                    //缓存用户-账本
+                    setAccountBookCache(task.getUserInfoId(),user.getString("unionid"));
                 }
                 Map<String, Object> map2 = new HashMap<>();
                 map2 = SetTokenToAppUtils.getTokenResult(map2, token);
@@ -442,6 +456,15 @@ public class UserLoginRestController extends BaseController {
     //更新redis缓存通用方法
     private void updateCache(String user, String code) {
         redisTemplate.opsForValue().set(code, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+    }
+
+    //通用方法  用户登录之后缓存用户---账本关系表
+    private void setAccountBookCache(int userInfoId,String code){
+        UserAccountBookRestEntity task = userAccountBookRestServiceI.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
+        String userAccountBook = JSON.toJSONString(task);
+        if(task!=null){
+            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK+code, userAccountBook, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+        }
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)

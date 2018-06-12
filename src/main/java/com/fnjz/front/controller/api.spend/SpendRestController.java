@@ -1,11 +1,23 @@
 package com.fnjz.front.controller.api.spend;
-import java.util.List;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSON;
+import com.fnjz.commonbean.ResultBean;
+import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
+import com.fnjz.front.utils.CommonUtils;
+import com.fnjz.front.utils.ValidateUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -36,23 +48,24 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
-import java.util.Set;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**   
  * @Title: Controller
  * @Description: 账本-支出表相关
- * @author zhangdaihao
  * @date 2018-06-06 11:59:47
  * @version V1.0   
  *
  */
 @Controller
-@RequestMapping("/spendRestController")
+@RequestMapping("/api/v1")
 public class SpendRestController extends BaseController {
 	/**
 	 * Logger for this class
@@ -64,64 +77,81 @@ public class SpendRestController extends BaseController {
 	@Autowired
 	private SystemService systemService;
 	@Autowired
-	private Validator validator;
-	
-
+	private RedisTemplate redisTemplate;
 
 	/**
-	 * 账本-支出表相关列表 页面跳转
-	 * 
+	 *支出记账功能
 	 * @return
 	 */
-	@RequestMapping(params = "list")
-	public ModelAndView list(HttpServletRequest request) {
-		return new ModelAndView("com/fnjz/front/api.spend/spendRestList");
-	}
-
-	/**
-	 * easyui AJAX请求数据
-	 * 
-	 * @param request
-	 * @param response
-	 * @param dataGrid
-	 */
-
-	@RequestMapping(params = "datagrid")
-	public void datagrid(SpendRestEntity spendRest,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(SpendRestEntity.class, dataGrid);
-		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, spendRest, request.getParameterMap());
-		this.spendRestService.getDataGridReturn(cq, true);
-		TagUtil.datagrid(response, dataGrid);
-	}
-
-	/**
-	 * 删除账本-支出表相关
-	 * 
-	 * @return
-	 */
-	@RequestMapping(params = "del")
+	@ApiOperation(value = "支出记账")
+	@RequestMapping(value = "/spendToCharge/{type}", method = RequestMethod.POST)
 	@ResponseBody
-	public AjaxJson del(SpendRestEntity spendRest, HttpServletRequest request) {
-		String message = null;
-		AjaxJson j = new AjaxJson();
-		spendRest = systemService.getEntity(SpendRestEntity.class, spendRest.getId());
-		message = "账本-支出表相关删除成功";
-		spendRestService.delete(spendRest);
-		systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
-		
-		j.setMsg(message);
-		return j;
+	public ResultBean chargeToAccound(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request,@RequestBody SpendRestEntity spend) {
+		System.out.println("登录终端：" + type);
+		ResultBean rb = new ResultBean();
+		//校验记账时间
+		if(spend.getSpendDate()==null){
+			rb.setFailMsg(ApiResultType.ACCOUNT_SPENDDATE_ERROR);
+			return rb;
+		}
+		//校验金额
+		if(spend.getSpendMoney()==null){
+			rb.setFailMsg(ApiResultType.ACCOUNT_MONEY_IS_NULL);
+			return rb;
+		}
+		if(!ValidateUtils.checkDecimal(spend.getSpendMoney()+"")){
+			rb.setFailMsg(ApiResultType.ACCOUNT_MONEY_ERROR);
+			return rb;
+		}
+		//校验二三级类目 id
+		if(StringUtils.isEmpty(spend.getSpendTypePid())){
+			rb.setFailMsg(ApiResultType.ACCOUNT_PARAMS_ERROR);
+			return rb;
+		}
+		if(StringUtils.isEmpty(spend.getSpendTypeId())){
+			rb.setFailMsg(ApiResultType.ACCOUNT_PARAMS_ERROR);
+			return rb;
+		}
+		//判断新增类型
+		if(spend.getIsStaged()==null){
+			rb.setFailMsg(ApiResultType.ACCOUNT_TYPE_ERROR);
+			return rb;
+		}
+		//1 为即时记账类型    2 为分期记账类型
+		if(spend.getIsStaged()==1){
+			try {
+				String code = (String) request.getAttribute("code");
+				String userInfoId = (String) request.getAttribute("userInfoId");
+				String useAccountrCache = getUseAccountrCache(Integer.valueOf(userInfoId), code);
+				UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
+				//获取到账本id 插入记录 TODO 当前账本为1，后台可以获取，后期 账本为多个时，需要传入指定的账本id
+				//设置单笔记录号
+				spend.setSpendOrder(CommonUtils.getAccountOrder());
+				//设置创建时间
+				spend.setCreateDate(new Date());
+				//绑定账本id
+				spend.setAccountBookId(userLoginRestEntity.getAccountBookId());
+				//绑定创建者id
+				spend.setCreateBy(userLoginRestEntity.getUserInfoId());
+				//绑定创建者名称
+				spend.setCreateName(code);
+				//设置记录状态
+				spend.setDelflag(0);
+				spendRestService.save(spend);
+				rb.setSucResult(ApiResultType.OK);
+				return rb;
+			} catch (Exception e) {
+				logger.error(e.toString());
+				rb.setFailMsg(ApiResultType.SERVER_ERROR);
+				return rb;
+			}
+		}else{
+			Map map = new HashMap<>();
+			map.put("msg","分期功能未开放");
+			rb.setResult(map);
+			return rb;
+		}
 	}
-
-
-	/**
-	 * 添加账本-支出表相关
-	 *
-	 * @return
-	 */
-	@RequestMapping(params = "save")
-	@ResponseBody
 	public AjaxJson save(SpendRestEntity spendRest, HttpServletRequest request) {
 		String message = null;
 		AjaxJson j = new AjaxJson();
@@ -145,76 +175,23 @@ public class SpendRestController extends BaseController {
 		return j;
 	}
 
-	/**
-	 * 账本-支出表相关列表页面跳转
-	 * 
-	 * @return
-	 */
-	@RequestMapping(params = "addorupdate")
-	public ModelAndView addorupdate(SpendRestEntity spendRest, HttpServletRequest req) {
-		if (StringUtil.isNotEmpty(spendRest.getId())) {
-			spendRest = spendRestService.getEntity(SpendRestEntity.class, spendRest.getId());
-			req.setAttribute("spendRestPage", spendRest);
+	//从cache获取用户账本信息通用方法
+	private String getUseAccountrCache(int userInfoId,String code) {
+		String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK+code);
+		//为null 重新获取缓存
+		if (StringUtils.isEmpty(user_account)) {
+			UserAccountBookRestEntity task = spendRestService.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
+			//设置redis缓存 缓存用户账本信息 30天
+			String r_user_account = JSON.toJSONString(task);
+			redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK+code, r_user_account, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+			return r_user_account;
 		}
-		return new ModelAndView("com/fnjz/front/api.spend/spendRest");
+		return user_account;
 	}
-	
-	@RequestMapping(method = RequestMethod.GET)
+
+	@RequestMapping(value = "/spendToCharge", method = RequestMethod.POST)
 	@ResponseBody
-	public List<SpendRestEntity> list() {
-		List<SpendRestEntity> listSpendRests=spendRestService.getList(SpendRestEntity.class);
-		return listSpendRests;
-	}
-	
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<?> get(@PathVariable("id") String id) {
-		SpendRestEntity task = spendRestService.get(SpendRestEntity.class, id);
-		if (task == null) {
-			return new ResponseEntity(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity(task, HttpStatus.OK);
-	}
-
-	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public ResponseEntity<?> create(@RequestBody SpendRestEntity spendRest, UriComponentsBuilder uriBuilder) {
-		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
-		Set<ConstraintViolation<SpendRestEntity>> failures = validator.validate(spendRest);
-		if (!failures.isEmpty()) {
-			return new ResponseEntity(BeanValidators.extractPropertyAndMessage(failures), HttpStatus.BAD_REQUEST);
-		}
-
-		//保存
-		spendRestService.save(spendRest);
-
-		//按照Restful风格约定，创建指向新任务的url, 也可以直接返回id或对象.
-		String id = spendRest.getId()+"";
-		URI uri = uriBuilder.path("/rest/spendRestController/" + id).build().toUri();
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(uri);
-
-		return new ResponseEntity(headers, HttpStatus.CREATED);
-	}
-
-	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> update(@RequestBody SpendRestEntity spendRest) {
-		//调用JSR303 Bean Validator进行校验，如果出错返回含400错误码及json格式的错误信息.
-		Set<ConstraintViolation<SpendRestEntity>> failures = validator.validate(spendRest);
-		if (!failures.isEmpty()) {
-			return new ResponseEntity(BeanValidators.extractPropertyAndMessage(failures), HttpStatus.BAD_REQUEST);
-		}
-
-		//保存
-		spendRestService.saveOrUpdate(spendRest);
-
-		//按Restful约定，返回204状态码, 无内容. 也可以返回200状态码.
-		return new ResponseEntity(HttpStatus.NO_CONTENT);
-	}
-
-	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable("id") String id) {
-		spendRestService.deleteEntityById(SpendRestEntity.class, id);
+	public ResultBean chargeToAccound( HttpServletRequest request,@RequestBody SpendRestEntity spend) {
+		return this.chargeToAccound(null,request,spend);
 	}
 }

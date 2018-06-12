@@ -69,7 +69,7 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	/**年龄*/
 	private java.lang.String age;
 	/**星座*/
-	private java.lang.Integer constellation;
+	private java.lang.String constellation;
 	/**终端系统*/
 	private java.lang.String mobileSystem;
 	/**终端系统版本*/
@@ -455,7 +455,7 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.Integer  星座
 	 */
 	@Column(name ="CONSTELLATION",nullable=true,precision=10,scale=0)
-	public java.lang.Integer getConstellation(){
+	public java.lang.String getConstellation(){
 		return this.constellation;
 	}
 
@@ -463,7 +463,7 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  星座
 	 */
-	public void setConstellation(java.lang.Integer constellation){
+	public void setConstellation(java.lang.String constellation){
 		this.constellation = constellation;
 	}
 	/**

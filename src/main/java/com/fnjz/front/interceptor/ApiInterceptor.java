@@ -45,12 +45,17 @@ public class ApiInterceptor implements HandlerInterceptor {
         if(requestPath.indexOf("/rest/api/")==-1 || excludeUrls.contains(requestPath) ||moHuContain(excludeContainUrls, requestPath)){
             return true;
         }
-
         //从header中得到token
         String authHeader = request.getHeader("X-AUTH-TOKEN");
         ResultBean rb = new ResultBean();
         if (authHeader == null) {
             rb.setFailMsg(ApiResultType.USER_IS_NOT_LOGIN);
+            this.sendJsonMessage(response,rb);
+            return false;
+        }
+        //验证jwt长度
+        if(authHeader.split("\\.").length<3){
+            rb.setFailMsg(ApiResultType.TOKEN_IS_INVALID);
             this.sendJsonMessage(response,rb);
             return false;
         }

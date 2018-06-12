@@ -1,6 +1,7 @@
 package com.fnjz.front.aspect;
 
 import com.alibaba.fastjson.JSON;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
@@ -12,6 +13,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -43,7 +45,13 @@ public class LogAspect {
         logger.info("请求路径：" + request.getRequestURL());
         logger.info("请求方式：" + request.getMethod());
         if(!StringUtils.equalsIgnoreCase(request.getMethod(),"GET")){
-            logger.info("请求参数：" + JSON.toJSON(joinPoint.getArgs()));
+            //logger.info("请求参数：" + Arrays.toString(joinPoint.getArgs()));
+            Object obj[] = joinPoint.getArgs();
+            for(Object o :obj){
+                if(o instanceof HttpServletRequest){ }else{
+                    logger.info("请求参数：" + JSON.toJSONString(o));
+                }
+            }
         }
     }
 
