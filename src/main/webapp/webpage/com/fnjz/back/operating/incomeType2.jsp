@@ -17,7 +17,7 @@
 						</label>
 					</td>
 					<td class="value">
-						<input class="inputxt" id="incomeType" name="incomeType" ignore="ignore"  value="${incomeTypePage.incomeType}" />
+						<input class="inputxt" id="incomeName" name="incomeName" ignore="ignore"  value="${incomeTypePage.incomeName}" />
 						<span class="Validform_checktip"></span>
 					</td>
 				</tr>
@@ -61,7 +61,7 @@
 						</label>
 					</td>
 					<td class="value">
-						<input class="inputxt" id="prority" name="prority"   value="${incomeTypePage.prority}" datatype="n" />
+						<input class="inputxt" id="priority" name="priority"   value="${incomeTypePage.priority}" datatype="n" />
 						<span class="Validform_checktip"></span>
 					</td>
 				</tr>

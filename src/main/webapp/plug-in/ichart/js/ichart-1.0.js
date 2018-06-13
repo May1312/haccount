@@ -707,7 +707,7 @@
 				return v;
 			},
 			parseFloat : function(v, d) {
-				alert("v----------"+v+"d--------------"+d);
+				//alert("v----------"+v+"d--------------"+d);
 				if (!_.isNumber(v)) {
 					v = pF(v);
 					if (!_.isNumber(v))
@@ -2493,6 +2493,7 @@ $.Label = $.extend($.Component, {
 		this.total = 0,init=false;
 		c.each(function(d,i){
 			V  = d.value;
+
 			if($.isArray(V)){
 				var T = 0;
 				ML = V.length>ML?V.length:ML;
