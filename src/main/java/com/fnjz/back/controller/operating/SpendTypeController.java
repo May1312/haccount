@@ -287,7 +287,7 @@ public class SpendTypeController extends BaseController {
     }
 
     public void listParentId(HttpServletRequest req) {
-        String hql = "from SpendTypeEntity where parentId is  null ";
+        String hql = "from SpendTypeEntity where parentId  is  null ";
         List<SpendTypeEntity> twoLabelList = spendTypeService.findByQueryString(hql);
         req.setAttribute("twoLabelList", twoLabelList);
     }
