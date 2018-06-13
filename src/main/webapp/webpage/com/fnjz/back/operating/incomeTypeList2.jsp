@@ -6,11 +6,11 @@
         <t:datagrid name="incomeTypeList" title="收入标签管理" actionUrl="incomeTypeController.do?datagrid&labelGrade=2" idField="id"
                     fit="true" queryMode="group">
             <t:dgCol title="编号" field="id" hidden="true"></t:dgCol>
-            <t:dgCol title="收入类目名称" field="incomeType" width="120" query="true"></t:dgCol>
+            <t:dgCol title="收入类目名称" field="incomeName" width="120" query="true"></t:dgCol>
             <%--<t:dgCol title="收入父级类目" field="parentId" width="120"></t:dgCol>--%>
             <%--<t:dgCol title="图标" field="icon" width="120"></t:dgCol>--%>
             <t:dgCol title="状态(0:下线,1:上线)" field="status" width="120" replace="下线_0,上线_1" query="true"></t:dgCol>
-            <t:dgCol title="优先级" field="prority" width="120"></t:dgCol>
+            <t:dgCol title="优先级" field="priority" width="120"></t:dgCol>
             <%--<t:dgCol title="常用标记,0:不常用,1:常用" field="mark" width="120" replace="常用_0,不常用_1"></t:dgCol>--%>
             <t:dgCol title="创建时间" field="createDate" formatter="yyyy-MM-dd hh:mm:ss"  width="120"></t:dgCol>
             <%--<t:dgCol title="删除标记" field="delflag" width="120"></t:dgCol>

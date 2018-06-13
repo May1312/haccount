@@ -18,8 +18,8 @@
                 </label>
             </td>
             <td class="value">
-                <input class="inputxt" id="incomeType" name="incomeType" ignore="ignore"
-                       value="${incomeTypePage.incomeType}"/>
+                <input class="inputxt" id="incomeName" name="incomeName" ignore="ignore"
+                       value="${incomeTypePage.incomeName}"/>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
@@ -33,10 +33,10 @@
 
                 <select class="selectxt" id="parentId" name="parentId" ignore="ignore"
                         value="${incomeTypePage.parentId}">
-                    <option value="${incomeTypePage.parentId}">${incomeTypePage.incomeType}</option>
+                    <option value="${incomeTypePage.parentId}">${incomeTypePage.incomeName}</option>
 
                     <c:forEach items="${twoLabelList}" var="labelList">
-                        <option value="${labelList.id}">${labelList.incomeType}</option>
+                        <option value="${labelList.id}">${labelList.incomeName}</option>
                     </c:forEach>
 
                 </select>
@@ -90,7 +90,7 @@
                 </label>
             </td>
             <td class="value">
-                <input class="inputxt" id="prority" name="prority" value="${incomeTypePage.prority}"
+                <input class="inputxt" id="priority" name="priority" value="${incomeTypePage.priority}"
                        datatype="n"/>
                 <span class="Validform_checktip"></span>
             </td>
