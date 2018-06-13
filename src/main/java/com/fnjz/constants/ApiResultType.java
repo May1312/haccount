@@ -64,7 +64,8 @@ public enum ApiResultType {
     ADD_RECORD_ERROR("04004","添加记录异常，请重试！"),
     ACCOUNT_MONEY_IS_NULL("04005","记账金额为空，请检查！"),
     ACCOUNT_MONEY_ERROR("04006","记账金额格式校验错误，请检查！"),
-    ACCOUNT_SPENDDATE_ERROR("04007","记账时间为空，请检查！");
+    ACCOUNT_SPENDDATE_ERROR("04007","记账时间为空，请检查！"),
+    PAGE_PARAMS_ERROR("04008","分页参数异常，请检查！");
 
     //图表相关
 

@@ -9,5 +9,5 @@ import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 @Service("spendRestService")
 @Transactional
 public class SpendRestServiceImpl extends CommonServiceImpl implements SpendRestServiceI {
-	
+
 }

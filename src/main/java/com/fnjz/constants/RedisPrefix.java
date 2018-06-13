@@ -11,6 +11,8 @@ public class RedisPrefix {
     public static final String PREFIX_USER_VERIFYCODE_RESETPWD = "user_verifycode_resetpwd:";
     //用户绑定手机号验证码前缀
     public static final String PREFIX_USER_VERIFYCODE_BIND_MOBILE = "user_verifycode_bindmobile:";
+    //用户修改绑定手机号验证码前缀
+    public static final String PREFIX_USER_VERIFYCODE_CHANGE_MOBILE = "user_verifycode_changemobile:";
     //用户-账本关联表前缀
     public static final String PREFIX_USER_ACCOUNT_BOOK = "user_account_book:";
     //验证码缓存有效时间 默认三分钟

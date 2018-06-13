@@ -433,6 +433,24 @@ public class UserLoginRestController extends BaseController {
         return rb;
     }
 
+    @ApiOperation(value = "退出登录")
+    @RequestMapping(value = "/logout/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean logout(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,HttpServletRequest request) {
+        System.out.println("登录终端：" + type);
+        ResultBean rb = new ResultBean();
+        String code = (String) request.getAttribute("code");
+        try {
+            redisTemplate.delete(code);
+            rb.setSucResult(ApiResultType.OK);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
+        }
+        return rb;
+    }
+
     //从cache获取用户信息
     private String getUserCache(String code) {
         String user = (String) redisTemplate.opsForValue().get(code);
@@ -501,5 +519,11 @@ public class UserLoginRestController extends BaseController {
     @ResponseBody
     public ResultBean updatepwd(@RequestBody Map<String, String> map, HttpServletRequest request) {
         return this.updatepwd(null, map, request);
+    }
+
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean logout( HttpServletRequest request) {
+        return this.logout(null, request);
     }
 }
