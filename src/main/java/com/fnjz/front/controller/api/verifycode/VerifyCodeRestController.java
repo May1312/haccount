@@ -342,6 +342,12 @@ public class VerifyCodeRestController {
         return this.verifycodeToBind(null,map);
     }
 
+    @RequestMapping(value = "/verifycodeToChange" , method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean verifycodeToChange(@RequestBody Map<String, String> map) {
+        return this.verifycodeToChange(null,map);
+    }
+
     @RequestMapping(value = "/checkOldMobile" , method = RequestMethod.POST)
     @ResponseBody
     public ResultBean checkOldMobile(@RequestBody Map<String, String> map) {

@@ -1,9 +1,9 @@
 package com.fnjz.front.entity.api;
 
-import org.apache.poi.ss.formula.functions.T;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,96 +11,61 @@ import java.util.List;
  */
 public class PageRest implements Serializable {
 
-    // 总条数
-    private Integer totalCount;
+    //总条数
+    private int totalCount;
+    //总页数
+    private int totalPage;
+    private int curPage = 1;
+    //limit 第二个参数 每次查询条数
+    private int pageSize = 10;
+    //limit 第一个参数 开始查询序号
+    private List<?> content;
 
-    // 当前页序号：从1开始计数
-    private Integer curpage = 1;
-
-    // 每页最大条数
-    private Integer itemPerPage = 10;
-
-    // 当前页条数:如果是最后一页，其值小于等于itemPerPage
-    private Integer itemCurPage;
-
-    // 总页数
-    private Integer pageCount;
-
-    private List<T> content = new ArrayList<>();
-
-    /**
-     * 根据当前页序号和每页最大条数取得偏移量，即数据库的offset
-     * @return offset
-     */
-    public Integer getOffset() {
-        return (curpage-1) * itemPerPage;
-    }
-
-    public Integer getTotalCount() {
+    public int getTotalCount() {
         return totalCount;
     }
 
-    public void setTotalCount(Integer totalCount) {
+    public void setTotalCount(int totalCount) {
         this.totalCount = totalCount;
-        if (totalCount % this.itemPerPage == 0) {
-            this.pageCount = totalCount / this.itemPerPage;
-        } else {
-            this.pageCount = totalCount / this.itemPerPage + 1;
+    }
+
+    public int getTotalPage() {
+        return totalPage = this.totalCount % this.pageSize == 0 ?
+                (this.totalCount / this.pageSize) : (this.totalCount/this.pageSize+1);
+    }
+
+    public void setTotalPage(int totalPage) {
+        this.totalPage = totalPage;
+    }
+
+    public int getCurPage() {
+        return curPage;
+    }
+
+    public void setCurPage(int curpage) {
+        this.curPage = curPage;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+    @JsonIgnore
+    public int getStartIndex() {
+        if(this.curPage<0){
+            return 0;
         }
+        return this.pageSize * (this.curPage - 1);
     }
 
-    public Integer getCurpage() {
-        if(curpage>0){
-            return curpage-1;
-        }
-        return curpage;
-    }
-
-    public void setCurpage(Integer curpage) {
-        this.curpage = curpage;
-    }
-
-    public Integer getItemPerPage() {
-        return itemPerPage;
-    }
-
-    public void setItemPerPage(Integer itemPerPage) {
-        this.itemPerPage = itemPerPage;
-    }
-
-    public Integer getItemCurPage() {
-        return itemCurPage;
-    }
-
-    public void setItemCurPage(Integer itemCurPage) {
-        this.itemCurPage = itemCurPage;
-    }
-
-    public Integer getPageCount() {
-        return pageCount;
-    }
-
-    public void setPageCount(Integer pageCount) {
-        this.pageCount = pageCount;
-    }
-
-    public List<T> getContent() {
+    public List<?> getContent() {
         return content;
     }
 
-    public void setContent(List<T> content) {
+    public void setContent(List<?> content) {
         this.content = content;
-    }
-
-    @Override
-    public String toString() {
-        return "PageRest{" +
-                "totalCount=" + totalCount +
-                ", curpage=" + curpage +
-                ", itemPerPage=" + itemPerPage +
-                ", itemCurPage=" + itemCurPage +
-                ", pageCount=" + pageCount +
-                ", content=" + content +
-                '}';
     }
 }

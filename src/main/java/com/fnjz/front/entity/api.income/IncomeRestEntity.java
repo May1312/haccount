@@ -1,19 +1,12 @@
 package com.fnjz.front.entity.api.income;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
 
 /**   
  * @Title: Entity
@@ -45,22 +38,29 @@ public class IncomeRestEntity implements java.io.Serializable {
 	/**三级收入类目_name*/
 	private java.lang.String incomeTypeName;
 	/**更新时间*/
+	@JsonIgnore
 	private java.util.Date updateDate;
 	/**创建时间*/
 	private java.util.Date createDate;
 	/**记账时间*/
 	private java.util.Date incomeDate;
 	/**删除日期*/
+	@JsonIgnore
 	private java.util.Date deleteDate;
 	/**创建者id*/
+	@JsonIgnore
 	private java.lang.Integer createBy;
 	/**创建者名称*/
+	@JsonIgnore
 	private java.lang.String createName;
 	/**修改者id*/
+	@JsonIgnore
 	private java.lang.Integer updateBy;
 	/**修改者名称*/
+	@JsonIgnore
 	private java.lang.String updateName;
 	/**删除状态0:有效,1:删除*/
+	@JsonIgnore
 	private java.lang.Integer delflag;
 	/**备注*/
 	private java.lang.String remark;

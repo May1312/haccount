@@ -154,7 +154,7 @@ public class SpendRestController extends BaseController {
     @RequestMapping(value = "/getSpendList/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean getSpendList(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,
-                                   HttpServletRequest request, @RequestParam String curpage,@RequestParam String itemPerPage) {
+                                   HttpServletRequest request, @RequestParam String curPage,@RequestParam String pageSize) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         try {
@@ -162,15 +162,17 @@ public class SpendRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String useAccountrCache = getUseAccountrCache(Integer.valueOf(userInfoId), code);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
-            String sql = "SELECT * FROM `hbird_account`.`hbird_spend` where account_book_id="+userLoginRestEntity.getAccountBookId()+" AND delflag = 0 ORDER BY create_date LIMIT "+curpage+","+itemPerPage+";";
-            List<SpendRestEntity> list = spendRestService.findListbySql(sql);
-            System.out.println(list.toString());
+            SpendRestEntity se = new SpendRestEntity();
+            PageRest page = spendRestService.findListForPage(userLoginRestEntity.getAccountBookId()+"",Integer.valueOf(curPage),Integer.valueOf(pageSize));
+            System.out.println(page);
+            rb.setSucResult(ApiResultType.OK);
+            rb.setResult(page);
+            return rb;
         } catch (Exception e) {
             logger.error(e.toString());
             rb.setFailMsg(ApiResultType.SERVER_ERROR);
             return rb;
         }
-        return null;
     }
 
 

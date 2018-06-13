@@ -1,14 +1,12 @@
 package com.fnjz.front.entity.api.spend;
 
 import java.math.BigDecimal;
-import java.util.Date;
-
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.Pattern;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fnjz.front.entity.api.stagedinfo.StagedInfoRestEntity;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -23,6 +21,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Table(name = "hbird_spend", schema = "")
 @DynamicUpdate(true)
 @DynamicInsert(true)
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL) //为空字段不返回
 @SuppressWarnings("serial")
 public class SpendRestEntity implements java.io.Serializable {
 	/**id*/
@@ -50,6 +49,7 @@ public class SpendRestEntity implements java.io.Serializable {
 	/**图片记录*/
 	private java.lang.String pictureUrl;
 	/**更新时间*/
+	@JsonIgnore
 	private java.util.Date updateDate;
 	/**创建时间*/
 	private java.util.Date createDate;
@@ -57,16 +57,22 @@ public class SpendRestEntity implements java.io.Serializable {
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private java.util.Date spendDate;
 	/**删除时间*/
+	@JsonIgnore
 	private java.util.Date delDate;
 	/**创建者id*/
+	@JsonIgnore
 	private java.lang.Integer createBy;
 	/**创建者名称*/
+	@JsonIgnore
 	private java.lang.String createName;
 	/**修改者id*/
+	@JsonIgnore
 	private java.lang.Integer updateBy;
 	/**修改者名称*/
+	@JsonIgnore
 	private java.lang.String updateName;
 	/**删除状态,0:有效 1:删除*/
+	@JsonIgnore
 	private java.lang.Integer delflag;
 	/**备注*/
 	private java.lang.String remark;

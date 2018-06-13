@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -38,13 +40,18 @@ public class IncomeTypeRestEntity implements java.io.Serializable {
 	/**常用标记,0:不常用,1:常用*/
 	private java.lang.Integer mark;
 	/**更新时间*/
+	@JsonIgnore
 	private java.util.Date updateDate;
 	/**创建时间*/
+	@JsonIgnore
 	private java.util.Date createDate;
 	/**删除标记*/
+	@JsonIgnore
 	private java.lang.Integer delflag;
 	/**删除时间*/
+	@JsonIgnore
 	private java.util.Date delDate;
+	@JsonIgnore
 	private List<IncomeTypeRestEntity> IncomeTypeSons;
 	
 	/**
