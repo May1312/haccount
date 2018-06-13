@@ -138,7 +138,7 @@ public class IncomeRestController extends BaseController {
             //绑定创建者名称
             income.setCreateName(code);
             //设置记录状态
-            income.setStatus(0);
+            income.setDelflag(0);
             incomeRestService.save(income);
             rb.setSucResult(ApiResultType.OK);
             return rb;

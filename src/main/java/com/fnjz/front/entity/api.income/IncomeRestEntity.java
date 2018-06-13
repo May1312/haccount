@@ -61,7 +61,7 @@ public class IncomeRestEntity implements java.io.Serializable {
 	/**修改者名称*/
 	private java.lang.String updateName;
 	/**删除状态0:有效,1:删除*/
-	private java.lang.Integer status;
+	private java.lang.Integer delflag;
 	/**备注*/
 	private java.lang.String remark;
 	
@@ -328,17 +328,17 @@ public class IncomeRestEntity implements java.io.Serializable {
 	 *方法: 取得java.lang.Integer
 	 *@return: java.lang.Integer  删除状态0:有效,1:删除
 	 */
-	@Column(name ="STATUS",nullable=true,precision=10,scale=0)
-	public java.lang.Integer getStatus(){
-		return this.status;
+	@Column(name ="DELFLAG",nullable=true,precision=10,scale=0)
+	public java.lang.Integer getDelflag(){
+		return this.delflag;
 	}
 
 	/**
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  删除状态0:有效,1:删除
 	 */
-	public void setStatus(java.lang.Integer status){
-		this.status = status;
+	public void setDelflag(java.lang.Integer delflag){
+		this.delflag = delflag;
 	}
 	/**
 	 *方法: 取得java.lang.Object
