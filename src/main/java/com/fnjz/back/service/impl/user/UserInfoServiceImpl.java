@@ -17,29 +17,31 @@ public class UserInfoServiceImpl extends CommonServiceImpl implements UserInfoSe
 
     @Override
     public HashMap<String, Object> attributeStatistics( String startDate, String endDate) {
+
+        String dateSql=" and register_date >= '" + startDate + " ' and register_date <= '" + endDate + "'";
+
         //总记录条数
-        Long countTatalNumber = this.getCountForJdbc("select count(*) from hbird_user_info where 1=1");
+        Long countTatalNumber = this.getCountForJdbc("select count(*) from hbird_user_info where 1=1 and register_date >= '" + startDate + " ' and register_date <= '" + endDate + "'");
 
         //每个性别
         String sexSql = "SELECT COALESCE (SUM(sex = '男' OR sex = '女'), 0)   sexTotalNumber, COALESCE (SUM(sex = '男'), 0)  manNumber, COALESCE (SUM(sex = '女'), 0)  womanNumber" +
-                " FROM   hbird_user_info where 1=1 and register_date >= '" + startDate + " ' and register_date <= '" + endDate + "'";
+                " FROM   hbird_user_info where 1=1 "+dateSql;
         List<Map<String, Object>> sexlist = this.findForJdbc(sexSql);
         //每个职位
         String positionSql = "SELECT COALESCE (SUM(position != '' AND position is NOT NULL), 0) positionTotalNumber, COALESCE (SUM(position = '高'), 0) highPosition, COALESCE (SUM(position = '中'), 0) centrePosition,COALESCE (SUM(position = '低'), 0) lowPosition  " +
-                " FROM   hbird_user_info where 1=1 and register_date >= '" + startDate + " ' and register_date <= '" + endDate + "'";
+                " FROM   hbird_user_info where 1=1 "+dateSql;
         List<Map<String, Object>> positionlist = this.findForJdbc(positionSql);
         //每个年龄阶段
         String ageSql = "SELECT  COALESCE (SUM(age != '' AND age IS NOT NULL), 0) ageTotalNumber, COALESCE (SUM(age >= 10 AND age <= 20), 0) oneToTwoNumber," +
                 " COALESCE (SUM(age > 20 AND age <= 30), 0) twoToThreeNumber,COALESCE (SUM(age > 30 AND age <= 40), 0) threeToFourNumber, " +
                 "COALESCE (SUM(age > 40), 0) afterFourNumber" +
-                " FROM   hbird_user_info where 1=1 and register_date >= '" + startDate + " ' and register_date <= '" + endDate + "'";
+                " FROM   hbird_user_info where 1=1 "+dateSql;
         List<Map<String, Object>> agelist = this.findForJdbc(ageSql);
 
         //每个省份统计
         String ProviceCountsql = "SELECT   province_name,  COALESCE (SUM(province_name != '' and province_name is not null), 0)  AS ProviceCount " +
                 "  FROM  hbird_user_info  where 1=1  and province_name != ''" +
-                "  AND province_name IS NOT NULL" +
-                "  and register_date >= '" + startDate + "' and register_date <= '" + endDate +
+                "  AND province_name IS NOT NULL" +dateSql+
                 "' GROUP BY " +
                 " province_name " +
                 "ORDER BY " +
@@ -49,7 +51,7 @@ public class UserInfoServiceImpl extends CommonServiceImpl implements UserInfoSe
         //省份总记录总数
         Long ProviceTotalNumber = this.getCountForJdbc("SELECT COUNT(province_name) AS ProviceTotalNumber FROM" +
                 "  hbird_user_info WHERE 1=1  and " +
-                "  province_name is NOT NULL AND province_name !='' and register_date >= '"+ startDate + " ' and register_date <= '" + endDate + "'" );
+                "  province_name is NOT NULL AND province_name !='' "+dateSql );
 
         List<Map<String, Object>> everyProviceList = this.findForJdbc(ProviceCountsql);
 
@@ -57,7 +59,7 @@ public class UserInfoServiceImpl extends CommonServiceImpl implements UserInfoSe
         String constellationCountsql = "SELECT " +
                 "constellation,COALESCE (SUM(constellation != '' AND constellation IS NOT NULL), 0)  AS constellationCount " +
                 "FROM " +
-                " hbird_user_info where 1=1 and constellation != '' AND constellation IS NOT NULL and register_date >= '" + startDate + "' and register_date <= '" + endDate +
+                " hbird_user_info where 1=1 and constellation != '' AND constellation IS NOT NULL "+dateSql +
                 "' GROUP BY " +
                 " constellation " +
                 "ORDER BY " +
@@ -65,7 +67,7 @@ public class UserInfoServiceImpl extends CommonServiceImpl implements UserInfoSe
         //星座有记录总数
         Long constellationCount = this.getCountForJdbc("SELECT COUNT(constellation) AS constellationCount FROM" +
                 "  hbird_user_info WHERE 1=1 and " +
-                "  constellation is NOT NULL AND constellation !='' and register_date >= '"+ startDate + "' and register_date <= '" + endDate + "'" );
+                "  constellation is NOT NULL AND constellation !='' "+dateSql );
         List<Map<String, Object>> everyConstellList = this.findForJdbc(constellationCountsql);
         //返回
         HashMap<String, Object> sexMap = listToMap(sexlist, countTatalNumber, Long.parseLong(sexlist.get(0).get("sexTotalNumber").toString()));
