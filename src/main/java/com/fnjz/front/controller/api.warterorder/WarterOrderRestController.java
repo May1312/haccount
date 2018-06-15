@@ -237,16 +237,16 @@ public class WarterOrderRestController extends BaseController {
     @ApiOperation(value = "根据单笔记账号获取订单详情")
     @RequestMapping(value = "/getOrderInfo/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getOrderInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestParam String orderId) {
+    public ResultBean getOrderInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestParam String id) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
-        if (StringUtils.isEmpty(orderId)) {
+        if (StringUtils.isEmpty(id)) {
             rb.setFailMsg(ApiResultType.ORDER_ID_IS_NULL);
             return rb;
         }
         try {
             //获取单笔详情   TODO 现阶段只根据详情id， 后续要加上userid   account book id 判断！！
-            WarterOrderRestEntity task = warterOrderRestService.findUniqueByProperty(WarterOrderRestEntity.class, "id", orderId);
+            WarterOrderRestEntity task = warterOrderRestService.findUniqueByProperty(WarterOrderRestEntity.class, "id", id);
             if (task != null) {
                 rb.setSucResult(ApiResultType.OK);
                 rb.setResult(task);
@@ -453,8 +453,8 @@ public class WarterOrderRestController extends BaseController {
 
     @RequestMapping(value = "/getOrderInfo", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getOrderInfo(@RequestParam String orderId) {
-        return this.getOrderInfo(null, orderId);
+    public ResultBean getOrderInfo(@RequestParam String id) {
+        return this.getOrderInfo(null, id);
     }
 
     @RequestMapping(value = "/updateOrderInfo", method = RequestMethod.PUT)
