@@ -1,5 +1,6 @@
 package com.fnjz.back.controller.operating;
 
+import com.fnjz.back.entity.operating.IncomeTypeEntity;
 import com.fnjz.back.entity.operating.SpendTypeEntity;
 import com.fnjz.back.service.operating.SpendTypeServiceI;
 import org.apache.log4j.Logger;
@@ -68,22 +69,24 @@ public class SpendTypeController extends BaseController {
             if (req.getParameter("labelGrade").equalsIgnoreCase("2")) {
                 return new ModelAndView("com/fnjz/back/operating/spendTypeList2");
             } else if (req.getParameter("labelGrade").equalsIgnoreCase("3")) {
-                //父类名称对应id
-                List<SpendTypeEntity> SpendTypeEntitys = spendTypeService.findHql("from SpendTypeEntity where  parentId is not null and parentId !=''");
-                String parentName = "";
-                for (SpendTypeEntity SpendTypeEntity : SpendTypeEntitys) {
-                    parentName += SpendTypeEntity.getSpendName() + "_" + SpendTypeEntity.getParentId() + ",";
-                }
-                if (StringUtil.isNotEmpty(parentName)) {
-                    parentName = parentName.substring(0, parentName.length() - 1);
-                    req.setAttribute("parentName", parentName);
-                }
-
-
+                parentIdToName(req);
                 return new ModelAndView("com/fnjz/back/operating/spendTypeList3");
             }
         }
         return new ModelAndView("com/fnjz/back/operating/spendTypeList");
+    }
+
+    public void parentIdToName(HttpServletRequest req){
+        //父类名称对应id
+        List<SpendTypeEntity> SpendTypeEntitys = spendTypeService.findHql("from SpendTypeEntity where  parentId is  null ");
+        String parentName = "";
+        for (SpendTypeEntity SpendTypeEntity : SpendTypeEntitys) {
+            parentName += SpendTypeEntity.getSpendName() + "_" + SpendTypeEntity.getId() + ",";
+        }
+        if (StringUtil.isNotEmpty(parentName)) {
+            parentName = parentName.substring(0, parentName.length() - 1);
+            req.setAttribute("parentName", parentName);
+        }
     }
 
     /**
@@ -97,6 +100,9 @@ public class SpendTypeController extends BaseController {
 
     @RequestMapping(params = "datagrid")
     public void datagrid(SpendTypeEntity spendType, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+
+        parentIdToName(request);
+
         CriteriaQuery cq = new CriteriaQuery(SpendTypeEntity.class, dataGrid);
 
         if (StringUtil.isNotEmpty(request.getParameter("labelGrade"))) {
@@ -287,7 +293,7 @@ public class SpendTypeController extends BaseController {
     }
 
     public void listParentId(HttpServletRequest req) {
-        String hql = "from SpendTypeEntity where parentId is  null ";
+        String hql = "from SpendTypeEntity where parentId  is  null ";
         List<SpendTypeEntity> twoLabelList = spendTypeService.findByQueryString(hql);
         req.setAttribute("twoLabelList", twoLabelList);
     }

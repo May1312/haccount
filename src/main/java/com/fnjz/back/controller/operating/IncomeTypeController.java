@@ -63,26 +63,29 @@ public class IncomeTypeController extends BaseController {
     @RequestMapping(params = "list")
     public ModelAndView list(HttpServletRequest req) {
 
-
         if (StringUtil.isNotEmpty(req.getParameter("labelGrade"))) {
             if (req.getParameter("labelGrade").equalsIgnoreCase("2")) {
                 return new ModelAndView("com/fnjz/back/operating/incomeTypeList2");
             } else if (req.getParameter("labelGrade").equalsIgnoreCase("3")) {
-                //父类名称对应id
-                List<IncomeTypeEntity> IncomeTypeEntitys = incomeTypeService.findHql("from IncomeTypeEntity where  parentId is not null and parentId !=''");
-                String parentName = "";
-                for (IncomeTypeEntity incomeTypeEntity : IncomeTypeEntitys) {
-                    parentName += incomeTypeEntity.getIncomeName() + "_" + incomeTypeEntity.getParentId() + ",";
-                }
-                if (StringUtil.isNotEmpty(parentName)) {
-                    parentName = parentName.substring(0, parentName.length() - 1);
-                    req.setAttribute("parentName", parentName);
-                }
 
+                parentIdToName(req);
                 return new ModelAndView("com/fnjz/back/operating/incomeTypeList3");
             }
         }
         return new ModelAndView("com/fnjz/back/operating/incomeTypeList");
+    }
+
+    public void parentIdToName(HttpServletRequest req){
+        //父类名称对应id
+        List<IncomeTypeEntity> IncomeTypeEntitys = incomeTypeService.findHql("from IncomeTypeEntity where  parentId is  null ");
+        String parentName = "";
+        for (IncomeTypeEntity incomeTypeEntity : IncomeTypeEntitys) {
+            parentName += incomeTypeEntity.getIncomeName() + "_" + incomeTypeEntity.getId()+ ",";
+        }
+        if (StringUtil.isNotEmpty(parentName)) {
+            parentName = parentName.substring(0, parentName.length() - 1);
+            req.setAttribute("parentName", parentName);
+        }
     }
 
     /**
@@ -96,6 +99,7 @@ public class IncomeTypeController extends BaseController {
 
     @RequestMapping(params = "datagrid")
     public void datagrid(IncomeTypeEntity incomeType, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+        parentIdToName(request);
         CriteriaQuery cq = new CriteriaQuery(IncomeTypeEntity.class, dataGrid);
 
         if (StringUtil.isNotEmpty(request.getParameter("labelGrade"))) {

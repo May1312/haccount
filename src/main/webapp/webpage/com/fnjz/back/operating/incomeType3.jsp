@@ -32,11 +32,9 @@
             <td class="value">
 
                 <select class="selectxt" id="parentId" name="parentId" ignore="ignore"
-                        value="${incomeTypePage.parentId}">
-                    <option value="${incomeTypePage.parentId}">${incomeTypePage.incomeName}</option>
-
+                        value="">
                     <c:forEach items="${twoLabelList}" var="labelList">
-                        <option value="${labelList.id}">${labelList.incomeName}</option>
+                        <option value="${labelList.id}" <c:if test="${incomeTypePage.parentId==labelList.id}">selected="selected"</c:if>  >${labelList.incomeName}</option>
                     </c:forEach>
 
                 </select>

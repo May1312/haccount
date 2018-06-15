@@ -1,12 +1,15 @@
 package com.fnjz.back.controller.user;
 
 import com.fnjz.back.service.user.UserInfoServiceI;
+import org.jeecgframework.core.util.DateUtils;
+import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
 
@@ -22,10 +25,20 @@ public class DataCenterController {
      */
     @RequestMapping(params = "list")
     public ModelAndView list(HttpServletRequest request) {
-        String startDate = request.getParameter("startDate");
-        request.getParameter("endDate");
-        HashMap<String, Object> map = userInfoService.attributeStatistics("2018-06-01", "2018-06-09");
+        String startDate = request.getParameter("beginDate");
+        String endDate = request.getParameter("endDate");
+        if (StringUtil.isEmpty(startDate) && StringUtil.isEmpty(endDate)){
+            startDate="2018-01-01";
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            endDate = DateUtils.getDate("yyyy-MM-dd");
+        }else {
+            request.setAttribute("startDate",startDate);
+            request.setAttribute("endDate",endDate);
+        }
+        HashMap<String, Object> map = userInfoService.attributeStatistics(startDate, endDate);
         request.setAttribute("map",map);
+
+
         return new ModelAndView("com/fnjz/back/user/userDataCenter");
     }
 

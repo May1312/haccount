@@ -11,7 +11,7 @@
             <t:dgCol title="图标" field="icon" width="120"></t:dgCol>
             <t:dgCol title="状态(0:下线,1:上线)" field="status" width="120" replace="下线_0,上线_1" query="true"></t:dgCol>
             <t:dgCol title="优先级" field="priority" width="120"></t:dgCol>
-            <t:dgCol title="常用字段,0:非常用,1:常用" field="mark" width="120" replace="常用_1,不常用_0"></t:dgCol>
+            <t:dgCol title="常用字段,0:非常用,1:常用" field="mark" width="120" replace="常用_1,不常用_0" query="true"></t:dgCol>
             <t:dgCol title="创建时间" field="createDate" formatter="yyyy-MM-dd hh:mm:ss"  width="120"></t:dgCol>
             <%--<t:dgCol title="删除标记" field="delflag" width="120"></t:dgCol>
             <t:dgCol title="删除时间" field="delDate" formatter="yyyy-MM-dd hh:mm:ss" width="120"></t:dgCol>--%>
