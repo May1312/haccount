@@ -1,14 +1,9 @@
 package com.fnjz.front.entity.api.userinfo;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import javax.persistence.*;
-
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
 
 /**   
  * @Title: Entity
@@ -194,7 +189,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  密码
 	 */
 	@Column(name ="PASSWORD",length=64)
-	@Transient
 	public java.lang.String getPassword(){
 		return this.password;
 	}
@@ -211,7 +205,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  手势密码
 	 */
 	@Column(name ="GESTURE_PW",nullable=true,length=32)
-	@Transient
 	public java.lang.String getGesturePw(){
 		return this.gesturePw;
 	}
@@ -228,7 +221,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  手势密码打开关闭状态 0关闭  1打开
 	 */
 	@Column(name ="GESTURE_PW_TYPE",nullable=true,length=2)
-	@Transient
 	public java.lang.String getGesturePwType(){
 		return this.gesturePwType;
 	}
@@ -245,7 +237,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  微信授权token
 	 */
 	@Column(name ="WECHAT_AUTH",nullable=true,length=32)
-	@Transient
 	public java.lang.String getWechatAuth(){
 		return this.wechatAuth;
 	}
@@ -262,7 +253,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  微博授权token
 	 */
 	@Column(name ="WEIBO_AUTH",nullable=true,length=32)
-	@Transient
 	public java.lang.String getWeiboAuth(){
 		return this.weiboAuth;
 	}
@@ -471,7 +461,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  终端系统
 	 */
 	@Column(name ="MOBILE_SYSTEM",nullable=true,length=32)
-	@Transient
 	public java.lang.String getMobileSystem(){
 		return this.mobileSystem;
 	}
@@ -488,7 +477,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  终端系统版本
 	 */
 	@Column(name ="MOBILE_SYSTEM_VERSION",nullable=true,length=64)
-	@Transient
 	public java.lang.String getMobileSystemVersion(){
 		return this.mobileSystemVersion;
 	}
@@ -505,7 +493,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  终端厂商
 	 */
 	@Column(name ="MOBILE_MANUFACTURER",nullable=true,length=64)
-	@Transient
 	public java.lang.String getMobileManufacturer(){
 		return this.mobileManufacturer;
 	}
@@ -522,7 +509,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  终端设备号
 	 */
 	@Column(name ="MOBILE_DEVICE",nullable=true,length=64)
-	@Transient
 	public java.lang.String getMobileDevice(){
 		return this.mobileDevice;
 	}
@@ -539,7 +525,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  ios_token标识
 	 */
 	@Column(name ="IOS_TOKEN",nullable=true,length=64)
-	@Transient
 	public java.lang.String getIosToken(){
 		return this.iosToken;
 	}
@@ -556,7 +541,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.lang.String  登录ip
 	 */
 	@Column(name ="LOGIN_IP",nullable=true,length=32)
-	@Transient
 	public java.lang.String getLoginIp(){
 		return this.loginIp;
 	}
@@ -605,7 +589,6 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 *@return: java.util.Date  更新时间
 	 */
 	@Column(name ="UPDATE_DATE",nullable=true)
-	@Transient
 	public java.util.Date getUpdateDate(){
 		return this.updateDate;
 	}

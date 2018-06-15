@@ -47,6 +47,10 @@ public enum ApiResultType {
     WECHAT_UNBIND_ERROR("01031","微信解绑失败，请重试！"),
     MOBILE_UPDATE_ERROR("01032","用户手机号修改失败，请重试！"),
     WECHAT_IS_BINDED("01033","该微信号已被使用，请检查！"),
+    UNIONID_IS_NULL("01034","未获取到unionid，请检查！"),
+    encryptedData_IS_NULL("01035","encryptedData为空，请检查！"),
+    IV_IS_NULL("01036","iv为空，请检查！"),
+    KEY_IS_NULL("01037","key为空，请检查！"),
 
     //手势密码相关
     GESTURE_PARAMS_ERROR("02001","参数异常，请检查！"),

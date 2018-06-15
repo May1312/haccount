@@ -2,8 +2,9 @@ package com.fnjz.front.entity.api.warterorder;
 
 import java.math.BigDecimal;
 import javax.persistence.*;
+
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fnjz.front.entity.api.stagedinfo.StagedInfoRestEntity;
-import com.google.gson.annotations.Expose;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -58,6 +59,7 @@ public class WarterOrderRestEntity implements java.io.Serializable {
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private java.util.Date chargeDate;
 	/**删除状态,0:有效 1:删除*/
+	@JSONField(serialize=false)
 	private java.lang.Integer delflag;
 	/**删除时间*/
 	private java.util.Date delDate;

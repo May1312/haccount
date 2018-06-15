@@ -13,6 +13,8 @@ public class RedisPrefix {
     public static final String PREFIX_USER_VERIFYCODE_BIND_MOBILE = "user_verifycode_bindmobile:";
     //用户修改绑定手机号验证码前缀
     public static final String PREFIX_USER_VERIFYCODE_CHANGE_MOBILE = "user_verifycode_changemobile:";
+    //小程序session_key缓存前缀
+    public static final String PREFIX_WXAPPLET_SESSION_KEY = "user_wxapplet_sessionkey:";
     //用户-账本关联表前缀
     public static final String PREFIX_USER_ACCOUNT_BOOK = "user_account_book:";
     //验证码缓存有效时间 默认三分钟
@@ -21,4 +23,6 @@ public class RedisPrefix {
     public static final long USER_VALID_TIME = 30L;
     //用户信息缓存有效时间 默认三十天  单位秒
     public static final String USER_EXPIRE_TIME = "2592000";
+    //session_key 缓存有效时间 默认三十分钟
+    public static final long SESSION_KEY_TIME = 30L;
 }

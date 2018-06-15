@@ -140,10 +140,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
      * @return
      */
     public int updatePWD(String mobile,String password) {
-       int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `password` = " + password + " , `update_date` = NOW() WHERE `mobile` = " + mobile + ";");
+       int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `mobile` = '" + mobile + "';");
        if(i>0){
            //更新info表
-           int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `password` = " + password + " , `update_date` = NOW() WHERE `mobile` = " + mobile + ";");
+           int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `mobile` = '" + mobile + "';");
             return j;
        }
         return i;
@@ -157,10 +157,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
      */
     @Override
     public int updateGestureType(String userInfoId, String gesturePwType) {
-        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `gesture_pw_type` = " + gesturePwType + " , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
+        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `gesture_pw_type` = '" + gesturePwType + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
         if(i>0){
             //更新info表
-            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `gesture_pw_type` = " + gesturePwType + " , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
+            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `gesture_pw_type` = '" + gesturePwType + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
             return j;
         }
         return i;
@@ -174,21 +174,31 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
      */
     @Override
     public int updateGesture(String userInfoId, String gesturePw) {
-        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `gesture_pw` = " + gesturePw + " , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
-        if(i>0){
-            //更新info表
-            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `gesture_pw` = " + gesturePw + " , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
-            return j;
+        if(gesturePw.length()<1){
+            int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `gesture_pw` = NULL , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
+            if(i>0){
+                //更新info表
+                int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `gesture_pw` = NULL , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
+                return j;
+            }
+            return i;
+        }else{
+            int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `gesture_pw` = '" + gesturePw + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
+            if(i>0){
+                //更新info表
+                int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `gesture_pw` = '" + gesturePw + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
+                return j;
+            }
+            return i;
         }
-        return i;
     }
 
     @Override
     public int updateMobile(String userInfoId, String mobile) {
-        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `mobile` = " + mobile + " , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
+        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `mobile` = '" + mobile + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
         if(i>0){
             //更新info表
-            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `mobile` = " + mobile + " , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
+            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `mobile` = '" + mobile + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
             return j;
         }
         return i;
@@ -196,10 +206,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
 
     @Override
     public int updateMobileAndPWD(String userInfoId, String mobile, String password) {
-        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `mobile` = " + mobile + " ,`password` = " + password + ", `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
+        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `mobile` = '" + mobile + "' ,`password` = '" + password + "', `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
         if(i>0){
             //更新info表
-            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `mobile` = " + mobile + " ,`password` = " + password + " , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
+            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `mobile` = '" + mobile + "' ,`password` = '" + password + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
             return j;
         }
         return i;
@@ -207,10 +217,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
 
     @Override
     public int updateWeChat(String code, String unionid) {
-        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `wechat_auth` = " + unionid + ", `update_date` = NOW() WHERE `mobile` = " + code + ";");
+        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `wechat_auth` = '" + unionid + "', `update_date` = NOW() WHERE `mobile` = '" + code + "';");
         if(i>0){
             //更新info表
-            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `wechat_auth` = " + unionid + " , `update_date` = NOW() WHERE `mobile` = " + code + ";");
+            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `wechat_auth` = '" + unionid + "' , `update_date` = NOW() WHERE `mobile` = '" + code + "';");
             return j;
         }
         return i;

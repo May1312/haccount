@@ -215,6 +215,7 @@
                         <value>/rest/api/v1/verifycodeToRegister</value>
                         <value>/rest/api/v1/verifycodeToResetpwd</value>
                         <value>/rest/api/v1/resetpwd</value>
+                        <value>/rest/api/v1/registerByWXApplet</value>
                     </list>
                 </property>
                 <property name="excludeContainUrls">
@@ -229,6 +230,7 @@
                         <value>/rest/api/v1/verifycodeToRegister</value>
                         <value>/rest/api/v1/verifycodeToResetpwd</value>
                         <value>/rest/api/v1/resetpwd</value>
+                        <value>/rest/api/v1/registerByWXApplet</value>
                     </list>
                 </property>
             </bean>
