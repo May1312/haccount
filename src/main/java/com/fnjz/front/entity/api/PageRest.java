@@ -9,7 +9,8 @@ import java.util.List;
 /**
  * Created by yhang on 2018/6/13.
  */
-public class PageRest implements Serializable {
+@JsonIgnoreProperties(value={"startIndex"})
+public class PageRest{
 
     //总条数
     private int totalCount;
@@ -42,7 +43,7 @@ public class PageRest implements Serializable {
         return curPage;
     }
 
-    public void setCurPage(int curpage) {
+    public void setCurPage(int curPage) {
         this.curPage = curPage;
     }
 
@@ -53,7 +54,7 @@ public class PageRest implements Serializable {
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
-    @JsonIgnore
+
     public int getStartIndex() {
         if(this.curPage<0){
             return 0;

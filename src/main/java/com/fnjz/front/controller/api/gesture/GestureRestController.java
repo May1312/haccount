@@ -108,7 +108,7 @@ public class GestureRestController extends BaseController{
         return rb;
     }
 
-    @ApiOperation(value = "修改手势密码")
+    @ApiOperation(value = "上传/修改手势密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name="gesturePw",value = "手势密码",required = true,dataType = "String")
     })

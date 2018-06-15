@@ -119,7 +119,7 @@ public class SpendRestController extends BaseController {
             try {
                 String code = (String) request.getAttribute("code");
                 String userInfoId = (String) request.getAttribute("userInfoId");
-                String useAccountrCache = getUseAccountrCache(Integer.valueOf(userInfoId), code);
+                String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
                 UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
                 //获取到账本id 插入记录 TODO 当前账本为1，后台可以获取，后期 账本为多个时，需要传入指定的账本id
                 //设置单笔记录号
@@ -160,7 +160,7 @@ public class SpendRestController extends BaseController {
         try {
             String code = (String) request.getAttribute("code");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            String useAccountrCache = getUseAccountrCache(Integer.valueOf(userInfoId), code);
+            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             SpendRestEntity se = new SpendRestEntity();
             PageRest page = spendRestService.findListForPage(userLoginRestEntity.getAccountBookId()+"",Integer.valueOf(curPage),Integer.valueOf(pageSize));
@@ -177,7 +177,7 @@ public class SpendRestController extends BaseController {
 
 
     //从cache获取用户账本信息通用方法
-    private String getUseAccountrCache(int userInfoId, String code) {
+    private String getUseAccountCache(int userInfoId, String code) {
         String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code);
         //为null 重新获取缓存
         if (StringUtils.isEmpty(user_account)) {

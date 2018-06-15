@@ -59,13 +59,15 @@ public enum ApiResultType {
 
     //明细相关
     ACCOUNT_PARAMS_ERROR("04001","参数异常，请检查"),
-    ACCOUNT_TYPE_ERROR("04002","记账类型异常，请检查！"),
+    ACCOUNT_TYPE_ERROR("04002","记账类型为空，请检查！"),
     DELETE_RECORD_ERROR("04003","删除记录异常，请重试！"),
     ADD_RECORD_ERROR("04004","添加记录异常，请重试！"),
     ACCOUNT_MONEY_IS_NULL("04005","记账金额为空，请检查！"),
     ACCOUNT_MONEY_ERROR("04006","记账金额格式校验错误，请检查！"),
     ACCOUNT_SPENDDATE_ERROR("04007","记账时间为空，请检查！"),
-    PAGE_PARAMS_ERROR("04008","分页参数异常，请检查！");
+    PAGE_PARAMS_ERROR("04008","分页参数异常，请检查！"),
+    ORDER_ID_IS_NULL("04009","单笔记账详情id为空，请检查！"),
+    GET_ORDER_ERROR("04010","未查询到该笔记账，请检查！");
 
     //图表相关
 
