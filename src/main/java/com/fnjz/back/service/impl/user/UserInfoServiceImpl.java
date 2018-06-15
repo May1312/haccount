@@ -42,7 +42,7 @@ public class UserInfoServiceImpl extends CommonServiceImpl implements UserInfoSe
         String ProviceCountsql = "SELECT   province_name,  COALESCE (SUM(province_name != '' and province_name is not null), 0)  AS ProviceCount " +
                 "  FROM  hbird_user_info  where 1=1  and province_name != ''" +
                 "  AND province_name IS NOT NULL" +dateSql+
-                "' GROUP BY " +
+                "  GROUP BY " +
                 " province_name " +
                 "ORDER BY " +
                 " ProviceCount DESC" +
@@ -60,7 +60,7 @@ public class UserInfoServiceImpl extends CommonServiceImpl implements UserInfoSe
                 "constellation,COALESCE (SUM(constellation != '' AND constellation IS NOT NULL), 0)  AS constellationCount " +
                 "FROM " +
                 " hbird_user_info where 1=1 and constellation != '' AND constellation IS NOT NULL "+dateSql +
-                "' GROUP BY " +
+                " GROUP BY " +
                 " constellation " +
                 "ORDER BY " +
                 " constellationCount DESC ";

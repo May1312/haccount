@@ -17,7 +17,8 @@
             <t:dgCol title="删除时间" field="delDate" formatter="yyyy-MM-dd hh:mm:ss" width="120"></t:dgCol>--%>
             <t:dgCol title="操作" field="opt" width="100"></t:dgCol>
 
-            <t:dgFunOpt funname="online(id)" title="上线" urlclass="ace_button" urlStyle="background-color:#1a7bb9;" urlfont="fa-database"></t:dgFunOpt>
+            <t:dgConfOpt url="incomeTypeController.do?online&id={id}" title="上线" message="确认上线吗" urlclass="ace_button"
+                         urlStyle="background-color:#1a7bb9;" urlfont="fa-database"/>
             <t:dgDelOpt title="删除" url="incomeTypeController.do?del&id={id}" urlclass="ace_button"
                         urlfont="fa-trash-o"/>
 
@@ -35,26 +36,3 @@
         </t:datagrid>
     </div>
 </div>
-<script>
-    function online(id) {
-        $.ajax({
-            url: 'incomeTypeController.do?online',
-            data: {'id': id},
-            dataType: 'JSON',
-            type: 'post',
-            error: erryFunction,  //错误执行方法
-            success: succFunction //成功执行方法
-        });
-
-        function erryFunction() {
-            alert("error");
-        }
-
-        function succFunction(j) {
-            alert(j.msg);
-            window.location.reload();
-        }
-    }
-
-
-</script>
