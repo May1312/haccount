@@ -63,18 +63,17 @@
 <script>
 
     function query() {
-        var beginDate=$("#beginDate").val();
-        var endDate=$("#endDate").val();
-        if (beginDate!="" && endDate==""){
+        var beginDate = $("#beginDate").val();
+        var endDate = $("#endDate").val();
+        if (beginDate != "" && endDate == "") {
             alert("输入结束时间");
             return false;
         }
-        if (beginDate=="" && endDate!=""){
+        if (beginDate == "" && endDate != "") {
             alert("输入开始时间");
             return false;
         }
-        var i = window.location.href="dataCenterController.do?list&beginDate="+beginDate+"&endDate="+endDate;
-
+        var i = window.location.href = "dataCenterController.do?list&beginDate=" + beginDate + "&endDate=" + endDate;
 
 
         /*$.ajax({

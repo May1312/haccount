@@ -18,6 +18,7 @@ import java.util.HashMap;
 public class DataCenterController {
     @Autowired
     private UserInfoServiceI userInfoService;
+
     /**
      * 用户信息列表 页面跳转
      *
@@ -27,20 +28,20 @@ public class DataCenterController {
     public ModelAndView list(HttpServletRequest request) {
         String startDate = request.getParameter("beginDate");
         String endDate = request.getParameter("endDate");
-        if (StringUtil.isEmpty(startDate) && StringUtil.isEmpty(endDate)){
-            startDate="2018-01-01";
+        if (StringUtil.isEmpty(startDate) && StringUtil.isEmpty(endDate)) {
+            startDate = "2018-01-01";
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             endDate = DateUtils.getDate("yyyy-MM-dd");
-        }else {
-            request.setAttribute("startDate",startDate);
-            request.setAttribute("endDate",endDate);
+        } else {
+            request.setAttribute("startDate", startDate);
+            request.setAttribute("endDate", endDate);
         }
         HashMap<String, Object> map = userInfoService.attributeStatistics(startDate, endDate);
-        request.setAttribute("map",map);
+        request.setAttribute("map", map);
 
 
         return new ModelAndView("com/fnjz/back/user/userDataCenter");
     }
 
-   
+
 }

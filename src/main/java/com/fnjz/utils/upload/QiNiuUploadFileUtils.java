@@ -13,6 +13,7 @@ import com.qiniu.util.UrlSafeBase64;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+
 import java.io.IOException;
 
 public class QiNiuUploadFileUtils {
@@ -44,13 +45,13 @@ public class QiNiuUploadFileUtils {
         System.out.println(response);
         if (response.message().equalsIgnoreCase("OK") && response.code() == 200) {
             returnStr = domain + fileName;
-        }else {
-            returnStr="上传失败请重新上传";
+        } else {
+            returnStr = "上传失败请重新上传";
         }
         return returnStr;
     }
 
-    public  String bytesUpload(String domain,byte[] uploadBytes,String bucket,String key){
+    public String bytesUpload(String domain, byte[] uploadBytes, String bucket, String key) {
         /*String domain="http://ow78fg6o1.bkt.clouddn.com/";
         String bucket = "stockintro";*/
         int hashCode = uploadBytes.hashCode();
@@ -63,13 +64,13 @@ public class QiNiuUploadFileUtils {
         UploadManager uploadManager = new UploadManager(cfg);
 
         String upToken = auth.uploadToken(bucket);
-        String result ="";
+        String result = "";
         try {
             Response response = uploadManager.put(uploadBytes, key, upToken);
             //解析上传成功的结果
             DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
             //System.out.println(putRet.hash);
-            result = domain+key;
+            result = domain + key;
         } catch (QiniuException ex) {
             Response r = ex.response;
             System.err.println(r.toString());
@@ -85,14 +86,15 @@ public class QiNiuUploadFileUtils {
 
     /**
      * 删除文件
+     *
      * @param bucket
      * @param key
      */
-    public void delFile(String bucket, String key){
+    public void delFile(String bucket, String key) {
 
         //实例化一个BucketManager对象
-        BucketManager bucketManager = new BucketManager(auth,null);
-        if (bucket.trim().isEmpty()){
+        BucketManager bucketManager = new BucketManager(auth, null);
+        if (bucket.trim().isEmpty()) {
             bucket = "";
         }
         //要测试的空间和key，并且这个key在你空间中存在
@@ -129,10 +131,6 @@ public class QiNiuUploadFileUtils {
 
         //System.out.println("返回地址====" + s);
     }
-
-
-
-
 
 
 }

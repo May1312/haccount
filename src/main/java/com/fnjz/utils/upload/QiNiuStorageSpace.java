@@ -2,9 +2,9 @@ package com.fnjz.utils.upload;
 
 public enum QiNiuStorageSpace {
 
-    LABEL_PICTURE("http://p9twjlzxw.bkt.clouddn.com/","label-picture"),
-    HEAD_PICTURE("http://p9tz2oly9.bkt.clouddn.com/","head-picture"),
-    FEEDBACK_PICTURE("http://p9vuhnix3.bkt.clouddn.com/","feedback-picture");
+    LABEL_PICTURE("http://p9twjlzxw.bkt.clouddn.com/", "label-picture"),
+    HEAD_PICTURE("http://p9tz2oly9.bkt.clouddn.com/", "head-picture"),
+    FEEDBACK_PICTURE("http://p9vuhnix3.bkt.clouddn.com/", "feedback-picture");
 
     QiNiuStorageSpace(String domain, String storageSpaceName) {
         this.domain = domain;

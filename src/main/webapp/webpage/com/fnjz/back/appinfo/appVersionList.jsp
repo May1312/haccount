@@ -9,7 +9,7 @@
             <t:dgCol title="app版本号" field="version" width="120"></t:dgCol>
             <t:dgCol title="终端系统标识" field="mobileSystem" width="120" replace="Android_0,ios_1"></t:dgCol>
             <t:dgCol title="app状态,是否强制升级" field="installStatus" width="120" replace="否_0,是_1"></t:dgCol>
-            <t:dgCol title="app状态,是否生效" field="appStatus" replace="否_0,是_1"  width="120"></t:dgCol>
+            <t:dgCol title="app状态,是否生效" field="appStatus" replace="否_0,是_1" width="120"></t:dgCol>
             <%--<t:dgCol title="系统适配范围max" field="systemMax"   width="120"></t:dgCol>
             <t:dgCol title="系统适配范围min" field="systemMin"   width="120"></t:dgCol>--%>
             <t:dgCol title="app下载地址" field="url" width="120"></t:dgCol>

@@ -1,10 +1,8 @@
 package com.fnjz.back.controller.operating;
 
-import com.fnjz.back.entity.operating.IncomeTypeEntity;
 import com.fnjz.back.entity.operating.SpendTypeEntity;
 import com.fnjz.back.service.operating.SpendTypeServiceI;
 import org.apache.log4j.Logger;
-import org.hibernate.cache.ehcache.internal.util.HibernateUtil;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
@@ -76,7 +74,7 @@ public class SpendTypeController extends BaseController {
         return new ModelAndView("com/fnjz/back/operating/spendTypeList");
     }
 
-    public void parentIdToName(HttpServletRequest req){
+    public void parentIdToName(HttpServletRequest req) {
         //父类名称对应id
         List<SpendTypeEntity> SpendTypeEntitys = spendTypeService.findHql("from SpendTypeEntity where  parentId is  null ");
         String parentName = "";
@@ -238,17 +236,17 @@ public class SpendTypeController extends BaseController {
 
     //选中常用添加到常用二类中
 
-    public  void addOftenUsed (SpendTypeEntity spendTypeEntity){
+    public void addOftenUsed(SpendTypeEntity spendTypeEntity) {
 
-        String parentId="";
+        String parentId = "";
         String hql = "from SpendTypeEntity where 1=1 and spendName = '常用' ";
         List<SpendTypeEntity> SpendTypeEntitys = spendTypeService.findHql(hql);
 
 
-        if (SpendTypeEntitys.size()>0){
+        if (SpendTypeEntitys.size() > 0) {
             SpendTypeEntity spendTypeEntity1 = SpendTypeEntitys.get(0);
             parentId = spendTypeEntity.getId();
-        }else {
+        } else {
             SpendTypeEntity spendTypeEntity1 = new SpendTypeEntity();
             spendTypeEntity1.setSpendName("常用");
             spendTypeEntity1.setPriority(0);

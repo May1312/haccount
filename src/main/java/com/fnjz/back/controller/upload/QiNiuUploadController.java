@@ -67,22 +67,22 @@ public class QiNiuUploadController {
         return j;
     }
 
-    public HashMap<String, String> chooseDomainByBacketName(String storageSpaceName){
+    public HashMap<String, String> chooseDomainByBacketName(String storageSpaceName) {
         String domain = "";
         String backetName = "";
-        if (storageSpaceName.equalsIgnoreCase(QiNiuStorageSpace.LABEL_PICTURE.getStorageSpaceName())){
-            domain=QiNiuStorageSpace.LABEL_PICTURE.getDomain();
-            backetName=QiNiuStorageSpace.LABEL_PICTURE.getStorageSpaceName();
-        }else if (storageSpaceName.equalsIgnoreCase(QiNiuStorageSpace.HEAD_PICTURE.getStorageSpaceName())){
+        if (storageSpaceName.equalsIgnoreCase(QiNiuStorageSpace.LABEL_PICTURE.getStorageSpaceName())) {
+            domain = QiNiuStorageSpace.LABEL_PICTURE.getDomain();
+            backetName = QiNiuStorageSpace.LABEL_PICTURE.getStorageSpaceName();
+        } else if (storageSpaceName.equalsIgnoreCase(QiNiuStorageSpace.HEAD_PICTURE.getStorageSpaceName())) {
             domain = QiNiuStorageSpace.HEAD_PICTURE.getDomain();
-            backetName=QiNiuStorageSpace.HEAD_PICTURE.getStorageSpaceName();
-        }else if (storageSpaceName.equalsIgnoreCase(QiNiuStorageSpace.FEEDBACK_PICTURE.getStorageSpaceName())){
-            domain=QiNiuStorageSpace.FEEDBACK_PICTURE.getDomain();
-            backetName=QiNiuStorageSpace.FEEDBACK_PICTURE.getStorageSpaceName();
+            backetName = QiNiuStorageSpace.HEAD_PICTURE.getStorageSpaceName();
+        } else if (storageSpaceName.equalsIgnoreCase(QiNiuStorageSpace.FEEDBACK_PICTURE.getStorageSpaceName())) {
+            domain = QiNiuStorageSpace.FEEDBACK_PICTURE.getDomain();
+            backetName = QiNiuStorageSpace.FEEDBACK_PICTURE.getStorageSpaceName();
         }
         HashMap<String, String> spaces = new HashMap<>();
-        spaces.put("domain",domain);
-        spaces.put("backetName",backetName);
+        spaces.put("domain", domain);
+        spaces.put("backetName", backetName);
         return spaces;
     }
 }

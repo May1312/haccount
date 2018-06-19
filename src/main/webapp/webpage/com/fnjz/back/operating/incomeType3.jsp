@@ -34,7 +34,8 @@
                 <select class="selectxt" id="parentId" name="parentId" ignore="ignore"
                         value="">
                     <c:forEach items="${twoLabelList}" var="labelList">
-                        <option value="${labelList.id}" <c:if test="${incomeTypePage.parentId==labelList.id}">selected="selected"</c:if>  >${labelList.incomeName}</option>
+                        <option value="${labelList.id}"
+                                <c:if test="${incomeTypePage.parentId==labelList.id}">selected="selected"</c:if>  >${labelList.incomeName}</option>
                     </c:forEach>
 
                 </select>
@@ -69,18 +70,18 @@
                 </div>
             </td>
         </tr>
-        <%--<tr >
-            <td align="right">
-                <label class="Validform_label">
-                    状态(0:下线,1:上线):
-                </label>
-            </td>
-            <td class="value">
+            <%--<tr >
+                <td align="right">
+                    <label class="Validform_label">
+                        状态(0:下线,1:上线):
+                    </label>
+                </td>
+                <td class="value">
 
-                <input class="inputxt" id="status" name="status" value="${incomeTypePage.status}" datatype="*"/>
-                <span class="Validform_checktip"></span>
-            </td>
-        </tr>--%>
+                    <input class="inputxt" id="status" name="status" value="${incomeTypePage.status}" datatype="*"/>
+                    <span class="Validform_checktip"></span>
+                </td>
+            </tr>--%>
         <tr>
             <td align="right">
                 <label class="Validform_label">
@@ -100,10 +101,12 @@
                 </label>
             </td>
             <td class="value">
-                <%--<input class="inputxt" id="mark" name="mark" ignore="ignore" value="${incomeTypePage.mark}"
-                       datatype="n"/>--%>
-                    不常用<input id="mark" type="radio" name="mark" ignore="ignore" <c:if test="${'1' !=   incomeTypePage.mark }">checked="checked"</c:if>  value="0"/>
-                    常用<input id="mark2" type="radio" name="mark" ignore="ignore" <c:if test="${'1' ==   incomeTypePage.mark }">checked="checked"</c:if>  value="1"/>
+                    <%--<input class="inputxt" id="mark" name="mark" ignore="ignore" value="${incomeTypePage.mark}"
+                           datatype="n"/>--%>
+                不常用<input id="mark" type="radio" name="mark" ignore="ignore"
+                          <c:if test="${'1' !=   incomeTypePage.mark }">checked="checked"</c:if> value="0"/>
+                常用<input id="mark2" type="radio" name="mark" ignore="ignore"
+                         <c:if test="${'1' ==   incomeTypePage.mark }">checked="checked"</c:if> value="1"/>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
@@ -136,7 +139,7 @@
 
     $(function () {
         $("#btn_uploadimg").click(function () {
-            var url = "${webRoot}/"+ "/qiNiuUploadController.do?uploadFiles";
+            var url = "${webRoot}/" + "/qiNiuUploadController.do?uploadFiles";
             qiNiuupload(url, "FileUpload", "icon", "show");
         })
     })

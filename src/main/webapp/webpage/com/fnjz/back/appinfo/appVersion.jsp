@@ -28,10 +28,12 @@
                 </label>
             </td>
             <td class="value">
-                <%--<input class="inputxt" id="mobileSystem" name="mobileSystem" ignore="ignore"
-                       value="${appVersionPage.mobileSystem}" />--%>
-                    Android<input  type="radio" name="mobileSystem" ignore="ignore" <c:if test="${'1' !=   appVersionPage.mobileSystem }">checked="checked"</c:if>  value="0"/>
-                    ios<input  type="radio" name="mobileSystem" ignore="ignore" <c:if test="${'1' ==   appVersionPage.mobileSystem }">checked="checked"</c:if>  value="1"/>
+                    <%--<input class="inputxt" id="mobileSystem" name="mobileSystem" ignore="ignore"
+                           value="${appVersionPage.mobileSystem}" />--%>
+                Android<input type="radio" name="mobileSystem" ignore="ignore"
+                              <c:if test="${'1' !=   appVersionPage.mobileSystem }">checked="checked"</c:if> value="0"/>
+                ios<input type="radio" name="mobileSystem" ignore="ignore"
+                          <c:if test="${'1' ==   appVersionPage.mobileSystem }">checked="checked"</c:if> value="1"/>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
@@ -42,10 +44,12 @@
                 </label>
             </td>
             <td class="value">
-                <%--<input class="inputxt" id="installStatus" name="installStatus" ignore="ignore"
-                       value="${appVersionPage.installStatus}" datatype="n"/>--%>
-                    否<input  type="radio" name="installStatus" ignore="ignore" <c:if test="${'1' !=   appVersionPage.installStatus }">checked="checked"</c:if>  value="0"/>
-                    是<input  type="radio" name="installStatus" ignore="ignore" <c:if test="${'1' ==   appVersionPage.installStatus }">checked="checked"</c:if>  value="1"/>
+                    <%--<input class="inputxt" id="installStatus" name="installStatus" ignore="ignore"
+                           value="${appVersionPage.installStatus}" datatype="n"/>--%>
+                否<input type="radio" name="installStatus" ignore="ignore"
+                        <c:if test="${'1' !=   appVersionPage.installStatus }">checked="checked"</c:if> value="0"/>
+                是<input type="radio" name="installStatus" ignore="ignore"
+                        <c:if test="${'1' ==   appVersionPage.installStatus }">checked="checked"</c:if> value="1"/>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
@@ -56,10 +60,12 @@
                 </label>
             </td>
             <td class="value">
-                <%--<input class="inputxt" id="appStatus" name="appStatus" ignore="ignore"
-                       value="${appVersionPage.appStatus}" datatype="n"/>--%>
-                    否<input  type="radio" name="appStatus" ignore="ignore" <c:if test="${'1' !=   appVersionPage.appStatus }">checked="checked"</c:if>  value="0"/>
-                    是<input  type="radio" name="appStatus" ignore="ignore" <c:if test="${'1' ==   appVersionPage.appStatus }">checked="checked"</c:if>  value="1"/>
+                    <%--<input class="inputxt" id="appStatus" name="appStatus" ignore="ignore"
+                           value="${appVersionPage.appStatus}" datatype="n"/>--%>
+                否<input type="radio" name="appStatus" ignore="ignore"
+                        <c:if test="${'1' !=   appVersionPage.appStatus }">checked="checked"</c:if> value="0"/>
+                是<input type="radio" name="appStatus" ignore="ignore"
+                        <c:if test="${'1' ==   appVersionPage.appStatus }">checked="checked"</c:if> value="1"/>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>

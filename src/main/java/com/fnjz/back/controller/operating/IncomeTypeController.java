@@ -75,12 +75,12 @@ public class IncomeTypeController extends BaseController {
         return new ModelAndView("com/fnjz/back/operating/incomeTypeList");
     }
 
-    public void parentIdToName(HttpServletRequest req){
+    public void parentIdToName(HttpServletRequest req) {
         //父类名称对应id
         List<IncomeTypeEntity> IncomeTypeEntitys = incomeTypeService.findHql("from IncomeTypeEntity where  parentId is  null ");
         String parentName = "";
         for (IncomeTypeEntity incomeTypeEntity : IncomeTypeEntitys) {
-            parentName += incomeTypeEntity.getIncomeName() + "_" + incomeTypeEntity.getId()+ ",";
+            parentName += incomeTypeEntity.getIncomeName() + "_" + incomeTypeEntity.getId() + ",";
         }
         if (StringUtil.isNotEmpty(parentName)) {
             parentName = parentName.substring(0, parentName.length() - 1);

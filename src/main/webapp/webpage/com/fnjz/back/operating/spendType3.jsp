@@ -32,10 +32,11 @@
 
                 <select class="selectxt" id="parentId" name="parentId" ignore="ignore"
                         value="">
-                    <%--<option value="${spendTypePage.parentId}">${spendTypePage.spendName}</option>--%>
+                        <%--<option value="${spendTypePage.parentId}">${spendTypePage.spendName}</option>--%>
 
                     <c:forEach items="${twoLabelList}" var="labelList">
-                        <option value="${labelList.id}"  <c:if test="${spendTypePage.parentId==labelList.id}">selected="selected"</c:if>    >${labelList.spendName}</option>
+                        <option value="${labelList.id}"
+                                <c:if test="${spendTypePage.parentId==labelList.id}">selected="selected"</c:if>    >${labelList.spendName}</option>
                     </c:forEach>
 
                 </select>
@@ -68,17 +69,17 @@
                 </div>
             </td>
         </tr>
-        <%--<tr >
-            <td align="right">
-                <label class="Validform_label">
-                    状态(0:下线,1:上线):
-                </label>
-            </td>
-            <td class="value">
-                <input class="inputxt" id="status" name="status" value="${spendTypePage.status}" datatype="*"/>
-                <span class="Validform_checktip"></span>
-            </td>
-        </tr>--%>
+            <%--<tr >
+                <td align="right">
+                    <label class="Validform_label">
+                        状态(0:下线,1:上线):
+                    </label>
+                </td>
+                <td class="value">
+                    <input class="inputxt" id="status" name="status" value="${spendTypePage.status}" datatype="*"/>
+                    <span class="Validform_checktip"></span>
+                </td>
+            </tr>--%>
         <tr>
             <td align="right">
                 <label class="Validform_label">
@@ -106,11 +107,13 @@
                                checked="checked"/>
                     </c:if>
                     <c:if test="${'1' !=  spendTypePage.mark }"></c:if>--%>
-                <%--<input class="inputxt" id="mark" name="mark" ignore="ignore" value="${spendTypePage.mark}"
-                       datatype="n"/>--%>
+                    <%--<input class="inputxt" id="mark" name="mark" ignore="ignore" value="${spendTypePage.mark}"
+                           datatype="n"/>--%>
 
-                    不常用<input id="mark" type="radio" name="mark" ignore="ignore" <c:if test="${'1' !=   spendTypePage.mark }">checked="checked"</c:if>  value="0"/>
-                    常用<input id="mark2" type="radio" name="mark" ignore="ignore" <c:if test="${'1' ==   spendTypePage.mark }">checked="checked"</c:if>  value="1"/>
+                不常用<input id="mark" type="radio" name="mark" ignore="ignore"
+                          <c:if test="${'1' !=   spendTypePage.mark }">checked="checked"</c:if> value="0"/>
+                常用<input id="mark2" type="radio" name="mark" ignore="ignore"
+                         <c:if test="${'1' ==   spendTypePage.mark }">checked="checked"</c:if> value="1"/>
 
                 <span class="Validform_checktip"></span>
             </td>
