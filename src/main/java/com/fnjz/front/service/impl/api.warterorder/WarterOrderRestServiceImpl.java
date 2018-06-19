@@ -42,7 +42,6 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         Map<String,Object> map= new HashMap<>();
         for (Iterator<WarterOrderRestDTO> it = listForPage.iterator(); it.hasNext();)
         {
-            JSONObject obj0 = new JSONObject();
             WarterOrderRestDTO warter = it.next();
             //判断是否包含日期
             if(map.containsKey(DateUtils.convert2String(warter.getCreateDate()))){
@@ -63,6 +62,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         Map<String, Object> resultMap = sortMapByKey(map);    //按Key进行排序
 
         JSONArray array = new JSONArray();
+        JSONArray array2 = new JSONArray();
         for (Map.Entry<String, Object> entry : resultMap.entrySet()) {
             //封装成key value格式
             JSONObject obj = new JSONObject();
@@ -81,9 +81,9 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 BigDecimal dayIncome = new BigDecimal(0);
                 BigDecimal daySpend = new BigDecimal(0);
                 List list = JSONArray.parseArray(jsonObject.getString("dayArrays"));
-                for (int j = 0;i<list.size();j++) {
+                for (int j = 0;j<list.size();j++) {
                     //支出
-                    WarterOrderRestDTO warter = JSONObject.parseObject(JSONObject.toJSONString(list.get(i)),WarterOrderRestDTO.class);
+                    WarterOrderRestDTO warter = JSONObject.parseObject(JSONObject.toJSONString(list.get(j)),WarterOrderRestDTO.class);
                     if(warter.getOrderType()==1){
                         daySpend = dayIncome.add(warter.getMoney());
                     }
@@ -91,8 +91,10 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                         dayIncome = dayIncome.add(warter.getMoney());
                     }
                 }
-                ((JSONObject) array.get(i)).put("dayIncome",dayIncome);
-                ((JSONObject) array.get(i)).put("daySpend",daySpend);
+                jsonObject.put("dayIncome",dayIncome);
+                jsonObject.put("daySpend",daySpend);
+                array2.add(jsonObject);
+                //jsonObject转json
             }
         }
         //获取月份统计数据
@@ -101,7 +103,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         obj2.put("monthSpend",account.get("spend"));
         obj2.put("monthIncome",account.get("income"));
         JSONArray ja = new JSONArray();
-        ja.add(array);
+        ja.add(array2);
         ja.add(obj2);
         return ja;
     }
@@ -132,7 +134,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Override
     public Map<String, BigDecimal> getAccount(String time, String accountBookId) {
-        List<Map<String,BigDecimal>> listbySql = commonDao.findListMapbySql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END) AS spend,SUM( CASE WHEN order_type = 2 THEN money ELSE 1 END) AS income FROM `hbird_water_order` WHERE charge_date LIKE '" + time + "%' AND account_book_id = '" + accountBookId + "';");
+        List<Map<String,BigDecimal>> listbySql = commonDao.findListMapbySql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END) AS spend,SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END) AS income FROM `hbird_water_order` WHERE create_date LIKE '" + time + "%' AND account_book_id = '" + accountBookId + "' AND delflag = 0;");
         return (Map)listbySql.get(0);
     }
 }
@@ -141,6 +143,6 @@ class MapKeyComparator implements Comparator<String>{
     @Override
     public int compare(String str1, String str2) {
 
-        return str1.compareTo(str2);
+        return str2.compareTo(str1);
     }
 }
