@@ -1,5 +1,6 @@
 package com.fnjz.front.dao;
 
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import org.jeecgframework.minidao.annotation.MiniDao;
 import org.jeecgframework.minidao.annotation.Param;
@@ -18,14 +19,12 @@ public interface WarterOrderRestDao {
      * 分页查询流水
      * @param time
      * @param accountBookId
-     * @param curPage
-     * @param pageSize
      * @return
      */
-    @ResultType(WarterOrderRestEntity.class)
-    @Sql("SELECT * FROM hbird_water_order where account_book_id=:accountBookId AND delflag = 0 AND create_date like concat(:time,'%') ORDER BY create_date LIMIT :curPage,:pageSize")
-    List<WarterOrderRestEntity> findListForPage(@Param("time") String time, @Param("accountBookId") String accountBookId, @Param("curPage") Integer curPage, @Param("pageSize") Integer pageSize);
-
+    @ResultType(WarterOrderRestDTO.class)
+    @Sql("SELECT * FROM hbird_water_order where account_book_id=:accountBookId AND delflag = 0 AND create_date like concat(:time,'%') ORDER BY create_date DESC")
+    //List<WarterOrderRestDTO> findListForPage(@Param("time") String time, @Param("accountBookId") String accountBookId, @Param("curPage") Integer curPage, @Param("pageSize") Integer pageSize);
+    List<WarterOrderRestDTO> findListForPage(@Param("time") String time, @Param("accountBookId") String accountBookId);
     /**
      * 查询总记录数
      * @param time

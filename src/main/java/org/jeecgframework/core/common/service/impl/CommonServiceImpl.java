@@ -206,6 +206,11 @@ public class CommonServiceImpl implements CommonService {
 		return commonDao.findListbySql(query);
 	}
 
+	@Transactional(readOnly = true)
+	public <T> List<T> findListMapbySql(String query) {
+		return commonDao.findListMapbySql(query);
+	}
+
 	/**
 	 * 通过属性称获取实体带排序
 	 * 

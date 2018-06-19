@@ -2,6 +2,8 @@ package com.fnjz.front.utils;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -9,6 +11,13 @@ import java.util.Date;
  * Created by yhang on 2018/6/14.
  */
 public class DateUtils {
+
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
+    public static String convert2String(Date date) {
+        return DATE_FORMAT.format(date);
+    }
+
     public static Date fetchBeginOfDay(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);

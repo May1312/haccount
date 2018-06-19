@@ -30,6 +30,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.AbstractEntityPersister;
+import org.hibernate.transform.Transformers;
 import org.hibernate.type.Type;
 import org.jeecgframework.core.annotation.JeecgEntityTitle;
 import org.jeecgframework.core.common.dao.IGenericBaseCommonDao;
@@ -407,6 +408,16 @@ public abstract class GenericBaseCommonDao<T, PK extends Serializable>
 	 */
 	public List<T> findListbySql(final String sql) {
 		Query querys = getSession().createSQLQuery(sql);
+		return querys.list();
+	}
+
+	/**
+	 * 返回map
+	 * @param sql
+	 * @return
+	 */
+	public List<T> findListMapbySql(final String sql) {
+		Query querys = getSession().createSQLQuery(sql).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);;
 		return querys.list();
 	}
 

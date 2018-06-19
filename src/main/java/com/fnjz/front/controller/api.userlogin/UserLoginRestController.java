@@ -273,65 +273,72 @@ public class UserLoginRestController extends BaseController {
             rb.setFailMsg(ApiResultType.WXAPPLET_CODE_ISNULL);
             return rb;
         }
-        String user = WXAppletUtils.getUser(map.get("code"));
-        JSONObject jsonObject = JSONObject.parseObject(user);
-        if (jsonObject.getString("errcode") != null) {
-            rb.setFailMsg(ApiResultType.WXAPPLET_LOGIN_ERROR);
-        } else {
-            String unionid = jsonObject.getString("unionid");
-            if (StringUtils.isNotEmpty(unionid)) {
-                //获取到unionid
-                UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
-                String userToString = JSON.toJSONString(task);
-                if (task == null) {
-                    //执行注册流程  TODO 需要移动端传递解密数据获取unionid，id可以从wx获取到--->说明移动端已经微信授权，即已经缓存用户信息
-                    // TODO 此种情况不应该出现，如果出现 先只保存unionid吧
-                    UserInfoRestEntity uire = new UserInfoRestEntity();
-                    uire.setWechatAuth(unionid);
-                    int insert = userInfoRestServiceI.insert(uire);
-                    if (insert > 0) {
+        try {
+            String user = WXAppletUtils.getUser(map.get("code"));
+            JSONObject jsonObject = JSONObject.parseObject(user);
+            if (jsonObject.getString("errcode") != null) {
+                rb.setFailMsg(ApiResultType.WXAPPLET_LOGIN_ERROR);
+            } else {
+                String unionid = jsonObject.getString("unionid");
+                if (StringUtils.isNotEmpty(unionid)) {
+                    //获取到unionid
+                    UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
+                    String userToString = JSON.toJSONString(task);
+                    if (task == null) {
+                        //执行注册流程  TODO 需要移动端传递解密数据获取unionid，id可以从wx获取到--->说明移动端已经微信授权，即已经缓存用户信息
+                        // TODO 此种情况不应该出现，如果出现 先只保存unionid吧
+                        UserInfoRestEntity uire = new UserInfoRestEntity();
+                        uire.setWechatAuth(unionid);
+                        int insert = userInfoRestServiceI.insert(uire);
+                        if (insert > 0) {
+                            rb.setSucResult(ApiResultType.OK);
+                            //根据openid生成token  expire
+                            String token = createTokenUtils.createToken(unionid);
+                            Map<String, Object> map2 = new HashMap<>();
+                            map2.put("token", token);
+                            map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
+                            //设置redis缓存 缓存用户信息 30天 毫秒
+                            UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
+                            String userToString2 = JSON.toJSONString(task2);
+                            updateCache(userToString, unionid);
+                            rb.setResult(map2);
+                        } else {
+                            rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
+                        }
+                    } else {
+                        //登录流程 {"session_key":"i2VyPTkFlFNh8bThTGXShg==","openid":"ojYTl5RhdfPo9hKspMa8sfJ3Fvno"}
                         rb.setSucResult(ApiResultType.OK);
                         //根据openid生成token  expire
-                        String token = createTokenUtils.createToken(unionid);
+                        //手机号不为空情况下
+                        String token;
+                        if (StringUtils.isNotEmpty(task.getMobile())) {
+                            token = createTokenUtils.createToken(task.getMobile());
+                            updateCache(userToString, task.getMobile());
+                        } else {
+                            token = createTokenUtils.createToken(unionid);
+                            updateCache(userToString, unionid);
+                        }
                         Map<String, Object> map2 = new HashMap<>();
-                        map2 = SetTokenToAppUtils.getTokenResult(map2, token);
-                        //设置redis缓存 缓存用户信息 30天 毫秒
-                        UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
-                        String userToString2 = JSON.toJSONString(task2);
-                        updateCache(userToString, unionid);
+                        map2.put("token", token);
+                        map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
                         rb.setResult(map2);
-                    } else {
-                        rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
                     }
                 } else {
-                    //登录流程 {"session_key":"i2VyPTkFlFNh8bThTGXShg==","openid":"ojYTl5RhdfPo9hKspMa8sfJ3Fvno"}
-                    rb.setSucResult(ApiResultType.OK);
-                    //根据openid生成token  expire
-                    //手机号不为空情况下
-                    String token;
-                    if (StringUtils.isNotEmpty(task.getMobile())) {
-                        token = createTokenUtils.createToken(task.getMobile());
-                        updateCache(userToString, task.getMobile());
-                    } else {
-                        token = createTokenUtils.createToken(unionid);
-                        updateCache(userToString, unionid);
-                    }
-                    Map<String, Object> map2 = new HashMap<>();
-                    map2.put("token", token);
-                    map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
+                    String session_key = jsonObject.getString("session_key");
+                    String sessionKeyPrefix = CommonUtils.getSessionKeyPrefix();
+                    //unionid为空的情况下 需要wx提供加密的userinfo,缓存session_key
+                    redisTemplate.opsForValue().set(RedisPrefix.PREFIX_WXAPPLET_SESSION_KEY + sessionKeyPrefix, session_key, RedisPrefix.SESSION_KEY_TIME, TimeUnit.MINUTES);
+                    //RedisPrefix.PREFIX_WXAPPLET_SESSION_KEY
+                    rb.setFailMsg(ApiResultType.UNIONID_IS_NULL);
+                    Map<String,String> map2 = new HashMap();
+                    map2.put("key",sessionKeyPrefix);
                     rb.setResult(map2);
                 }
-            } else {
-                String session_key = jsonObject.getString("session_key");
-                String sessionKeyPrefix = CommonUtils.getSessionKeyPrefix();
-                //unionid为空的情况下 需要wx提供加密的userinfo,缓存session_key
-                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_WXAPPLET_SESSION_KEY + sessionKeyPrefix, session_key, RedisPrefix.SESSION_KEY_TIME, TimeUnit.MINUTES);
-                //RedisPrefix.PREFIX_WXAPPLET_SESSION_KEY
-                rb.setFailMsg(ApiResultType.UNIONID_IS_NULL);
-                Map<String,String> map2 = new HashMap();
-                map2.put("key",sessionKeyPrefix);
-                rb.setResult(map2);
             }
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
         }
         return rb;
     }
@@ -355,30 +362,60 @@ public class UserLoginRestController extends BaseController {
             rb.setFailMsg(ApiResultType.KEY_IS_NULL);
             return rb;
         }
-        //解密  获取sessionkey
-        String key = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_WXAPPLET_SESSION_KEY + map.get("key"));
-        JSONObject user = WXAppletDecodeUtils.getUserInfo(map.get("encryptedData"), key, map.get("iv"));
-        if (user == null) {
-            rb.setFailMsg(ApiResultType.WXAPPLET_LOGIN_ERROR);
-        } else {
-            //注册
-            int insert = userInfoRestServiceI.wechatinsert(user);
-            if (insert > 0) {
-                rb.setSucResult(ApiResultType.OK);
-                //unionid  expire
-                String token = createTokenUtils.createToken(user.getString("unionid"));
-                Map<String, Object> map2 = new HashMap<>();
-                map2 = SetTokenToAppUtils.getTokenResult(map2, token);
-                //设置redis缓存 缓存用户信息 30天 毫秒
-                UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
-                String userToString2 = JSON.toJSONString(task2);
-                updateCache(userToString2, user.getString("unionid"));
-                //缓存用户-账本
-                setAccountBookCache(task2.getUserInfoId(), user.getString("unionid"));
-                rb.setResult(map2);
-            }else{
-                rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
+        try {
+            //解密  获取sessionkey
+            String key = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_WXAPPLET_SESSION_KEY + map.get("key"));
+            JSONObject user = WXAppletDecodeUtils.getUserInfo(map.get("encryptedData"), key, map.get("iv"));
+            logger.info(user.toJSONString());
+            if (user == null) {
+                rb.setFailMsg(ApiResultType.WXAPPLET_LOGIN_ERROR);
+            } else if(StringUtils.isEmpty(user.getString("unionId"))){
+                rb.setFailMsg(ApiResultType.UNIONID_IS_NULL);
+            }else {
+                //先查询unionId是否存在
+                UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
+                if(task!=null){
+                    String userToString = JSON.toJSONString(task);
+                    String token;
+                    if (StringUtils.isNotEmpty(task.getMobile())) {
+                        token = createTokenUtils.createToken(task.getMobile());
+                        updateCache(userToString, task.getMobile());
+                    } else {
+                        token = createTokenUtils.createToken(user.getString("unionId"));
+                        updateCache(userToString, user.getString("unionId"));
+                    }
+                    Map<String, Object> map2 = new HashMap<>();
+                    map2.put("token", token);
+                    map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
+                    rb.setSucResult(ApiResultType.OK);
+                    rb.setResult(map2);
+                    return rb;
+                }
+
+                //注册
+                int insert = userInfoRestServiceI.wechatinsert(user);
+                if (insert > 0) {
+                    rb.setSucResult(ApiResultType.OK);
+                    //unionid  expire
+                    String token = createTokenUtils.createToken(user.getString("unionId"));
+                    Map<String, Object> map2 = new HashMap<>();
+                    map2.put("token", token);
+                    map2.put("expire", RedisPrefix.USER_EXPIRE_TIME);
+                    //设置redis缓存 缓存用户信息 30天 毫秒
+                    UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
+                    String userToString2 = JSON.toJSONString(task2);
+                    updateCache(userToString2, user.getString("unionId"));
+                    //缓存用户-账本
+                    setAccountBookCache(task2.getUserInfoId(), user.getString("unionId"));
+                    rb.setResult(map2);
+                }else{
+                    rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
+                }
+                return rb;
             }
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
             return rb;
         }
         return rb;
@@ -591,4 +628,10 @@ public class UserLoginRestController extends BaseController {
         public ResultBean logout (HttpServletRequest request){
             return this.logout(null, request);
         }
+
+    @RequestMapping(value = "/registerByWXApplet", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean registerByWXApplet (@RequestBody @ApiIgnore Map<String, String> map){
+        return this.registerByWXApplet(null, map);
+    }
     }

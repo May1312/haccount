@@ -153,6 +153,8 @@ public interface IGenericBaseCommonDao {
 	 */
 	public <T> List<T> findListbySql(String query);
 
+	public <T> List<T> findListMapbySql(String query);
+
 	/**
 	 * 通过属性称获取实体带排序
 	 * 

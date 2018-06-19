@@ -82,9 +82,15 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         if(StringUtils.isNotEmpty(jsonObject.getString("nickname"))){
             userInfoRestEntity.setNickName(jsonObject.getString("nickname"));
         }
+        if(StringUtils.isNotEmpty(jsonObject.getString("nickName"))){
+            userInfoRestEntity.setNickName(jsonObject.getString("nickName"));
+        }
         //设置性别
         if(StringUtils.isNotEmpty(jsonObject.getString("sex"))){
             userInfoRestEntity.setSex(jsonObject.getString("sex"));
+        }
+        if(StringUtils.isNotEmpty(jsonObject.getString("gender"))){
+            userInfoRestEntity.setSex(jsonObject.getString("gender"));
         }
         //设置省
         if(StringUtils.isNotEmpty(jsonObject.getString("province"))){
@@ -98,11 +104,17 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         if(StringUtils.isNotEmpty(jsonObject.getString("headimgurl"))){
             userInfoRestEntity.setAvatarUrl(jsonObject.getString("headimgurl"));
         }
+        if(StringUtils.isNotEmpty(jsonObject.getString("avatarUrl"))){
+            userInfoRestEntity.setAvatarUrl(jsonObject.getString("avatarUrl"));
+        }
+
         if(StringUtils.isNotEmpty(jsonObject.getString("unionid"))){
             userInfoRestEntity.setWechatAuth(jsonObject.getString("unionid"));
-        }else{
-            userInfoRestEntity.setWechatAuth(jsonObject.getString("openid"));
         }
+        if(StringUtils.isNotEmpty(jsonObject.getString("unionId"))){
+            userInfoRestEntity.setWechatAuth(jsonObject.getString("unionId"));
+        }
+
         //insert user info表
         int insertId = userInfoRestDao.insert(userInfoRestEntity);
         //获取主键,insert-->user login 表

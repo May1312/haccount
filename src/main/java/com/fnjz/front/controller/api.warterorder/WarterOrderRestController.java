@@ -1,17 +1,20 @@
 package com.fnjz.front.controller.api.warterorder;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.ValidateUtils;
@@ -188,6 +191,16 @@ public class WarterOrderRestController extends BaseController {
         }
     }
 
+    /**
+     * 返回一个月数据
+     * @param type
+     * @param request
+     * @param year
+     * @param month
+     * @param curPage
+     * @param pageSize
+     * @return
+     */
     @ApiOperation(value = "获取流水分页列表")
     @RequestMapping(value = "/warterOrderList/{type}", method = RequestMethod.GET)
     @ResponseBody
@@ -221,11 +234,9 @@ public class WarterOrderRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
-            WarterOrderRestEntity warter = new WarterOrderRestEntity();
-            PageRest page = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "", Integer.valueOf(curPage), Integer.valueOf(pageSize));
-            System.out.println(page);
+            JSONArray json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "", curPage, pageSize);
             rb.setSucResult(ApiResultType.OK);
-            rb.setResult(page);
+            rb.setResult(json);
             return rb;
         } catch (Exception e) {
             logger.error(e.toString());
@@ -400,6 +411,50 @@ public class WarterOrderRestController extends BaseController {
         }
     }
 
+    @ApiOperation(value = "获取年份月份对应支出收入统计")
+    @RequestMapping(value = "/getAccountByTime/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getAccountByTime(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,
+                                      HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
+        System.out.println("登录终端：" + type);
+        logger.info("获取年份月份对应支出收入统计: year-->" + year + "  month-->" + month);
+        String time = null;
+        if (StringUtils.isEmpty(year) && StringUtils.isEmpty(month)) {
+            //都为空情况下 获取当年当月
+            time = DateUtils.getCurrentYearMonth();
+        } else if (StringUtils.isEmpty(year) && StringUtils.isNotEmpty(month)) {
+            //获取当年
+            year = DateUtils.getCurrentYear() + "";
+            time = year + "-" + month;
+        } else if (StringUtils.isNotEmpty(year) && StringUtils.isEmpty(month)) {
+            //获取当月
+            month = DateUtils.getCurrentMonth();
+            time = year + "-" + month;
+        }
+        if (StringUtils.isEmpty(time)) {
+            if (!StringUtils.startsWithIgnoreCase(month, "0")
+                    && month.length() < 2) {
+                month = "0" + month;
+            }
+            time = year + "-" + month;
+        }
+        ResultBean rb = new ResultBean();
+        try {
+            String code = (String) request.getAttribute("code");
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
+            UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
+            Map<String,BigDecimal> map = warterOrderRestService.getAccount(time, userLoginRestEntity.getAccountBookId() + "");
+            rb.setSucResult(ApiResultType.OK);
+            rb.setResult(map);
+            return rb;
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
+        }
+    }
+
     //从cache获取用户账本信息通用方法
     private String getUseAccountCache(int userInfoId, String code) {
         String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code);
@@ -467,5 +522,11 @@ public class WarterOrderRestController extends BaseController {
     @ResponseBody
     public ResultBean deleteOrder(@RequestBody @ApiIgnore Map<String, String> map,HttpServletRequest request) {
         return this.deleteOrder(null, map,request);
+    }
+
+    @RequestMapping(value = "/getAccountByTime", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResultBean getAccountByTime(HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
+        return this.getAccountByTime(null, request,year,month);
     }
 }
