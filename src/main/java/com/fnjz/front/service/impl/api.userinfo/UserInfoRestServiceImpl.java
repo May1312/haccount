@@ -6,7 +6,11 @@ import com.fnjz.front.dao.UserAccountBookRestDao;
 import com.fnjz.front.dao.UserInfoRestDao;
 import com.fnjz.front.dao.UserLoginRestDao;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
+import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
+import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
+import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
+import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import org.apache.commons.lang.StringUtils;
@@ -17,6 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service("userInfoRestService")
 @Transactional
@@ -71,6 +79,35 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
         uabre.setUserType(0);
         int insert3 = userAccountBookRestDao.insert(uabre);
+        //分配系统默认收入支出标签   1上线  1常用  支出
+        String spend_sql = "select id,priority from hbird_spend_type where status = 1 AND mark = 1";
+        List<Map> listbySql = commonDao.findListMapbySql(spend_sql);
+        List<UserCommUseSpendRestEntity> list_common_spend = new ArrayList<>();
+        for (int i = 0;i<listbySql.size();i++) {
+            UserCommUseSpendRestEntity userCommUseSpendRestEntity = new UserCommUseSpendRestEntity();
+            //设置三级类目id
+
+            userCommUseSpendRestEntity.setSpendTypeId(listbySql.get(i).get("id")+"");
+            //设置优先级
+            userCommUseSpendRestEntity.setPriority(Integer.valueOf(listbySql.get(i).get("priority")+""));
+            userCommUseSpendRestEntity.setUserInfoId(insertId);
+            list_common_spend.add(userCommUseSpendRestEntity);
+        }
+        commonDao.batchSave(list_common_spend);
+        //收入
+        String income_sql = "select id,priority from hbird_income_type where status = 1 AND mark = 1";
+        List<Map> listbySql2 = commonDao.findListMapbySql(income_sql);
+        List<UserCommUseIncomeRestEntity> list_common_income = new ArrayList<>();
+        for (int j = 0;j<listbySql2.size();j++) {
+            UserCommUseIncomeRestEntity userCommUseIncomeRestEntity = new UserCommUseIncomeRestEntity();
+            //设置三级类目id
+            userCommUseIncomeRestEntity.setIncomeTypeId(listbySql2.get(j).get("id")+"");
+            //设置优先级
+            userCommUseIncomeRestEntity.setPriority(Integer.valueOf(listbySql2.get(j).get("priority")+""));
+            userCommUseIncomeRestEntity.setUserInfoId(insertId);
+            list_common_income.add(userCommUseIncomeRestEntity);
+        }
+        commonDao.batchSave(list_common_income);
         return insert3;
     }
 
@@ -144,6 +181,34 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
         uabre.setUserType(0);
         int insert3 = userAccountBookRestDao.insert(uabre);
+        //分配系统默认收入支出标签   1上线  1常用  支出
+        String spend_sql = "select id,priority from hbird_spend_type where status = 1 AND mark = 1";
+        List<Map> listbySql = commonDao.findListMapbySql(spend_sql);
+        List<UserCommUseSpendRestEntity> list_common_spend = new ArrayList<>();
+        for (int i = 0;i<listbySql.size();i++) {
+            UserCommUseSpendRestEntity userCommUseSpendRestEntity = new UserCommUseSpendRestEntity();
+            //设置三级类目id
+            userCommUseSpendRestEntity.setSpendTypeId(listbySql.get(i).get("id")+"");
+            //设置优先级
+            userCommUseSpendRestEntity.setPriority(Integer.valueOf(listbySql.get(i).get("priority")+""));
+            userCommUseSpendRestEntity.setUserInfoId(insertId);
+            list_common_spend.add(userCommUseSpendRestEntity);
+        }
+        commonDao.batchSave(list_common_spend);
+        //收入
+        String income_sql = "select id,priority from hbird_income_type where status = 1 AND mark = 1";
+        List<Map> listbySql2 = commonDao.findListMapbySql(income_sql);
+        List<UserCommUseIncomeRestEntity> list_common_income = new ArrayList<>();
+        for (int j = 0;j<listbySql2.size();j++) {
+            UserCommUseIncomeRestEntity userCommUseIncomeRestEntity = new UserCommUseIncomeRestEntity();
+            //设置三级类目id
+            userCommUseIncomeRestEntity.setIncomeTypeId(listbySql2.get(j).get("id")+"");
+            //设置优先级
+            userCommUseIncomeRestEntity.setPriority(Integer.valueOf(listbySql2.get(j).get("priority")+""));
+            userCommUseIncomeRestEntity.setUserInfoId(insertId);
+            list_common_income.add(userCommUseIncomeRestEntity);
+        }
+        commonDao.batchSave(list_common_income);
         return insert3;
     }
 

@@ -75,7 +75,15 @@ public class ApiInterceptor implements HandlerInterceptor {
             this.sendJsonMessage(response,rb);
             return false;
         }
-        String user = (String)redisTemplate.opsForValue().get(username.toString());
+        String user = null;
+        try {
+            user = (String)redisTemplate.opsForValue().get(username.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            this.sendJsonMessage(response,rb);
+            return false;
+        }
         if (StringUtil.isEmpty(user)) {
             rb.setFailMsg(ApiResultType.TOKEN_TIME_OUT);
             this.sendJsonMessage(response,rb);

@@ -28,14 +28,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     private WarterOrderRestDao warterOrderRestDao;
 
     @Override
-    public JSONArray findListForPage(String time, String accountBookId, String curPage, String pageSize) {
-        PageRest pageRest = new PageRest();
-        if(StringUtils.isNotEmpty(curPage)){
-            pageRest.setCurPage(Integer.valueOf(curPage));
-        }
-        if(StringUtils.isNotEmpty(pageSize)){
-            pageRest.setPageSize(Integer.valueOf(pageSize));
-        }
+    public JSONArray findListForPage(String time, String accountBookId) {
+
         //List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(time,accountBookId,pageRest.getStartIndex(),pageRest.getPageSize());
         List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(time,accountBookId);
         //获取到当月所以记录  如何按天分组呢！！！
@@ -59,52 +53,55 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         //pageRest.setTotalCount(count);
         //设置返回结果
         //pageRest.setContent(listForPage);
-        Map<String, Object> resultMap = sortMapByKey(map);    //按Key进行排序
-
-        JSONArray array = new JSONArray();
-        JSONArray array2 = new JSONArray();
-        for (Map.Entry<String, Object> entry : resultMap.entrySet()) {
-            //封装成key value格式
-            JSONObject obj = new JSONObject();
-            if(!StringUtils.equals(entry.getKey(),"dayTime")){
-                obj.put("dayTime",entry.getKey());
-            }
-            if(!StringUtils.equals(entry.getKey(),"dayTime")){
-                obj.put("dayArrays",entry.getValue());
-            }
-            array.add(obj.toJSONString());
-        }
-        //获取日统计
-        for (int i = 0;i<array.size();i++) {
-            JSONObject jsonObject = JSON.parseObject((String)array.get(i));
-            if(StringUtils.isNotEmpty(jsonObject.getString("dayArrays"))){
-                BigDecimal dayIncome = new BigDecimal(0);
-                BigDecimal daySpend = new BigDecimal(0);
-                List list = JSONArray.parseArray(jsonObject.getString("dayArrays"));
-                for (int j = 0;j<list.size();j++) {
-                    //支出
-                    WarterOrderRestDTO warter = JSONObject.parseObject(JSONObject.toJSONString(list.get(j)),WarterOrderRestDTO.class);
-                    if(warter.getOrderType()==1){
-                        daySpend = dayIncome.add(warter.getMoney());
-                    }
-                    if(warter.getOrderType()==2){
-                        dayIncome = dayIncome.add(warter.getMoney());
-                    }
-                }
-                jsonObject.put("dayIncome",dayIncome);
-                jsonObject.put("daySpend",daySpend);
-                array2.add(jsonObject);
-                //jsonObject转json
-            }
-        }
-        //获取月份统计数据
-        Map<String, BigDecimal> account = getAccount(time, accountBookId);
-        JSONObject obj2 = new JSONObject();
-        obj2.put("monthSpend",account.get("spend"));
-        obj2.put("monthIncome",account.get("income"));
         JSONArray ja = new JSONArray();
-        ja.add(array2);
-        ja.add(obj2);
+        if(map.size()>0){
+            Map<String, Object> resultMap = sortMapByKey(map);    //按Key进行排序
+
+            JSONArray array = new JSONArray();
+            JSONArray array2 = new JSONArray();
+            for (Map.Entry<String, Object> entry : resultMap.entrySet()) {
+                //封装成key value格式
+                JSONObject obj = new JSONObject();
+                if(!StringUtils.equals(entry.getKey(),"dayTime")){
+                    obj.put("dayTime",entry.getKey());
+                }
+                if(!StringUtils.equals(entry.getKey(),"dayTime")){
+                    obj.put("dayArrays",entry.getValue());
+                }
+                array.add(obj.toJSONString());
+            }
+            //获取日统计
+            for (int i = 0;i<array.size();i++) {
+                JSONObject jsonObject = JSON.parseObject((String)array.get(i));
+                if(StringUtils.isNotEmpty(jsonObject.getString("dayArrays"))){
+                    BigDecimal dayIncome = new BigDecimal(0);
+                    BigDecimal daySpend = new BigDecimal(0);
+                    List list = JSONArray.parseArray(jsonObject.getString("dayArrays"));
+                    for (int j = 0;j<list.size();j++) {
+                        //支出
+                        WarterOrderRestDTO warter = JSONObject.parseObject(JSONObject.toJSONString(list.get(j)),WarterOrderRestDTO.class);
+                        if(warter.getOrderType()==1){
+                            daySpend = dayIncome.add(warter.getMoney());
+                        }
+                        if(warter.getOrderType()==2){
+                            dayIncome = dayIncome.add(warter.getMoney());
+                        }
+                    }
+                    jsonObject.put("dayIncome",dayIncome);
+                    jsonObject.put("daySpend",daySpend);
+                    array2.add(jsonObject);
+                    //jsonObject转json
+                }
+            }
+            //获取月份统计数据
+            Map<String, BigDecimal> account = getAccount(time, accountBookId);
+            JSONObject obj2 = new JSONObject();
+            obj2.put("monthSpend",account.get("spend"));
+            obj2.put("monthIncome",account.get("income"));
+            ja.add(array2);
+            ja.add(obj2);
+            return ja;
+        }
         return ja;
     }
 
@@ -128,7 +125,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Override
     public Integer deleteOrder(String orderId, String userInfoId, String code) {
-        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_water_order` SET `delflag` = " + 1 + " , `del_date` = NOW(), `update_by` = "+userInfoId+", `update_name` = "+code+" WHERE `id` = '" + orderId + "';");
+        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_water_order` SET `delflag` = " + 1 + " , `del_date` = NOW(), `update_by` = "+userInfoId+", `update_name` = '"+code+"' WHERE `id` = '" + orderId + "';");
         return i;
     }
 

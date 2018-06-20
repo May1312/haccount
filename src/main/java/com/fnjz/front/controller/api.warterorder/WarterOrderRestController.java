@@ -205,9 +205,9 @@ public class WarterOrderRestController extends BaseController {
     @RequestMapping(value = "/warterOrderList/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean warterOrderList(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,
-                                   HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) String curPage, @RequestParam(value = "pageSize", required = false) String pageSize) {
+                                   HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
         System.out.println("登录终端：" + type);
-        logger.info("获取流水分页列表接口: year-->" + year + "  month-->" + month + "  curPage-->" + curPage + "  pageSize-->" + pageSize);
+        logger.info("获取流水分页列表接口: year-->" + year + "  month-->" + month);
         String time = null;
         if (StringUtils.isEmpty(year) && StringUtils.isEmpty(month)) {
             //都为空情况下 获取当年当月
@@ -234,7 +234,7 @@ public class WarterOrderRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
-            JSONArray json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "", curPage, pageSize);
+            JSONArray json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
             rb.setSucResult(ApiResultType.OK);
             rb.setResult(json);
             return rb;
@@ -377,7 +377,7 @@ public class WarterOrderRestController extends BaseController {
         }
     }
 
-    @ApiOperation(value = "修改单笔记账订单详情")
+    @ApiOperation(value = "删除单笔记账订单详情")
     @RequestMapping(value = "/deleteOrder/{type}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResultBean deleteOrder(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map,HttpServletRequest request) {
@@ -502,8 +502,8 @@ public class WarterOrderRestController extends BaseController {
 
     @RequestMapping(value = "/warterOrderList", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean warterOrderList(HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) String curPage, @RequestParam(value = "pageSize", required = false) String pageSize) {
-        return this.warterOrderList(null, request,year,month,curPage,pageSize);
+    public ResultBean warterOrderList(HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
+        return this.warterOrderList(null, request,year,month);
     }
 
     @RequestMapping(value = "/getOrderInfo", method = RequestMethod.GET)
@@ -520,11 +520,11 @@ public class WarterOrderRestController extends BaseController {
 
     @RequestMapping(value = "/deleteOrder", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResultBean deleteOrder(@RequestBody @ApiIgnore Map<String, String> map,HttpServletRequest request) {
+    public ResultBean deleteOrder(@RequestBody Map<String, String> map,HttpServletRequest request) {
         return this.deleteOrder(null, map,request);
     }
 
-    @RequestMapping(value = "/getAccountByTime", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/getAccountByTime", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean getAccountByTime(HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
         return this.getAccountByTime(null, request,year,month);

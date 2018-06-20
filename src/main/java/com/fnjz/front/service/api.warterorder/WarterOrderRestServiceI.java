@@ -21,7 +21,7 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @param pageSize
      * @return
      */
-    JSONArray findListForPage(String time, String accountBookId, String curPage, String pageSize);
+    JSONArray findListForPage(String time, String accountBookId);
 
     /**
      * 更新
