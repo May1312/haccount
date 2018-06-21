@@ -1,11 +1,12 @@
 package com.fnjz.front.service.impl.api.usercommusespend;
 
-import com.fnjz.back.entity.operating.SpendTypeEntity;
+import com.fnjz.front.dao.UserCommUseSpendRestDao;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestDTO;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,18 +22,25 @@ import java.util.Map;
 @Transactional
 public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implements UserCommUseSpendRestServiceI {
 
+    @Autowired
+    private UserCommUseSpendRestDao userCommUseSpendRestDao;
+
     @Override
     public Map<String, Object> getListById(String user_info_id) {
         //根据优先级顺序排序
-        String hql = "FROM UserCommUseSpendRestEntity where userInfoId = " + user_info_id + " ORDER BY priority ASC";
-        List<UserCommUseSpendRestEntity> list = commonDao.findByQueryString(hql);
+        //String hql = "select st.id,st.spendName,st.parentId,st.icon,st.priority,st.mark FROM UserCommUseSpendRestEntity uc,SpendTypeRestDTO st where uc.spendTypeId=st.id AND uc.userInfoId = " + user_info_id + " ORDER BY uc.priority ASC";
+        //String hql = "select st.id,st.spend_name,st.parent_id,st.icon,st.priority,st.mark FROM hbird_user_comm_use_spend uc,hbird_spend_type st where uc.spend_type_id=st.id AND uc.user_info_id = " + user_info_id + " ORDER BY uc.priority ASC";
+        //List<SpendTypeRestDTO> list2 = userCommUseSpendRestDao.select(user_info_id);
+        //所有类目获取
+        String hql = "FROM SpendTypeRestDTO where status = 1 ORDER BY priority ASC";
+        List<SpendTypeRestDTO> list2 = commonDao.findByQueryString(hql);
         List<SpendTypeRestDTO> allList = new ArrayList();
         List<SpendTypeRestDTO> commonList = new ArrayList();
         Map<String, Object> map = new HashMap();
-        if (list.isEmpty()) {
+        //if (list.isEmpty()) {
             //用户常用表为null，返回系统常用
-            String hql2 = "FROM SpendTypeRestDTO where status = 1 ORDER BY priority ASC";
-            List<SpendTypeRestDTO> list2 = commonDao.findByQueryString(hql2);
+            //String hql2 = "FROM SpendTypeRestDTO where status = 1 ORDER BY priority ASC";
+            //List<SpendTypeRestDTO> list2 = commonDao.findByQueryString(hql2);
             if (!list2.isEmpty()) {
                 //组合二三级类目 获取所有三级类目
                 for (int i = 0; i < list2.size(); i++) {
@@ -51,13 +59,13 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
                                 BeanUtils.copyProperties(list2.get(j), spend2);
                                 spend2.setParentName(spend1.getSpendName());
                                 allList.get(index).getSpendTypeSons().add(spend2);
-                                //判断是否为常用类目
+                                /*//判断是否为常用类目
                                 if (StringUtils.isNotEmpty(list2.get(j).getParentId())) {
                                     if (list2.get(j).getMark() == 1) {
                                         if (flag) {
-                                            /*SpendTypeRestDTO spend3 = new SpendTypeRestDTO();
+                                            *//*SpendTypeRestDTO spend3 = new SpendTypeRestDTO();
                                             BeanUtils.copyProperties(list2.get(i), spend3, new String[]{"IncomeTypeSons"});
-                                            commonList.add(spend3);*/
+                                            commonList.add(spend3);*//*
                                             //获取当前角标
                                             //int index2 = commonList.size() - 1;
                                             SpendTypeRestDTO spend4 = new SpendTypeRestDTO();
@@ -75,20 +83,22 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
                                             commonList.add(spend5);
                                         }
                                     }
-                                }
+                                }*/
                             }
                         }
                     }
                 }
             }
-        }
+        //}
+        //用户常用类目获取
+        List<SpendTypeRestDTO> list3 = userCommUseSpendRestDao.select(user_info_id);
         map.put("allList", allList);
-        map.put("commonList", commonList);
+        map.put("commonList", list3);
         return map;
     }
 
     @Override
-    public void insertCommSpendType(String user_info_id, SpendTypeEntity task) {
+    public void insertCommSpendType(String user_info_id, SpendTypeRestEntity task) {
         UserCommUseSpendRestEntity userCommUseSpendRestEntity = new UserCommUseSpendRestEntity();
         userCommUseSpendRestEntity.setUserInfoId(Integer.valueOf(user_info_id));
         //设置图标
@@ -108,7 +118,7 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
             userCommUseSpendRestEntity.setSpendTypePid(task.getParentId());
         }
         //获取二级类目
-        SpendTypeEntity task2 = commonDao.findUniqueByProperty(SpendTypeEntity.class, "id", task.getParentId());
+        SpendTypeRestEntity task2 = commonDao.findUniqueByProperty(SpendTypeRestEntity.class, "id", task.getParentId());
         //设置二级类目名称
         if(StringUtils.isNotEmpty(task2.getSpendName())){
             userCommUseSpendRestEntity.setSpendTypePname(task2.getSpendName());
@@ -124,5 +134,17 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
             return true;
         }
         return false;
+    }
+
+    /**
+     * 删除用户常用标签
+     * @param user_info_id
+     * @param spendTypeIds
+     */
+    @Override
+    public void deleteCommSpendType(String user_info_id, List<String> spendTypeIds) {
+        for(int i = 0;i<spendTypeIds.size();i++){
+            userCommUseSpendRestDao.delete(user_info_id,spendTypeIds.get(i));
+        }
     }
 }

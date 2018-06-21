@@ -1,10 +1,12 @@
 package com.fnjz.front.service.impl.api.usercommuseincome;
 
+import com.fnjz.front.dao.UserCommUseIncomeRestDao;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestDTO;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
 import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,18 +23,22 @@ import java.util.Map;
 @Transactional
 public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implements UserCommUseIncomeRestServiceI {
 
+    @Autowired
+    private UserCommUseIncomeRestDao userCommUseIncomeRestDao;
+
     //获取用户常用类目标签列表
     public Map<String, Object> getListById(String user_info_id) throws InvocationTargetException, IllegalAccessException {
         //根据优先级顺序排序
-        String hql = "FROM UserCommUseIncomeRestEntity where userInfoId = " + user_info_id + " ORDER BY priority ASC";
-        List<UserCommUseIncomeRestEntity> list = commonDao.findByQueryString(hql);
+        //String hql = "FROM UserCommUseIncomeRestEntity where userInfoId = " + user_info_id + " ORDER BY priority ASC";
+        String hql2 = "FROM IncomeTypeRestDTO where status = 1 ORDER BY priority ASC";
+        List<IncomeTypeRestDTO> list2 = commonDao.findByQueryString(hql2);
         List<IncomeTypeRestDTO> allList = new ArrayList();
         List<IncomeTypeRestDTO> commonList = new ArrayList();
         Map<String, Object> map = new HashMap();
-        if (list.isEmpty()) {
+        //if (list2.isEmpty()) {
             //用户常用表为null，返回系统常用
-            String hql2 = "FROM IncomeTypeRestDTO where status = 1 ORDER BY priority ASC";
-            List<IncomeTypeRestDTO> list2 = commonDao.findByQueryString(hql2);
+            //String hql2 = "FROM IncomeTypeRestDTO where status = 1 ORDER BY priority ASC";
+            //List<IncomeTypeRestDTO> list2 = commonDao.findByQueryString(hql2);
             if (!list2.isEmpty()) {
                 //组合二三级类目 获取所有三级类目
                 for (int i = 0; i < list2.size(); i++) {
@@ -52,14 +58,14 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
                                 jIncome.setParentName(income1.getIncomeName());
                                 allList.get(index).getIncomeTypeSons().add(jIncome);
                                 //判断是否为常用类目
-                                if (StringUtils.isNotEmpty(list2.get(j).getParentId())) {
+                                /*if (StringUtils.isNotEmpty(list2.get(j).getParentId())) {
                                     if (list2.get(j).getMark() == 1) {
                                         if (flag) {
-                                            /*IncomeTypeRestDTO income2 = new IncomeTypeRestDTO();
+                                            *//*IncomeTypeRestDTO income2 = new IncomeTypeRestDTO();
                                             BeanUtils.copyProperties(list2.get(i), income2, new String[]{"IncomeTypeSons"});
                                             commonList.add(income2);
                                             //获取当前角标
-                                            int index2 = commonList.size() - 1;*/
+                                            int index2 = commonList.size() - 1;*//*
                                             IncomeTypeRestDTO income3 = new IncomeTypeRestDTO();
                                             BeanUtils.copyProperties(list2.get(j),income3);
                                             //commonList.get(index2).getIncomeTypeSons().add(income3);
@@ -75,15 +81,69 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
                                             commonList.add(income4);
                                         }
                                     }
-                                }
+                                }*/
                             }
                         }
                     }
                 }
             }
-        }
+        //}
+        //用户常用类目获取
+        List<IncomeTypeRestDTO> list3 = userCommUseIncomeRestDao.select(user_info_id);
         map.put("allList", allList);
-        map.put("commonList", commonList);
+        map.put("commonList", list3);
         return map;
+    }
+
+    @Override
+    public boolean findByUserInfoIdAndId(String user_info_id, String incomeTypeId) {
+        String hql = "FROM UserCommUseIncomeRestEntity where userInfoId = " + user_info_id + " and incomeTypeId = '" + incomeTypeId+"'";
+        UserCommUseIncomeRestEntity us = (UserCommUseIncomeRestEntity)commonDao.singleResult(hql);
+        if(us!=null){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void insertCommIncomeType(String user_info_id, IncomeTypeRestEntity task) {
+        UserCommUseIncomeRestEntity userCommUseSpendRestEntity = new UserCommUseIncomeRestEntity();
+        userCommUseSpendRestEntity.setUserInfoId(Integer.valueOf(user_info_id));
+        //TODO 需要设置这么多属性么！！！！！！！
+        //设置图标
+        if(StringUtils.isNotEmpty(task.getIcon())){
+            userCommUseSpendRestEntity.setIcon(task.getIcon());
+        }
+        //设置三级类目id
+        if(StringUtils.isNotEmpty(task.getId())){
+            userCommUseSpendRestEntity.setIncomeTypeId(task.getId());
+        }
+        //设置三级类目名称
+        if(StringUtils.isNotEmpty(task.getIncomeName())){
+            userCommUseSpendRestEntity.setIncomeTypeName(task.getIncomeName());
+        }
+        //设置二级类目id
+        if(StringUtils.isNotEmpty(task.getParentId())){
+            userCommUseSpendRestEntity.setIncomeTypePid(task.getParentId());
+        }
+        //获取二级类目
+        IncomeTypeRestEntity task2 = commonDao.findUniqueByProperty(IncomeTypeRestEntity.class, "id", task.getParentId());
+        //设置二级类目名称
+        if(StringUtils.isNotEmpty(task2.getIncomeName())){
+            userCommUseSpendRestEntity.setIncomeTypePname(task2.getIncomeName());
+        }
+        commonDao.saveOrUpdate(userCommUseSpendRestEntity);
+    }
+
+    /**
+     * userCommUseSpendRestDao.delete(user_info_id,spendTypeId);
+     * @param user_info_id
+     * @param incomeTypeIds
+     */
+    @Override
+    public void deleteCommIncomeType(String user_info_id, List<String> incomeTypeIds) {
+        for(int i = 0;i<incomeTypeIds.size();i++){
+            userCommUseIncomeRestDao.delete(user_info_id,incomeTypeIds.get(i));
+        }
     }
 }

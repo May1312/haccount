@@ -1,9 +1,9 @@
 package com.fnjz.front.service.api.usercommusespend;
 
-import com.fnjz.back.entity.operating.SpendTypeEntity;
-import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
+import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
 import org.jeecgframework.core.common.service.CommonService;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserCommUseSpendRestServiceI extends CommonService{
@@ -21,7 +21,9 @@ public interface UserCommUseSpendRestServiceI extends CommonService{
      * @param task
      * @return
      */
-    void insertCommSpendType(String user_info_id, SpendTypeEntity task);
+    void insertCommSpendType(String user_info_id, SpendTypeRestEntity task);
 
     boolean findByUserInfoIdAndId(String user_info_id, String spendTypeId);
+
+    void deleteCommSpendType(String user_info_id, List<String> spendTypeId);
 }
