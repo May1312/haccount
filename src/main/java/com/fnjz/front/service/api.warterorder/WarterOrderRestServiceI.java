@@ -17,11 +17,9 @@ public interface WarterOrderRestServiceI extends CommonService{
      * 分页查询
      * @param time
      * @param accountBookId
-     * @param curPage
-     * @param pageSize
      * @return
      */
-    JSONArray findListForPage(String time, String accountBookId);
+    Map<String,Object> findListForPage(String time, String accountBookId);
 
     /**
      * 更新

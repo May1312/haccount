@@ -44,7 +44,7 @@ public class UserCommUseIncomeRestController extends BaseController {
     @ApiOperation(value = "获取收入类目列表")
     @RequestMapping(value = "/getIncomeTypeList/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean list(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
+    public ResultBean getIncomeTypeList(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         ResultBean rb = new ResultBean();
         try {
             String user_info_id = (String) request.getAttribute("userInfoId");
@@ -142,8 +142,8 @@ public class UserCommUseIncomeRestController extends BaseController {
 
     @RequestMapping(value = "/getIncomeTypeList", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean list(HttpServletRequest request) {
-        return this.list(null,request);
+    public ResultBean getIncomeTypeList(HttpServletRequest request) {
+        return this.getIncomeTypeList(null,request);
     }
 
     @RequestMapping(value = "/addCommIncomeType", method = RequestMethod.POST)

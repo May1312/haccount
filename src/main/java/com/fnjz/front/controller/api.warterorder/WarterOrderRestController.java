@@ -232,7 +232,7 @@ public class WarterOrderRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
-            JSONArray json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
+            Map<String,Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
             rb.setSucResult(ApiResultType.OK);
             rb.setResult(json);
             return rb;

@@ -28,7 +28,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     private WarterOrderRestDao warterOrderRestDao;
 
     @Override
-    public JSONArray findListForPage(String time, String accountBookId) {
+    public Map<String,Object> findListForPage(String time, String accountBookId) {
 
         //List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(time,accountBookId,pageRest.getStartIndex(),pageRest.getPageSize());
         List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(time,accountBookId);
@@ -53,7 +53,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         //pageRest.setTotalCount(count);
         //设置返回结果
         //pageRest.setContent(listForPage);
-        JSONArray ja = new JSONArray();
+        Map<String,Object> ja = new HashMap();
         if(map.size()>0){
             Map<String, Object> resultMap = sortMapByKey(map);    //按Key进行排序
 
@@ -81,7 +81,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                         //支出
                         WarterOrderRestDTO warter = JSONObject.parseObject(JSONObject.toJSONString(list.get(j)),WarterOrderRestDTO.class);
                         if(warter.getOrderType()==1){
-                            daySpend = dayIncome.add(warter.getMoney());
+                            daySpend = daySpend.add(warter.getMoney());
                         }
                         if(warter.getOrderType()==2){
                             dayIncome = dayIncome.add(warter.getMoney());
@@ -95,11 +95,9 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             }
             //获取月份统计数据
             Map<String, BigDecimal> account = getAccount(time, accountBookId);
-            JSONObject obj2 = new JSONObject();
-            obj2.put("monthSpend",account.get("spend"));
-            obj2.put("monthIncome",account.get("income"));
-            ja.add(array2);
-            ja.add(obj2);
+            ja.put("arrays",array2);
+            ja.put("monthSpend",account.get("spend"));
+            ja.put("monthIncome",account.get("income"));
             return ja;
         }
         return ja;

@@ -3,7 +3,10 @@ package com.fnjz.front.service.impl.api.usercommuseincome;
 import com.fnjz.front.dao.UserCommUseIncomeRestDao;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestDTO;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
+import com.fnjz.front.entity.api.spendtype.SpendTypeRestDTO;
+import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
 import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
+import net.sf.json.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +17,7 @@ import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestService
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("userCommUseIncomeRestService")
 @Transactional
@@ -90,6 +90,26 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
         //}
         //用户常用类目获取
         List<IncomeTypeRestDTO> list3 = userCommUseIncomeRestDao.select(user_info_id);
+        //获取类目优先级
+        //判断是否已存在
+        String relation_hql = "from UserCommTypePriorityRestEntity where userInfoId = "+ user_info_id +" AND type = 2";
+        UserCommTypePriorityRestEntity u = commonDao.singleResult(relation_hql);
+        if(u!=null){
+            if(StringUtils.isNotEmpty(u.getRelation())){
+                //json字符串转数组
+                JSONArray jsonArray = JSONArray.fromObject(u.getRelation());
+                for(int i = 0;i<jsonArray.size();i++){
+                    Map array_map = (Map)jsonArray.get(i);
+                    for(int j = 0;j<list3.size();j++){
+                        if(StringUtils.equals(array_map.get("id")+"",list3.get(j).getId())){
+                            list3.get(j).setPriority(Integer.valueOf(array_map.get("priority")+""));
+                        }
+                    }
+                }
+            }
+            //list排序
+            list3 = getSortList(list3);
+        }
         map.put("allList", allList);
         map.put("commonList", list3);
         return map;
@@ -145,5 +165,28 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
         for(int i = 0;i<incomeTypeIds.size();i++){
             userCommUseIncomeRestDao.delete(user_info_id,incomeTypeIds.get(i));
         }
+    }
+    /**
+     * list排序
+     * @param list
+     * @return
+     */
+    public static List<IncomeTypeRestDTO> getSortList(List<IncomeTypeRestDTO> list){
+        Collections.sort(list, new Comparator<IncomeTypeRestDTO>() {
+            @Override
+            public int compare(IncomeTypeRestDTO o1, IncomeTypeRestDTO o2) {
+                if(o1.getPriority()!=null&&o2.getPriority()!=null){
+                    if(o1.getPriority()>o2.getPriority()){
+                        return 1;
+                    }
+                    if(o1.getPriority()==o2.getPriority()){
+                        return 0;
+                    }
+                    return -1;
+                }
+                return -1;
+            }
+        });
+        return list;
     }
 }

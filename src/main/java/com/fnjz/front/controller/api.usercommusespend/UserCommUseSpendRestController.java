@@ -43,7 +43,7 @@ public class UserCommUseSpendRestController extends BaseController {
     @ApiOperation(value = "获取支出类目列表")
     @RequestMapping(value = "/getSpendTypeList/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean list(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
+    public ResultBean getSpendTypeList(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         ResultBean rb = new ResultBean();
         try {
             String user_info_id = (String) request.getAttribute("userInfoId");
@@ -141,8 +141,8 @@ public class UserCommUseSpendRestController extends BaseController {
 
     @RequestMapping(value = "/getSpendTypeList", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean list(HttpServletRequest request) {
-        return this.list(null,request);
+    public ResultBean getSpendTypeList(HttpServletRequest request) {
+        return this.getSpendTypeList(null,request);
     }
 
     @RequestMapping(value = "/addCommSpendType", method = RequestMethod.POST)
