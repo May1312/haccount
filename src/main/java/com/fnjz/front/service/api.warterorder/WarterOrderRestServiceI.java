@@ -50,4 +50,6 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @return
      */
     WarterOrderRestDTO findById(String id);
+
+    int countChargeDays(String currentYearMonth, Integer accountBookId);
 }

@@ -136,6 +136,11 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     public WarterOrderRestDTO findById(String id) {
         return  warterOrderRestDao.findById(id);
     }
+
+    @Override
+    public int countChargeDays(String currentYearMonth, Integer accountBookId) {
+        return warterOrderRestDao.countChargeDays(currentYearMonth,accountBookId);
+    }
 }
 class MapKeyComparator implements Comparator<String>{
 

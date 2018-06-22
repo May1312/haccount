@@ -5,9 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.userinfo.UserInfoRestDTO;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
+import com.fnjz.front.utils.ShareCodeUtil;
 import com.fnjz.front.utils.ValidateUtils;
 import com.fnjz.front.utils.WeChatUtils;
 import com.fnjz.utils.upload.QiNiuUploadFileUtils;
@@ -242,8 +244,10 @@ public class UserInfoRestController extends BaseController {
         ResultBean rb = new ResultBean();
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
-            UserInfoRestEntity task = userInfoRestServiceI.findUniqueByProperty(UserInfoRestEntity.class, "id", Integer.valueOf(userInfoId));
+            UserInfoRestDTO task = userInfoRestServiceI.findUniqueByProperty(UserInfoRestDTO.class, "id", Integer.valueOf(userInfoId));
             if(task!=null){
+                //设置蜂鸟id
+                task.setId(Integer.valueOf(ShareCodeUtil.id2sharecode(task.getId())));
                 rb.setSucResult(ApiResultType.OK);
                 rb.setResult(task);
                 return rb;
@@ -363,5 +367,11 @@ public class UserInfoRestController extends BaseController {
     @ResponseBody
     public ResultBean getQiNiuAuth(@RequestBody Map<String,String> map) {
         return this.getQiNiuAuth(null, map);
+    }
+
+    @RequestMapping(value = "/updateUserInfo", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResultBean updateUserInfo(@RequestBody UserInfoRestEntity userInfoRestEntity,HttpServletRequest request) {
+        return this.updateUserInfo(null, userInfoRestEntity,request);
     }
 }
