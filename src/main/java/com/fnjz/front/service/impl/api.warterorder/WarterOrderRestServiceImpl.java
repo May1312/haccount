@@ -38,12 +38,12 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         {
             WarterOrderRestDTO warter = it.next();
             //判断是否包含日期
-            if(map.containsKey(DateUtils.convert2String(warter.getCreateDate()))){
-                ((ArrayList)map.get(DateUtils.convert2String(warter.getCreateDate()))).add(warter);
+            if(map.containsKey(DateUtils.convert2String(warter.getChargeDate()))){
+                ((ArrayList)map.get(DateUtils.convert2String(warter.getChargeDate()))).add(warter);
             }else{
                 List<WarterOrderRestDTO> list = new ArrayList<>();
                 list.add(warter);
-                map.put(DateUtils.convert2String(warter.getCreateDate()),list);
+                map.put(DateUtils.convert2String(warter.getChargeDate()),list);
             }
         }
             //获取总条数

@@ -1,39 +1,39 @@
 UPDATE `hbird_account`.`hbird_user_info`
 SET 
-	   <#if userInfoRestEntity.accountBookId ?exists>
+	   <#if userInfoRestEntity.nickName ?exists>
 		   nick_name = :userInfoRestEntity.nickName,
 		</#if>
-	   <#if userInfoRestEntity.money ?exists>
+	   <#if userInfoRestEntity.sex ?exists>
 		   sex = :userInfoRestEntity.sex,
 		</#if>
-	   <#if userInfoRestEntity.orderType ?exists>
+	   <#if userInfoRestEntity.birthday ?exists>
 		   birthday = :userInfoRestEntity.birthday,
 		</#if>
-	    <#if userInfoRestEntity.isStaged ?exists>
+	    <#if userInfoRestEntity.provinceId ?exists>
 		   province_id = :userInfoRestEntity.provinceId,
 		</#if>
-	   <#if userInfoRestEntity.spendHappiness ?exists>
+	   <#if userInfoRestEntity.provinceName ?exists>
 		   province_name = :userInfoRestEntity.provinceName,
 		</#if>
-	   <#if userInfoRestEntity.useDegree ?exists>
+	   <#if userInfoRestEntity.cityId ?exists>
 		   city_id = :userInfoRestEntity.cityId,
 		</#if>
-	    <#if userInfoRestEntity.typePid ?exists>
+	    <#if userInfoRestEntity.cityName ?exists>
 		   city_name = :userInfoRestEntity.cityName,
 		</#if>
-	   <#if userInfoRestEntity.typePname ?exists>
+	   <#if userInfoRestEntity.profession ?exists>
 		   profession = :userInfoRestEntity.profession,
 		</#if>
-	    <#if userInfoRestEntity.typeId ?exists>
+	    <#if userInfoRestEntity.position ?exists>
 		   position = :userInfoRestEntity.position,
 		</#if>
-		<#if userInfoRestEntity.typeName ?exists>
+		<#if userInfoRestEntity.age ?exists>
 		   age = :userInfoRestEntity.age,
 		</#if>
-		<#if userInfoRestEntity.parentId ?exists>
+		<#if userInfoRestEntity.constellation ?exists>
 		   constellation = :userInfoRestEntity.constellation,
 		</#if>
-		<#if userInfoRestEntity.pictureUrl ?exists>
+		<#if userInfoRestEntity.avatarUrl ?exists>
 		   avatar_url = :userInfoRestEntity.avatarUrl,
 		</#if>
 		   update_date = NOW()
