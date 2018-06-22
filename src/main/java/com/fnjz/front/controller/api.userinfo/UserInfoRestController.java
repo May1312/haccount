@@ -10,6 +10,7 @@ import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.ValidateUtils;
 import com.fnjz.front.utils.WeChatUtils;
+import com.fnjz.utils.upload.QiNiuUploadFileUtils;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -281,6 +283,64 @@ public class UserInfoRestController extends BaseController {
         redisTemplate.opsForValue().set(code, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
     }
 
+    /**
+     * 获取七牛云上传鉴权 1为头像   2为反馈
+     * @param type
+     * @return
+     */
+    @RequestMapping(value = "/getQiNiuAuth/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean getQiNiuAuth(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,@RequestBody Map<String,String> map) {
+        ResultBean rb = new ResultBean();
+        try {
+            QiNiuUploadFileUtils qiniu = new QiNiuUploadFileUtils();
+            String upToken = null;
+            if(StringUtils.isEmpty(map.get("flag"))){
+                //为空默认类型1 head-picture头像上传
+                upToken = qiniu.getUpToken("head-picture");
+            }else{
+                if(StringUtils.equals(map.get("flag"),"1")){
+                    upToken = qiniu.getUpToken("head-picture");
+                }else if(StringUtils.equals(map.get("flag"),"2")){
+                    //2为信息反馈图片
+                    upToken = qiniu.getUpToken("feedback-picture");
+                }else{
+                    upToken = qiniu.getUpToken("head-picture");
+                }
+            }
+            rb.setSucResult(ApiResultType.OK);
+            Map<String,String> map2 = new HashMap<>();
+            map2.put("auth",upToken);
+            rb.setResult(map2);
+            return rb;
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
+        }
+    }
+
+    @RequestMapping(value = "/updateUserInfo/{type}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResultBean updateUserInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,@RequestBody UserInfoRestEntity userInfoRestEntity,HttpServletRequest request) {
+        ResultBean rb = new ResultBean();
+        if(userInfoRestEntity==null){
+            rb.setFailMsg(ApiResultType.MY_PARAMS_ERROR);
+            return rb;
+        }
+        try {
+            String  userInfoId = (String) request.getAttribute("userInfoId");
+            userInfoRestEntity.setId(Integer.valueOf(userInfoId));
+            userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
+            rb.setSucResult(ApiResultType.OK);
+            return rb;
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
+        }
+    }
+
     @RequestMapping(value = "/bindMobile", method = RequestMethod.PUT)
     @ResponseBody
     public ResultBean bindMobile(@RequestBody Map<String, String> map, HttpServletRequest request) {
@@ -297,5 +357,11 @@ public class UserInfoRestController extends BaseController {
     @ResponseBody
     public ResultBean unbindWeChat(HttpServletRequest request) {
         return this.unbindWeChat(null, request);
+    }
+
+    @RequestMapping(value = "/getQiNiuAuth", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean getQiNiuAuth(@RequestBody Map<String,String> map) {
+        return this.getQiNiuAuth(null, map);
     }
 }

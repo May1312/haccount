@@ -132,6 +132,11 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         List<Map<String,BigDecimal>> listbySql = commonDao.findListMapbySql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END) AS spend,SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END) AS income FROM `hbird_water_order` WHERE create_date LIKE '" + time + "%' AND account_book_id = '" + accountBookId + "' AND delflag = 0;");
         return (Map)listbySql.get(0);
     }
+
+    @Override
+    public WarterOrderRestDTO findById(String id) {
+        return  warterOrderRestDao.findById(id);
+    }
 }
 class MapKeyComparator implements Comparator<String>{
 

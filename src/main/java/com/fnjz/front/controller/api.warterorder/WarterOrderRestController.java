@@ -4,14 +4,10 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
@@ -26,37 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
 import org.jeecgframework.core.common.controller.BaseController;
-import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
-import org.jeecgframework.core.common.model.json.AjaxJson;
-import org.jeecgframework.core.common.model.json.DataGrid;
-import org.jeecgframework.core.constant.Globals;
-import org.jeecgframework.core.util.StringUtil;
-import org.jeecgframework.tag.core.easyui.TagUtil;
-import org.jeecgframework.web.system.pojo.base.TSDepart;
-import org.jeecgframework.web.system.service.SystemService;
-import org.jeecgframework.core.util.MyBeanUtils;
-
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.jeecgframework.core.beanvalidator.BeanValidators;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.http.MediaType;
-import org.springframework.web.util.UriComponentsBuilder;
+import java.util.concurrent.TimeUnit;;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
@@ -192,7 +163,7 @@ public class WarterOrderRestController extends BaseController {
     }
 
     /**
-     * 返回一个月数据
+     * 返回一个月数据,重置用户 账本缓存
      * @param type
      * @param request
      * @param year
@@ -230,7 +201,7 @@ public class WarterOrderRestController extends BaseController {
         try {
             String code = (String) request.getAttribute("code");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
+            String useAccountrCache = getUseAccountCacheAndUpdate(Integer.valueOf(userInfoId), code);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             Map<String,Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
             rb.setSucResult(ApiResultType.OK);
@@ -255,7 +226,7 @@ public class WarterOrderRestController extends BaseController {
         }
         try {
             //获取单笔详情   TODO 现阶段只根据详情id， 后续要加上userid   account book id 判断！！
-            WarterOrderRestEntity task = warterOrderRestService.findUniqueByProperty(WarterOrderRestEntity.class, "id", id);
+            WarterOrderRestDTO task = warterOrderRestService.findById(id);
             if (task != null) {
                 rb.setSucResult(ApiResultType.OK);
                 rb.setResult(task);
@@ -453,7 +424,9 @@ public class WarterOrderRestController extends BaseController {
         }
     }
 
-    //从cache获取用户账本信息通用方法
+    /**
+     * 从cache获取用户账本信息通用方法
+     */
     private String getUseAccountCache(int userInfoId, String code) {
         String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code);
         //为null 重新获取缓存
@@ -466,8 +439,18 @@ public class WarterOrderRestController extends BaseController {
         }
         return user_account;
     }
-
-    //从cache获取用户信息通用方法
+    /**
+     * 从cache获取用户账本信息并更新通用方法
+     */
+    private String getUseAccountCacheAndUpdate(int userInfoId, String code) {
+        String useAccountCache = getUseAccountCache(userInfoId, code);
+        //重置账本缓存
+        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code,useAccountCache,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+        return useAccountCache;
+    }
+    /**
+     * 从cache获取用户信息并更新通用方法
+     */
     private String getUserCache(String code) {
         String user = (String) redisTemplate.opsForValue().get(code);
         //为null 重新获取缓存
@@ -484,6 +467,8 @@ public class WarterOrderRestController extends BaseController {
             updateCache(r_user, code);
             return r_user;
         }
+        //重置用户信息缓存
+        redisTemplate.opsForValue().set(code, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
         return user;
     }
 

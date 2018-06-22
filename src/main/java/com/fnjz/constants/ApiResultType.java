@@ -77,11 +77,12 @@ public enum ApiResultType {
     SPEND_TYPE_ID_IS_ERROR("04013","当前类目id为二级id，请检查！"),
     SPEND_TYPE_IS_ADDED("04014","当前类目id已在常用类目列表，请检查！"),
     TYPE_IS_NULL("04015","类目类型为空，请检查！"),
-    TYPE_RELATION_IS_NULL("04016","类目优先级关系为空，请检查！");
+    TYPE_RELATION_IS_NULL("04016","类目优先级关系为空，请检查！"),
 
     //图表相关
 
     //我的相关
+    MY_PARAMS_ERROR("06001","参数异常，请检查");
 
     ApiResultType(String status, String str) {
         setCode(status);

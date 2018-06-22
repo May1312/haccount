@@ -6,8 +6,6 @@ import com.fnjz.front.dao.UserAccountBookRestDao;
 import com.fnjz.front.dao.UserInfoRestDao;
 import com.fnjz.front.dao.UserLoginRestDao;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
-import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
-import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
@@ -216,6 +214,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
      * 更新密码
      * @return
      */
+    @Override
     public int updatePWD(String mobile,String password) {
        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `mobile` = '" + mobile + "';");
        if(i>0){
@@ -301,5 +300,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             return j;
         }
         return i;
+    }
+
+    @Override
+    public void updateUserInfo(UserInfoRestEntity userInfoRestEntity) {
+        userInfoRestDao.update(userInfoRestEntity);
     }
 }
