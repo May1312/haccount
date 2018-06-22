@@ -11,8 +11,10 @@ import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
+import com.fnjz.front.utils.DateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.util.StringUtil;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -304,6 +307,25 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
 
     @Override
     public void updateUserInfo(UserInfoRestEntity userInfoRestEntity) {
+        if(userInfoRestEntity.getBirthday()!=null){
+            int ageByBirth = DateUtils.getAgeByBirth(userInfoRestEntity.getBirthday());
+            userInfoRestEntity.setAge(ageByBirth+"");
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(userInfoRestEntity.getBirthday());
+            int month = cal.get(Calendar.MONTH)+1;
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+            String constellation = getConstellation(month,day);
+            userInfoRestEntity.setConstellation(constellation);
+        }
         userInfoRestDao.update(userInfoRestEntity);
+    }
+
+    /**
+     * 获取星座
+     */
+    private final static int[] dayArr = new int[] { 20, 19, 21, 20, 21, 22, 23, 23, 23, 24, 23, 22 };
+    private final static String[] constellationArr = new String[] { "摩羯座", "水瓶座", "双鱼座", "白羊座", "金牛座", "双子座", "巨蟹座", "狮子座", "处女座", "天秤座", "天蝎座", "射手座", "摩羯座" };
+    public static String getConstellation(int month, int day) {
+        return day < dayArr[month - 1] ? constellationArr[month - 1] : constellationArr[month];
     }
 }

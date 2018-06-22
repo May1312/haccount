@@ -40,7 +40,6 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             //判断是否包含日期
             if(map.containsKey(DateUtils.convert2String(warter.getCreateDate()))){
                 ((ArrayList)map.get(DateUtils.convert2String(warter.getCreateDate()))).add(warter);
-
             }else{
                 List<WarterOrderRestDTO> list = new ArrayList<>();
                 list.add(warter);
