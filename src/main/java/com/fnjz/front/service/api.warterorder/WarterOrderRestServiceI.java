@@ -43,4 +43,11 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @return
      */
     Map<String,BigDecimal> getAccount(String time, String accountBookId);
+
+    /**
+     * 根据流水号获取订单详情
+     * @param id
+     * @return
+     */
+    WarterOrderRestDTO findById(String id);
 }

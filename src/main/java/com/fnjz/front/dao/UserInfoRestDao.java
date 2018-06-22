@@ -9,10 +9,11 @@ import org.jeecgframework.minidao.annotation.Param;
  * Created by yhang on 2018/6/1.
  */
 @MiniDao
-//@Repository
 public interface UserInfoRestDao {
 
     //新增  主键自增
     @IdAutoGenerator(generator = "native")
     int insert(@Param("userInfoRestEntity") UserInfoRestEntity userInfoRestEntity);
+
+    void update(@Param("userInfoRestEntity")UserInfoRestEntity userInfoRestEntity);
 }
