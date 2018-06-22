@@ -25,19 +25,21 @@ cd $PROJ_PATH
 mvn clean install
 
 # 停tomcat
-killTomcat
+#killTomcat
 
 # 删除原有工程
-rm -rf $TOMCAT_APP_PATH/webapps/ROOT*
-rm -rf $TOMCAT_APP_PATH/webapps/ROOT*
+#rm -rf $TOMCAT_APP_PATH/webapps/ROOT
+#rm -rf $TOMCAT_APP_PATH/webapps/jeecg
+#rm -f $TOMCAT_APP_PATH/webapps/ROOT.war
+#rm -f $TOMCAT_APP_PATH/webapps/jeecg.war
 
 
 # 复制新的工程
 cp $PROJ_PATH/target/jeecg.war $TOMCAT_APP_PATH/webapps/
 
-cd $TOMCAT_APP_PATH/webapps/
-mv jeecg.war ROOT.war
+#cd $TOMCAT_APP_PATH/webapps/
+#mv jeecg.war ROOT.war
 
 # 启动Tomcat
-cd $TOMCAT_APP_PATH/
-sh bin/startup.sh
+#cd $TOMCAT_APP_PATH/
+#sh bin/startup.sh
