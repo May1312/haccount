@@ -51,5 +51,18 @@ public interface WarterOrderRestServiceI extends CommonService{
      */
     WarterOrderRestDTO findById(String id);
 
+    /**
+     * 获取本月记账天数
+     * @param currentYearMonth
+     * @param accountBookId
+     * @return
+     */
     int countChargeDays(String currentYearMonth, Integer accountBookId);
+
+    /**
+     * 获取用户记账总笔数
+     * @param accountBookId
+     * @return
+     */
+    int chargeTotal(Integer accountBookId);
 }

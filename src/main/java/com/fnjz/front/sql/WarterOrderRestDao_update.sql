@@ -12,9 +12,7 @@ SET
 	    <#if warterOrderRestEntity.isStaged ?exists>
 		   is_staged = :warterOrderRestEntity.isStaged,
 		</#if>
-	   <#if warterOrderRestEntity.spendHappiness ?exists>
 		   spend_happiness = :warterOrderRestEntity.spendHappiness,
-		</#if>
 	   <#if warterOrderRestEntity.useDegree ?exists>
 		   useDegree = :warterOrderRestEntity.useDegree,
 		</#if>

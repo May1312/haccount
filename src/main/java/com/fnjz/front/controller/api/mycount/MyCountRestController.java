@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.MyCountRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -54,8 +59,31 @@ public class MyCountRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
-            int daycount = warterOrderRestServiceI.countChargeDays(currentYearMonth,userLoginRestEntity.getAccountBookId());
-            return null;
+            int daysCount = warterOrderRestServiceI.countChargeDays(currentYearMonth,userLoginRestEntity.getAccountBookId());
+            //获取连续打卡+记账总笔数
+            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + code);
+            MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
+            int chargeTotal;
+            if(myCountRestDTO!=null){
+                //记账总笔数
+                chargeTotal = myCountRestDTO.getChargeTotal();
+                //chargeTotal 为空   查询db
+                if(chargeTotal<1){
+                    chargeTotal = warterOrderRestServiceI.chargeTotal(userLoginRestEntity.getAccountBookId());
+                    myCountRestDTO.setChargeTotal(chargeTotal);
+                }
+            }else{
+                myCountRestDTO = new MyCountRestDTO();
+                chargeTotal = warterOrderRestServiceI.chargeTotal(userLoginRestEntity.getAccountBookId());
+                myCountRestDTO.setChargeTotal(chargeTotal);
+                //重新设置redis
+                String json = JSON.toJSONString(myCountRestDTO);
+                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+            }
+            myCountRestDTO.setDaysCount(daysCount);
+            rb.setSucResult(ApiResultType.OK);
+            rb.setResult(myCountRestDTO);
+            return rb;
         } catch (Exception e) {
             logger.error(e.toString());
             rb.setFailMsg(ApiResultType.SERVER_ERROR);

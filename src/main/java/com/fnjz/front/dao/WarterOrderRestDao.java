@@ -8,6 +8,7 @@ import org.jeecgframework.minidao.annotation.ResultType;
 import org.jeecgframework.minidao.annotation.Sql;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by yhang on 2018/6/14.
@@ -51,17 +52,16 @@ public interface WarterOrderRestDao {
      * @param time
      * @param accountBookId
      * @return
-     * SELECT
-     * 		DATE_FORMAT( create_date, "%Y-%m-%d" ) AS a
-     * 	FROM
-     * 		hbird_water_order
-     * 	WHERE
-     * 		account_book_id = 52
-     * 		AND delflag = 0
-     * 		AND create_date LIKE '2018-06%'
-     * 	GROUP BY
-     * 		a;
      */
-    @Sql("select count(*) from hbird_water_order where account_book_id=:accountBookId AND delflag = 0 AND create_date like concat(:time,'%')")
-    int countChargeDays(@Param("time")String time, @Param("accountBookId")Integer accountBookId);
+    @ResultType(Map.class)
+    @Sql("SELECT DATE_FORMAT( create_date, '%Y-%m-%d' ) AS days FROM hbird_water_order WHERE account_book_id = :accountBookId AND delflag = 0 AND create_date LIKE concat(:time,'%') GROUP BY days")
+    List<Map<String,String>> countChargeDays(@Param("time")String time, @Param("accountBookId")Integer accountBookId);
+
+    /**
+     * 统计用户记账总笔数
+     * @param accountBookId
+     * @return
+     */
+    @Sql("select count(*) from hbird_water_order where account_book_id=:accountBookId AND delflag = 0")
+    int chargeTotal(@Param("accountBookId")Integer accountBookId);
 }
