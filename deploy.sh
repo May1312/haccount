@@ -44,4 +44,4 @@ mv jeecg.war ROOT.war
 cd $TOMCAT_APP_PATH/
 sh bin/startup.sh
 
-tail -f logs/catalina.out
+#tail -f logs/catalina.out
