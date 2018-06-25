@@ -1,13 +1,10 @@
 package com.fnjz.front.service.api.warterorder;
 
-import com.alibaba.fastjson.JSONArray;
-import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 
 public interface WarterOrderRestServiceI extends CommonService{
@@ -65,4 +62,10 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @return
      */
     int chargeTotal(Integer accountBookId);
+
+    /**
+     * 记账功能
+     * @param charge
+     */
+    void insert(WarterOrderRestEntity charge,String code,Integer accountBookId);
 }

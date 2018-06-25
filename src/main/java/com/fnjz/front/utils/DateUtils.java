@@ -113,11 +113,11 @@ public class DateUtils {
     }
 
     //获取date 下一天日期时间戳
-    public static long getNextDay(Date date){
+    public static Date getNextDay(Date date){
         Calendar a=Calendar.getInstance();
         a.setTime(date);
         a.add(Calendar.DAY_OF_YEAR, +1);
-        return a.getTime().getTime();
+        return a.getTime();
     }
 
     public static void main(String[] args){

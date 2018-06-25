@@ -106,7 +106,7 @@ public class WarterOrderRestController extends BaseController {
         //获取到账本id 插入记录 TODO 当前账本为1，后台可以获取，后期 账本为多个时，需要传入指定的账本id
 
         //1 为即时记账类型    2 为分期记账类型
-        if (charge.getIsStaged() == 1 && charge.getOrderType() == 1) {
+        if (charge.getOrderType() == 1 && charge.getIsStaged() == 1) {
             //使用度必须为空
             if (charge.getUseDegree() != null) {
                 charge.setUseDegree(null);
@@ -121,12 +121,12 @@ public class WarterOrderRestController extends BaseController {
             charge.setCreateName(code);
             //设置记录状态
             charge.setDelflag(0);
-            warterOrderRestService.save(charge);
+            warterOrderRestService.insert(charge,code,userLoginRestEntity.getAccountBookId());
             rb.setSucResult(ApiResultType.OK);
             logger.info("单笔支出记账完成");
             return rb;
 
-        } else if (charge.getIsStaged() == 2 && charge.getOrderType() == 1) {
+        } else if (charge.getOrderType() == 1 && charge.getIsStaged() == 2) {
             Map map = new HashMap<>();
             map.put("msg", "分期功能未开放");
             rb.setResult(map);
@@ -152,7 +152,7 @@ public class WarterOrderRestController extends BaseController {
         //设置记录状态
         charge.setDelflag(0);
         try {
-            warterOrderRestService.save(charge);
+            warterOrderRestService.insert(charge,code,userLoginRestEntity.getAccountBookId());
             rb.setSucResult(ApiResultType.OK);
             logger.info("单笔收入记账完成");
             return rb;
@@ -205,23 +205,38 @@ public class WarterOrderRestController extends BaseController {
             String useAccountrCache = getUseAccountCacheAndUpdate(Integer.valueOf(userInfoId), code);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             //连续打卡统计
-            /*String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + code);
+            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + code);
             MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
             if(myCountRestDTO!=null){
                 if(myCountRestDTO.getClockInDays()==0&&myCountRestDTO.getClockInTime()==null){
                     //首次打卡
                     myCountRestDTO.setClockInDays(1);
                     myCountRestDTO.setClockInTime(new Date());
+                    String s1 = JSON.toJSONString(myCountRestDTO);
+                    redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
                 }else{
                     //判断打卡间隔
                     //获取下一天凌晨时间间隔
-                    long nextDay = DateUtils.getNextDay(myCountRestDTO.getClockInTime());
-                    //获取凌晨
-                    if(){
-
+                    Date nextDay = DateUtils.getNextDay(myCountRestDTO.getClockInTime());
+                    //获取当天凌晨范围
+                    Date dateOfBegin = DateUtils.fetchBeginOfDay(nextDay);
+                    Date dateOfEnd = DateUtils.fetchEndOfDay(nextDay);
+                    long now = new Date().getTime();
+                    if(now>dateOfBegin.getTime()&&now<dateOfEnd.getTime()){
+                        //打卡成功
+                        myCountRestDTO.setClockInTime(new Date(now));
+                        myCountRestDTO.setClockInDays(myCountRestDTO.getClockInDays()+1);
+                        String s1 = JSON.toJSONString(myCountRestDTO);
+                        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+                    }else{
+                        //置空
+                        myCountRestDTO.setClockInTime(new Date(now));
+                        myCountRestDTO.setClockInDays(1);
+                        String s1 = JSON.toJSONString(myCountRestDTO);
+                        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
                     }
                 }
-            }*/
+            }
             Map<String,Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
             rb.setSucResult(ApiResultType.OK);
             rb.setResult(json);
