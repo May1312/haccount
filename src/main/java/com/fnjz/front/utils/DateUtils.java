@@ -39,15 +39,16 @@ public class DateUtils {
         cal.add(Calendar.MILLISECOND, -1);
         return cal.getTime();
     }
-    //根据年/月获取对应的月份-天数
-    public static int getDaysByYearMonth(int year, int month) {
+    //根据时间戳 获取对应的月份-天数
+    public static int getDaysByDate(Date date) {
         Calendar a = Calendar.getInstance();
-        a.set(Calendar.YEAR, year);
-        a.set(Calendar.MONTH, month - 1);
-        a.set(Calendar.DATE, 1);
-        a.roll(Calendar.DATE, -1);
-        int maxDate = a.get(Calendar.DATE);
-        return maxDate;
+        a.setTime(date);
+        return a.get(Calendar.DAY_OF_MONTH);
+    }
+    //根据时间戳 获取对应的月份-天数
+    public static int getCurrentDaysByDate() {
+        Calendar a = Calendar.getInstance();
+        return a.get(Calendar.DAY_OF_MONTH);
     }
     //获取当前时间 - 年份
     public static int getCurrentYear(){
@@ -68,7 +69,7 @@ public class DateUtils {
     //获取当前时间 - 天数
     public static int getCurrentDay(){
         Calendar a=Calendar.getInstance();
-        return a.get(Calendar.DATE);
+        return a.getActualMaximum(Calendar.DATE);
     }
     //获取当前时间 年/月
     public static String getCurrentYearMonth(){
@@ -109,6 +110,14 @@ public class DateUtils {
         } catch (Exception e) {//兼容性更强,异常后返回数据
             return 0;
         }
+    }
+
+    //获取date 下一天日期时间戳
+    public static long getNextDay(Date date){
+        Calendar a=Calendar.getInstance();
+        a.setTime(date);
+        a.add(Calendar.DAY_OF_YEAR, +1);
+        return a.getTime().getTime();
     }
 
     public static void main(String[] args){

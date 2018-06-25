@@ -27,7 +27,7 @@
     <!-- 避免IE执行AJAX时,返回JSON出现下载文件 -->
     <bean id="mappingJacksonHttpMessageConverter"
           class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
-        <property name="objectMapper" ref="customObjectMapper"></property>
+        <!--<property name="objectMapper" ref="customObjectMapper"></property>-->
         <property name="supportedMediaTypes">
             <list>
                 <value>text/html;charset=UTF-8</value>
@@ -45,7 +45,7 @@
             </list>
         </property>
     </bean>
-    <bean id="customObjectMapper" class="org.jeecgframework.core.common.controller.CustomObjectMapper"></bean>
+    <!--<bean id="customObjectMapper" class="org.jeecgframework.core.common.controller.CustomObjectMapper"></bean>-->
     <!-- 注册handler method和request的mapping关系。  -->
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
     <!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射， 配置一个基于注解的定制的WebBindingInitializer，解决日期转换问题，方法级别的处理器映射 -->

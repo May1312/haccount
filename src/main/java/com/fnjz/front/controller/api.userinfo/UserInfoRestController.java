@@ -239,7 +239,7 @@ public class UserInfoRestController extends BaseController {
     @ApiOperation(value = "获取用户详情")
     @RequestMapping(value = "/userInfo/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean userinfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
+    public ResultBean userInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         try {
@@ -373,5 +373,11 @@ public class UserInfoRestController extends BaseController {
     @ResponseBody
     public ResultBean updateUserInfo(@RequestBody UserInfoRestEntity userInfoRestEntity,HttpServletRequest request) {
         return this.updateUserInfo(null, userInfoRestEntity,request);
+    }
+
+    @RequestMapping(value = "/userInfo", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean userInfo(HttpServletRequest request) {
+        return this.userInfo(null,request);
     }
 }

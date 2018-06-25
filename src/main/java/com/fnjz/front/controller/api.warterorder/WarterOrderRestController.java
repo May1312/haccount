@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.MyCountRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
@@ -203,6 +204,24 @@ public class WarterOrderRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String useAccountrCache = getUseAccountCacheAndUpdate(Integer.valueOf(userInfoId), code);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
+            //连续打卡统计
+            /*String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + code);
+            MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
+            if(myCountRestDTO!=null){
+                if(myCountRestDTO.getClockInDays()==0&&myCountRestDTO.getClockInTime()==null){
+                    //首次打卡
+                    myCountRestDTO.setClockInDays(1);
+                    myCountRestDTO.setClockInTime(new Date());
+                }else{
+                    //判断打卡间隔
+                    //获取下一天凌晨时间间隔
+                    long nextDay = DateUtils.getNextDay(myCountRestDTO.getClockInTime());
+                    //获取凌晨
+                    if(){
+
+                    }
+                }
+            }*/
             Map<String,Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
             rb.setSucResult(ApiResultType.OK);
             rb.setResult(json);

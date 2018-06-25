@@ -1,13 +1,10 @@
 package com.fnjz.front.entity.api.warterorder;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fnjz.front.entity.api.stagedinfo.StagedInfoRestEntity;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 
@@ -52,10 +49,8 @@ public class WarterOrderRestDTO implements java.io.Serializable {
 	/**图片记录*/
 	private String pictureUrl;
 	/**创建时间*/
-	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private java.util.Date createDate;
 	/**记账时间*/
-	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private java.util.Date chargeDate;
 	/**备注*/
 	private String remark;

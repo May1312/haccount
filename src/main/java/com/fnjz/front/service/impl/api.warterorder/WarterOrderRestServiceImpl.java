@@ -31,19 +31,19 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     public Map<String,Object> findListForPage(String time, String accountBookId) {
 
         //List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(time,accountBookId,pageRest.getStartIndex(),pageRest.getPageSize());
-        List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(time,accountBookId);
+         List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(time,accountBookId);
         //获取到当月所以记录  如何按天分组呢！！！
-        Map<String,Object> map= new HashMap<>();
+        Map<Date,Object> map= new HashMap<>();
         for (Iterator<WarterOrderRestDTO> it = listForPage.iterator(); it.hasNext();)
         {
             WarterOrderRestDTO warter = it.next();
             //判断是否包含日期
-            if(map.containsKey(DateUtils.convert2String(warter.getChargeDate()))){
-                ((ArrayList)map.get(DateUtils.convert2String(warter.getChargeDate()))).add(warter);
+            if(map.containsKey(warter.getChargeDate())){
+                ((ArrayList)map.get(warter.getChargeDate())).add(warter);
             }else{
                 List<WarterOrderRestDTO> list = new ArrayList<>();
                 list.add(warter);
-                map.put(DateUtils.convert2String(warter.getChargeDate()),list);
+                map.put(warter.getChargeDate(),list);
             }
         }
             //获取总条数
@@ -54,17 +54,15 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         //pageRest.setContent(listForPage);
         Map<String,Object> ja = new HashMap();
         if(map.size()>0){
-            Map<String, Object> resultMap = sortMapByKey(map);    //按Key进行排序
-
             JSONArray array = new JSONArray();
             JSONArray array2 = new JSONArray();
-            for (Map.Entry<String, Object> entry : resultMap.entrySet()) {
+            for (Map.Entry<Date, Object> entry : map.entrySet()) {
                 //封装成key value格式
                 JSONObject obj = new JSONObject();
-                if(!StringUtils.equals(entry.getKey(),"dayTime")){
+                if(!StringUtils.equals(entry.getKey()+"","dayTime")){
                     obj.put("dayTime",entry.getKey());
                 }
-                if(!StringUtils.equals(entry.getKey(),"dayTime")){
+                if(!StringUtils.equals(entry.getKey()+"","dayTime")){
                     obj.put("dayArrays",entry.getValue());
                 }
                 array.add(obj.toJSONString());
@@ -102,19 +100,6 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         return ja;
     }
 
-    public static Map<String, Object> sortMapByKey(Map<String, Object> map) {
-        if (map == null || map.isEmpty()) {
-            return null;
-        }
-
-        Map<String, Object> sortMap = new TreeMap<>(
-                new MapKeyComparator());
-
-        sortMap.putAll(map);
-
-        return sortMap;
-    }
-
     @Override
     public Integer update(WarterOrderRestEntity charge) {
         return  warterOrderRestDao.update(charge);
@@ -128,7 +113,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Override
     public Map<String, BigDecimal> getAccount(String time, String accountBookId) {
-        List<Map<String,BigDecimal>> listbySql = commonDao.findListMapbySql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END) AS spend,SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END) AS income FROM `hbird_water_order` WHERE create_date LIKE '" + time + "%' AND account_book_id = '" + accountBookId + "' AND delflag = 0;");
+        List<Map<String,BigDecimal>> listbySql = commonDao.findListMapbySql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END) AS spend,SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END) AS income FROM `hbird_water_order` WHERE charge_date LIKE '" + time + "%' AND account_book_id = '" + accountBookId + "' AND delflag = 0;");
         return (Map)listbySql.get(0);
     }
 

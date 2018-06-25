@@ -80,7 +80,7 @@ public class MyCountRestController extends BaseController {
                 String json = JSON.toJSONString(myCountRestDTO);
                 redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
             }
-            myCountRestDTO.setDaysCount(daysCount);
+            myCountRestDTO.setDaysCount(daysCount+"/"+DateUtils.getCurrentDay());
             rb.setSucResult(ApiResultType.OK);
             rb.setResult(myCountRestDTO);
             return rb;
