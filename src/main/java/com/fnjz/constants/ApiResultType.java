@@ -60,6 +60,8 @@ public enum ApiResultType {
 
     //版本更新相关
     CHECK_VERSION_PARAMS_ERROR("03001","参数异常，请检查"),
+    VERSION_IS_NULL("03002","版本号为空，请检查"),
+    SYSTEM_TYPE_IS_NULL("03003","终端类型type为空，请检查"),
 
     //明细相关
     ACCOUNT_PARAMS_ERROR("04001","参数异常，请检查"),

@@ -634,4 +634,4 @@ public class UserLoginRestController extends BaseController {
     public ResultBean registerByWXApplet (@RequestBody @ApiIgnore Map<String, String> map){
         return this.registerByWXApplet(null, map);
     }
-    }
+}

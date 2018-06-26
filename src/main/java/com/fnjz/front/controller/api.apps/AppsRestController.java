@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.front.entity.api.apps.AppsRestDTO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +50,7 @@ import javax.validation.Validator;
 import java.net.URI;
 import org.springframework.http.MediaType;
 import org.springframework.web.util.UriComponentsBuilder;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**   
  * @Title: Controller
@@ -74,15 +76,32 @@ public class AppsRestController extends BaseController {
 	@RequestMapping(value = "/appCheck/{type}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResultBean appCheck (@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String
-									  type, HttpServletRequest request,@RequestBody Map<String,String> map){
+									  type,@RequestBody Map<String,String> map){
 		System.out.println("登录终端：" + type);
 		ResultBean rb = new ResultBean();
-		int flag;
-		if(StringUtils.equals("","")){
-
+		Integer flag = null;
+		if(StringUtils.isEmpty(type)){
+			rb.setFailMsg(ApiResultType.SYSTEM_TYPE_IS_NULL);
+			return rb;
+		}
+		if(StringUtils.equals("ios",type)){
+			flag = 1;
+		}
+		if(StringUtils.equals("android",type)){
+			flag = 0;
+		}
+		//判断版本号
+		if (StringUtil.isEmpty(map.get("version"))) {
+			rb.setFailMsg(ApiResultType.VERSION_IS_NULL);
+			return rb;
 		}
 		try {
-
+			if(flag!=null){
+				AppsRestDTO appsRestDTO = appsRestService.appCheck(map.get("version"),flag);
+				rb.setSucResult(ApiResultType.OK);
+				rb.setResult(appsRestDTO);
+				return rb;
+			}
 		} catch (Exception e) {
 			logger.error(e.toString());
 			rb.setFailMsg(ApiResultType.SERVER_ERROR);
@@ -91,4 +110,9 @@ public class AppsRestController extends BaseController {
 		return rb;
 	}
 
+	@RequestMapping(value = "/appCheck", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultBean appCheck (@RequestBody @ApiIgnore Map<String, String> map){
+		return this.appCheck(null, map);
+	}
 }
