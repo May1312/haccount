@@ -99,9 +99,10 @@ public class WarterOrderRestController extends BaseController {
                 return rb;
             }
         }
+        String key = (String) request.getAttribute("key");
         String code = (String) request.getAttribute("code");
         String userInfoId = (String) request.getAttribute("userInfoId");
-        String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
+        String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), key);
         UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
         //获取到账本id 插入记录 TODO 当前账本为1，后台可以获取，后期 账本为多个时，需要传入指定的账本id
 
@@ -201,11 +202,12 @@ public class WarterOrderRestController extends BaseController {
         ResultBean rb = new ResultBean();
         try {
             String code = (String) request.getAttribute("code");
+            String key = (String) request.getAttribute("key");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            String useAccountrCache = getUseAccountCacheAndUpdate(Integer.valueOf(userInfoId), code);
+            String useAccountrCache = getUseAccountCacheAndUpdate(Integer.valueOf(userInfoId), key);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             //连续打卡统计
-            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + code);
+            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + key);
             MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
             if(myCountRestDTO!=null){
                 if(myCountRestDTO.getClockInDays()==0&&myCountRestDTO.getClockInTime()==null){
@@ -213,7 +215,7 @@ public class WarterOrderRestController extends BaseController {
                     myCountRestDTO.setClockInDays(1);
                     myCountRestDTO.setClockInTime(new Date());
                     String s1 = JSON.toJSONString(myCountRestDTO);
-                    redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+                    redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + key,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
                 }else{
                     //判断打卡间隔
                     //获取下一天凌晨时间间隔
@@ -227,13 +229,13 @@ public class WarterOrderRestController extends BaseController {
                         myCountRestDTO.setClockInTime(new Date(now));
                         myCountRestDTO.setClockInDays(myCountRestDTO.getClockInDays()+1);
                         String s1 = JSON.toJSONString(myCountRestDTO);
-                        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+                        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + key,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
                     }else{
                         //置空
                         myCountRestDTO.setClockInTime(new Date(now));
                         myCountRestDTO.setClockInDays(1);
                         String s1 = JSON.toJSONString(myCountRestDTO);
-                        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+                        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + key,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
                     }
                 }
             }
@@ -318,8 +320,9 @@ public class WarterOrderRestController extends BaseController {
             }
         }
         String code = (String) request.getAttribute("code");
+        String key = (String) request.getAttribute("key");
         String userInfoId = (String) request.getAttribute("userInfoId");
-        String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
+        String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), key);
         UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
         //获取到账本id 更新记录 TODO 当前账本为1，后台可以获取，后期 账本为多个时，需要传入指定的账本id
 
@@ -444,8 +447,9 @@ public class WarterOrderRestController extends BaseController {
         ResultBean rb = new ResultBean();
         try {
             String code = (String) request.getAttribute("code");
+            String key = (String) request.getAttribute("key");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
+            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), key);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             Map<String,BigDecimal> map = warterOrderRestService.getAccount(time, userLoginRestEntity.getAccountBookId() + "");
             rb.setSucResult(ApiResultType.OK);

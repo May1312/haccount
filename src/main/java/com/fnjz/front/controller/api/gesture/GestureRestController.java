@@ -53,7 +53,8 @@ public class GestureRestController extends BaseController{
         //从缓存中查询开关状态
         try {
             String code = (String) request.getAttribute("code");
-            String user = getUserCache(code);
+            String key = (String) request.getAttribute("key");
+            String user = getUserCache(key);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
             rb.setSucResult(ApiResultType.OK);
             Map<String,String> map = new HashMap<>();
@@ -94,11 +95,12 @@ public class GestureRestController extends BaseController{
             }
             //更新redis缓存
             String code = (String) request.getAttribute("code");
-            String user = (String) redisTemplate.opsForValue().get(code);
+            String key = (String) request.getAttribute("key");
+            String user = (String) redisTemplate.opsForValue().get(key);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
             userLoginRestEntity.setGesturePwType(map.get("gesturePwType"));
             String user2 = JSON.toJSONString(userLoginRestEntity);
-            updateCache(user2,code);
+            updateCache(user2,key);
             rb.setSucResult(ApiResultType.OK);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -131,11 +133,12 @@ public class GestureRestController extends BaseController{
             }
             //更新redis缓存
             String code = (String) request.getAttribute("code");
-            String user = (String) redisTemplate.opsForValue().get(code);
+            String key = (String) request.getAttribute("key");
+            String user = (String) redisTemplate.opsForValue().get(key);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
             userLoginRestEntity.setGesturePw(map.get("gesturePw"));
             String user2 = JSON.toJSONString(userLoginRestEntity);
-            updateCache(user2,code);
+            updateCache(user2,key);
             rb.setSucResult(ApiResultType.OK);
         }else{
             rb.setFailMsg(ApiResultType.GESTURE_PARAMS_ERROR);

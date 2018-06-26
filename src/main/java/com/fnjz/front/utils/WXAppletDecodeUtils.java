@@ -50,5 +50,4 @@ public class WXAppletDecodeUtils {
         }
         return null;
     }
-
 }

@@ -100,6 +100,7 @@ public class ApiInterceptor implements HandlerInterceptor {
                 request.setAttribute("code",userLoginRestEntity.getWechatAuth());
             }
             request.setAttribute("userInfoId",userLoginRestEntity.getUserInfoId()+"");
+            request.setAttribute("key",username.toString());
             return true;
         }
     }

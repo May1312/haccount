@@ -49,12 +49,13 @@ public class MyCountRestController extends BaseController {
             //获取当前年月
             String currentYearMonth = DateUtils.getCurrentYearMonth();
             String code = (String) request.getAttribute("code");
+            String key = (String) request.getAttribute("key");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
+            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), key);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             int daysCount = warterOrderRestServiceI.countChargeDays(currentYearMonth,userLoginRestEntity.getAccountBookId());
             //获取连续打卡+记账总笔数
-            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + code);
+            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + key);
             MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
             int chargeTotal;
             if(myCountRestDTO!=null){
@@ -71,7 +72,7 @@ public class MyCountRestController extends BaseController {
                 myCountRestDTO.setChargeTotal(chargeTotal);
                 //重新设置redis
                 String json = JSON.toJSONString(myCountRestDTO);
-                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + key,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
             }
             myCountRestDTO.setDaysCount(daysCount+"/"+DateUtils.getCurrentDay());
             rb.setSucResult(ApiResultType.OK);

@@ -71,7 +71,7 @@ public class UserInfoRestController extends BaseController {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         try {
-            String r_redis = (String) request.getAttribute("code");
+            String r_redis = (String) request.getAttribute("key");
             String r_user = getUserCache(r_redis);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
@@ -102,7 +102,7 @@ public class UserInfoRestController extends BaseController {
                     //更新用户缓存
                     userLoginRestEntity.setMobile(map.get("mobile"));
                     String user = JSON.toJSONString(userLoginRestEntity);
-                    updateCache(user, map.get("mobile"));
+                    updateCache(user, r_redis);
                     rb.setSucResult(ApiResultType.OK);
                 } else {
                     rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
@@ -161,7 +161,7 @@ public class UserInfoRestController extends BaseController {
             return rb;
         }
         try {
-            String r_redis = (String) request.getAttribute("code");
+            String r_redis = (String) request.getAttribute("key");
             String r_user = getUserCache(r_redis);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
@@ -208,7 +208,7 @@ public class UserInfoRestController extends BaseController {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         try {
-            String r_redis = (String) request.getAttribute("code");
+            String r_redis = (String) request.getAttribute("key");
             //解绑用户--->将wechat_auth置为null
             String r_user = getUserCache(r_redis);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);

@@ -118,8 +118,9 @@ public class SpendRestController extends BaseController {
         if (spend.getIsStaged() == 1) {
             try {
                 String code = (String) request.getAttribute("code");
+                String key = (String) request.getAttribute("key");
                 String userInfoId = (String) request.getAttribute("userInfoId");
-                String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
+                String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), key);
                 UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
                 //获取到账本id 插入记录 TODO 当前账本为1，后台可以获取，后期 账本为多个时，需要传入指定的账本id
                 //设置单笔记录号
@@ -159,8 +160,9 @@ public class SpendRestController extends BaseController {
         ResultBean rb = new ResultBean();
         try {
             String code = (String) request.getAttribute("code");
+            String key = (String) request.getAttribute("key");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), code);
+            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), key);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             SpendRestEntity se = new SpendRestEntity();
             PageRest page = spendRestService.findListForPage(userLoginRestEntity.getAccountBookId()+"",Integer.valueOf(curPage),Integer.valueOf(pageSize));

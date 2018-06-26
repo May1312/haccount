@@ -120,7 +120,8 @@ public class UserRegisterRestController extends BaseController {
                     updateCache(user,map.get("mobile"));
                     rb.setSucResult(ApiResultType.OK);
                     Map<String, Object> map2 = new HashMap<>();
-                    String token = createTokenUtils.createToken(map.get("mobile"));
+                    long time = System.currentTimeMillis();
+                    String token = createTokenUtils.createToken(map.get("mobile"),time);
                     map2 = SetTokenToAppUtils.getTokenResult(map2,token);
                     rb.setResult(map2);
                 }else{
