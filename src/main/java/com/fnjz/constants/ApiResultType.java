@@ -82,7 +82,8 @@ public enum ApiResultType {
     //图表相关
 
     //我的相关
-    MY_PARAMS_ERROR("06001","参数异常，请检查");
+    MY_PARAMS_ERROR("06001","参数异常，请检查"),
+    CONTENT_IS_NULL("06002","反馈内容为空，请检查");
 
     ApiResultType(String status, String str) {
         setCode(status);

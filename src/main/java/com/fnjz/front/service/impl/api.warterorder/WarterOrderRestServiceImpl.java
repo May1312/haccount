@@ -61,9 +61,10 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         //pageRest.setContent(listForPage);
         Map<String,Object> ja = new HashMap();
         if(map.size()>0){
+            Map<Date, Object> resultMap = sortMapByKey(map);
             JSONArray array = new JSONArray();
             JSONArray array2 = new JSONArray();
-            for (Map.Entry<Date, Object> entry : map.entrySet()) {
+            for (Map.Entry<Date, Object> entry : resultMap.entrySet()) {
                 //封装成key value格式
                 JSONObject obj = new JSONObject();
                 if(!StringUtils.equals(entry.getKey()+"","dayTime")){
@@ -105,6 +106,19 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             return ja;
         }
         return ja;
+    }
+
+    public static Map<Date, Object> sortMapByKey(Map<Date, Object> map) {
+        if (map == null || map.isEmpty()) {
+            return null;
+        }
+
+        Map<Date, Object> sortMap = new TreeMap<Date,Object>(
+                new MapKeyComparator());
+
+        sortMap.putAll(map);
+
+        return sortMap;
     }
 
     @Override
@@ -165,10 +179,10 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         }
     }
 }
-class MapKeyComparator implements Comparator<String>{
+class MapKeyComparator implements Comparator<Date>{
 
     @Override
-    public int compare(String str1, String str2) {
+    public int compare(Date str1, Date str2) {
 
         return str2.compareTo(str1);
     }
