@@ -1,9 +1,7 @@
 package com.fnjz.front.entity.api.userinfo;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
 import javax.persistence.*;
 
 /**   

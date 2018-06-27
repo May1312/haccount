@@ -6,20 +6,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.MyCountRestDTO;
-import com.fnjz.front.entity.api.PageRest;
+import com.fnjz.front.entity.api.StatisticsDaysRestDTO;
+import com.fnjz.front.entity.api.StatisticsWeeksRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
-import com.fnjz.front.utils.DateUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
-
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -177,6 +174,18 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
             }
         }
+    }
+
+    @Override
+    public List<StatisticsDaysRestDTO> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId) {
+        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForDays(beginTime,endTime,accountBookId);
+        return list;
+    }
+
+    @Override
+    public List<StatisticsWeeksRestDTO> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId) {
+        List<StatisticsWeeksRestDTO> list = warterOrderRestDao.statisticsForWeeks(beginWeek,endWeek,accountBookId);
+        return list;
     }
 }
 class MapKeyComparator implements Comparator<Date>{

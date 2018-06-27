@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -125,10 +126,33 @@ public class RedisTemplateUtils {
         return (String) redisTemplate.opsForValue().get(key);
     }
 
+    /**
+     * 缓存用户及账本信息
+     * @param userInfoId
+     * @param user
+     * @param code
+     * @param time
+     */
     public void cacheUserAndAccount (int userInfoId,String user,String code,long time) {
         //缓存账本
         this.setAccountBookCache(userInfoId, code,time);
         //缓存用户信息
         this.setCache(user,code,time);
+    }
+
+    /**
+     * 从cache获取用户账本信息通用方法
+     */
+    public String getUseAccountCache(int userInfoId, String code) {
+        String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code);
+        //为null 重新获取缓存
+        if (StringUtils.isEmpty(user_account)) {
+            UserAccountBookRestEntity task = userAccountBookRestServiceI.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
+            //设置redis缓存 缓存用户账本信息 30天
+            String r_user_account = JSON.toJSONString(task);
+            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code, r_user_account, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+            return r_user_account;
+        }
+        return user_account;
     }
 }

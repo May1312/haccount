@@ -81,7 +81,10 @@ public enum ApiResultType {
     TYPE_IS_NULL("04015","类目类型为空，请检查！"),
     TYPE_RELATION_IS_NULL("04016","类目优先级关系为空，请检查！"),
 
-    //图表相关
+    //图表统计相关
+    TYPE_FLAG_IS_NULL("05001","统计类型flag为空，请检查！"),
+    QUERY_TIME_IS_NULL("05002","日统计时间范围为空，请检查！"),
+    QUERY_WEEK_IS_NULL("05003","周统计时间范围为空，请检查！"),
 
     //我的相关
     MY_PARAMS_ERROR("06001","参数异常，请检查"),

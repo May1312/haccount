@@ -3,6 +3,7 @@ package com.fnjz.front.utils;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -120,7 +121,21 @@ public class DateUtils {
         return a.getTime();
     }
 
-    public static void main(String[] args){
-        System.out.println(getCurrentYearMonth());
+    //获取年中的星期数
+    public static int getWeeks(Date date){
+        Calendar cal = Calendar.getInstance();
+        cal.setFirstDayOfWeek(Calendar.MONDAY);//设置周一为一周的第一天
+        cal.setTime(date);
+        int num = cal.get(Calendar.WEEK_OF_YEAR);
+        return num;
+    }
+
+    public static void main(String[] args) throws ParseException {
+        //System.out.println(getCurrentYearMonth());
+        SimpleDateFormat format =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String d = format.format(1514736000000L);
+        Date date=format.parse(d);
+        System.out.println(getWeeks(date));
+        System.out.println(getWeeks(new Date()));
     }
 }

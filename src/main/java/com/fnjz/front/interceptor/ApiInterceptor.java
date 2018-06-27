@@ -101,6 +101,7 @@ public class ApiInterceptor implements HandlerInterceptor {
             }
             request.setAttribute("userInfoId",userLoginRestEntity.getUserInfoId()+"");
             request.setAttribute("key",username.toString());
+            //code 用户手机号或微信auth   key是 redis对应key   userInfoId用户详情id
             return true;
         }
     }

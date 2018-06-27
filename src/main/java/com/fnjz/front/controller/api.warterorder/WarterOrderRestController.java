@@ -12,6 +12,7 @@ import com.fnjz.front.entity.api.MyCountRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
+import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.ValidateUtils;
@@ -51,6 +52,8 @@ public class WarterOrderRestController extends BaseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private UserLoginRestServiceI userLoginRestServiceI;
+    @Autowired
+    private UserAccountBookRestServiceI userAccountBookRestServiceI;
 
     /**
      * 账本流水表相关列表 页面跳转
@@ -469,7 +472,7 @@ public class WarterOrderRestController extends BaseController {
         String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code);
         //为null 重新获取缓存
         if (StringUtils.isEmpty(user_account)) {
-            UserAccountBookRestEntity task = warterOrderRestService.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
+            UserAccountBookRestEntity task = userAccountBookRestServiceI.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
             //设置redis缓存 缓存用户账本信息 30天
             String r_user_account = JSON.toJSONString(task);
             redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code, r_user_account, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);

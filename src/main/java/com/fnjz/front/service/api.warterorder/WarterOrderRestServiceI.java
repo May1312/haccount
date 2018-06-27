@@ -1,10 +1,14 @@
 package com.fnjz.front.service.api.warterorder;
 
+import com.fnjz.front.entity.api.StatisticsDaysRestDTO;
+import com.fnjz.front.entity.api.StatisticsWeeksRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public interface WarterOrderRestServiceI extends CommonService{
@@ -68,4 +72,21 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @param charge
      */
     void insert(WarterOrderRestEntity charge,String code,Integer accountBookId);
+
+    /**
+     * 日统计接口
+     * @param beginTime
+     * @param endTime
+     * @param accountBookId
+     */
+    List<StatisticsDaysRestDTO> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId);
+
+    /**
+     * 周统计接口
+     * @param beginWeek
+     * @param endWeek
+     * @param accountBookId
+     * @return
+     */
+    List<StatisticsWeeksRestDTO> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId);
 }
