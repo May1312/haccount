@@ -17,7 +17,6 @@ import javax.persistence.*;
 @Table(name = "hbird_user_info", schema = "")
 @DynamicUpdate(true)
 @DynamicInsert(true)
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @SuppressWarnings("serial")
 public class UserInfoRestDTO implements java.io.Serializable {
 	/**蜂鸟ID*/

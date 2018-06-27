@@ -130,14 +130,14 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         if(StringUtils.isNotEmpty(jsonObject.getString("gender"))){
             userInfoRestEntity.setSex(jsonObject.getString("gender"));
         }
-        //设置省
+        /*//设置省
         if(StringUtils.isNotEmpty(jsonObject.getString("province"))){
             userInfoRestEntity.setProvinceName(jsonObject.getString("province"));
         }
         //设置市
         if(StringUtils.isNotEmpty(jsonObject.getString("city"))){
             userInfoRestEntity.setCityName(jsonObject.getString("city"));
-        }
+        }*/
         //设置头像
         if(StringUtils.isNotEmpty(jsonObject.getString("headimgurl"))){
             userInfoRestEntity.setAvatarUrl(jsonObject.getString("headimgurl"));
