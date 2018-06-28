@@ -1,18 +1,18 @@
-package com.fnjz.front.entity.api;
+package com.fnjz.front.entity.api.statistics;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 周统计封装类
+ * 日统计封装类
  * Created by yhang on 2018/6/27.
  */
-public class StatisticsWeeksRestDTO implements Serializable {
+public class StatisticsDaysRestDTO implements Serializable {
 
     private BigDecimal money;
 
-    private String week;
+    private Date time;
 
     public BigDecimal getMoney() {
         return money;
@@ -22,11 +22,11 @@ public class StatisticsWeeksRestDTO implements Serializable {
         this.money = money;
     }
 
-    public String getTime() {
-        return week;
+    public Date getTime() {
+        return time;
     }
 
     public void setTime(Date time) {
-        this.week = week;
+        this.time = time;
     }
 }

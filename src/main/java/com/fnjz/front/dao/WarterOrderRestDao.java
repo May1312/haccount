@@ -1,7 +1,7 @@
 package com.fnjz.front.dao;
 
-import com.fnjz.front.entity.api.StatisticsDaysRestDTO;
-import com.fnjz.front.entity.api.StatisticsWeeksRestDTO;
+import com.fnjz.front.entity.api.statistics.StatisticsDaysRestDTO;
+import com.fnjz.front.entity.api.statistics.StatisticsWeeksRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import org.jeecgframework.minidao.annotation.MiniDao;
@@ -79,11 +79,28 @@ public interface WarterOrderRestDao {
 
     /**
      * 按周统计
+     * having后加入年份判断  只获取当前年份
      * @param beginWeek
      * @param endWeek
      * @param accountBookId
      * @return
      */
-    @Sql("select sum(money) as money,DATE_FORMAT(charge_date,'%u') as week from hbird_water_order as wo where wo.account_book_id= :accountBookId and week>=:endWeek and week<=:beginWeek and wo.order_type = 1 and wo.delflag = 0 GROUP BY week order by week DESC;")
+    @Sql("select sum(money) as money,DATE_FORMAT(charge_date,'%u') as week ,DATE_FORMAT(charge_date,'%Y-%u') as yearweek,DATE_FORMAT(NOW(),'%Y') as year from hbird_water_order as wo where wo.account_book_id= :accountBookId and wo.order_type = 1 and wo.delflag = 0 GROUP BY yearweek having yearweek>=concat(year,-:endWeek) and yearweek<=concat(year,-:beginWeek) order by yearweek DESC;")
     List<StatisticsWeeksRestDTO> statisticsForWeeks(@Param("beginWeek")String beginWeek, @Param("endWeek")String endWeek, @Param("accountBookId")Integer accountBookId);
+
+    /**
+     * 按月统计
+     * @param accountBookId
+     * @return
+     */
+    @Sql("SELECT sum( money ) AS money,wo.charge_date as time,DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth,DATE_FORMAT( now( ), '%Y' ) AS year FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY yearmonth HAVING yearmonth >=year ORDER BY yearmonth DESC;")
+    List<StatisticsDaysRestDTO> statisticsForMonths(@Param("accountBookId")Integer accountBookId);
+
+    /**
+     * 按天统计支出排行榜
+     * @param date
+     * @param accountBookId
+     * @return
+     */
+    List<WarterOrderRestDTO> statisticsForDaysByTime(String date, Integer accountBookId);
 }

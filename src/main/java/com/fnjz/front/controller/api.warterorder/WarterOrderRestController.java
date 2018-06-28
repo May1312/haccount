@@ -126,6 +126,28 @@ public class WarterOrderRestController extends BaseController {
             //设置记录状态
             charge.setDelflag(0);
             warterOrderRestService.insert(charge,code,userLoginRestEntity.getAccountBookId());
+            //统计记账总笔数+1
+            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + key);
+            MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
+            if(myCountRestDTO!=null){
+                int chargeTotal = myCountRestDTO.getChargeTotal();
+                if(chargeTotal<1){
+                    //统计记账总笔数
+                    chargeTotal = warterOrderRestService.chargeTotal(userLoginRestEntity.getAccountBookId());
+                    myCountRestDTO.setChargeTotal(chargeTotal);
+                }else{
+                    myCountRestDTO.setChargeTotal(chargeTotal+1);
+                }
+            }else{
+                //为空情况
+                //统计记账总笔数
+                int chargeTotal = warterOrderRestService.chargeTotal(userLoginRestEntity.getAccountBookId());
+                myCountRestDTO.setChargeTotal(chargeTotal);
+            }
+            //统计记账总笔数
+            //重新设置redis
+            String json = JSON.toJSONString(myCountRestDTO);
+            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + key,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
             rb.setSucResult(ApiResultType.OK);
             logger.info("单笔支出记账完成");
             return rb;
@@ -157,6 +179,28 @@ public class WarterOrderRestController extends BaseController {
         charge.setDelflag(0);
         try {
             warterOrderRestService.insert(charge,code,userLoginRestEntity.getAccountBookId());
+            //统计记账总笔数+1
+            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + key);
+            MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
+            if(myCountRestDTO!=null){
+                int chargeTotal = myCountRestDTO.getChargeTotal();
+                if(chargeTotal<1){
+                    //统计记账总笔数
+                    chargeTotal = warterOrderRestService.chargeTotal(userLoginRestEntity.getAccountBookId());
+                    myCountRestDTO.setChargeTotal(chargeTotal);
+                }else{
+                    myCountRestDTO.setChargeTotal(chargeTotal+1);
+                }
+            }else{
+                //为空情况
+                //统计记账总笔数
+                int chargeTotal = warterOrderRestService.chargeTotal(userLoginRestEntity.getAccountBookId());
+                myCountRestDTO.setChargeTotal(chargeTotal);
+            }
+            //统计记账总笔数
+            //重新设置redis
+            String json = JSON.toJSONString(myCountRestDTO);
+            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + key,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
             rb.setSucResult(ApiResultType.OK);
             logger.info("单笔收入记账完成");
             return rb;
@@ -405,12 +449,32 @@ public class WarterOrderRestController extends BaseController {
             //获取当前用户信息
             String userInfoId = (String) request.getAttribute("userInfoId");
             String code = (String) request.getAttribute("code");
+            String key = (String) request.getAttribute("key");
             //执行更新
             int i = warterOrderRestService.deleteOrder(map.get("id"),userInfoId,code);
             if (i < 1) {
                 rb.setFailMsg(ApiResultType.DELETE_RECORD_ERROR);
                 return rb;
             }
+            //统计记账总笔数-1
+            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + key);
+            MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
+            if(myCountRestDTO!=null){
+                int chargeTotal = myCountRestDTO.getChargeTotal();
+                if(chargeTotal>0){
+                    //统计记账总笔数
+                    myCountRestDTO.setChargeTotal(chargeTotal-1);
+                }
+            }else{
+                //为空情况
+                //统计记账总笔数
+                int chargeTotal = warterOrderRestService.chargeTotal(task.getAccountBookId());
+                myCountRestDTO.setChargeTotal(chargeTotal-1);
+            }
+            //统计记账总笔数
+            //重新设置redis
+            String json = JSON.toJSONString(myCountRestDTO);
+            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + key,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
             rb.setSucResult(ApiResultType.OK);
             return rb;
         } catch (Exception e) {

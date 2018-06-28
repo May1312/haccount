@@ -85,6 +85,8 @@ public enum ApiResultType {
     TYPE_FLAG_IS_NULL("05001","统计类型flag为空，请检查！"),
     QUERY_TIME_IS_NULL("05002","日统计时间范围为空，请检查！"),
     QUERY_WEEK_IS_NULL("05003","周统计时间范围为空，请检查！"),
+    QUERY_FLAG_IS_ERROR("05004","统计类型flag异常，请检查！"),
+    TIME_IS_NULL("05005","未指定时间time，请检查！"),
 
     //我的相关
     MY_PARAMS_ERROR("06001","参数异常，请检查"),

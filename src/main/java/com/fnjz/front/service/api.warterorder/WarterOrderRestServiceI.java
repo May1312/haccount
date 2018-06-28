@@ -1,7 +1,8 @@
 package com.fnjz.front.service.api.warterorder;
 
-import com.fnjz.front.entity.api.StatisticsDaysRestDTO;
-import com.fnjz.front.entity.api.StatisticsWeeksRestDTO;
+import com.fnjz.front.entity.api.statistics.StatisticsDaysRestDTO;
+import com.fnjz.front.entity.api.statistics.StatisticsSpendTopAndHappinessDTO;
+import com.fnjz.front.entity.api.statistics.StatisticsWeeksRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import org.jeecgframework.core.common.service.CommonService;
@@ -89,4 +90,19 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @return
      */
     List<StatisticsWeeksRestDTO> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId);
+
+    /**
+     * 月统计接口
+     * @param accountBookId
+     * @return
+     */
+    List<StatisticsDaysRestDTO> statisticsForMonths(Integer accountBookId);
+
+    /**
+     * 日支出排行榜和消费情绪统计
+     * @param time
+     * @param accountBookId
+     * @return
+     */
+    List<StatisticsSpendTopAndHappinessDTO> statisticsForDaysTopAndHappiness(Date time, Integer accountBookId);
 }

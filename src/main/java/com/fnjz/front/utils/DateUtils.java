@@ -14,9 +14,13 @@ import java.util.Date;
 public class DateUtils {
 
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private static final DateFormat DATE_FORMAT_NO_YEAR = new SimpleDateFormat("MM/dd");
 
     public static String convert2String(Date date) {
         return DATE_FORMAT.format(date);
+    }
+    public static String convert2StringNoYear(Date date) {
+        return DATE_FORMAT_NO_YEAR.format(date);
     }
 
     public static Date fetchBeginOfDay(Date date) {
@@ -130,12 +134,24 @@ public class DateUtils {
         return num;
     }
 
+    //根据周数获取日期
+    public static String getDateByWeeks(int weeks){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.WEEK_OF_YEAR, weeks); // 设置周数
+        cal.set(Calendar.DAY_OF_WEEK, 2); // 1表示周日，2表示周一，7表示周六
+        Date begin = cal.getTime();
+        cal.add(Calendar.DATE,6);
+        Date end = cal.getTime();
+        return convert2StringNoYear(begin)+"-"+convert2StringNoYear(end);
+    }
+
     public static void main(String[] args) throws ParseException {
         //System.out.println(getCurrentYearMonth());
         SimpleDateFormat format =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String d = format.format(1514736000000L);
         Date date=format.parse(d);
         System.out.println(getWeeks(date));
-        System.out.println(getWeeks(new Date()));
+        //System.out.println(getWeeks(new Date()));
+        System.out.println(getDateByWeeks(26));
     }
 }

@@ -1,4 +1,4 @@
-package com.fnjz.front.entity.api;
+package com.fnjz.front.entity.api.statistics;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -30,6 +30,10 @@ public class StatisticsParamsRestDTO implements Serializable {
      * 周统计参数
      */
     private String endWeek;
+    /**
+     * 统计排行榜所传时间
+     */
+    private Date time;
 
     public Date getBeginTime() {
         return beginTime;
@@ -69,5 +73,13 @@ public class StatisticsParamsRestDTO implements Serializable {
 
     public void setEndWeek(String endWeek) {
         this.endWeek = endWeek;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
     }
 }
