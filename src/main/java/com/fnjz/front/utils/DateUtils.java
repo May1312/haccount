@@ -7,6 +7,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by yhang on 2018/6/14.
@@ -135,23 +137,26 @@ public class DateUtils {
     }
 
     //根据周数获取日期
-    public static String getDateByWeeks(int weeks){
+    public static Map<String,String> getDateByWeeks(int weeks){
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.WEEK_OF_YEAR, weeks); // 设置周数
         cal.set(Calendar.DAY_OF_WEEK, 2); // 1表示周日，2表示周一，7表示周六
         Date begin = cal.getTime();
+        Map<String,String> map = new HashMap<>();
+        map.put("beginTime",convert2String(begin));
         cal.add(Calendar.DATE,6);
         Date end = cal.getTime();
-        return convert2StringNoYear(begin)+"-"+convert2StringNoYear(end);
+        map.put("endTime",convert2String(end));
+        return map;
     }
 
     public static void main(String[] args) throws ParseException {
         //System.out.println(getCurrentYearMonth());
         SimpleDateFormat format =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String d = format.format(1514736000000L);
+        String d = format.format(1526832000000L);
         Date date=format.parse(d);
         System.out.println(getWeeks(date));
         //System.out.println(getWeeks(new Date()));
-        System.out.println(getDateByWeeks(26));
+        System.out.println(getDateByWeeks(21));
     }
 }

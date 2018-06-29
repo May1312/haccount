@@ -31,9 +31,13 @@ public class StatisticsParamsRestDTO implements Serializable {
      */
     private String endWeek;
     /**
-     * 统计排行榜所传时间
+     * 统计周/月排行榜所传时间
      */
-    private Date time;
+    private String time;
+    /**
+     * 统计日排行榜所传时间
+     */
+    private Date dayTime;
 
     public Date getBeginTime() {
         return beginTime;
@@ -75,11 +79,19 @@ public class StatisticsParamsRestDTO implements Serializable {
         this.endWeek = endWeek;
     }
 
-    public Date getTime() {
+    public String getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(String time) {
         this.time = time;
+    }
+
+    public Date getDayTime() {
+        return dayTime;
+    }
+
+    public void setDayTime(Date dayTime) {
+        this.dayTime = dayTime;
     }
 }

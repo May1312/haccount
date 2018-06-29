@@ -132,17 +132,51 @@ public class ChargeStatisticsRestController extends BaseController {
             rb.setFailMsg(ApiResultType.TYPE_FLAG_IS_NULL);
             return rb;
         }
-        if (statisticsParamsRestDTO.getTime()==null) {
-            rb.setFailMsg(ApiResultType.TIME_IS_NULL);
-            return rb;
-        }
         String userInfoId = (String) request.getAttribute("userInfoId");
         String key = (String) request.getAttribute("key");
         String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), key);
         UserAccountBookRestEntity userAccountBookRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
         if (StringUtils.equals("1", statisticsParamsRestDTO.getFlag())) {
+            if(statisticsParamsRestDTO.getDayTime()==null){
+                rb.setFailMsg(ApiResultType.TIME_IS_NULL);
+                return rb;
+            }
+            //日统计支出排行榜和情绪统计
             try {
-                List<StatisticsSpendTopAndHappinessDTO> list = warterOrderRestServiceI.statisticsForDaysTopAndHappiness(statisticsParamsRestDTO.getTime(), userAccountBookRestEntity.getAccountBookId());
+                StatisticsSpendTopAndHappinessDTO list = warterOrderRestServiceI.statisticsForDaysTopAndHappiness(statisticsParamsRestDTO.getDayTime(), userAccountBookRestEntity.getAccountBookId());
+                rb.setSucResult(ApiResultType.OK);
+                rb.setResult(list);
+                return rb;
+            } catch (Exception e) {
+                logger.error(e.toString());
+                rb.setFailMsg(ApiResultType.SERVER_ERROR);
+                return rb;
+            }
+        } else if (StringUtils.equals("2", statisticsParamsRestDTO.getFlag())) {
+            if(StringUtils.isEmpty(statisticsParamsRestDTO.getTime())){
+                rb.setFailMsg(ApiResultType.TIME_IS_NULL);
+                return rb;
+            }
+            //周统计支出排行榜和情绪统计
+            try {
+                StatisticsSpendTopAndHappinessDTO list = warterOrderRestServiceI.statisticsForWeeksTopAndHappiness(statisticsParamsRestDTO.getTime(), userAccountBookRestEntity.getAccountBookId());
+                rb.setSucResult(ApiResultType.OK);
+                rb.setResult(list);
+                return rb;
+            } catch (Exception e) {
+                logger.error(e.toString());
+                rb.setFailMsg(ApiResultType.SERVER_ERROR);
+                return rb;
+            }
+        } else if (StringUtils.equals("3", statisticsParamsRestDTO.getFlag())) {
+            //月统计支出排行榜和情绪统计
+            if(StringUtils.isEmpty(statisticsParamsRestDTO.getTime())){
+                rb.setFailMsg(ApiResultType.TIME_IS_NULL);
+                return rb;
+            }
+            //周统计支出排行榜和情绪统计
+            try {
+                StatisticsSpendTopAndHappinessDTO list = warterOrderRestServiceI.statisticsForMonthsTopAndHappiness(statisticsParamsRestDTO.getTime(), userAccountBookRestEntity.getAccountBookId());
                 rb.setSucResult(ApiResultType.OK);
                 rb.setResult(list);
                 return rb;

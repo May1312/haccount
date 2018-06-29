@@ -10,12 +10,14 @@ import java.math.BigDecimal;
  */
 public class StatisticsSpendHappinessDTO implements Serializable {
 
-    //愉悦度
+    /**
+     * 愉悦度
+     */
     private Integer spendHappiness;
-    //每个愉悦度对应笔数
+    /**
+     * 每个愉悦度对应笔数
+     */
     private Integer count;
-    //总笔数
-    private Integer totalCount;
 
     public Integer getSpendHappiness() {
         return spendHappiness;
@@ -31,13 +33,5 @@ public class StatisticsSpendHappinessDTO implements Serializable {
 
     public void setCount(Integer count) {
         this.count = count;
-    }
-
-    public Integer getTotalCount() {
-        return totalCount;
-    }
-
-    public void setTotalCount(Integer totalCount) {
-        this.totalCount = totalCount;
     }
 }

@@ -23,10 +23,6 @@ public class StatisticsSpendTopDTO implements Serializable {
      * 单个类目名称
      */
     private String spendName;
-    /**
-     * 总金额
-     */
-    private BigDecimal totalMoney;
 
     public BigDecimal getMoney() {
         return money;
@@ -52,11 +48,4 @@ public class StatisticsSpendTopDTO implements Serializable {
         this.spendName = spendName;
     }
 
-    public BigDecimal getTotalMoney() {
-        return totalMoney;
-    }
-
-    public void setTotalMoney(BigDecimal totalMoney) {
-        this.totalMoney = totalMoney;
-    }
 }

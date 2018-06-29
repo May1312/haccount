@@ -104,5 +104,21 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @param accountBookId
      * @return
      */
-    List<StatisticsSpendTopAndHappinessDTO> statisticsForDaysTopAndHappiness(Date time, Integer accountBookId);
+    StatisticsSpendTopAndHappinessDTO statisticsForDaysTopAndHappiness(Date time, Integer accountBookId);
+
+    /**
+     * 周支出排行榜和消费情绪统计
+     * @param time
+     * @param accountBookId
+     * @return
+     */
+    StatisticsSpendTopAndHappinessDTO statisticsForWeeksTopAndHappiness(String time, Integer accountBookId);
+
+    /**
+     * 月支出排行榜和消费情绪统计
+     * @param time
+     * @param accountBookId
+     * @return
+     */
+    StatisticsSpendTopAndHappinessDTO statisticsForMonthsTopAndHappiness(String time, Integer accountBookId);
 }

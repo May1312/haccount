@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 日统计封装类
+ * 日/月统计封装类
  * Created by yhang on 2018/6/27.
  */
 public class StatisticsDaysRestDTO implements Serializable {

@@ -1,6 +1,7 @@
 package com.fnjz.front.entity.api.statistics;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,25 +15,51 @@ public class StatisticsSpendTopAndHappinessDTO implements Serializable {
     /**
      * 统计支出排行榜集合
      */
-    private List<StatisticsSpendTopDTO> statisticsSpendTop = new ArrayList<>();
+    private List<StatisticsSpendTopDTO> statisticsSpendTopArrays;
     /**
      * 统计情绪消费集合
      */
-    private List<StatisticsSpendHappinessDTO> statisticsSpendHappiness = new ArrayList<>();
+    private List<StatisticsSpendHappinessDTO> statisticsSpendHappinessArrays;
 
-    public List<StatisticsSpendTopDTO> getStatisticsSpendTop() {
-        return statisticsSpendTop;
+    /**
+     * 总笔数
+     */
+    private Integer totalCount;
+
+    /**
+     * 总金额
+     */
+    private BigDecimal totalMoney;
+
+    public List<StatisticsSpendTopDTO> getStatisticsSpendTopArrays() {
+        return statisticsSpendTopArrays;
     }
 
-    public void setStatisticsSpendTop(List<StatisticsSpendTopDTO> statisticsSpendTop) {
-        this.statisticsSpendTop = statisticsSpendTop;
+    public void setStatisticsSpendTopArrays(List<StatisticsSpendTopDTO> statisticsSpendTopArrays) {
+        this.statisticsSpendTopArrays = statisticsSpendTopArrays;
     }
 
-    public List<StatisticsSpendHappinessDTO> getStatisticsSpendHappiness() {
-        return statisticsSpendHappiness;
+    public List<StatisticsSpendHappinessDTO> getStatisticsSpendHappinessArrays() {
+        return statisticsSpendHappinessArrays;
     }
 
-    public void setStatisticsSpendHappiness(List<StatisticsSpendHappinessDTO> statisticsSpendHappiness) {
-        this.statisticsSpendHappiness = statisticsSpendHappiness;
+    public void setStatisticsSpendHappinessArrays(List<StatisticsSpendHappinessDTO> statisticsSpendHappinessArrays) {
+        this.statisticsSpendHappinessArrays = statisticsSpendHappinessArrays;
+    }
+
+    public Integer getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(Integer totalCount) {
+        this.totalCount = totalCount;
+    }
+
+    public BigDecimal getTotalMoney() {
+        return totalMoney;
+    }
+
+    public void setTotalMoney(BigDecimal totalMoney) {
+        this.totalMoney = totalMoney;
     }
 }
