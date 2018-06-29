@@ -6,7 +6,7 @@
     <title>App版本升级</title>
     <t:base type="jquery,easyui,tools,DatePicker"></t:base>
 </head>
-<body style="overflow-y: hidden" scroll="yes">
+<body style="overflow-y: scroll" scroll="yes">
 <t:formvalid formid="formobj" dialog="true" usePlugin="password" layout="table" action="appVersionController.do?save">
     <input id="id" name="id" type="hidden" value="${appVersionPage.id }">
     <table style="width: 600px;" cellpadding="0" cellspacing="1" class="formtable">
@@ -104,9 +104,9 @@
                     <div id="progress" class="progress">
                         <div class="bar" style="width: 0%;"></div>
                     </div>--%>
-                <c:if test="${not empty appVersionPage.url}">
-                    <input class="inputxt" id="url" name="url" ignore="ignore" value="${appVersionPage.url}"/>
-                </c:if>
+                <%--<c:if test="${not empty appVersionPage.url}">--%>
+                    <input class="inputxt" id="url" name="url" ignore="ignore" value="${appVersionPage.url}" style="width:100%"/>
+                <%--</c:if>--%>
 
                 <t:webUploader name="url" fileSingleSizeLimit="500" buttonStyle="btn-green btn-M mb20"
                                fileNumLimit="1"></t:webUploader>
@@ -131,8 +131,9 @@
                 </label>
             </td>
             <td class="value">
-                <input class="inputxt" id="updateLog" name="updateLog" ignore="ignore"
-                       value="${appVersionPage.updateLog}"/>
+                <%--<input class="inputxt" id="updateLog" name="updateLog" ignore="ignore"
+                       value="${appVersionPage.updateLog}"/>--%>
+                <textarea name="updateLog" id="updateLog" cols="60" rows="10">${appVersionPage.updateLog}</textarea>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
