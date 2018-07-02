@@ -222,15 +222,15 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
      */
     public StatisticsSpendTopAndHappinessDTO statisticsForAllTopAndHappiness(List<Map<String, Object>> list){
         StatisticsSpendTopAndHappinessDTO statisticsSpendTopAndHappinessDTO = new StatisticsSpendTopAndHappinessDTO();
+        //总金额
+        BigDecimal totalMoney = new BigDecimal(0);
+        //情绪总笔数
+        Integer totalCount = 0;
+        //排行榜集合类
+        List<StatisticsSpendTopDTO> top = new ArrayList<>();
+        //情绪集合类
+        List<StatisticsSpendHappinessDTO> happiness = new ArrayList<>();
         if (list != null && list.size() > 0) {
-            //总金额
-            BigDecimal totalMoney = new BigDecimal(0);
-            //情绪总笔数
-            Integer totalCount = 0;
-            //排行榜集合类
-            List<StatisticsSpendTopDTO> top = new ArrayList<>();
-            //情绪集合类
-            List<StatisticsSpendHappinessDTO> happiness = new ArrayList<>();
             //情绪统计去重map
             Map<String, StatisticsSpendHappinessDTO> map = new HashMap<>();
             for (int i = 0; i < list.size(); i++) {
@@ -285,6 +285,12 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                     }
                 }
             });
+            statisticsSpendTopAndHappinessDTO.setStatisticsSpendHappinessArrays(happiness);
+            statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(top);
+            statisticsSpendTopAndHappinessDTO.setTotalCount(totalCount);
+            statisticsSpendTopAndHappinessDTO.setTotalMoney(totalMoney);
+        }else{
+            //数据为空情况下
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendHappinessArrays(happiness);
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(top);
             statisticsSpendTopAndHappinessDTO.setTotalCount(totalCount);

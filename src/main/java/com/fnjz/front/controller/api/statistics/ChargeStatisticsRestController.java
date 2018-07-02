@@ -174,7 +174,9 @@ public class ChargeStatisticsRestController extends BaseController {
                 rb.setFailMsg(ApiResultType.TIME_IS_NULL);
                 return rb;
             }
-            //周统计支出排行榜和情绪统计
+            if (!StringUtils.startsWithIgnoreCase(statisticsParamsRestDTO.getTime(), "0")&& statisticsParamsRestDTO.getTime().length() < 2) {
+                statisticsParamsRestDTO.setTime("0"+statisticsParamsRestDTO.getTime());
+            }
             try {
                 StatisticsSpendTopAndHappinessDTO list = warterOrderRestServiceI.statisticsForMonthsTopAndHappiness(statisticsParamsRestDTO.getTime(), userAccountBookRestEntity.getAccountBookId());
                 rb.setSucResult(ApiResultType.OK);
