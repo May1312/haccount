@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 @Table(name = "hbird_water_order", schema = "")
 @DynamicUpdate(true)
 @DynamicInsert(true)
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL) //为空字段不返回
 @SuppressWarnings("serial")
 public class WarterOrderRestDTO implements java.io.Serializable {
 	/**流水记录号*/

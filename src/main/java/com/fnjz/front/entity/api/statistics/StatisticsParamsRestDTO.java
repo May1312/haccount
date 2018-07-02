@@ -19,7 +19,7 @@ public class StatisticsParamsRestDTO implements Serializable {
      */
     private Date endTime;
     /**
-     * 统计类型
+     * 统计类型 1:日 2:周 3:月
      */
     private String flag;
     /**
