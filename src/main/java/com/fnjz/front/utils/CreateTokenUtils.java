@@ -15,9 +15,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class CreateTokenUtils {
-    public String createToken(String code,long time) {
+    public String createToken(String code) {
         //使用uuid作为源token
-        String token = Jwts.builder().setId(code+"_"+time).setSubject(code).setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, JwtConstants.JWT_SECRET).compact();
+        String token = Jwts.builder().setId(code).setSubject(code).setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, JwtConstants.JWT_SECRET).compact();
         return token;
     }
 }

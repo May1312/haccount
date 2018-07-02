@@ -214,17 +214,34 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     }
 
     /**
-     * 更新密码
+     * 根据userInfoId更新密码
      * @return
      */
     @Override
-    public int updatePWD(String mobile,String password) {
-       int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `mobile` = '" + mobile + "';");
+    public int updatePWD(int userInfoId,String password) {
+       int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
        if(i>0){
            //更新info表
-           int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `mobile` = '" + mobile + "';");
+           int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
             return j;
        }
+        return i;
+    }
+
+    /**
+     * 根据手机号更改密码
+     * @param mobile
+     * @param password
+     * @return
+     */
+    @Override
+    public int updatePWDByMobile(String mobile, String password) {
+        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `mobile` = " + mobile + ";");
+        if(i>0){
+            //更新info表
+            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `mobile` = " + mobile + ";");
+            return j;
+        }
         return i;
     }
 

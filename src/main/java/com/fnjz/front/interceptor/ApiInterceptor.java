@@ -80,7 +80,7 @@ public class ApiInterceptor implements HandlerInterceptor {
         }
         String user = null;
         try {
-            user = (String)redisTemplate.opsForValue().get(username.toString());
+            user = (String)redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_LOGIN+username.toString());
         } catch (Exception e) {
             e.printStackTrace();
             rb.setFailMsg(ApiResultType.SERVER_ERROR);
@@ -99,9 +99,12 @@ public class ApiInterceptor implements HandlerInterceptor {
             }else if(StringUtils.isNotEmpty(userLoginRestEntity.getWechatAuth())){
                 request.setAttribute("code",userLoginRestEntity.getWechatAuth());
             }
+            //用户详情id
             request.setAttribute("userInfoId",userLoginRestEntity.getUserInfoId()+"");
-            request.setAttribute("key",username.toString());
-            //code 用户手机号或微信auth   key是 redis对应key   userInfoId用户详情id
+            //用户详情id 加密
+            request.setAttribute("shareCode",username.toString());
+            //redis缓存用户信息  key
+            request.setAttribute("key",RedisPrefix.PREFIX_USER_LOGIN+username.toString());
             return true;
         }
     }

@@ -132,7 +132,7 @@ public class UserInfoRestController extends BaseController {
                     userLoginRestEntity.setMobile(map.get("mobile"));
                     userLoginRestEntity.setPassword(map.get("password"));
                     String user = JSON.toJSONString(userLoginRestEntity);
-                    updateCache(user, map.get("mobile"));
+                    updateCache(user, r_redis);
                     rb.setSucResult(ApiResultType.OK);
                 } else {
                     rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
@@ -265,20 +265,6 @@ public class UserInfoRestController extends BaseController {
     //从cache获取用户信息通用方法
     private String getUserCache(String code) {
         String user = (String) redisTemplate.opsForValue().get(code);
-        //为null 重新获取缓存
-        if (StringUtils.isEmpty(user)) {
-            UserLoginRestEntity task;
-            //判断code类型
-            if (ValidateUtils.isMobile(code)) {
-                task = userLoginRestServiceI.findUniqueByProperty(UserLoginRestEntity.class, "mobile", code);
-            } else {
-                task = userLoginRestServiceI.findUniqueByProperty(UserLoginRestEntity.class, "wechat_auth", code);
-            }
-            //设置redis缓存 缓存用户信息 30天 毫秒
-            String r_user = JSON.toJSONString(task);
-            updateCache(r_user, code);
-            return r_user;
-        }
         return user;
     }
 

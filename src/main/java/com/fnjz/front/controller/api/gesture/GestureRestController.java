@@ -41,9 +41,6 @@ public class GestureRestController extends BaseController{
     @Autowired
     private UserInfoRestServiceI userInfoRestServiceI;
 
-    @Autowired
-    private UserLoginRestServiceI userLoginRestService;
-
     @ApiOperation(value = "查询手势开关状态及手势密码")
     @RequestMapping(value = "/checkGestureType/{type}" , method = RequestMethod.GET)
     @ResponseBody
@@ -52,7 +49,6 @@ public class GestureRestController extends BaseController{
         ResultBean rb = new ResultBean();
         //从缓存中查询开关状态
         try {
-            String code = (String) request.getAttribute("code");
             String key = (String) request.getAttribute("key");
             String user = getUserCache(key);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
@@ -94,7 +90,6 @@ public class GestureRestController extends BaseController{
                 return rb;
             }
             //更新redis缓存
-            String code = (String) request.getAttribute("code");
             String key = (String) request.getAttribute("key");
             String user = (String) redisTemplate.opsForValue().get(key);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
@@ -132,7 +127,6 @@ public class GestureRestController extends BaseController{
                 return rb;
             }
             //更新redis缓存
-            String code = (String) request.getAttribute("code");
             String key = (String) request.getAttribute("key");
             String user = (String) redisTemplate.opsForValue().get(key);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
@@ -174,22 +168,8 @@ public class GestureRestController extends BaseController{
     }*/
 
     //从cache获取用户信息
-    private String getUserCache(String code){
-        String user = (String) redisTemplate.opsForValue().get(code);
-        //为null 重新获取缓存
-        if(StringUtils.isEmpty(user)){
-            UserLoginRestEntity task;
-            //判断code类型
-            if(ValidateUtils.isMobile(code)){
-                task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", code);
-            }else{
-                task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechat_auth", code);
-            }
-            //设置redis缓存 缓存用户信息 30天 毫秒
-            String r_user = JSON.toJSONString(task);
-            updateCache(r_user,code);
-            return r_user;
-        }
+    private String getUserCache(String key){
+        String user = (String) redisTemplate.opsForValue().get(key);
         return user;
     }
     //更新redis缓存通用方法

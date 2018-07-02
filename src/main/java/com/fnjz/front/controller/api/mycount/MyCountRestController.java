@@ -44,18 +44,15 @@ public class MyCountRestController extends BaseController {
         ResultBean rb = new ResultBean();
         try {
             //本月记账天数
-            //获取当月天数
-            int currentDay = DateUtils.getCurrentDay();
             //获取当前年月
             String currentYearMonth = DateUtils.getCurrentYearMonth();
-            String code = (String) request.getAttribute("code");
-            String key = (String) request.getAttribute("key");
+            String shareCode = (String) request.getAttribute("shareCode");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), key);
+            String useAccountrCache = getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             int daysCount = warterOrderRestServiceI.countChargeDays(currentYearMonth,userLoginRestEntity.getAccountBookId());
             //获取连续打卡+记账总笔数
-            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + key);
+            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + shareCode);
             MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
             int chargeTotal;
             if(myCountRestDTO!=null){
@@ -72,7 +69,7 @@ public class MyCountRestController extends BaseController {
                 myCountRestDTO.setChargeTotal(chargeTotal);
                 //重新设置redis
                 String json = JSON.toJSONString(myCountRestDTO);
-                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + key,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
             }
             myCountRestDTO.setDaysCount(daysCount+"/"+DateUtils.getCurrentDay());
             rb.setSucResult(ApiResultType.OK);
@@ -88,14 +85,14 @@ public class MyCountRestController extends BaseController {
     /**
      * 从cache获取用户账本信息通用方法
      */
-    private String getUseAccountCache(int userInfoId, String code) {
-        String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code);
+    private String getUseAccountCache(int userInfoId, String shareCode) {
+        String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode);
         //为null 重新获取缓存
         if (StringUtils.isEmpty(user_account)) {
             UserAccountBookRestEntity task = warterOrderRestServiceI.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
             //设置redis缓存 缓存用户账本信息 30天
             String r_user_account = JSON.toJSONString(task);
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code, r_user_account, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode, r_user_account, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
             return r_user_account;
         }
         return user_account;

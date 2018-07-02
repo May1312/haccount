@@ -53,8 +53,8 @@ public class ChargeStatisticsRestController extends BaseController {
             return rb;
         }
         String userInfoId = (String) request.getAttribute("userInfoId");
-        String key = (String) request.getAttribute("key");
-        String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), key);
+        String shareCode = (String) request.getAttribute("shareCode");
+        String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userAccountBookRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
         if (StringUtils.equals("1", statisticsParamsRestDTO.getFlag())) {
             //统计日
@@ -133,8 +133,8 @@ public class ChargeStatisticsRestController extends BaseController {
             return rb;
         }
         String userInfoId = (String) request.getAttribute("userInfoId");
-        String key = (String) request.getAttribute("key");
-        String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), key);
+        String shareCode = (String) request.getAttribute("shareCode");
+        String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userAccountBookRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
         if (StringUtils.equals("1", statisticsParamsRestDTO.getFlag())) {
             if(statisticsParamsRestDTO.getDayTime()==null){

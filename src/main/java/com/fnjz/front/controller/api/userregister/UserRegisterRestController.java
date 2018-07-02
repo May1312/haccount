@@ -10,6 +10,7 @@ import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.SetTokenToAppUtils;
+import com.fnjz.front.utils.ShareCodeUtil;
 import com.fnjz.front.utils.ValidateUtils;
 import io.swagger.annotations.*;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -120,8 +121,7 @@ public class UserRegisterRestController extends BaseController {
                     updateCache(user,map.get("mobile"));
                     rb.setSucResult(ApiResultType.OK);
                     Map<String, Object> map2 = new HashMap<>();
-                    long time = System.currentTimeMillis();
-                    String token = createTokenUtils.createToken(map.get("mobile"),time);
+                    String token = createTokenUtils.createToken(ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                     map2 = SetTokenToAppUtils.getTokenResult(map2,token);
                     rb.setResult(map2);
                 }else{

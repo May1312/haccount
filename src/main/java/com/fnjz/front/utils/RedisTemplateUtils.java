@@ -34,8 +34,8 @@ public class RedisTemplateUtils {
     /**
      * 设置redis用户缓存通用方法
      */
-    public void setCache (String user, String code,long time){
-        redisTemplate.opsForValue().set(code+"_"+time, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+    public void setCache (String user, int userInfoId){
+        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_LOGIN+ShareCodeUtil.id2sharecode(userInfoId), user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
     }
 
     /**
@@ -48,11 +48,11 @@ public class RedisTemplateUtils {
     /**
      * 通用方法  用户登录之后缓存用户---账本关系表
      */
-    public void setAccountBookCache ( int userInfoId, String code,long time){
+    public void setAccountBookCache ( int userInfoId){
         UserAccountBookRestEntity task = userAccountBookRestServiceI.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
         if (task != null) {
             String userAccountBook = JSON.toJSONString(task);
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code+"_"+time, userAccountBook, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + ShareCodeUtil.id2sharecode(task.getUserInfoId()), userAccountBook, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
         }
     }
 
@@ -130,27 +130,25 @@ public class RedisTemplateUtils {
      * 缓存用户及账本信息
      * @param userInfoId
      * @param user
-     * @param code
-     * @param time
      */
-    public void cacheUserAndAccount (int userInfoId,String user,String code,long time) {
+    public void cacheUserAndAccount (int userInfoId,String user) {
         //缓存账本
-        this.setAccountBookCache(userInfoId, code,time);
+        this.setAccountBookCache(userInfoId);
         //缓存用户信息
-        this.setCache(user,code,time);
+        this.setCache(user,userInfoId);
     }
 
     /**
      * 从cache获取用户账本信息通用方法
      */
-    public String getUseAccountCache(int userInfoId, String code) {
-        String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code);
+    public String getUseAccountCache(int userInfoId, String shareCode) {
+        String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode);
         //为null 重新获取缓存
         if (StringUtils.isEmpty(user_account)) {
             UserAccountBookRestEntity task = userAccountBookRestServiceI.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
             //设置redis缓存 缓存用户账本信息 30天
             String r_user_account = JSON.toJSONString(task);
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + code, r_user_account, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode, r_user_account, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
             return r_user_account;
         }
         return user_account;

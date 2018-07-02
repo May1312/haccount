@@ -16,12 +16,20 @@ public interface UserInfoRestServiceI extends CommonService{
     int wechatinsert(JSONObject jsonObject);
 
     /**
-     * 更新密码
+     * 根据userInfoId更新密码
+     * @param userInfoId
+     * @param password
+     * @return
+     */
+    int updatePWD(int userInfoId,String password) ;
+
+    /**
+     * 根据userInfoId更新密码
      * @param mobile
      * @param password
      * @return
      */
-    int updatePWD(String mobile,String password) ;
+    int updatePWDByMobile(String mobile,String password) ;
 
     /**
      * 更新手势开关状态
