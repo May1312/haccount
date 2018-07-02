@@ -3,6 +3,7 @@ package com.fnjz.front.service.impl.api.warterorder;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.MyCountRestDTO;
@@ -64,7 +65,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 if (!StringUtils.equals(entry.getKey() + "", "dayTime")) {
                     obj.put("dayArrays", entry.getValue());
                 }
-                array.add(obj.toJSONString());
+                array.add(JSONObject.toJSONString(obj, SerializerFeature.WriteMapNullValue));
             }
             //获取日统计
             for (int i = 0; i < array.size(); i++) {
