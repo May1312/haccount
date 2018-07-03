@@ -18,7 +18,6 @@ import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.ValidateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.models.auth.In;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -277,7 +276,7 @@ public class WarterOrderRestController extends BaseController {
                         myCountRestDTO.setClockInDays(myCountRestDTO.getClockInDays()+1);
                         String s1 = JSON.toJSONString(myCountRestDTO);
                         redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-                    }else{
+                    }else if(now>dateOfEnd.getTime()){
                         //置空
                         myCountRestDTO.setClockInTime(new Date(now));
                         myCountRestDTO.setClockInDays(1);

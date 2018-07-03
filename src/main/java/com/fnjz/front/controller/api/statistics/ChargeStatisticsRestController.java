@@ -188,7 +188,6 @@ public class ChargeStatisticsRestController extends BaseController {
                 return rb;
             }
         }
-
         return null;
     }
 
