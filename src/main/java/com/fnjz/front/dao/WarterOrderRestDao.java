@@ -74,8 +74,8 @@ public interface WarterOrderRestDao {
      * @param accountBookId
      * @return
      */
-    @Sql("select sum(money) as money,charge_date as time from hbird_water_order where account_book_id= :accountBookId AND charge_date >= :endTime AND charge_date<= :beginTime and order_type = 1 and delflag = 0 group by charge_date order by charge_date DESC;")
-    List<StatisticsDaysRestDTO> statisticsForDays(@Param("beginTime")Date beginTime, @Param("endTime")Date endTime, @Param("accountBookId")Integer accountBookId);
+    @Sql("select sum(money) as money,charge_date as time from hbird_water_order where account_book_id= :accountBookId AND charge_date >= :endTime AND charge_date<= :beginTime and order_type = :orderType and delflag = 0 group by charge_date order by charge_date DESC;")
+    List<StatisticsDaysRestDTO> statisticsForDays(@Param("beginTime")Date beginTime, @Param("endTime")Date endTime, @Param("accountBookId")Integer accountBookId, @Param("orderType")int orderType);
 
     /**
      * 按周统计

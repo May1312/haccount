@@ -12,6 +12,7 @@ import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.utils.DateUtils;
+import com.fnjz.front.utils.EmojiUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.util.StringUtil;
 import org.junit.Test;
@@ -118,10 +119,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         UserInfoRestEntity userInfoRestEntity = new UserInfoRestEntity();
         //设置昵称
         if(StringUtils.isNotEmpty(jsonObject.getString("nickname"))){
-            userInfoRestEntity.setNickName(jsonObject.getString("nickname"));
+            userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(jsonObject.getString("nickname")));
         }
         if(StringUtils.isNotEmpty(jsonObject.getString("nickName"))){
-            userInfoRestEntity.setNickName(jsonObject.getString("nickName"));
+            userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(jsonObject.getString("nickName")));
         }
         //设置性别
         if(StringUtils.isNotEmpty(jsonObject.getString("sex"))){

@@ -200,7 +200,6 @@ public class UserLoginRestController extends BaseController {
             //查看openid是否存在
             UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
             String cache_user = JSON.toJSONString(task);
-            long time = System.currentTimeMillis();
             if (task == null) {
                 //注册
                 int insert = userInfoRestServiceI.wechatinsert(user);

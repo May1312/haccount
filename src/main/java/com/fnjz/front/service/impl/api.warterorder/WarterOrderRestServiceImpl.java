@@ -11,6 +11,7 @@ import com.fnjz.front.entity.api.statistics.*;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import com.fnjz.front.utils.DateUtils;
+import com.fnjz.front.utils.EmojiUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -42,6 +43,10 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         Map<Date, Object> map = new HashMap<>();
         for (Iterator<WarterOrderRestDTO> it = listForPage.iterator(); it.hasNext(); ) {
             WarterOrderRestDTO warter = it.next();
+            //转义表情
+            if(StringUtils.isNotEmpty(warter.getRemark())){
+                warter.setRemark(EmojiUtils.aliasToEmoji(warter.getRemark()));
+            }
             //判断是否包含日期
             if (map.containsKey(warter.getChargeDate())) {
                 ((ArrayList) map.get(warter.getChargeDate())).add(warter);
@@ -172,8 +177,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     }
 
     @Override
-    public List<StatisticsDaysRestDTO> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId) {
-        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForDays(beginTime, endTime, accountBookId);
+    public List<StatisticsDaysRestDTO> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId,int orderType) {
+        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForDays(beginTime, endTime, accountBookId,orderType);
         return list;
     }
 

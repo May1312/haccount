@@ -79,8 +79,9 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @param beginTime
      * @param endTime
      * @param accountBookId
+     * @param orderType
      */
-    List<StatisticsDaysRestDTO> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId);
+    List<StatisticsDaysRestDTO> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId,int orderType);
 
     /**
      * 周统计接口

@@ -15,6 +15,7 @@ import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.DateUtils;
+import com.fnjz.front.utils.EmojiUtils;
 import com.fnjz.front.utils.ValidateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -125,6 +126,10 @@ public class WarterOrderRestController extends BaseController {
             charge.setCreateName(code);
             //设置记录状态
             charge.setDelflag(0);
+            //转义emoji表情
+            if(StringUtils.isNotEmpty(charge.getRemark())){
+                charge.setRemark(EmojiUtils.aliasToEmoji(charge.getRemark()));
+            }
             warterOrderRestService.insert(charge,code,userLoginRestEntity.getAccountBookId());
             //统计记账总笔数+1
             String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + shareCode);
@@ -177,6 +182,10 @@ public class WarterOrderRestController extends BaseController {
         charge.setCreateName(code);
         //设置记录状态
         charge.setDelflag(0);
+        //转义emoji表情
+        if(StringUtils.isNotEmpty(charge.getRemark())){
+            charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
+        }
         try {
             warterOrderRestService.insert(charge,code,userLoginRestEntity.getAccountBookId());
             //统计记账总笔数+1
@@ -317,6 +326,10 @@ public class WarterOrderRestController extends BaseController {
             //获取单笔详情   TODO 现阶段只根据详情id， 后续要加上userid   account book id 判断！！
             WarterOrderRestDTO task = warterOrderRestService.findById(id);
             if (task != null) {
+                //转义表情
+                if(StringUtils.isNotEmpty(task.getRemark())){
+                    task.setRemark(EmojiUtils.aliasToEmoji(task.getRemark()));
+                }
                 rb.setSucResult(ApiResultType.OK);
                 rb.setResult(task);
                 return rb;
@@ -395,6 +408,10 @@ public class WarterOrderRestController extends BaseController {
             charge.setUpdateName(code);
             //设置记录状态
             charge.setDelflag(0);
+            //转义表情
+            if(StringUtils.isNotEmpty(charge.getRemark())){
+                charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
+            }
             warterOrderRestService.update(charge);
             rb.setSucResult(ApiResultType.OK);
             logger.info("单笔支出记账更新完成");
@@ -423,6 +440,10 @@ public class WarterOrderRestController extends BaseController {
         //绑定修改者名称
         charge.setUpdateName(code);
         //设置记录状态
+        //转义表情
+        if(StringUtils.isNotEmpty(charge.getRemark())){
+            charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
+        }
         charge.setDelflag(0);
         try {
             warterOrderRestService.update(charge);

@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.userfeedback.UserFeedBackRestEntity;
+import com.fnjz.front.utils.EmojiUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
@@ -38,8 +39,6 @@ public class UserFeedBackRestController extends BaseController {
 
 	@Autowired
 	private UserFeedBackRestServiceI userFeedBackRestService;
-	@Autowired
-	private SystemService systemService;
 
 	@ApiOperation(value = "用户上传反馈意见")
 	@RequestMapping(value = "/uploadFeedBack/{type}", method = RequestMethod.POST)
@@ -58,6 +57,12 @@ public class UserFeedBackRestController extends BaseController {
 		}
 		userFeedBackRestEntity.setStatus("0");//未处理状态
 		userFeedBackRestEntity.setCreateDate(new Date());
+		if(StringUtils.isNotEmpty(userFeedBackRestEntity.getContent())){
+			userFeedBackRestEntity.setContent(EmojiUtils.emojiToAlias(userFeedBackRestEntity.getContent()));
+		}
+		if(StringUtils.isNotEmpty(userFeedBackRestEntity.getContact())){
+			userFeedBackRestEntity.setContact(EmojiUtils.emojiToAlias(userFeedBackRestEntity.getContact()));
+		}
 		try {
 			userFeedBackRestService.save(userFeedBackRestEntity);
 			rb.setSucResult(ApiResultType.OK);

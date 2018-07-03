@@ -9,6 +9,7 @@ import com.fnjz.front.entity.api.userinfo.UserInfoRestDTO;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
+import com.fnjz.front.utils.EmojiUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
 import com.fnjz.front.utils.ValidateUtils;
 import com.fnjz.front.utils.WeChatUtils;
@@ -248,6 +249,8 @@ public class UserInfoRestController extends BaseController {
             if(task!=null){
                 //设置蜂鸟id
                 task.setId(Integer.valueOf(ShareCodeUtil.id2sharecode(task.getId())));
+                //转义昵称
+                task.setNickName(EmojiUtils.aliasToEmoji(task.getNickName()));
                 rb.setSucResult(ApiResultType.OK);
                 rb.setResult(task);
                 return rb;
@@ -321,6 +324,9 @@ public class UserInfoRestController extends BaseController {
         try {
             String  userInfoId = (String) request.getAttribute("userInfoId");
             userInfoRestEntity.setId(Integer.valueOf(userInfoId));
+            if(StringUtils.isNotEmpty(userInfoRestEntity.getNickName())){
+                userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(userInfoRestEntity.getNickName()));
+            }
             userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
             rb.setSucResult(ApiResultType.OK);
             return rb;
