@@ -1,6 +1,7 @@
 package com.fnjz.front.service.api.warterorder;
 
 import com.fnjz.front.entity.api.statistics.StatisticsDaysRestDTO;
+import com.fnjz.front.entity.api.statistics.StatisticsIncomeTopDTO;
 import com.fnjz.front.entity.api.statistics.StatisticsSpendTopAndHappinessDTO;
 import com.fnjz.front.entity.api.statistics.StatisticsWeeksRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
@@ -88,16 +89,18 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @param beginWeek
      * @param endWeek
      * @param accountBookId
+     * @param orderType
      * @return
      */
-    List<StatisticsWeeksRestDTO> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId);
+    List<StatisticsWeeksRestDTO> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId,int orderType);
 
     /**
      * 月统计接口
      * @param accountBookId
+     * @param orderType
      * @return
      */
-    List<StatisticsDaysRestDTO> statisticsForMonths(Integer accountBookId);
+    List<StatisticsDaysRestDTO> statisticsForMonths(Integer accountBookId,int orderType);
 
     /**
      * 日支出排行榜和消费情绪统计
@@ -108,6 +111,14 @@ public interface WarterOrderRestServiceI extends CommonService{
     StatisticsSpendTopAndHappinessDTO statisticsForDaysTopAndHappiness(Date time, Integer accountBookId);
 
     /**
+     * 日支出排行榜统计
+     * @param time
+     * @param accountBookId
+     * @return
+     */
+    StatisticsIncomeTopDTO statisticsForDaysTop(Date time, Integer accountBookId);
+
+    /**
      * 周支出排行榜和消费情绪统计
      * @param time
      * @param accountBookId
@@ -116,10 +127,26 @@ public interface WarterOrderRestServiceI extends CommonService{
     StatisticsSpendTopAndHappinessDTO statisticsForWeeksTopAndHappiness(String time, Integer accountBookId);
 
     /**
+     * 周支出排行榜统计
+     * @param time
+     * @param accountBookId
+     * @return
+     */
+    StatisticsIncomeTopDTO statisticsForWeeksTop(String time, Integer accountBookId);
+
+    /**
      * 月支出排行榜和消费情绪统计
      * @param time
      * @param accountBookId
      * @return
      */
     StatisticsSpendTopAndHappinessDTO statisticsForMonthsTopAndHappiness(String time, Integer accountBookId);
+
+    /**
+     * 月支出排行榜统计
+     * @param time
+     * @param accountBookId
+     * @return
+     */
+    StatisticsIncomeTopDTO statisticsForMonthsTop(String time, Integer accountBookId);
 }

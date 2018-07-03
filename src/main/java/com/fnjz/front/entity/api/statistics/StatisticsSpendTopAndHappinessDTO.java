@@ -14,7 +14,7 @@ public class StatisticsSpendTopAndHappinessDTO implements Serializable {
     /**
      * 统计支出排行榜集合
      */
-    private List<StatisticsSpendTopDTO> statisticsSpendTopArrays;
+    private List<StatisticsTopDTO> statisticsSpendTopArrays;
     /**
      * 统计情绪消费集合
      */
@@ -30,11 +30,11 @@ public class StatisticsSpendTopAndHappinessDTO implements Serializable {
      */
     private BigDecimal totalMoney;
 
-    public List<StatisticsSpendTopDTO> getStatisticsSpendTopArrays() {
+    public List<StatisticsTopDTO> getStatisticsSpendTopArrays() {
         return statisticsSpendTopArrays;
     }
 
-    public void setStatisticsSpendTopArrays(List<StatisticsSpendTopDTO> statisticsSpendTopArrays) {
+    public void setStatisticsSpendTopArrays(List<StatisticsTopDTO> statisticsSpendTopArrays) {
         this.statisticsSpendTopArrays = statisticsSpendTopArrays;
     }
 

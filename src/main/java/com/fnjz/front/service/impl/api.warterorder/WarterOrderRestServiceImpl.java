@@ -183,15 +183,15 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     }
 
     @Override
-    public List<StatisticsWeeksRestDTO> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId) {
+    public List<StatisticsWeeksRestDTO> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId,int orderType) {
         //周统计接口
-        List<StatisticsWeeksRestDTO> list = warterOrderRestDao.statisticsForWeeks(beginWeek, endWeek, accountBookId);
+        List<StatisticsWeeksRestDTO> list = warterOrderRestDao.statisticsForWeeks(beginWeek, endWeek, accountBookId,orderType);
         return list;
     }
 
     @Override
-    public List<StatisticsDaysRestDTO> statisticsForMonths(Integer accountBookId) {
-        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForMonths(accountBookId);
+    public List<StatisticsDaysRestDTO> statisticsForMonths(Integer accountBookId,int orderType) {
+        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForMonths(accountBookId,orderType);
         return list;
     }
 
@@ -201,6 +201,14 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         List<Map<String, Object>> list = warterOrderRestDao.statisticsForDaysByTime(date, accountBookId);
         StatisticsSpendTopAndHappinessDTO statisticsSpendTopAndHappinessDTO = statisticsForAllTopAndHappiness(list);
         return statisticsSpendTopAndHappinessDTO;
+    }
+
+    @Override
+    public StatisticsIncomeTopDTO statisticsForDaysTop(Date time, Integer accountBookId) {
+        String date = DateUtils.convert2String(time);
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForDaysByTimeOfIncome(date, accountBookId);
+        StatisticsIncomeTopDTO statisticsIncomeTopDTO = statisticsForAllTop(list);
+        return statisticsIncomeTopDTO;
     }
 
     @Override
@@ -214,10 +222,27 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     }
 
     @Override
+    public StatisticsIncomeTopDTO statisticsForWeeksTop(String time, Integer accountBookId) {
+        Map<String,String> map = DateUtils.getDateByWeeks(Integer.valueOf(time));
+        String beginTime = map.get("beginTime");
+        String endTime = map.get("endTime");
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForWeeksByTimeOfIncome(beginTime,endTime, accountBookId);
+        StatisticsIncomeTopDTO statisticsIncomeTopDTO = statisticsForAllTop(list);
+        return statisticsIncomeTopDTO;
+    }
+
+    @Override
     public StatisticsSpendTopAndHappinessDTO statisticsForMonthsTopAndHappiness(String time, Integer accountBookId) {
         List<Map<String, Object>> list = warterOrderRestDao.statisticsForMonthsByTime(time, accountBookId);
         StatisticsSpendTopAndHappinessDTO statisticsSpendTopAndHappinessDTO = statisticsForAllTopAndHappiness(list);
         return statisticsSpendTopAndHappinessDTO;
+    }
+
+    @Override
+    public StatisticsIncomeTopDTO statisticsForMonthsTop(String time, Integer accountBookId) {
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForMonthsByTimeOfIncome(time, accountBookId);
+        StatisticsIncomeTopDTO statisticsIncomeTopDTO = statisticsForAllTop(list);
+        return statisticsIncomeTopDTO;
     }
 
     /**
@@ -232,7 +257,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         //情绪总笔数
         Integer totalCount = 0;
         //排行榜集合类
-        List<StatisticsSpendTopDTO> top = new ArrayList<>();
+        List<StatisticsTopDTO> top = new ArrayList<>();
         //情绪集合类
         List<StatisticsSpendHappinessDTO> happiness = new ArrayList<>();
         if (list != null && list.size() > 0) {
@@ -245,11 +270,11 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 //统计深度为5
                 if (i < 5) {
                     //每个类目对应金额统计
-                    StatisticsSpendTopDTO statisticsSpendTopDTO = new StatisticsSpendTopDTO();
+                    StatisticsTopDTO statisticsSpendTopDTO = new StatisticsTopDTO();
                     //设置金额
                     statisticsSpendTopDTO.setMoney((BigDecimal) list.get(i).get("money"));
                     //设置类目名称
-                    statisticsSpendTopDTO.setSpendName(list.get(i).get("type_name") + "");
+                    statisticsSpendTopDTO.setTypeName(list.get(i).get("type_name") + "");
                     //设置图标
                     statisticsSpendTopDTO.setIcon(list.get(i).get("icon") + "");
                     //添加到排行榜集合
@@ -302,6 +327,46 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             statisticsSpendTopAndHappinessDTO.setTotalMoney(totalMoney);
         }
         return statisticsSpendTopAndHappinessDTO;
+    }
+
+    /**
+     * 收入统计类目排行榜公用方法
+     * @param list
+     * @return
+     */
+    public StatisticsIncomeTopDTO statisticsForAllTop(List<Map<String, Object>> list){
+        StatisticsIncomeTopDTO statisticsIncomeTopDTO = new StatisticsIncomeTopDTO();
+        //总金额
+        BigDecimal totalMoney = new BigDecimal(0);
+        //排行榜集合类
+        List<StatisticsTopDTO> top = new ArrayList<>();
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                //统计总金额
+                BigDecimal bd = new BigDecimal(list.get(i).get("money") + "");
+                totalMoney = totalMoney.add(bd);
+                //统计深度为5
+                if (i < 5) {
+                    //每个类目对应金额统计
+                    StatisticsTopDTO statisticsTopDTO = new StatisticsTopDTO();
+                    //设置金额
+                    statisticsTopDTO.setMoney((BigDecimal) list.get(i).get("money"));
+                    //设置类目名称
+                    statisticsTopDTO.setTypeName(list.get(i).get("type_name") + "");
+                    //设置图标
+                    statisticsTopDTO.setIcon(list.get(i).get("icon") + "");
+                    //添加到排行榜集合
+                    top.add(statisticsTopDTO);
+                }
+            }
+            statisticsIncomeTopDTO.setStatisticsIncomeTopArrays(top);
+            statisticsIncomeTopDTO.setTotalMoney(totalMoney);
+        }else{
+            //数据为空情况下
+            statisticsIncomeTopDTO.setStatisticsIncomeTopArrays(top);
+            statisticsIncomeTopDTO.setTotalMoney(totalMoney);
+        }
+        return statisticsIncomeTopDTO;
     }
 }
 

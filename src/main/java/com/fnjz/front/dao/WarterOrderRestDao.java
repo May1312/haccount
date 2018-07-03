@@ -85,16 +85,16 @@ public interface WarterOrderRestDao {
      * @param accountBookId
      * @return
      */
-    @Sql("SELECT sum(wo.money) AS money, DATE_FORMAT( wo.charge_date, '%u' ) AS WEEK, DATE_FORMAT( wo.charge_date, '%Y-%u' ) AS yearweek FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = 1 AND wo.delflag = 0 AND DATE_FORMAT( wo.charge_date, '%Y-%u' ) >= concat( DATE_FORMAT( NOW( ), '%Y' ),-:endWeek ) AND DATE_FORMAT( wo.charge_date, '%Y-%u' ) <= concat( DATE_FORMAT( NOW( ), '%Y' ),-:beginWeek ) GROUP BY yearweek ORDER BY yearweek DESC;")
-    List<StatisticsWeeksRestDTO> statisticsForWeeks(@Param("beginWeek")String beginWeek, @Param("endWeek")String endWeek, @Param("accountBookId")Integer accountBookId);
+    @Sql("SELECT sum(wo.money) AS money, DATE_FORMAT( wo.charge_date, '%u' ) AS WEEK, DATE_FORMAT( wo.charge_date, '%Y-%u' ) AS yearweek FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = :orderType AND wo.delflag = 0 AND DATE_FORMAT( wo.charge_date, '%Y-%u' ) >= concat( DATE_FORMAT( NOW( ), '%Y' ),-:endWeek ) AND DATE_FORMAT( wo.charge_date, '%Y-%u' ) <= concat( DATE_FORMAT( NOW( ), '%Y' ),-:beginWeek ) GROUP BY yearweek ORDER BY yearweek DESC;")
+    List<StatisticsWeeksRestDTO> statisticsForWeeks(@Param("beginWeek")String beginWeek, @Param("endWeek")String endWeek, @Param("accountBookId")Integer accountBookId, @Param("orderType")int orderType);
 
     /**
      * 按月统计
      * @param accountBookId
      * @return
      */
-    @Sql("SELECT sum( money ) AS money,wo.charge_date as time,DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth,DATE_FORMAT( now( ), '%Y' ) AS year FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY yearmonth HAVING yearmonth >=year ORDER BY yearmonth DESC;")
-    List<StatisticsDaysRestDTO> statisticsForMonths(@Param("accountBookId")Integer accountBookId);
+    @Sql("SELECT sum( money ) AS money,wo.charge_date as time,DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth,DATE_FORMAT( now( ), '%Y' ) AS year FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = :orderType AND wo.delflag = 0 GROUP BY yearmonth HAVING yearmonth >=year ORDER BY yearmonth DESC;")
+    List<StatisticsDaysRestDTO> statisticsForMonths(@Param("accountBookId")Integer accountBookId,@Param("orderType")int orderType);
 
     /**
      * 按日统计支出排行榜和情绪
@@ -126,4 +126,35 @@ public interface WarterOrderRestDao {
     @ResultType(Map.class)
     @Sql("SELECT SUM(wo.money) AS money, COUNT(wo.money) AS moneytimes, wo.type_name , wo.spend_happiness, COUNT(wo.spend_happiness) AS count , DATE_FORMAT(wo.charge_date, '%Y-%m') AS yearmonth, wo.charge_date , CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END AS icon FROM hbird_water_order wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 1 AND wo.delflag = 0 AND wo.charge_date LIKE concat(DATE_FORMAT(NOW(), '%Y'), '-',:time,'%') GROUP BY wo.type_id ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForMonthsByTime(@Param("time")String time, @Param("accountBookId")Integer accountBookId);
+
+    /**
+     * 按日统计收入排行榜
+     * @param date
+     * @param accountBookId
+     * @return
+     */
+    @Sql("SELECT sum( wo.money ) as money,count(money) as moneytimes,wo.type_name,( CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END ) AS icon FROM hbird_water_order AS wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 2 AND wo.delflag = 0 AND wo.charge_date = :date GROUP BY wo.type_id order by money DESC;")
+    @ResultType(Map.class)
+    List<Map<String,Object>> statisticsForDaysByTimeOfIncome(@Param("date")String date, @Param("accountBookId")Integer accountBookId);
+
+    /**
+     * 按周统计收入排行榜
+     * @param beginTime
+     * @param endTime
+     * @param accountBookId
+     * @return
+     */
+    @Sql("SELECT SUM(wo.money) AS money, COUNT(money) AS moneytimes, wo.type_name , wo.charge_date, CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END AS icon FROM hbird_water_order wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 2 AND wo.delflag = 0 AND wo.charge_date >= :beginTime AND wo.charge_date <= :endTime GROUP BY wo.type_id ORDER BY money DESC;")
+    @ResultType(Map.class)
+    List<Map<String,Object>> statisticsForWeeksByTimeOfIncome(@Param("beginTime")String beginTime,@Param("endTime")String endTime, @Param("accountBookId")Integer accountBookId);
+
+    /**
+     * 按月统计支出类目排行和情绪
+     * @param time
+     * @param accountBookId
+     * @return
+     */
+    @ResultType(Map.class)
+    @Sql("SELECT SUM(wo.money) AS money, COUNT(wo.money) AS moneytimes, wo.type_name , DATE_FORMAT(wo.charge_date, '%Y-%m') AS yearmonth, wo.charge_date , CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END AS icon FROM hbird_water_order wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 2 AND wo.delflag = 0 AND wo.charge_date LIKE concat(DATE_FORMAT(NOW(), '%Y'), '-',:time,'%') GROUP BY wo.type_id ORDER BY money DESC;")
+    List<Map<String,Object>> statisticsForMonthsByTimeOfIncome(@Param("time")String time, @Param("accountBookId")Integer accountBookId);
 }

@@ -250,7 +250,9 @@ public class UserInfoRestController extends BaseController {
                 //设置蜂鸟id
                 task.setId(Integer.valueOf(ShareCodeUtil.id2sharecode(task.getId())));
                 //转义昵称
-                task.setNickName(EmojiUtils.aliasToEmoji(task.getNickName()));
+                if(StringUtils.isNotEmpty(task.getNickName())){
+                    task.setNickName(EmojiUtils.aliasToEmoji(task.getNickName()));
+                }
                 rb.setSucResult(ApiResultType.OK);
                 rb.setResult(task);
                 return rb;

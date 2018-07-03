@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  * @author yhang
  * @date 2018/6/28
  */
-public class StatisticsSpendTopDTO implements Serializable {
+public class StatisticsTopDTO implements Serializable {
 
     /**
      * 单个类目总金额
@@ -22,7 +22,7 @@ public class StatisticsSpendTopDTO implements Serializable {
     /**
      * 单个类目名称
      */
-    private String spendName;
+    private String typeName;
 
     public BigDecimal getMoney() {
         return money;
@@ -40,12 +40,12 @@ public class StatisticsSpendTopDTO implements Serializable {
         this.icon = icon;
     }
 
-    public String getSpendName() {
-        return spendName;
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setSpendName(String spendName) {
-        this.spendName = spendName;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
 }
