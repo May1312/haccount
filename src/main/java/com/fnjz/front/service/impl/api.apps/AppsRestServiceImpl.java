@@ -15,6 +15,7 @@ public class AppsRestServiceImpl extends CommonServiceImpl implements AppsRestSe
 
     @Autowired
     private AppsRestDao appsRestDao;
+
     @Override
     public AppsRestDTO appCheck(String version, Integer flag) {
         return appsRestDao.appCheck(version,flag);

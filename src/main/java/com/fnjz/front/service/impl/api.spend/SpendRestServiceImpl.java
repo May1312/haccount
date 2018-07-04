@@ -19,6 +19,7 @@ public class SpendRestServiceImpl extends CommonServiceImpl implements SpendRest
     @Autowired
     private SpendRestDao spendRestDao;
 
+    @Override
     public PageRest findListForPage(String accountBookId,Integer curPage,Integer pageSize) {
         PageRest pageRest = new PageRest();
         if(curPage!=null){

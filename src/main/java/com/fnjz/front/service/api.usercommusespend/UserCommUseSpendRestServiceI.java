@@ -9,21 +9,32 @@ import java.util.Map;
 public interface UserCommUseSpendRestServiceI extends CommonService{
 
     /**
-     * 获取支出类目
-     * @param user_info_id
+     * 获取用户支出类目标签列表
+     * @param userInfoId
      * @return
      */
-    Map<String,Object> getListById(String user_info_id);
+    Map<String,Object> getListById(String userInfoId);
 
     /**
      * 添加用户常用支出类目
-     * @param user_info_id
+     * @param userInfoId
      * @param task
      * @return
      */
-    void insertCommSpendType(String user_info_id, SpendTypeRestEntity task);
+    void insertCommSpendType(String userInfoId, SpendTypeRestEntity task);
 
-    boolean findByUserInfoIdAndId(String user_info_id, String spendTypeId);
+    /**
+     * 查看是否已经是用户常用类目
+     * @param userInfoId
+     * @param spendTypeId
+     * @return
+     */
+    boolean findByUserInfoIdAndId(String userInfoId, String spendTypeId);
 
-    void deleteCommSpendType(String user_info_id, List<String> spendTypeId);
+    /**
+     * 删除用户常用类目
+     * @param userInfoId
+     * @param spendTypeId
+     */
+    void deleteCommSpendType(String userInfoId, List<String> spendTypeId);
 }

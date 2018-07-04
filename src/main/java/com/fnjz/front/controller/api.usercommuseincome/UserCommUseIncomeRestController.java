@@ -69,10 +69,10 @@ public class UserCommUseIncomeRestController extends BaseController {
             return rb;
         }
         try {
-            String user_info_id = (String) request.getAttribute("userInfoId");
+            String userInfoId = (String) request.getAttribute("userInfoId");
             //传入当前用户详情id
             //判断用户常用标签表里是否已存在
-            boolean flag = userCommUseIncomeRestService.findByUserInfoIdAndId(user_info_id,map.get("incomeTypeId"));
+            boolean flag = userCommUseIncomeRestService.findByUserInfoIdAndId(userInfoId,map.get("incomeTypeId"));
             if(flag){
                 rb.setFailMsg(ApiResultType.SPEND_TYPE_IS_ADDED);
                 return rb;
@@ -87,7 +87,7 @@ public class UserCommUseIncomeRestController extends BaseController {
                 rb.setFailMsg(ApiResultType.SPEND_TYPE_ID_IS_ERROR);
                 return rb;
             }
-            userCommUseIncomeRestService.insertCommIncomeType(user_info_id,task);
+            userCommUseIncomeRestService.insertCommIncomeType(userInfoId,task);
             rb.setSucResult(ApiResultType.OK);
             return rb;
         } catch (Exception e) {
@@ -111,25 +111,8 @@ public class UserCommUseIncomeRestController extends BaseController {
             return rb;
         }
         try {
-            String user_info_id = (String) request.getAttribute("userInfoId");
-            //传入当前用户详情id
-            //判断用户常用标签表里是否已存在
-            //boolean flag = userCommUseIncomeRestService.findByUserInfoIdAndId(user_info_id,map.get("incomeTypeId"));
-            //if(!flag){
-            //    rb.setFailMsg(ApiResultType.SPEND_TYPE_ID_IS_NOT_EXIST);
-            //    return rb;
-            //}
-            //判断类目是否存在
-            //IncomeTypeRestEntity task = incomeTypeRestServiceI.findUniqueByProperty(IncomeTypeRestEntity.class, "id", map.get("incomeTypeId"));
-            //if(task==null){
-            //    rb.setFailMsg(ApiResultType.SPEND_TYPE_ID_IS_NOT_EXIST);
-            //    return rb;
-            //}
-            //if(task!=null && StringUtils.isEmpty(task.getParentId())){
-            //    rb.setFailMsg(ApiResultType.SPEND_TYPE_ID_IS_ERROR);
-            //    return rb;
-            //}
-            userCommUseIncomeRestService.deleteCommIncomeType(user_info_id,map.get("incomeTypeIds"));
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            userCommUseIncomeRestService.deleteCommIncomeType(userInfoId,map.get("incomeTypeIds"));
             rb.setSucResult(ApiResultType.OK);
             return rb;
         } catch (Exception e) {

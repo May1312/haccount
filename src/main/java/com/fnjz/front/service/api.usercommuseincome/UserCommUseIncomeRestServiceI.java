@@ -9,12 +9,30 @@ import java.util.Map;
 
 public interface UserCommUseIncomeRestServiceI extends CommonService{
 
-    //获取用户常用类目标签列表
-    Map<String,Object> getListById(String user_info_id) throws InvocationTargetException, IllegalAccessException;
+    /**
+     * 获取用户收入类目标签列表
+     */
+    Map<String,Object> getListById(String userInfoId);
 
-    boolean findByUserInfoIdAndId(String user_info_id, String incomeTypeId);
+    /**
+     * 查看是否已经是用户常用类目
+     * @param userInfoId
+     * @param incomeTypeId
+     * @return
+     */
+    boolean findByUserInfoIdAndId(String userInfoId, String incomeTypeId);
 
-    void insertCommIncomeType(String user_info_id, IncomeTypeRestEntity task);
+    /**
+     * 添加用户常用类目
+     * @param userInfoId
+     * @param task
+     */
+    void insertCommIncomeType(String userInfoId, IncomeTypeRestEntity task);
 
-    void deleteCommIncomeType(String user_info_id, List<String> incomeTypeIds);
+    /**
+     * 删除用户常用类目
+     * @param userInfoId
+     * @param incomeTypeIds
+     */
+    void deleteCommIncomeType(String userInfoId, List<String> incomeTypeIds);
 }

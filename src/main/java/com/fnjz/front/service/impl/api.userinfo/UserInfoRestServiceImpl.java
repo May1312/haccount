@@ -15,14 +15,11 @@ import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.EmojiUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.util.StringUtil;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -88,7 +85,6 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         for (int i = 0;i<listbySql.size();i++) {
             UserCommUseSpendRestEntity userCommUseSpendRestEntity = new UserCommUseSpendRestEntity();
             //设置三级类目id
-
             userCommUseSpendRestEntity.setSpendTypeId(listbySql.get(i).get("id")+"");
             //设置优先级
             userCommUseSpendRestEntity.setPriority(Integer.valueOf(listbySql.get(i).get("priority")+""));
@@ -326,6 +322,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     @Override
     public void updateUserInfo(UserInfoRestEntity userInfoRestEntity) {
         if(userInfoRestEntity.getBirthday()!=null){
+            //计算年龄+星座
             int ageByBirth = DateUtils.getAgeByBirth(userInfoRestEntity.getBirthday());
             userInfoRestEntity.setAge(ageByBirth+"");
             Calendar cal = Calendar.getInstance();
