@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.WarterOrderRestDao;
-import com.fnjz.front.entity.api.MyCountRestDTO;
 import com.fnjz.front.entity.api.statistics.*;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
@@ -14,15 +12,12 @@ import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.EmojiUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
-
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 
 @Service("warterOrderRestService")
@@ -31,9 +26,6 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Autowired
     private WarterOrderRestDao warterOrderRestDao;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Override
     public Map<String, Object> findListForPage(String time, String accountBookId) {
@@ -154,26 +146,6 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     @Override
     public void insert(WarterOrderRestEntity charge, String code, Integer accountBookId) {
         commonDao.save(charge);
-        String s = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + code);
-        MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
-        if (myCountRestDTO == null) {
-            myCountRestDTO = new MyCountRestDTO();
-            int chargeTotal = warterOrderRestDao.chargeTotal(accountBookId);
-            myCountRestDTO.setChargeTotal(chargeTotal + 1);
-            String s1 = JSON.toJSONString(myCountRestDTO);
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code, s1, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-        } else {
-            if (myCountRestDTO.getChargeTotal() < 1) {
-                int chargeTotal = warterOrderRestDao.chargeTotal(accountBookId);
-                myCountRestDTO.setChargeTotal(chargeTotal + 1);
-                String s1 = JSON.toJSONString(myCountRestDTO);
-                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code, s1, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-            } else {
-                myCountRestDTO.setChargeTotal(myCountRestDTO.getChargeTotal() + 1);
-                String s1 = JSON.toJSONString(myCountRestDTO);
-                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + code, s1, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-            }
-        }
     }
 
     @Override
