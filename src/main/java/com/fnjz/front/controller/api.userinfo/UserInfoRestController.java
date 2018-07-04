@@ -109,6 +109,7 @@ public class UserInfoRestController extends BaseController {
                 }
                 //获取验证码
                 String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
+                logger.info("微信用户绑定手机号，redis获取验证码:"+code);
                 if (StringUtils.isEmpty(code)) {
                     //验证码为空
                     rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
@@ -324,7 +325,7 @@ public class UserInfoRestController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/bindMobile", method = RequestMethod.PUT)
+    @RequestMapping(value = "/bindMobile", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean bindMobile(@RequestBody Map<String, String> map, HttpServletRequest request) {
         return this.bindMobile(null, map, request);
