@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 定义redisTemplate单例通用工具类型
- * redis key生成规则  _时间戳
+ * redis key生成规则  蜂鸟id
  * Created by yhang on 2018/6/26.
  */
 
@@ -85,36 +85,7 @@ public class RedisTemplateUtils {
      * 从cache获取用户信息
      */
     public String getUserCache (String code){
-
         String user = (String) redisTemplate.opsForValue().get(code);
-        /*//校验 微信登录用户但是已绑定手机号情况
-        if (StringUtils.isEmpty(user)&&!ValidateUtils.isMobile(code)) {
-            //union 用户
-            UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", code);
-            if(task2.getMobile()!=null){
-                user = (String) redisTemplate.opsForValue().get(task2.getMobile());
-            }
-        }
-        //为null 重新获取缓存
-        if (StringUtils.isEmpty(user)) {
-            UserLoginRestEntity task;
-            //判断code类型
-            if (ValidateUtils.isMobile(code)) {
-                task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", code);
-            } else {
-                task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", code);
-            }
-            //设置redis缓存 缓存用户信息 30天 毫秒
-            String r_user = JSON.toJSONString(task);
-            if(StringUtils.isNotEmpty(r_user)){
-                if (StringUtils.isNotEmpty(task.getMobile())) {
-                    updateCache(r_user, task.getMobile());
-                }else{
-                    updateCache(r_user, task.getWechatAuth());
-                }
-            }
-            return r_user;
-        }*/
         return user;
     }
 

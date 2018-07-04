@@ -1,7 +1,6 @@
 package com.fnjz.front.controller.api.userlogin;
 
 import java.util.HashMap;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
@@ -14,20 +13,15 @@ import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
-
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import springfox.documentation.annotations.ApiIgnore;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
@@ -53,8 +47,6 @@ public class UserLoginRestController extends BaseController {
     private UserInfoRestServiceI userInfoRestServiceI;
     @Autowired
     private CreateTokenUtils createTokenUtils;
-    @Autowired
-    private RedisTemplate redisTemplate;
     @Autowired
     private  RedisTemplateUtils redisTemplateUtils;
 
@@ -420,7 +412,7 @@ public class UserLoginRestController extends BaseController {
             }
             try {
                 ///获取验证码
-                String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_RESETPWD + map.get("mobile"));
+                String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_RESETPWD + map.get("mobile"));
                 if (StringUtil.isEmpty(code)) {
                     //验证码为空
                     rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);

@@ -9,20 +9,15 @@ import com.fnjz.front.entity.api.userinfo.UserInfoRestDTO;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
-import com.fnjz.front.utils.EmojiUtils;
-import com.fnjz.front.utils.ShareCodeUtil;
-import com.fnjz.front.utils.ValidateUtils;
-import com.fnjz.front.utils.WeChatUtils;
+import com.fnjz.front.utils.*;
 import com.fnjz.utils.upload.QiNiuUploadFileUtils;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
@@ -30,7 +25,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.annotations.ApiIgnore;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +46,7 @@ public class UserInfoRestController extends BaseController {
     private static final Logger logger = Logger.getLogger(UserInfoRestController.class);
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplateUtils redisTemplateUtils;
 
     @Autowired
     private UserInfoRestServiceI userInfoRestServiceI;
@@ -73,7 +67,7 @@ public class UserInfoRestController extends BaseController {
         ResultBean rb = new ResultBean();
         try {
             String r_redis = (String) request.getAttribute("key");
-            String r_user = getUserCache(r_redis);
+            String r_user = redisTemplateUtils.getUserCache(r_redis);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
                 //判断手机号 验证码
@@ -86,7 +80,7 @@ public class UserInfoRestController extends BaseController {
                     return rb;
                 }
                 //获取验证码
-                String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
+                String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
                 if (StringUtils.isEmpty(code)) {
                     //验证码为空
                     rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
@@ -103,7 +97,7 @@ public class UserInfoRestController extends BaseController {
                     //更新用户缓存
                     userLoginRestEntity.setMobile(map.get("mobile"));
                     String user = JSON.toJSONString(userLoginRestEntity);
-                    updateCache(user, r_redis);
+                    redisTemplateUtils.updateCache(user, r_redis);
                     rb.setSucResult(ApiResultType.OK);
                 } else {
                     rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
@@ -115,7 +109,7 @@ public class UserInfoRestController extends BaseController {
                     return rb;
                 }
                 //获取验证码
-                String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
+                String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
                 if (StringUtils.isEmpty(code)) {
                     //验证码为空
                     rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
@@ -133,7 +127,7 @@ public class UserInfoRestController extends BaseController {
                     userLoginRestEntity.setMobile(map.get("mobile"));
                     userLoginRestEntity.setPassword(map.get("password"));
                     String user = JSON.toJSONString(userLoginRestEntity);
-                    updateCache(user, r_redis);
+                    redisTemplateUtils.updateCache(user, r_redis);
                     rb.setSucResult(ApiResultType.OK);
                 } else {
                     rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
@@ -163,7 +157,7 @@ public class UserInfoRestController extends BaseController {
         }
         try {
             String r_redis = (String) request.getAttribute("key");
-            String r_user = getUserCache(r_redis);
+            String r_user = redisTemplateUtils.getUserCache(r_redis);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
                 //获取unionid  user.getString("unionid")
@@ -173,7 +167,7 @@ public class UserInfoRestController extends BaseController {
                     return rb;
                 }
                 //判断db中是否已经存在此unionid
-                UserLoginRestEntity task = userLoginRestServiceI.findUniqueByProperty(UserLoginRestEntity.class, "wechat_auth", user.getString("unionid"));
+                UserLoginRestEntity task = userLoginRestServiceI.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
                 if (task != null) {
                     //微信号已经注册
                     rb.setFailMsg(ApiResultType.WECHAT_IS_BINDED);
@@ -188,7 +182,7 @@ public class UserInfoRestController extends BaseController {
                 //设置redis缓存 缓存用户信息
                 userLoginRestEntity.setWechatAuth(user.getString("unionid"));
                 String userToString = JSON.toJSONString(userLoginRestEntity);
-                updateCache(userToString, r_redis);
+                redisTemplateUtils.updateCache(userToString, r_redis);
                 rb.setSucResult(ApiResultType.OK);
             } else if (StringUtils.isNotEmpty(userLoginRestEntity.getWechatAuth())) {
                 //非手机号注册用户无法绑定微信
@@ -211,7 +205,7 @@ public class UserInfoRestController extends BaseController {
         try {
             String r_redis = (String) request.getAttribute("key");
             //解绑用户--->将wechat_auth置为null
-            String r_user = getUserCache(r_redis);
+            String r_user = redisTemplateUtils.getUserCache(r_redis);
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
             //判断是否为手机用户
             if (StringUtils.isEmpty(userLoginRestEntity.getMobile())) {
@@ -227,7 +221,7 @@ public class UserInfoRestController extends BaseController {
             //设置redis缓存 缓存用户信息
             userLoginRestEntity.setWechatAuth(null);
             String userToString = JSON.toJSONString(userLoginRestEntity);
-            updateCache(userToString, r_redis);
+            redisTemplateUtils.updateCache(userToString, r_redis);
             rb.setSucResult(ApiResultType.OK);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -270,17 +264,6 @@ public class UserInfoRestController extends BaseController {
         }
     }
 
-    //从cache获取用户信息通用方法
-    private String getUserCache(String code) {
-        String user = (String) redisTemplate.opsForValue().get(code);
-        return user;
-    }
-
-    //更新redis缓存通用方法
-    private void updateCache(String user, String code) {
-        redisTemplate.opsForValue().set(code, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-    }
-
     /**
      * 获取七牛云上传鉴权 1为头像   2为反馈
      * @param type
@@ -292,7 +275,7 @@ public class UserInfoRestController extends BaseController {
         ResultBean rb = new ResultBean();
         try {
             QiNiuUploadFileUtils qiniu = new QiNiuUploadFileUtils();
-            String upToken = null;
+            String upToken;
             if(StringUtils.isEmpty(map.get("flag"))){
                 //为空默认类型1 head-picture头像上传
                 upToken = qiniu.getUpToken("head-picture");
