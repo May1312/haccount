@@ -118,10 +118,23 @@ public class RedisTemplateUtils {
         if (StringUtils.isEmpty(user_account)) {
             UserAccountBookRestEntity task = userAccountBookRestServiceI.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
             //设置redis缓存 缓存用户账本信息 30天
-            String r_user_account = JSON.toJSONString(task);
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode, r_user_account, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-            return r_user_account;
+            String userAccount = JSON.toJSONString(task);
+            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode, userAccount, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+            return userAccount;
         }
         return user_account;
+    }
+
+    /**
+     * 获取我的页面 统计缓存
+     * @param shareCode
+     * @return
+     */
+    public String getMyCount(String shareCode){
+        return (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + shareCode);
+    }
+
+    public void updateMyCount(String shareCode,String myCount){
+        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,myCount,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
     }
 }

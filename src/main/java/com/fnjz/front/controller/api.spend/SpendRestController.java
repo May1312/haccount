@@ -59,7 +59,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 /**
  * @version V1.0
  * @Title: Controller
- * @Description: 账本-支出表相关
+ * @Description: 账本-支出表相关   废弃api 走流水接口
  * @date 2018-06-06 11:59:47
  */
 @Controller

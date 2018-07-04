@@ -238,7 +238,7 @@ public class VerifyCodeRestController {
     }
 
     /**
-     * 绑定手机号获取验证码接口
+     * 修改手机号--->新手机号--->获取验证码接口
      */
     @ApiOperation(value = "更换手机号验证码获取")
     @ApiImplicitParams({

@@ -2,27 +2,22 @@ package com.fnjz.front.controller.api.warterorder;
 
 import java.math.BigDecimal;
 import java.util.*;
-
 import javax.servlet.http.HttpServletRequest;
 import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
-import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.MyCountRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
-import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
-import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
-import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.EmojiUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ValidateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -30,7 +25,6 @@ import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import java.util.concurrent.TimeUnit;;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
@@ -50,11 +44,7 @@ public class WarterOrderRestController extends BaseController {
     @Autowired
     private WarterOrderRestServiceI warterOrderRestService;
     @Autowired
-    private RedisTemplate redisTemplate;
-    @Autowired
-    private UserLoginRestServiceI userLoginRestServiceI;
-    @Autowired
-    private UserAccountBookRestServiceI userAccountBookRestServiceI;
+    private RedisTemplateUtils redisTemplateUtils;
 
     /**
      * 账本流水表相关列表 页面跳转
@@ -95,7 +85,6 @@ public class WarterOrderRestController extends BaseController {
             rb.setFailMsg(ApiResultType.ACCOUNT_PARAMS_ERROR);
             return rb;
         }
-
         if (charge.getOrderType() == 1) {
             //支出类型判断即时和分期类型
             if (charge.getIsStaged() == null) {
@@ -106,7 +95,7 @@ public class WarterOrderRestController extends BaseController {
         String code = (String) request.getAttribute("code");
         String shareCode = (String) request.getAttribute("shareCode");
         String userInfoId = (String) request.getAttribute("userInfoId");
-        String useAccountrCache = getUseAccountCache(shareCode,Integer.valueOf(userInfoId));
+        String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
         //获取到账本id 插入记录 TODO 当前账本为1，后台可以获取，后期 账本为多个时，需要传入指定的账本id
 
@@ -127,32 +116,12 @@ public class WarterOrderRestController extends BaseController {
             //设置记录状态
             charge.setDelflag(0);
             //转义emoji表情
-            if(StringUtils.isNotEmpty(charge.getRemark())){
+            if (StringUtils.isNotEmpty(charge.getRemark())) {
                 charge.setRemark(EmojiUtils.aliasToEmoji(charge.getRemark()));
             }
-            warterOrderRestService.insert(charge,code,userLoginRestEntity.getAccountBookId());
-            //统计记账总笔数+1
-            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + shareCode);
-            MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
-            if(myCountRestDTO!=null){
-                int chargeTotal = myCountRestDTO.getChargeTotal();
-                if(chargeTotal<1){
-                    //统计记账总笔数
-                    chargeTotal = warterOrderRestService.chargeTotal(userLoginRestEntity.getAccountBookId());
-                    myCountRestDTO.setChargeTotal(chargeTotal);
-                }else{
-                    myCountRestDTO.setChargeTotal(chargeTotal+1);
-                }
-            }else{
-                //为空情况
-                //统计记账总笔数
-                int chargeTotal = warterOrderRestService.chargeTotal(userLoginRestEntity.getAccountBookId());
-                myCountRestDTO.setChargeTotal(chargeTotal);
-            }
-            //统计记账总笔数
-            //重新设置redis
-            String json = JSON.toJSONString(myCountRestDTO);
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+            warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
+            //打卡统计
+            myCount(shareCode, userLoginRestEntity);
             rb.setSucResult(ApiResultType.OK);
             logger.info("单笔支出记账完成");
             return rb;
@@ -163,7 +132,6 @@ public class WarterOrderRestController extends BaseController {
             rb.setResult(map);
             return rb;
         }
-
         //收入类型愉悦度必须为空
         if (charge.getSpendHappiness() != null) {
             charge.setSpendHappiness(null);
@@ -183,33 +151,13 @@ public class WarterOrderRestController extends BaseController {
         //设置记录状态
         charge.setDelflag(0);
         //转义emoji表情
-        if(StringUtils.isNotEmpty(charge.getRemark())){
+        if (StringUtils.isNotEmpty(charge.getRemark())) {
             charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
         }
         try {
-            warterOrderRestService.insert(charge,code,userLoginRestEntity.getAccountBookId());
-            //统计记账总笔数+1
-            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + shareCode);
-            MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
-            if(myCountRestDTO!=null){
-                int chargeTotal = myCountRestDTO.getChargeTotal();
-                if(chargeTotal<1){
-                    //统计记账总笔数
-                    chargeTotal = warterOrderRestService.chargeTotal(userLoginRestEntity.getAccountBookId());
-                    myCountRestDTO.setChargeTotal(chargeTotal);
-                }else{
-                    myCountRestDTO.setChargeTotal(chargeTotal+1);
-                }
-            }else{
-                //为空情况
-                //统计记账总笔数
-                int chargeTotal = warterOrderRestService.chargeTotal(userLoginRestEntity.getAccountBookId());
-                myCountRestDTO.setChargeTotal(chargeTotal);
-            }
-            //统计记账总笔数
-            //重新设置redis
-            String json = JSON.toJSONString(myCountRestDTO);
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+            warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
+            //打卡统计
+            myCount(shareCode, userLoginRestEntity);
             rb.setSucResult(ApiResultType.OK);
             logger.info("单笔收入记账完成");
             return rb;
@@ -222,6 +170,7 @@ public class WarterOrderRestController extends BaseController {
 
     /**
      * 返回一个月数据,重置用户 账本缓存
+     *
      * @param type
      * @param request
      * @param year
@@ -232,76 +181,57 @@ public class WarterOrderRestController extends BaseController {
     @RequestMapping(value = "/warterOrderList/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean warterOrderList(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,
-                                   HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
+                                      HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
         System.out.println("登录终端：" + type);
         logger.info("获取流水分页列表接口: year-->" + year + "  month-->" + month);
-        String time = null;
-        if (StringUtils.isEmpty(year) && StringUtils.isEmpty(month)) {
-            //都为空情况下 获取当年当月
-            time = DateUtils.getCurrentYearMonth();
-        } else if (StringUtils.isEmpty(year) && StringUtils.isNotEmpty(month)) {
-            //获取当年
-            year = DateUtils.getCurrentYear() + "";
-            time = year + "-" + month;
-        } else if (StringUtils.isNotEmpty(year) && StringUtils.isEmpty(month)) {
-            //获取当月
-            month = DateUtils.getCurrentMonth();
-            time = year + "-" + month;
-        }
-        if (StringUtils.isEmpty(time)) {
-            if (!StringUtils.startsWithIgnoreCase(month, "0")
-                    && month.length() < 2) {
-                month = "0" + month;
-            }
-            time = year + "-" + month;
-        }
+        String time = getTime(year, month);
         ResultBean rb = new ResultBean();
         try {
             String shareCode = (String) request.getAttribute("shareCode");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            String useAccountrCache = getUseAccountCacheAndUpdate(shareCode,Integer.valueOf(userInfoId));
+            String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             //连续打卡统计
-            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + shareCode);
+            String s = redisTemplateUtils.getMyCount(shareCode);
             MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
-            if(myCountRestDTO!=null){
-                if(myCountRestDTO.getClockInDays()==0&&myCountRestDTO.getClockInTime()==null){
+            if (myCountRestDTO != null) {
+                if (myCountRestDTO.getClockInDays() == 0 && myCountRestDTO.getClockInTime() == null) {
                     //首次打卡
                     myCountRestDTO.setClockInDays(1);
                     myCountRestDTO.setClockInTime(new Date());
                     String s1 = JSON.toJSONString(myCountRestDTO);
-                    redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-                }else{
+                    redisTemplateUtils.updateMyCount(shareCode, s1);
+                } else {
                     //判断打卡间隔
                     //获取下一天凌晨时间间隔
                     Date nextDay = DateUtils.getNextDay(myCountRestDTO.getClockInTime());
                     //获取当天凌晨范围
                     Date dateOfBegin = DateUtils.fetchBeginOfDay(nextDay);
                     Date dateOfEnd = DateUtils.fetchEndOfDay(nextDay);
-                    long now = new Date().getTime();
-                    if(now>dateOfBegin.getTime()&&now<dateOfEnd.getTime()){
+                    long now = System.currentTimeMillis();
+                    if (now > dateOfBegin.getTime() && now < dateOfEnd.getTime()) {
                         //打卡成功
                         myCountRestDTO.setClockInTime(new Date(now));
-                        myCountRestDTO.setClockInDays(myCountRestDTO.getClockInDays()+1);
+                        myCountRestDTO.setClockInDays(myCountRestDTO.getClockInDays() + 1);
                         String s1 = JSON.toJSONString(myCountRestDTO);
-                        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-                    }else if(now>dateOfEnd.getTime()){
+                        redisTemplateUtils.updateMyCount(shareCode, s1);
+                    } else if (now > dateOfEnd.getTime()) {
                         //置空
                         myCountRestDTO.setClockInTime(new Date(now));
                         myCountRestDTO.setClockInDays(1);
                         String s1 = JSON.toJSONString(myCountRestDTO);
-                        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+                        redisTemplateUtils.updateMyCount(shareCode, s1);
                     }
                 }
-            }else{
+            } else {
                 myCountRestDTO = new MyCountRestDTO();
                 //首次打卡
                 myCountRestDTO.setClockInDays(1);
                 myCountRestDTO.setClockInTime(new Date());
                 String s1 = JSON.toJSONString(myCountRestDTO);
-                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,s1,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+                redisTemplateUtils.updateMyCount(shareCode, s1);
             }
-            Map<String,Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
+            Map<String, Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
             rb.setSucResult(ApiResultType.OK);
             rb.setResult(json);
             return rb;
@@ -327,7 +257,7 @@ public class WarterOrderRestController extends BaseController {
             WarterOrderRestDTO task = warterOrderRestService.findById(id);
             if (task != null) {
                 //转义表情
-                if(StringUtils.isNotEmpty(task.getRemark())){
+                if (StringUtils.isNotEmpty(task.getRemark())) {
                     task.setRemark(EmojiUtils.aliasToEmoji(task.getRemark()));
                 }
                 rb.setSucResult(ApiResultType.OK);
@@ -346,7 +276,7 @@ public class WarterOrderRestController extends BaseController {
     @ApiOperation(value = "修改单笔记账订单详情")
     @RequestMapping(value = "/updateOrderInfo/{type}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResultBean updateOrderInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody WarterOrderRestEntity charge,HttpServletRequest request) {
+    public ResultBean updateOrderInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody WarterOrderRestEntity charge, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         //判断单笔记账id
@@ -377,7 +307,6 @@ public class WarterOrderRestController extends BaseController {
             rb.setFailMsg(ApiResultType.ACCOUNT_PARAMS_ERROR);
             return rb;
         }
-
         if (charge.getOrderType() == 1) {
             //支出类型判断即时和分期类型
             if (charge.getIsStaged() == null) {
@@ -388,7 +317,7 @@ public class WarterOrderRestController extends BaseController {
         String code = (String) request.getAttribute("code");
         String shareCode = (String) request.getAttribute("shareCode");
         String userInfoId = (String) request.getAttribute("userInfoId");
-        String useAccountrCache = getUseAccountCache(shareCode,Integer.valueOf(userInfoId));
+        String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
         //获取到账本id 更新记录 TODO 当前账本为1，后台可以获取，后期 账本为多个时，需要传入指定的账本id
 
@@ -409,7 +338,7 @@ public class WarterOrderRestController extends BaseController {
             //设置记录状态
             charge.setDelflag(0);
             //转义表情
-            if(StringUtils.isNotEmpty(charge.getRemark())){
+            if (StringUtils.isNotEmpty(charge.getRemark())) {
                 charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
             }
             warterOrderRestService.update(charge);
@@ -422,7 +351,6 @@ public class WarterOrderRestController extends BaseController {
             rb.setResult(map);
             return rb;
         }
-
         //收入类型愉悦度必须为空
         if (charge.getSpendHappiness() != null) {
             charge.setSpendHappiness(null);
@@ -441,7 +369,7 @@ public class WarterOrderRestController extends BaseController {
         charge.setUpdateName(code);
         //设置记录状态
         //转义表情
-        if(StringUtils.isNotEmpty(charge.getRemark())){
+        if (StringUtils.isNotEmpty(charge.getRemark())) {
             charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
         }
         charge.setDelflag(0);
@@ -460,10 +388,10 @@ public class WarterOrderRestController extends BaseController {
     @ApiOperation(value = "删除单笔记账订单详情")
     @RequestMapping(value = "/deleteOrder/{type}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResultBean deleteOrder(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map,HttpServletRequest request) {
+    public ResultBean deleteOrder(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
-        if(StringUtils.isEmpty(map.get("id"))){
+        if (StringUtils.isEmpty(map.get("id"))) {
             rb.setFailMsg(ApiResultType.ORDER_ID_IS_NULL);
             return rb;
         }
@@ -478,30 +406,30 @@ public class WarterOrderRestController extends BaseController {
             String shareCode = (String) request.getAttribute("shareCode");
             String code = (String) request.getAttribute("code");
             //执行更新
-            int i = warterOrderRestService.deleteOrder(map.get("id"),userInfoId,code);
+            int i = warterOrderRestService.deleteOrder(map.get("id"), userInfoId, code);
             if (i < 1) {
                 rb.setFailMsg(ApiResultType.DELETE_RECORD_ERROR);
                 return rb;
             }
             //统计记账总笔数-1
-            String s =(String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + shareCode);
+            String s = redisTemplateUtils.getMyCount(shareCode);
             MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
-            if(myCountRestDTO!=null){
+            if (myCountRestDTO != null) {
                 int chargeTotal = myCountRestDTO.getChargeTotal();
-                if(chargeTotal>0){
+                if (chargeTotal > 0) {
                     //统计记账总笔数
-                    myCountRestDTO.setChargeTotal(chargeTotal-1);
+                    myCountRestDTO.setChargeTotal(chargeTotal - 1);
                 }
-            }else{
+            } else {
                 //为空情况
                 //统计记账总笔数
                 int chargeTotal = warterOrderRestService.chargeTotal(task.getAccountBookId());
-                myCountRestDTO.setChargeTotal(chargeTotal-1);
+                myCountRestDTO.setChargeTotal(chargeTotal - 1);
             }
             //统计记账总笔数
             //重新设置redis
             String json = JSON.toJSONString(myCountRestDTO);
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,json,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+            redisTemplateUtils.updateMyCount(shareCode, json);
             rb.setSucResult(ApiResultType.OK);
             return rb;
         } catch (Exception e) {
@@ -515,9 +443,35 @@ public class WarterOrderRestController extends BaseController {
     @RequestMapping(value = "/getAccountByTime/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean getAccountByTime(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,
-                                      HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
+                                       HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
         System.out.println("登录终端：" + type);
         logger.info("获取年份月份对应支出收入统计: year-->" + year + "  month-->" + month);
+        String time = getTime(year, month);
+        ResultBean rb = new ResultBean();
+        try {
+            String shareCode = (String) request.getAttribute("shareCode");
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
+            UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
+            Map<String, BigDecimal> map = warterOrderRestService.getAccount(time, userLoginRestEntity.getAccountBookId() + "");
+            rb.setSucResult(ApiResultType.OK);
+            rb.setResult(map);
+            return rb;
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
+            return rb;
+        }
+    }
+
+    /**
+     * 时间year month处理公用方法
+     *
+     * @param year
+     * @param month
+     * @return
+     */
+    private String getTime(String year, String month) {
         String time = null;
         if (StringUtils.isEmpty(year) && StringUtils.isEmpty(month)) {
             //都为空情况下 获取当年当月
@@ -538,86 +492,47 @@ public class WarterOrderRestController extends BaseController {
             }
             time = year + "-" + month;
         }
-        ResultBean rb = new ResultBean();
-        try {
-            String shareCode = (String) request.getAttribute("shareCode");
-            String userInfoId = (String) request.getAttribute("userInfoId");
-            String useAccountrCache = getUseAccountCache(shareCode,Integer.valueOf(userInfoId));
-            UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
-            Map<String,BigDecimal> map = warterOrderRestService.getAccount(time, userLoginRestEntity.getAccountBookId() + "");
-            rb.setSucResult(ApiResultType.OK);
-            rb.setResult(map);
-            return rb;
-        } catch (Exception e) {
-            logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
-        }
+        return time;
     }
 
     /**
-     * 从cache获取用户账本信息通用方法
+     * 记账笔数统计公用方法
      */
-    private String getUseAccountCache(String shareCode,int userInfoId) {
-        String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode);
-        //为null 重新获取缓存
-        if (StringUtils.isEmpty(user_account)) {
-            UserAccountBookRestEntity task = userAccountBookRestServiceI.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
-            //设置redis缓存 缓存用户账本信息 30天
-            String r_user_account = JSON.toJSONString(task);
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode, r_user_account, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-            return r_user_account;
-        }
-        return user_account;
-    }
-    /**
-     * 从cache获取用户账本信息并更新通用方法
-     */
-    private String getUseAccountCacheAndUpdate(String shareCode,int userInfoId) {
-        String useAccountCache = getUseAccountCache(shareCode,userInfoId);
-        //重置账本缓存
-        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode,useAccountCache,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-        return useAccountCache;
-    }
-    /**
-     * 从cache获取用户信息并更新通用方法
-     */
-    private String getUserCache(String code) {
-        String user = (String) redisTemplate.opsForValue().get(code);
-        //为null 重新获取缓存
-        if (StringUtils.isEmpty(user)) {
-            UserLoginRestEntity task;
-            //判断code类型
-            if (ValidateUtils.isMobile(code)) {
-                task = userLoginRestServiceI.findUniqueByProperty(UserLoginRestEntity.class, "mobile", code);
+    private void myCount(String shareCode, UserAccountBookRestEntity userAccountBookRestEntity) {
+        //统计记账总笔数+1
+        String s = redisTemplateUtils.getMyCount(shareCode);
+        MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
+        if (myCountRestDTO != null) {
+            int chargeTotal = myCountRestDTO.getChargeTotal();
+            if (chargeTotal < 1) {
+                //统计记账总笔数
+                chargeTotal = warterOrderRestService.chargeTotal(userAccountBookRestEntity.getAccountBookId());
+                myCountRestDTO.setChargeTotal(chargeTotal);
             } else {
-                task = userLoginRestServiceI.findUniqueByProperty(UserLoginRestEntity.class, "wechat_auth", code);
+                myCountRestDTO.setChargeTotal(chargeTotal + 1);
             }
-            //设置redis缓存 缓存用户信息 30天 毫秒
-            String r_user = JSON.toJSONString(task);
-            updateCache(r_user, code);
-            return r_user;
+        } else {
+            //为空情况
+            //统计记账总笔数
+            int chargeTotal = warterOrderRestService.chargeTotal(userAccountBookRestEntity.getAccountBookId());
+            myCountRestDTO.setChargeTotal(chargeTotal);
         }
-        //重置用户信息缓存
-        redisTemplate.opsForValue().set(code, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-        return user;
-    }
-
-    //更新redis缓存通用方法
-    private void updateCache(String user, String code) {
-        redisTemplate.opsForValue().set(code, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+        //统计记账总笔数
+        //重新设置redis
+        String json = JSON.toJSONString(myCountRestDTO);
+        redisTemplateUtils.updateMyCount(shareCode, json);
     }
 
     @RequestMapping(value = "/toCharge", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean toCharge(HttpServletRequest request, @RequestBody WarterOrderRestEntity charge) {
-        return this.toCharge(null, request,charge);
+        return this.toCharge(null, request, charge);
     }
 
     @RequestMapping(value = "/warterOrderList", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean warterOrderList(HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
-        return this.warterOrderList(null, request,year,month);
+        return this.warterOrderList(null, request, year, month);
     }
 
     @RequestMapping(value = "/getOrderInfo", method = RequestMethod.GET)
@@ -628,19 +543,19 @@ public class WarterOrderRestController extends BaseController {
 
     @RequestMapping(value = "/updateOrderInfo", method = RequestMethod.PUT)
     @ResponseBody
-    public ResultBean updateOrderInfo(@RequestBody WarterOrderRestEntity charge,HttpServletRequest request) {
-        return this.updateOrderInfo(null, charge,request);
+    public ResultBean updateOrderInfo(@RequestBody WarterOrderRestEntity charge, HttpServletRequest request) {
+        return this.updateOrderInfo(null, charge, request);
     }
 
     @RequestMapping(value = "/deleteOrder", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResultBean deleteOrder(@RequestBody Map<String, String> map,HttpServletRequest request) {
-        return this.deleteOrder(null, map,request);
+    public ResultBean deleteOrder(@RequestBody Map<String, String> map, HttpServletRequest request) {
+        return this.deleteOrder(null, map, request);
     }
 
     @RequestMapping(value = "/getAccountByTime", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean getAccountByTime(HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
-        return this.getAccountByTime(null, request,year,month);
+        return this.getAccountByTime(null, request, year, month);
     }
 }

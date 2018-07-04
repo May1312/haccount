@@ -8,11 +8,9 @@ import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
-import com.fnjz.front.utils.CreateTokenUtils;
-import com.fnjz.front.utils.SetTokenToAppUtils;
-import com.fnjz.front.utils.ShareCodeUtil;
-import com.fnjz.front.utils.ValidateUtils;
+import com.fnjz.front.utils.*;
 import io.swagger.annotations.*;
+import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +18,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 /**
@@ -46,6 +42,9 @@ public class UserRegisterRestController extends BaseController {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     @Autowired
     private CreateTokenUtils createTokenUtils;
@@ -96,19 +95,19 @@ public class UserRegisterRestController extends BaseController {
                 userInfo.setMobile(map.get("mobile"));
                 //设置密码
                 userInfo.setPassword(map.get("password"));
-                if(map.get("mobileSystem")!=null){
+                if(StringUtils.isNotEmpty(map.get("mobileSystem"))){
                     //终端系统
                     userInfo.setMobileSystem(map.get("mobileSystem"));
                 }
-                if(map.get("mobileSystemVersion")!=null){
+                if(StringUtils.isNotEmpty(map.get("mobileSystemVersion"))){
                     //系统版本号
                     userInfo.setMobileSystemVersion(map.get("mobileSystemVersion"));
                 }
-                if(map.get("mobileManufacturer")!=null){
+                if(StringUtils.isNotEmpty(map.get("mobileManufacturer"))){
                     //终端厂商
                     userInfo.setMobileManufacturer(map.get("mobileManufacturer"));
                 }
-                if(map.get("mobileDevice")!=null){
+                if(StringUtils.isNotEmpty(map.get("mobileDevice"))){
                     //终端设备号
                     userInfo.setMobileDevice(map.get("mobileDevice"));
                 }
@@ -118,7 +117,7 @@ public class UserRegisterRestController extends BaseController {
                     //缓存用户信息
                     task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
                     String user = JSON.toJSONString(task);
-                    updateCache(user,map.get("mobile"));
+                    redisTemplateUtils.updateCache(user,RedisPrefix.PREFIX_USER_LOGIN+ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                     rb.setSucResult(ApiResultType.OK);
                     Map<String, Object> map2 = new HashMap<>();
                     String token = createTokenUtils.createToken(ShareCodeUtil.id2sharecode(task.getUserInfoId()));
@@ -138,11 +137,6 @@ public class UserRegisterRestController extends BaseController {
             return rb;
         }
         return rb;
-    }
-
-    //更新redis缓存通用方法
-    private void updateCache(String user,String code){
-        redisTemplate.opsForValue().set(code, user, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)

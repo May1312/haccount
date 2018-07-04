@@ -16,7 +16,6 @@ import org.jeecgframework.core.common.controller.BaseController;
 import com.fnjz.front.service.api.usercommusespend.UserCommUseSpendRestServiceI;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import java.util.List;
 import java.util.Map;
 
@@ -46,17 +45,16 @@ public class UserCommUseSpendRestController extends BaseController {
     public ResultBean getSpendTypeList(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         ResultBean rb = new ResultBean();
         try {
-            String user_info_id = (String) request.getAttribute("userInfoId");
-            //传入当前用户详情id
-            Map<String, Object> map = userCommUseSpendRestService.getListById(user_info_id);
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            Map<String, Object> map = userCommUseSpendRestService.getListById(userInfoId);
             rb.setSucResult(ApiResultType.OK);
             rb.setResult(map);
-            return rb;
         } catch (Exception e) {
             logger.error(e.toString());
             rb.setFailMsg(ApiResultType.SERVER_ERROR);
             return rb;
         }
+        return rb;
     }
 
     @ApiOperation(value = "用户常用支出类目添加")
@@ -69,10 +67,9 @@ public class UserCommUseSpendRestController extends BaseController {
             return rb;
         }
         try {
-            String user_info_id = (String) request.getAttribute("userInfoId");
-            //传入当前用户详情id
+            String userInfoId = (String) request.getAttribute("userInfoId");
             //判断用户常用标签表里是否已存在
-            boolean flag = userCommUseSpendRestService.findByUserInfoIdAndId(user_info_id,map.get("spendTypeId"));
+            boolean flag = userCommUseSpendRestService.findByUserInfoIdAndId(userInfoId,map.get("spendTypeId"));
             if(flag){
                 rb.setFailMsg(ApiResultType.SPEND_TYPE_IS_ADDED);
                 return rb;
@@ -87,7 +84,7 @@ public class UserCommUseSpendRestController extends BaseController {
                 rb.setFailMsg(ApiResultType.SPEND_TYPE_ID_IS_ERROR);
                 return rb;
             }
-            userCommUseSpendRestService.insertCommSpendType(user_info_id,task);
+            userCommUseSpendRestService.insertCommSpendType(userInfoId,task);
             rb.setSucResult(ApiResultType.OK);
             return rb;
         } catch (Exception e) {
@@ -111,25 +108,8 @@ public class UserCommUseSpendRestController extends BaseController {
             return rb;
         }
         try {
-            String user_info_id = (String) request.getAttribute("userInfoId");
-            //传入当前用户详情id
-            //判断用户常用标签表里是否已存在
-            //boolean flag = userCommUseSpendRestService.findByUserInfoIdAndId(user_info_id,map.get("spendTypeId"));
-            //if(!flag){
-            //    rb.setFailMsg(ApiResultType.SPEND_TYPE_ID_IS_NOT_EXIST);
-            //    return rb;
-            //}
-            //判断类目是否存在
-            //SpendTypeRestEntity task = spendTypeRestServiceI.findUniqueByProperty(SpendTypeRestEntity.class, "id", map.get("spendTypeId"));
-            //if(task==null){
-            //    rb.setFailMsg(ApiResultType.SPEND_TYPE_ID_IS_NOT_EXIST);
-            //    return rb;
-            //}
-            //if(task!=null && StringUtils.isEmpty(task.getParentId())){
-            //    rb.setFailMsg(ApiResultType.SPEND_TYPE_ID_IS_ERROR);
-            //    return rb;
-            //}
-            userCommUseSpendRestService.deleteCommSpendType(user_info_id,map.get("spendTypeIds"));
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            userCommUseSpendRestService.deleteCommSpendType(userInfoId,map.get("spendTypeIds"));
             rb.setSucResult(ApiResultType.OK);
             return rb;
         } catch (Exception e) {

@@ -18,7 +18,6 @@ import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestService
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import java.util.List;
 import java.util.Map;
 
@@ -47,9 +46,9 @@ public class UserCommUseIncomeRestController extends BaseController {
     public ResultBean getIncomeTypeList(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         ResultBean rb = new ResultBean();
         try {
-            String user_info_id = (String) request.getAttribute("userInfoId");
+            String userInfoId = (String) request.getAttribute("userInfoId");
             //传入当前用户详情id
-            Map<String, Object> map = userCommUseIncomeRestService.getListById(user_info_id);
+            Map<String, Object> map = userCommUseIncomeRestService.getListById(userInfoId);
             rb.setSucResult(ApiResultType.OK);
             rb.setResult(map);
             return rb;

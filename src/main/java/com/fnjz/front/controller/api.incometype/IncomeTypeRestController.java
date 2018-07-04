@@ -35,18 +35,5 @@ public class IncomeTypeRestController extends BaseController {
 
 	@Autowired
 	private IncomeTypeRestServiceI incomeTypeRestService;
-	@Autowired
-	private SystemService systemService;
-	@Autowired
-	private Validator validator;
-
-
-	@ApiOperation(value = "查询手机号是否注册")
-	@RequestMapping(value = "/listIncomeType" , method = RequestMethod.GET)
-	@ResponseBody
-	public List<IncomeTypeRestEntity> list() {
-		List<IncomeTypeRestEntity> listIncomeTypeRests=incomeTypeRestService.getList(IncomeTypeRestEntity.class);
-		return listIncomeTypeRests;
-	}
 
 }

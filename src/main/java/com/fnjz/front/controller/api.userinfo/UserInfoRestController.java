@@ -25,10 +25,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.annotations.ApiIgnore;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @version V1.0
@@ -240,20 +240,20 @@ public class UserInfoRestController extends BaseController {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             UserInfoRestDTO task = userInfoRestServiceI.findUniqueByProperty(UserInfoRestDTO.class, "id", Integer.valueOf(userInfoId));
-            if(task!=null){
+            if (task != null) {
                 //设置蜂鸟id
                 task.setId(Integer.valueOf(ShareCodeUtil.id2sharecode(task.getId())));
                 //转义昵称
-                if(StringUtils.isNotEmpty(task.getNickName())){
+                if (StringUtils.isNotEmpty(task.getNickName())) {
                     task.setNickName(EmojiUtils.aliasToEmoji(task.getNickName()));
                 }
-                if(StringUtils.isNotEmpty(task.getWechatAuth())){
+                if (StringUtils.isNotEmpty(task.getWechatAuth())) {
                     task.setWechatAuth("wechatAuth");
                 }
                 rb.setSucResult(ApiResultType.OK);
                 rb.setResult(task);
                 return rb;
-            }else{
+            } else {
                 rb.setFailMsg(ApiResultType.USER_NOT_EXIST);
                 return rb;
             }
@@ -266,32 +266,33 @@ public class UserInfoRestController extends BaseController {
 
     /**
      * 获取七牛云上传鉴权 1为头像   2为反馈
+     *
      * @param type
      * @return
      */
     @RequestMapping(value = "/getQiNiuAuth/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean getQiNiuAuth(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,@RequestBody Map<String,String> map) {
+    public ResultBean getQiNiuAuth(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody Map<String, String> map) {
         ResultBean rb = new ResultBean();
         try {
             QiNiuUploadFileUtils qiniu = new QiNiuUploadFileUtils();
             String upToken;
-            if(StringUtils.isEmpty(map.get("flag"))){
+            if (StringUtils.isEmpty(map.get("flag"))) {
                 //为空默认类型1 head-picture头像上传
                 upToken = qiniu.getUpToken("head-picture");
-            }else{
-                if(StringUtils.equals(map.get("flag"),"1")){
+            } else {
+                if (StringUtils.equals(map.get("flag"), "1")) {
                     upToken = qiniu.getUpToken("head-picture");
-                }else if(StringUtils.equals(map.get("flag"),"2")){
+                } else if (StringUtils.equals(map.get("flag"), "2")) {
                     //2为信息反馈图片
                     upToken = qiniu.getUpToken("feedback-picture");
-                }else{
+                } else {
                     upToken = qiniu.getUpToken("head-picture");
                 }
             }
             rb.setSucResult(ApiResultType.OK);
-            Map<String,String> map2 = new HashMap<>();
-            map2.put("auth",upToken);
+            Map<String, String> map2 = new HashMap<>();
+            map2.put("auth", upToken);
             rb.setResult(map2);
             return rb;
         } catch (Exception e) {
@@ -303,16 +304,16 @@ public class UserInfoRestController extends BaseController {
 
     @RequestMapping(value = "/updateUserInfo/{type}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResultBean updateUserInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,@RequestBody UserInfoRestEntity userInfoRestEntity,HttpServletRequest request) {
+    public ResultBean updateUserInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody UserInfoRestEntity userInfoRestEntity, HttpServletRequest request) {
         ResultBean rb = new ResultBean();
-        if(userInfoRestEntity==null){
+        if (userInfoRestEntity == null) {
             rb.setFailMsg(ApiResultType.MY_PARAMS_ERROR);
             return rb;
         }
         try {
-            String  userInfoId = (String) request.getAttribute("userInfoId");
+            String userInfoId = (String) request.getAttribute("userInfoId");
             userInfoRestEntity.setId(Integer.valueOf(userInfoId));
-            if(StringUtils.isNotEmpty(userInfoRestEntity.getNickName())){
+            if (StringUtils.isNotEmpty(userInfoRestEntity.getNickName())) {
                 userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(userInfoRestEntity.getNickName()));
             }
             userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
@@ -345,19 +346,19 @@ public class UserInfoRestController extends BaseController {
 
     @RequestMapping(value = "/getQiNiuAuth", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean getQiNiuAuth(@RequestBody Map<String,String> map) {
+    public ResultBean getQiNiuAuth(@RequestBody Map<String, String> map) {
         return this.getQiNiuAuth(null, map);
     }
 
     @RequestMapping(value = "/updateUserInfo", method = RequestMethod.PUT)
     @ResponseBody
-    public ResultBean updateUserInfo(@RequestBody UserInfoRestEntity userInfoRestEntity,HttpServletRequest request) {
-        return this.updateUserInfo(null, userInfoRestEntity,request);
+    public ResultBean updateUserInfo(@RequestBody UserInfoRestEntity userInfoRestEntity, HttpServletRequest request) {
+        return this.updateUserInfo(null, userInfoRestEntity, request);
     }
 
     @RequestMapping(value = "/userInfo", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean userInfo(HttpServletRequest request) {
-        return this.userInfo(null,request);
+        return this.userInfo(null, request);
     }
 }
