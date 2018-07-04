@@ -253,6 +253,9 @@ public class UserInfoRestController extends BaseController {
                 if(StringUtils.isNotEmpty(task.getNickName())){
                     task.setNickName(EmojiUtils.aliasToEmoji(task.getNickName()));
                 }
+                if(StringUtils.isNotEmpty(task.getWechatAuth())){
+                    task.setWechatAuth("wechatAuth");
+                }
                 rb.setSucResult(ApiResultType.OK);
                 rb.setResult(task);
                 return rb;

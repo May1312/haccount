@@ -49,6 +49,8 @@ public class UserInfoRestDTO implements java.io.Serializable {
 	private java.util.Date registerDate;
 	/**更新时间*/
 	private java.util.Date updateDate;
+	/**微信授权token*/
+	private java.lang.String wechatAuth;
 
 	/**
 	 *方法: 取得java.lang.Integer
@@ -309,5 +311,22 @@ public class UserInfoRestDTO implements java.io.Serializable {
 	 */
 	public void setUpdateDate(java.util.Date updateDate){
 		this.updateDate = updateDate;
+	}
+
+	/**
+	 *方法: 取得java.lang.String
+	 *@return: java.lang.String  微信授权token
+	 */
+	@Column(name ="WECHAT_AUTH",nullable=true,length=32)
+	public java.lang.String getWechatAuth(){
+		return this.wechatAuth;
+	}
+
+	/**
+	 *方法: 设置java.lang.String
+	 *@param: java.lang.String  微信授权token
+	 */
+	public void setWechatAuth(java.lang.String wechatAuth){
+		this.wechatAuth = wechatAuth;
 	}
 }
