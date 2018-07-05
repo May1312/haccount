@@ -1,6 +1,5 @@
 package com.fnjz.front.dao;
 
-import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import org.jeecgframework.minidao.annotation.IdAutoGenerator;
 import org.jeecgframework.minidao.annotation.MiniDao;
@@ -11,7 +10,11 @@ import org.jeecgframework.minidao.annotation.Param;
  */
 @MiniDao
 public interface UserAccountBookRestDao {
-    //新增  主键自增
+    /**
+     * 新增用户账本关系记录 返回主键
+     * @param userAccountBookRestEntity
+     * @return
+     */
     @IdAutoGenerator(generator = "native")
     int insert(@Param("userAccountBookRestEntity") UserAccountBookRestEntity userAccountBookRestEntity);
 }

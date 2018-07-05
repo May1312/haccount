@@ -13,8 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestServiceI;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 @Service("userCommUseIncomeRestService")
@@ -56,7 +54,6 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
         //用户常用类目获取
         List<IncomeTypeRestDTO> list3 = userCommUseIncomeRestDao.select(userInfoId);
         //获取类目优先级
-        //判断是否已存在
         String relation_hql = "from UserCommTypePriorityRestEntity where userInfoId = " + userInfoId + " AND type = 2";
         UserCommTypePriorityRestEntity u = commonDao.singleResult(relation_hql);
         if (u != null) {

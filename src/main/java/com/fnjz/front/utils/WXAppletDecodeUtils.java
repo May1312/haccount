@@ -2,6 +2,7 @@ package com.fnjz.front.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -15,6 +16,9 @@ import java.util.Arrays;
  * Created by yhang on 2018/6/15.
  */
 public class WXAppletDecodeUtils {
+
+    private static final Logger logger = Logger.getLogger(WXAppletDecodeUtils.class);
+
     public static JSONObject getUserInfo(String encryptedData, String sessionKey, String iv){
         // 被加密的数据
         byte[] dataByte = Base64.decode(encryptedData);
@@ -39,7 +43,8 @@ public class WXAppletDecodeUtils {
             SecretKeySpec spec = new SecretKeySpec(keyByte, "AES");
             AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
             parameters.init(new IvParameterSpec(ivByte));
-            cipher.init(Cipher.DECRYPT_MODE, spec, parameters);// 初始化
+            // 初始化
+            cipher.init(Cipher.DECRYPT_MODE, spec, parameters);
             byte[] resultByte = cipher.doFinal(dataByte);
             if (null != resultByte && resultByte.length > 0) {
                 String result = new String(resultByte, "UTF-8");
@@ -47,6 +52,7 @@ public class WXAppletDecodeUtils {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error("小程序用户数据解密异常:"+e.toString());
         }
         return null;
     }

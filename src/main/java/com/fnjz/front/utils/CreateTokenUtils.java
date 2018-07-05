@@ -3,11 +3,8 @@ package com.fnjz.front.utils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.jeecgframework.jwt.def.JwtConstants;
-import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.springframework.stereotype.Component;
-
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * token生成工具类

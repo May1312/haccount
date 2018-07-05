@@ -12,7 +12,11 @@ import org.jeecgframework.minidao.annotation.Param;
 //@Repository
 public interface UserLoginRestDao {
 
-    //新增  主键自增
+    /**
+     * 新增用户login表记录
+     * @param userLoginRestEntity
+     * @return
+     */
     @IdAutoGenerator(generator = "native")
     int insert(@Param("userLoginRestEntity") UserLoginRestEntity userLoginRestEntity);
 }

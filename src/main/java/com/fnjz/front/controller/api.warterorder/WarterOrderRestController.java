@@ -117,7 +117,7 @@ public class WarterOrderRestController extends BaseController {
             charge.setDelflag(0);
             //转义emoji表情
             if (StringUtils.isNotEmpty(charge.getRemark())) {
-                charge.setRemark(EmojiUtils.aliasToEmoji(charge.getRemark()));
+                charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
             }
             warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
             //打卡统计

@@ -1,5 +1,6 @@
 package com.fnjz.front.utils;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -17,9 +18,12 @@ import java.util.Properties;
  */
 public class WXAppletUtils {
 
+    private static final Logger logger = Logger.getLogger(WXAppletUtils.class);
+
     private static String AppId;
     private static String AppSecret;
     private static String grant_type = "authorization_code";
+
     static {
         // 获取小程序配置参数
         Properties p = new Properties();
@@ -31,21 +35,25 @@ public class WXAppletUtils {
             AppSecret = p.getProperty("appSecret", "");
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error(e.toString());
         }
     }
     //获取openid session_key
     public static String getUser(String code){
-        //"https://api.weixin.qq.com/sns/oauth2/access_token?appid="+AppId+"&secret="+AppSecret+"&code="+code+"&grant_type="+grant_type+"";
         String hurl = "https://api.weixin.qq.com/sns/jscode2session?appid="+AppId+"&secret="+AppSecret+"&js_code="+code+"&grant_type="+grant_type+"";
-
         try {
             URL url = new URL(hurl);
             HttpURLConnection  conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");   //设置本次请求的方式 ， 默认是GET方式， 参数要求都是大写字母
-            conn.setConnectTimeout(5000);//设置连接超时
-            conn.setDoInput(true);//是否打开输入流 ， 此方法默认为true
-            conn.setDoOutput(true);//是否打开输出流， 此方法默认为false
-            conn.connect();//表示连接
+            //设置本次请求的方式 ， 默认是GET方式， 参数要求都是大写字母
+            conn.setRequestMethod("GET");
+            //设置连接超时
+            conn.setConnectTimeout(5000);
+            //是否打开输入流 ， 此方法默认为true
+            conn.setDoInput(true);
+            //是否打开输出流， 此方法默认为false
+            conn.setDoOutput(true);
+            //表示连接
+            conn.connect();
             InputStream is = conn.getInputStream();
             BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
             StringBuffer bs = new StringBuffer();
@@ -53,13 +61,14 @@ public class WXAppletUtils {
             while((l=buffer.readLine())!=null){
                 bs.append(l);
             }
-            System.out.println(bs.toString());
             return bs.toString();
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            logger.error(e.toString());
         } catch (IOException e) {
             e.printStackTrace();
-        } ;
+            logger.error(e.toString());
+        }
         return null;
     }
     @Test

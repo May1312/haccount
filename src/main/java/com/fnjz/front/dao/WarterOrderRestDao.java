@@ -38,7 +38,11 @@ public interface WarterOrderRestDao {
     @Sql("select count(*) from hbird_water_order where account_book_id=:accountBookId AND delflag = 0 AND create_date like concat(:time,'%')")
     Integer getCount(@Param("time") String time , @Param("accountBookId") String accountBookId);
 
-
+    /**
+     * 更新流水订单详情
+     * @param warterOrderRestEntity
+     * @return
+     */
     Integer update(@Param("warterOrderRestEntity") WarterOrderRestEntity warterOrderRestEntity);
 
     /**

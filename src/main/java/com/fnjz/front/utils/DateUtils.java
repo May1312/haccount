@@ -46,23 +46,33 @@ public class DateUtils {
         cal.add(Calendar.MILLISECOND, -1);
         return cal.getTime();
     }
-    //根据时间戳 获取对应的月份-天数
+
+    /**
+     * 根据时间戳 获取对应的月份-天数
+     */
     public static int getDaysByDate(Date date) {
         Calendar a = Calendar.getInstance();
         a.setTime(date);
         return a.get(Calendar.DAY_OF_MONTH);
     }
-    //根据时间戳 获取对应的月份-天数
+
+    /**
+     * 根据时间戳 获取对应的月份-天数
+     */
     public static int getCurrentDaysByDate() {
         Calendar a = Calendar.getInstance();
         return a.get(Calendar.DAY_OF_MONTH);
     }
-    //获取当前时间 - 年份
+    /**
+     * 获取当前时间 - 年份
+     */
     public static int getCurrentYear(){
         Calendar a=Calendar.getInstance();
         return a.get(Calendar.YEAR);
     }
-    //获取当前时间 - 月份
+    /**
+     * 获取当前时间 - 月份
+     */
     public static String getCurrentMonth(){
         Calendar a=Calendar.getInstance();
         String month =  (a.get(Calendar.MONTH)+1)+"";
@@ -73,12 +83,17 @@ public class DateUtils {
         }
         return month;
     }
-    //获取当前时间 - 天数
+    /**
+     * 获取当前时间 - 天数
+     */
     public static int getCurrentDay(){
         Calendar a=Calendar.getInstance();
         return a.getActualMaximum(Calendar.DATE);
     }
-    //获取当前时间 年/月
+
+    /**
+     * 获取当前时间 年/月
+     */
     public static String getCurrentYearMonth(){
         Calendar a=Calendar.getInstance();
         String year = a.get(Calendar.YEAR)+"";
@@ -90,7 +105,10 @@ public class DateUtils {
         }
         return year+"-"+month;
     }
-    //获取当前时间 月/日
+
+    /**
+     * 获取当前时间 月/日
+     */
     public static String getCurrentMonthDay(){
         Calendar a=Calendar.getInstance();
         return (a.get(Calendar.MONTH)+1)+"-"+(a.get(Calendar.DATE));
@@ -119,7 +137,9 @@ public class DateUtils {
         }
     }
 
-    //获取date 下一天日期时间戳
+    /**
+     * 获取date 下一天日期时间戳
+     */
     public static Date getNextDay(Date date){
         Calendar a=Calendar.getInstance();
         a.setTime(date);
@@ -127,7 +147,9 @@ public class DateUtils {
         return a.getTime();
     }
 
-    //获取年中的星期数
+    /**
+     * 获取年中的星期数
+     */
     public static int getWeeks(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setFirstDayOfWeek(Calendar.MONDAY);//设置周一为一周的第一天
@@ -136,7 +158,9 @@ public class DateUtils {
         return num;
     }
 
-    //根据周数获取日期
+    /**
+     * 根据周数获取日期
+     */
     public static Map<String,String> getDateByWeeks(int weeks){
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.WEEK_OF_YEAR, weeks); // 设置周数

@@ -11,9 +11,17 @@ import org.jeecgframework.minidao.annotation.Param;
 @MiniDao
 public interface UserInfoRestDao {
 
-    //新增  主键自增
+    /**
+     * 新增用户详情记录  返回主键
+     * @param userInfoRestEntity
+     * @return
+     */
     @IdAutoGenerator(generator = "native")
     int insert(@Param("userInfoRestEntity") UserInfoRestEntity userInfoRestEntity);
 
+    /**
+     * 更新用户详情
+     * @param userInfoRestEntity
+     */
     void update(@Param("userInfoRestEntity")UserInfoRestEntity userInfoRestEntity);
 }

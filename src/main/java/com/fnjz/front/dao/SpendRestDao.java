@@ -14,11 +14,22 @@ import java.util.List;
 @MiniDao
 public interface SpendRestDao {
 
-    //分页查询支出
+    /**
+     * 分页查询支出
+     * @param accountBookId
+     * @param curpage
+     * @param itemPerPage
+     * @return
+     */
     @ResultType(SpendRestEntity.class)
     @Sql("SELECT * FROM hbird_spend where account_book_id=:accountBookId AND delflag = 0 ORDER BY create_date LIMIT 0,3")
     List<SpendRestEntity> findListForPage(@Param("accountBookId") String accountBookId,@Param("curpage") Integer curpage,@Param("itemPerPage") Integer itemPerPage);
 
+    /**
+     * 统计总记录数
+     * @param accountBookId
+     * @return
+     */
     @Sql("select count(*) from hbird_spend where account_book_id=:accountBookId AND delflag = 0")
     Integer getCount(@Param("accountBookId") String accountBookId);
 }

@@ -24,10 +24,10 @@ public class CommonUtils {
         String str = simpleDateFormat.format(date);
 
         Random random = new Random();
-
-        int rannum = (int) (random.nextDouble() * (99999 - 10000 + 1)) + 10000;// 获取5位随机数
-
-        return str+System.currentTimeMillis()+rannum;// 当前时间+时间戳+随机数
+        // 获取5位随机数
+        int rannum = (int) (random.nextDouble() * (99999 - 10000 + 1)) + 10000;
+        // 当前时间+时间戳+随机数
+        return str+System.currentTimeMillis()+rannum;
     }
 
     /**
@@ -37,10 +37,10 @@ public class CommonUtils {
     public static String getSessionKeyPrefix() {
 
         Random random = new Random();
-
-        int rannum = (int) (random.nextDouble() * (99999 - 10000 + 1)) + 10000;// 获取5位随机数
-
-        return System.currentTimeMillis()+""+rannum;// 时间戳+随机数
+        // 获取5位随机数
+        int rannum = (int) (random.nextDouble() * (99999 - 10000 + 1)) + 10000;
+        // 时间戳+随机数
+        return System.currentTimeMillis()+""+rannum;
     }
 
     public static void main(String[] args){
