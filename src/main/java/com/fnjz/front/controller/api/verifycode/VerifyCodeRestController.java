@@ -35,7 +35,6 @@ public class VerifyCodeRestController {
 
     private static final Logger logger = Logger.getLogger(VerifyCodeRestController.class);
 
-
     @Autowired
     private RedisTemplate redisTemplate;
 
@@ -72,10 +71,10 @@ public class VerifyCodeRestController {
             //生成六位随机验证码
             String random = CreateVerifyCodeUtils.createRandom(6);
             SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.LOGIN_CODE.getTemplateCode(), "{\"code\":\""+random+"\"}");
-            //验证码存放redis,验证码有效期3分钟
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
             if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
-                    rb.setSucResult(ApiResultType.OK);
+                //验证码存放redis,验证码有效期3分钟
+                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
+                rb.setSucResult(ApiResultType.OK);
                 logger.info("生成登录验证码:"+random);
             }else if(StringUtil.equals(sendSmsResponse.getCode(),"isv.BUSINESS_LIMIT_CONTROL")){
                 rb.setFailMsg(ApiResultType.VERIFYCODE_LIMIT);
@@ -121,9 +120,9 @@ public class VerifyCodeRestController {
             //生成六位随机验证码
             String random = CreateVerifyCodeUtils.createRandom(6);
             SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.REGISTER_CODE.getTemplateCode(), "{\"code\":\""+random+"\"}");
-            //验证码存放redis,验证码有效期3分钟
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
             if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
+                //验证码存放redis,验证码有效期3分钟
+                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
                 rb.setSucResult(ApiResultType.OK);
                 logger.info("生成注册验证码:"+random);
             }else if(StringUtil.equals(sendSmsResponse.getCode(),"isv.BUSINESS_LIMIT_CONTROL")){
@@ -170,9 +169,9 @@ public class VerifyCodeRestController {
             //生成六位随机验证码
             String random = CreateVerifyCodeUtils.createRandom(6);
             SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.RESETPWD_CODE.getTemplateCode(), "{\"code\":\""+random+"\"}");
-            //验证码存放redis,验证码有效期3分钟
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_RESETPWD+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
             if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
+                //验证码存放redis,验证码有效期3分钟
+                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_RESETPWD+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
                 rb.setSucResult(ApiResultType.OK);
                 logger.info("生成密码找回验证码:"+random);
             }else if(StringUtil.equals(sendSmsResponse.getCode(),"isv.BUSINESS_LIMIT_CONTROL")){
@@ -218,9 +217,9 @@ public class VerifyCodeRestController {
             //生成六位随机验证码
             String random = CreateVerifyCodeUtils.createRandom(6);
             SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.BIND_MOBILE_CODE.getTemplateCode(), "{\"code\":\""+random+"\"}");
-            //验证码存放redis,验证码有效期3分钟
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
             if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
+                //验证码存放redis,验证码有效期3分钟
+                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
                 rb.setSucResult(ApiResultType.OK);
                 logger.info("生成绑定手机号验证码:"+random);
             }else if(StringUtil.equals(sendSmsResponse.getCode(),"isv.BUSINESS_LIMIT_CONTROL")){
@@ -266,9 +265,9 @@ public class VerifyCodeRestController {
             //生成六位随机验证码
             String random = CreateVerifyCodeUtils.createRandom(6);
             SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.BIND_MOBILE_CODE.getTemplateCode(), "{\"code\":\""+random+"\"}");
-            //验证码存放redis,验证码有效期3分钟
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_CHANGE_MOBILE+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
             if(StringUtil.equals(sendSmsResponse.getCode(),"OK")){
+                //验证码存放redis,验证码有效期3分钟
+                redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_VERIFYCODE_CHANGE_MOBILE+map.get("mobile"), random,RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
                 rb.setSucResult(ApiResultType.OK);
                 logger.info("生成修改绑定手机号验证码:"+random);
             }else if(StringUtil.equals(sendSmsResponse.getCode(),"isv.BUSINESS_LIMIT_CONTROL")){
