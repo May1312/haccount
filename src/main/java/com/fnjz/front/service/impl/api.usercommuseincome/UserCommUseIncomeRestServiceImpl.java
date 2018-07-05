@@ -121,6 +121,8 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
         Integer max = userCommUseIncomeRestDao.getMaxPriority(userCommUseIncomeRestEntity.getUserInfoId());
         if(max!=null){
             userCommUseIncomeRestEntity.setPriority(max+1);
+        }else{
+            userCommUseIncomeRestEntity.setPriority(1);
         }
         commonDao.saveOrUpdate(userCommUseIncomeRestEntity);
     }
@@ -145,17 +147,22 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
     public static List<IncomeTypeRestDTO> getSortList(List<IncomeTypeRestDTO> list) {
         Collections.sort(list, new Comparator<IncomeTypeRestDTO>() {
             @Override
-            public int compare(IncomeTypeRestDTO o1, IncomeTypeRestDTO o2) {
-                if (o1.getPriority() != null && o2.getPriority() != null) {
-                    if (o1.getPriority() > o2.getPriority()) {
+            public int compare(IncomeTypeRestDTO o3, IncomeTypeRestDTO o4) {
+                if (o3.getPriority() != null && o4.getPriority() != null) {
+                    if (o3.getPriority() > o4.getPriority()) {
                         return 1;
                     }
-                    if (o1.getPriority() == o2.getPriority()) {
+                    if (o3.getPriority().equals(o4.getPriority()) ) {
                         return 0;
                     }
                     return -1;
+                }else if(o3.getPriority() == null && o4.getPriority() != null){
+                    return 1;
+                }else if(o3.getPriority() != null && o4.getPriority() == null){
+                    return -1;
+                }else{
+                    return 0;
                 }
-                return -1;
             }
         });
         return list;

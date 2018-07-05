@@ -110,6 +110,8 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
         Integer max = userCommUseSpendRestDao.getMaxPriority(userCommUseSpendRestEntity.getUserInfoId());
         if(max!=null){
             userCommUseSpendRestEntity.setPriority(max+1);
+        }else{
+            userCommUseSpendRestEntity.setPriority(1);
         }
         commonDao.saveOrUpdate(userCommUseSpendRestEntity);
     }
@@ -151,12 +153,17 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
                     if (o1.getPriority() > o2.getPriority()) {
                         return 1;
                     }
-                    if (o1.getPriority() == o2.getPriority()) {
+                    if (o1.getPriority().equals(o2.getPriority())) {
                         return 0;
                     }
                     return -1;
+                }else if(o1.getPriority() == null && o2.getPriority() != null){
+                    return 1;
+                }else if(o1.getPriority() != null && o2.getPriority() == null){
+                    return -1;
+                }else{
+                    return 0;
                 }
-                return -1;
             }
         });
         return list;
