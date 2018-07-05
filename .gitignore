@@ -4,3 +4,4 @@
 /.mvn/
 /docs/
 *.log
+/src/main/resources/rebel.xml
