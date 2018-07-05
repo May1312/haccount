@@ -17,6 +17,15 @@ public interface UserCommUseSpendRestDao {
 
     @Sql("SELECT st.id,st.spend_name,st.parent_id,st.icon,st.mark,(CASE st.parent_id WHEN null THEN null ELSE (select ss.spend_name from hbird_spend_type ss where ss.id = st.parent_id) END) as parent_name FROM hbird_user_comm_use_spend uc,hbird_spend_type st WHERE uc.spend_type_id = st.id AND uc.user_info_id = :user_info_id ORDER BY uc.priority ASC ;")
     List<SpendTypeRestDTO> select(@Param("user_info_id") String user_info_id);
+
     @Sql("DELETE FROM hbird_user_comm_use_spend WHERE user_info_id = :user_info_id AND spend_type_id = :spendTypeId")
     void delete(@Param("user_info_id")String user_info_id, @Param("spendTypeId")String spendTypeId);
+
+    /**
+     * 获取所有优先级
+     * @param userInfoId
+     * @return
+     */
+    @Sql("SELECT MAX(priority) FROM hbird_user_comm_use_spend where user_info_id = :userInfoId;")
+    Integer getMaxPriority(@Param("userInfoId")Integer userInfoId);
 }

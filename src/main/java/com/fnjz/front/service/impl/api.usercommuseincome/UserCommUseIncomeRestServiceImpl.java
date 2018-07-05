@@ -92,32 +92,37 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
 
     @Override
     public void insertCommIncomeType(String userInfoId, IncomeTypeRestEntity task) {
-        UserCommUseIncomeRestEntity userCommUseSpendRestEntity = new UserCommUseIncomeRestEntity();
-        userCommUseSpendRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
+        UserCommUseIncomeRestEntity userCommUseIncomeRestEntity = new UserCommUseIncomeRestEntity();
+        userCommUseIncomeRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
         //TODO 需要设置这么多属性么！！！！！！！
         //设置图标
         if (StringUtils.isNotEmpty(task.getIcon())) {
-            userCommUseSpendRestEntity.setIcon(task.getIcon());
+            userCommUseIncomeRestEntity.setIcon(task.getIcon());
         }
         //设置三级类目id
         if (StringUtils.isNotEmpty(task.getId())) {
-            userCommUseSpendRestEntity.setIncomeTypeId(task.getId());
+            userCommUseIncomeRestEntity.setIncomeTypeId(task.getId());
         }
         //设置三级类目名称
         if (StringUtils.isNotEmpty(task.getIncomeName())) {
-            userCommUseSpendRestEntity.setIncomeTypeName(task.getIncomeName());
+            userCommUseIncomeRestEntity.setIncomeTypeName(task.getIncomeName());
         }
         //设置二级类目id
         if (StringUtils.isNotEmpty(task.getParentId())) {
-            userCommUseSpendRestEntity.setIncomeTypePid(task.getParentId());
+            userCommUseIncomeRestEntity.setIncomeTypePid(task.getParentId());
         }
         //获取二级类目
         IncomeTypeRestEntity task2 = commonDao.findUniqueByProperty(IncomeTypeRestEntity.class, "id", task.getParentId());
         //设置二级类目名称
         if (StringUtils.isNotEmpty(task2.getIncomeName())) {
-            userCommUseSpendRestEntity.setIncomeTypePname(task2.getIncomeName());
+            userCommUseIncomeRestEntity.setIncomeTypePname(task2.getIncomeName());
         }
-        commonDao.saveOrUpdate(userCommUseSpendRestEntity);
+        //获取当前db优先级
+        Integer max = userCommUseIncomeRestDao.getMaxPriority(userCommUseIncomeRestEntity.getUserInfoId());
+        if(max!=null){
+            userCommUseIncomeRestEntity.setPriority(max+1);
+        }
+        commonDao.saveOrUpdate(userCommUseIncomeRestEntity);
     }
 
     /**

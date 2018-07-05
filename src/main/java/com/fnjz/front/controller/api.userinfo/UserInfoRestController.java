@@ -109,6 +109,7 @@ public class UserInfoRestController extends BaseController {
                 }
                 //获取验证码
                 String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
+                logger.info("微信用户绑定手机号:"+RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
                 logger.info("微信用户绑定手机号，redis获取验证码:"+code);
                 if (StringUtils.isEmpty(code)) {
                     //验证码为空

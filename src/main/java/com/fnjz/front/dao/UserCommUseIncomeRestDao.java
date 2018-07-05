@@ -18,4 +18,7 @@ public interface UserCommUseIncomeRestDao {
 
     @Sql("DELETE FROM hbird_user_comm_use_income WHERE user_info_id = :user_info_id AND income_type_id = :incomeTypeId")
     void delete(@Param("user_info_id")String user_info_id, @Param("incomeTypeId")String incomeTypeId);
+
+    @Sql("SELECT MAX(priority) FROM hbird_user_comm_use_income where user_info_id = :userInfoId;")
+    Integer getMaxPriority(@Param("userInfoId")Integer userInfoId);
 }

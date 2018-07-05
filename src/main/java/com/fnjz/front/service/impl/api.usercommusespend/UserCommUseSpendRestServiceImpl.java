@@ -106,6 +106,11 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
         if (StringUtils.isNotEmpty(task2.getSpendName())) {
             userCommUseSpendRestEntity.setSpendTypePname(task2.getSpendName());
         }
+        //获取当前db优先级
+        Integer max = userCommUseSpendRestDao.getMaxPriority(userCommUseSpendRestEntity.getUserInfoId());
+        if(max!=null){
+            userCommUseSpendRestEntity.setPriority(max+1);
+        }
         commonDao.saveOrUpdate(userCommUseSpendRestEntity);
     }
 
