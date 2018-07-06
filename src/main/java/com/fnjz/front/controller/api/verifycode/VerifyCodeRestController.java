@@ -237,7 +237,7 @@ public class VerifyCodeRestController {
     }
 
     /**
-     * 修改手机号--->新手机号--->获取验证码接口
+     * 修改手机号--->旧手机号--->获取验证码接口
      */
     @ApiOperation(value = "更换手机号验证码获取")
     @ApiImplicitParams({
@@ -258,7 +258,7 @@ public class VerifyCodeRestController {
         try {
             //验证手机号是否存在
             UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
-            if(task==null){
+            if(task!=null){
                 rb.setFailMsg(ApiResultType.USER_NOT_EXIST);
                 return rb;
             }
@@ -304,15 +304,21 @@ public class VerifyCodeRestController {
             return rb;
         }
         //校验验证码
-        String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_CHANGE_MOBILE+map.get("mobile"));
-        if(StringUtils.isEmpty(code)){
-            rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
+        try {
+            String code = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_VERIFYCODE_CHANGE_MOBILE+map.get("mobile"));
+            if(StringUtils.isEmpty(code)){
+                rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
+                return rb;
+            }
+            if(StringUtils.equals(code,map.get("verifycode"))){
+                rb.setSucResult(ApiResultType.OK);
+            }else{
+                rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
+            }
+        } catch (Exception e) {
+            logger.error(e.toString());
+            rb.setFailMsg(ApiResultType.SERVER_ERROR);
             return rb;
-        }
-        if(StringUtils.equals(code,map.get("verifycode"))){
-            rb.setSucResult(ApiResultType.OK);
-        }else{
-            rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
         }
         return rb;
     }
