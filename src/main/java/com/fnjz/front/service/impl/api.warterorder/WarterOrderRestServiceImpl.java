@@ -146,6 +146,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     @Override
     public void insert(WarterOrderRestEntity charge, String code, Integer accountBookId) {
         commonDao.save(charge);
+        //String insertId = warterOrderRestDao.insert(charge);
+        //return insertId;
     }
 
     @Override

@@ -9,10 +9,7 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.MyCountRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
-import com.fnjz.front.utils.DateUtils;
-import com.fnjz.front.utils.EmojiUtils;
-import com.fnjz.front.utils.RedisTemplateUtils;
-import com.fnjz.front.utils.ValidateUtils;
+import com.fnjz.front.utils.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
@@ -119,11 +116,16 @@ public class WarterOrderRestController extends BaseController {
             if (StringUtils.isNotEmpty(charge.getRemark())) {
                 charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
             }
+            charge.setId(CommonUtils.getAccountOrder());
             warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
             //打卡统计
             myCount(shareCode, userLoginRestEntity);
             rb.setSucResult(ApiResultType.OK);
             logger.info("单笔支出记账完成");
+            //返回记账id
+            Map<String,String> mapId = new HashMap<>();
+            mapId.put("id",charge.getId());
+            rb.setResult(mapId);
             return rb;
 
         } else if (charge.getOrderType() == 1 && charge.getIsStaged() == 2) {
@@ -154,12 +156,17 @@ public class WarterOrderRestController extends BaseController {
         if (StringUtils.isNotEmpty(charge.getRemark())) {
             charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
         }
+        charge.setId(CommonUtils.getAccountOrder());
         try {
             warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
             //打卡统计
             myCount(shareCode, userLoginRestEntity);
             rb.setSucResult(ApiResultType.OK);
             logger.info("单笔收入记账完成");
+            //返回记账id
+            Map<String,String> mapId = new HashMap<>();
+            mapId.put("id",charge.getId());
+            rb.setResult(mapId);
             return rb;
         } catch (Exception e) {
             logger.error(e.toString());

@@ -4,10 +4,8 @@ import com.fnjz.front.entity.api.statistics.StatisticsDaysRestDTO;
 import com.fnjz.front.entity.api.statistics.StatisticsWeeksRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
-import org.jeecgframework.minidao.annotation.MiniDao;
-import org.jeecgframework.minidao.annotation.Param;
-import org.jeecgframework.minidao.annotation.ResultType;
-import org.jeecgframework.minidao.annotation.Sql;
+import org.jeecgframework.minidao.annotation.*;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -161,4 +159,12 @@ public interface WarterOrderRestDao {
     @ResultType(Map.class)
     @Sql("SELECT SUM(wo.money) AS money, COUNT(wo.money) AS moneytimes, wo.type_name , DATE_FORMAT(wo.charge_date, '%Y-%m') AS yearmonth, wo.charge_date , CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END AS icon FROM hbird_water_order wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 2 AND wo.delflag = 0 AND wo.charge_date LIKE concat(DATE_FORMAT(NOW(), '%Y'), '-',:time,'%') GROUP BY wo.type_id ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForMonthsByTimeOfIncome(@Param("time")String time, @Param("accountBookId")Integer accountBookId);
+
+    /**
+     * 记录流水
+     * @param charge
+     * @return
+     */
+    @IdAutoGenerator(generator = "native")
+    String insert(@Param("charge") WarterOrderRestEntity charge);
 }
