@@ -6,6 +6,7 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.statistics.*;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
+import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 记账统计功能相关
@@ -58,6 +60,8 @@ public class ChargeStatisticsRestController extends BaseController {
             Date beginTime = statisticsParamsRestDTO.getBeginTime();
             Date endTime = statisticsParamsRestDTO.getEndTime();
             if (beginTime != null && endTime != null) {
+                beginTime = DateUtils.fetchBeginOfDay(statisticsParamsRestDTO.getBeginTime());
+                endTime = DateUtils.fetchEndOfDay(statisticsParamsRestDTO.getEndTime());
                 if (beginTime.compareTo(endTime) < 0) {
                     Date i = beginTime;
                     beginTime = endTime;
@@ -66,9 +70,9 @@ public class ChargeStatisticsRestController extends BaseController {
                 try {
                     //1为支出类型
                     int orderType = 1;
-                    List<StatisticsDaysRestDTO> list = warterOrderRestServiceI.statisticsForDays(beginTime, endTime, userAccountBookRestEntity.getAccountBookId(), orderType);
+                    Map<String,Object> map = warterOrderRestServiceI.statisticsForDays(beginTime, endTime, userAccountBookRestEntity.getAccountBookId(), orderType);
                     rb.setSucResult(ApiResultType.OK);
-                    rb.setResult(list);
+                    rb.setResult(map);
                     return rb;
                 } catch (Exception e) {
                     logger.error(e.toString());
@@ -92,9 +96,9 @@ public class ChargeStatisticsRestController extends BaseController {
                 try {
                     //1为支出类型
                     int orderType = 1;
-                    List<StatisticsWeeksRestDTO> list = warterOrderRestServiceI.statisticsForWeeks(beginWeek, endWeek, userAccountBookRestEntity.getAccountBookId(), orderType);
+                    Map<String,Object> map = warterOrderRestServiceI.statisticsForWeeks(beginWeek, endWeek, userAccountBookRestEntity.getAccountBookId(), orderType);
                     rb.setSucResult(ApiResultType.OK);
-                    rb.setResult(list);
+                    rb.setResult(map);
                     return rb;
                 } catch (Exception e) {
                     logger.error(e.toString());
@@ -110,9 +114,9 @@ public class ChargeStatisticsRestController extends BaseController {
             try {
                 //1为支出类型
                 int orderType = 1;
-                List<StatisticsDaysRestDTO> list = warterOrderRestServiceI.statisticsForMonths(userAccountBookRestEntity.getAccountBookId(), orderType);
+                Map<String,Object> map = warterOrderRestServiceI.statisticsForMonths(userAccountBookRestEntity.getAccountBookId(), orderType);
                 rb.setSucResult(ApiResultType.OK);
-                rb.setResult(list);
+                rb.setResult(map);
                 return rb;
             } catch (Exception e) {
                 logger.error(e.toString());
@@ -213,6 +217,8 @@ public class ChargeStatisticsRestController extends BaseController {
             Date beginTime = statisticsParamsRestDTO.getBeginTime();
             Date endTime = statisticsParamsRestDTO.getEndTime();
             if (beginTime != null && endTime != null) {
+                beginTime = DateUtils.fetchBeginOfDay(statisticsParamsRestDTO.getBeginTime());
+                endTime = DateUtils.fetchEndOfDay(statisticsParamsRestDTO.getEndTime());
                 if (beginTime.compareTo(endTime) < 0) {
                     Date i = beginTime;
                     beginTime = endTime;
@@ -221,9 +227,9 @@ public class ChargeStatisticsRestController extends BaseController {
                 try {
                     //2为收入类型
                     int orderType = 2;
-                    List<StatisticsDaysRestDTO> list = warterOrderRestServiceI.statisticsForDays(beginTime, endTime, userAccountBookRestEntity.getAccountBookId(), orderType);
+                    Map<String,Object> map = warterOrderRestServiceI.statisticsForDays(beginTime, endTime, userAccountBookRestEntity.getAccountBookId(), orderType);
                     rb.setSucResult(ApiResultType.OK);
-                    rb.setResult(list);
+                    rb.setResult(map);
                     return rb;
                 } catch (Exception e) {
                     logger.error(e.toString());
@@ -247,9 +253,9 @@ public class ChargeStatisticsRestController extends BaseController {
                 try {
                     //2为收入类型
                     int orderType = 2;
-                    List<StatisticsWeeksRestDTO> list = warterOrderRestServiceI.statisticsForWeeks(beginWeek, endWeek, userAccountBookRestEntity.getAccountBookId(), orderType);
+                    Map<String,Object> map = warterOrderRestServiceI.statisticsForWeeks(beginWeek, endWeek, userAccountBookRestEntity.getAccountBookId(), orderType);
                     rb.setSucResult(ApiResultType.OK);
-                    rb.setResult(list);
+                    rb.setResult(map);
                     return rb;
                 } catch (Exception e) {
                     logger.error(e.toString());
@@ -265,9 +271,9 @@ public class ChargeStatisticsRestController extends BaseController {
             try {
                 //2为支出
                 int orderType = 2;
-                List<StatisticsDaysRestDTO> list = warterOrderRestServiceI.statisticsForMonths(userAccountBookRestEntity.getAccountBookId(), orderType);
+                Map<String,Object> map = warterOrderRestServiceI.statisticsForMonths(userAccountBookRestEntity.getAccountBookId(), orderType);
                 rb.setSucResult(ApiResultType.OK);
-                rb.setResult(list);
+                rb.setResult(map);
                 return rb;
             } catch (Exception e) {
                 logger.error(e.toString());

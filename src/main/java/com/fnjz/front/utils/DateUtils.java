@@ -179,8 +179,6 @@ public class DateUtils {
         SimpleDateFormat format =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String d = format.format(1530439181000L);
         Date date=format.parse(d);
-        System.out.println(getWeeks(date));
-        //System.out.println(getWeeks(new Date()));
-        System.out.println(getDateByWeeks(21));
+        System.out.println(getDateByWeeks(26));
     }
 }

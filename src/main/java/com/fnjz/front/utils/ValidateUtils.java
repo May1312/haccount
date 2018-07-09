@@ -16,7 +16,7 @@ public class ValidateUtils {
     public static boolean isMobile(String mobiles){
         boolean flag = false;
         try{
-            Pattern p = Pattern.compile("^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$");
+            Pattern p = Pattern.compile("^((13[0-9])|(14[0-9])|(15[^4,\\D])|(17[0-9])|(18[0,5-9])|(19[0-9]))\\d{8}$");
             Matcher m = p.matcher(mobiles);
             flag = m.matches();
         }catch(Exception e){

@@ -6,6 +6,7 @@ import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import org.jeecgframework.minidao.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,7 @@ public interface WarterOrderRestDao {
      * @param beginTime
      * @param endTime
      * @param accountBookId
+     * @param orderType
      * @return
      */
     @Sql("select sum(money) as money,charge_date as time from hbird_water_order where account_book_id= :accountBookId AND charge_date >= :endTime AND charge_date<= :beginTime and order_type = :orderType and delflag = 0 group by charge_date order by charge_date DESC;")
@@ -167,4 +169,31 @@ public interface WarterOrderRestDao {
      */
     @IdAutoGenerator(generator = "native")
     String insert(@Param("charge") WarterOrderRestEntity charge);
+
+    /**
+     * 查询年中--->日最大金额
+     * @param accountBookId
+     * @param orderType
+     * @return
+     */
+    @Sql("SELECT MAX( money) FROM `hbird_water_order` WHERE account_book_id = :accountBookId AND delflag = 0 AND order_type = :orderType AND charge_date LIKE CONCAT( DATE_FORMAT( NOW(),'%Y'),'%');")
+    String findMaxDayMoneyOfYear(@Param("accountBookId") Integer accountBookId, @Param("orderType")int orderType);
+
+    /**
+     * 查询年中--->周最大金额
+     * @param accountBookId
+     * @param orderType
+     * @return
+     */
+    @Sql("SELECT max( moneyList.totalWeek) AS maxMoney FROM( SELECT sum( money ) AS totalWeek FROM `hbird_water_order` WHERE account_book_id = :accountBookId AND delflag = 0 AND order_type = :orderType AND DATE_FORMAT( charge_date, '%Y' ) LIKE DATE_FORMAT( NOW( ), '%Y' ) GROUP BY DATE_FORMAT( charge_date, '%Y-%v' ) ) AS moneyList;")
+    String findMaxWeekMoneyOfYear(@Param("accountBookId") Integer accountBookId, @Param("orderType")int orderType);
+
+    /**
+     * 查询年中--->月最大金额
+     * @param accountBookId
+     * @param orderType
+     * @return
+     */
+    @Sql("SELECT max( monthList.totalMonth) as maxMoney FROM( SELECT sum( money ) as totalMonth FROM `hbird_water_order` WHERE account_book_id = :accountBookId AND delflag = 0 AND order_type = :orderType AND DATE_FORMAT( charge_date, '%Y-%m' ) LIKE CONCAT( DATE_FORMAT( NOW( ), '%Y' ), '%' ) GROUP BY DATE_FORMAT( charge_date, '%Y-%m' ) ) AS monthList;")
+    String findMaxMonthMoneyOfYear(@Param("accountBookId") Integer accountBookId, @Param("orderType")int orderType);
 }

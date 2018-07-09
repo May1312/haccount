@@ -151,22 +151,55 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     }
 
     @Override
-    public List<StatisticsDaysRestDTO> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId,int orderType) {
+    public Map<String,Object> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId,int orderType) {
         List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForDays(beginTime, endTime, accountBookId,orderType);
-        return list;
+        //查询年中--->日最大金额
+        String max = warterOrderRestDao.findMaxDayMoneyOfYear(accountBookId,orderType);
+        BigDecimal maxValue;
+        if(StringUtils.isNotEmpty(max)){
+            maxValue = new BigDecimal(max);
+        }else{
+            maxValue = new BigDecimal(0);
+        }
+        Map<String,Object> map = new HashMap<>(2);
+        map.put("maxMoney",maxValue);
+        map.put("arrays",list);
+        return map;
     }
 
     @Override
-    public List<StatisticsWeeksRestDTO> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId,int orderType) {
+    public Map<String,Object> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId,int orderType) {
         //周统计接口
         List<StatisticsWeeksRestDTO> list = warterOrderRestDao.statisticsForWeeks(beginWeek, endWeek, accountBookId,orderType);
-        return list;
+        //查询年中--->周最大金额
+        String max = warterOrderRestDao.findMaxWeekMoneyOfYear(accountBookId,orderType);
+        BigDecimal maxValue;
+        if(StringUtils.isNotEmpty(max)){
+            maxValue = new BigDecimal(max);
+        }else{
+            maxValue = new BigDecimal(0);
+        }
+        Map<String,Object> map = new HashMap<>();
+        map.put("maxMoney",maxValue);
+        map.put("arrays",list);
+        return map;
     }
 
     @Override
-    public List<StatisticsDaysRestDTO> statisticsForMonths(Integer accountBookId,int orderType) {
+    public Map<String,Object> statisticsForMonths(Integer accountBookId,int orderType) {
         List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForMonths(accountBookId,orderType);
-        return list;
+        //查询年中--->月最大金额
+        String max = warterOrderRestDao.findMaxMonthMoneyOfYear(accountBookId,orderType);
+        BigDecimal maxValue;
+        if(StringUtils.isNotEmpty(max)){
+            maxValue = new BigDecimal(max);
+        }else{
+            maxValue = new BigDecimal(0);
+        }
+        Map<String,Object> map = new HashMap<>();
+        map.put("maxMoney",maxValue);
+        map.put("arrays",list);
+        return map;
     }
 
     @Override

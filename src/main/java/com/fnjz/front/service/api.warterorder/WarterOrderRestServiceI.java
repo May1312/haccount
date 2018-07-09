@@ -82,7 +82,7 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @param accountBookId
      * @param orderType
      */
-    List<StatisticsDaysRestDTO> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId,int orderType);
+    Map<String,Object> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId,int orderType);
 
     /**
      * 周统计接口
@@ -92,7 +92,7 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @param orderType
      * @return
      */
-    List<StatisticsWeeksRestDTO> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId,int orderType);
+    Map<String,Object> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId,int orderType);
 
     /**
      * 月统计接口
@@ -100,7 +100,7 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @param orderType
      * @return
      */
-    List<StatisticsDaysRestDTO> statisticsForMonths(Integer accountBookId,int orderType);
+    Map<String,Object> statisticsForMonths(Integer accountBookId,int orderType);
 
     /**
      * 日支出排行榜和消费情绪统计
