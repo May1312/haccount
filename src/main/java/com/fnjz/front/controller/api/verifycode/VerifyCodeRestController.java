@@ -258,7 +258,7 @@ public class VerifyCodeRestController {
         try {
             //验证手机号是否存在
             UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
-            if(task!=null){
+            if(task==null){
                 rb.setFailMsg(ApiResultType.USER_NOT_EXIST);
                 return rb;
             }
