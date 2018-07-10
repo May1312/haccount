@@ -260,7 +260,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     public StatisticsSpendTopAndHappinessDTO statisticsForAllTopAndHappiness(List<Map<String, Object>> list){
         StatisticsSpendTopAndHappinessDTO statisticsSpendTopAndHappinessDTO = new StatisticsSpendTopAndHappinessDTO();
         //总金额
-        BigDecimal totalMoney = new BigDecimal(0);
+        BigDecimal trueTotalMoney = new BigDecimal(0);
+        BigDecimal falseTotalMoney = new BigDecimal(0);
         //情绪总笔数
         Integer totalCount = 0;
         //排行榜集合类
@@ -273,7 +274,10 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             for (int i = 0; i < list.size(); i++) {
                 //统计总金额
                 BigDecimal bd = new BigDecimal(list.get(i).get("money") + "");
-                totalMoney = totalMoney.add(bd);
+                trueTotalMoney = trueTotalMoney.add(bd);
+                double money = Math.abs(Double.valueOf(list.get(i).get("money") + ""));
+                BigDecimal falseMoney = new BigDecimal(money);
+                falseTotalMoney = falseTotalMoney.add(falseMoney);
                 //统计深度为5
                 if (i < 5) {
                     //每个类目对应金额统计
@@ -325,13 +329,15 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendHappinessArrays(happiness);
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(top);
             statisticsSpendTopAndHappinessDTO.setTotalCount(totalCount);
-            statisticsSpendTopAndHappinessDTO.setTotalMoney(totalMoney);
+            statisticsSpendTopAndHappinessDTO.setTrueTotalMoney(trueTotalMoney);
+            statisticsSpendTopAndHappinessDTO.setFalseTotalMoney(falseTotalMoney);
         }else{
             //数据为空情况下
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendHappinessArrays(happiness);
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(top);
             statisticsSpendTopAndHappinessDTO.setTotalCount(totalCount);
-            statisticsSpendTopAndHappinessDTO.setTotalMoney(totalMoney);
+            statisticsSpendTopAndHappinessDTO.setTrueTotalMoney(trueTotalMoney);
+            statisticsSpendTopAndHappinessDTO.setFalseTotalMoney(falseTotalMoney);
         }
         return statisticsSpendTopAndHappinessDTO;
     }
@@ -344,14 +350,18 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     public StatisticsIncomeTopDTO statisticsForAllTop(List<Map<String, Object>> list){
         StatisticsIncomeTopDTO statisticsIncomeTopDTO = new StatisticsIncomeTopDTO();
         //总金额
-        BigDecimal totalMoney = new BigDecimal(0);
+        BigDecimal trueTotalMoney = new BigDecimal(0);
+        BigDecimal falseTotalMoney = new BigDecimal(0);
         //排行榜集合类
         List<StatisticsTopDTO> top = new ArrayList<>();
         if (list != null && list.size() > 0) {
             for (int i = 0; i < list.size(); i++) {
                 //统计总金额
                 BigDecimal bd = new BigDecimal(list.get(i).get("money") + "");
-                totalMoney = totalMoney.add(bd);
+                trueTotalMoney = trueTotalMoney.add(bd);
+                double money = Math.abs(Double.valueOf(list.get(i).get("money") + ""));
+                BigDecimal falseMoney = new BigDecimal(money);
+                falseTotalMoney = falseTotalMoney.add(falseMoney);
                 //统计深度为5
                 if (i < 5) {
                     //每个类目对应金额统计
@@ -367,11 +377,13 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 }
             }
             statisticsIncomeTopDTO.setStatisticsIncomeTopArrays(top);
-            statisticsIncomeTopDTO.setTotalMoney(totalMoney);
+            statisticsIncomeTopDTO.setTrueTotalMoney(trueTotalMoney);
+            statisticsIncomeTopDTO.setFalseTotalMoney(falseTotalMoney);
         }else{
             //数据为空情况下
             statisticsIncomeTopDTO.setStatisticsIncomeTopArrays(top);
-            statisticsIncomeTopDTO.setTotalMoney(totalMoney);
+            statisticsIncomeTopDTO.setTrueTotalMoney(trueTotalMoney);
+            statisticsIncomeTopDTO.setFalseTotalMoney(falseTotalMoney);
         }
         return statisticsIncomeTopDTO;
     }

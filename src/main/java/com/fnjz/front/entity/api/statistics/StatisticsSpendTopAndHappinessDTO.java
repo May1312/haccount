@@ -26,9 +26,14 @@ public class StatisticsSpendTopAndHappinessDTO implements Serializable {
     private Integer totalCount;
 
     /**
-     * 总金额
+     * 总金额(按实际实际数值计算)
      */
-    private BigDecimal totalMoney;
+    private BigDecimal trueTotalMoney;
+
+    /**
+     * 总金额(按实际实际数值计算)
+     */
+    private BigDecimal falseTotalMoney;
 
     public List<StatisticsTopDTO> getStatisticsSpendTopArrays() {
         return statisticsSpendTopArrays;
@@ -54,11 +59,19 @@ public class StatisticsSpendTopAndHappinessDTO implements Serializable {
         this.totalCount = totalCount;
     }
 
-    public BigDecimal getTotalMoney() {
-        return totalMoney;
+    public BigDecimal getTrueTotalMoney() {
+        return trueTotalMoney;
     }
 
-    public void setTotalMoney(BigDecimal totalMoney) {
-        this.totalMoney = totalMoney;
+    public void setTrueTotalMoney(BigDecimal trueTotalMoney) {
+        this.trueTotalMoney = trueTotalMoney;
+    }
+
+    public BigDecimal getFalseTotalMoney() {
+        return falseTotalMoney;
+    }
+
+    public void setFalseTotalMoney(BigDecimal falseTotalMoney) {
+        this.falseTotalMoney = falseTotalMoney;
     }
 }

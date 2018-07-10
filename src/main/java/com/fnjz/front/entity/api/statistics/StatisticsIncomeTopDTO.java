@@ -17,9 +17,13 @@ public class StatisticsIncomeTopDTO implements Serializable {
     private List<StatisticsTopDTO> statisticsIncomeTopArrays;
 
     /**
-     * 总金额
+     * 总金额(按实际实际数值计算)
      */
-    private BigDecimal totalMoney;
+    private BigDecimal trueTotalMoney;
+    /**
+     * 总金额(按绝对值计算)
+     */
+    private BigDecimal falseTotalMoney;
 
     public List<StatisticsTopDTO> getStatisticsIncomeTopArrays() {
         return statisticsIncomeTopArrays;
@@ -29,11 +33,19 @@ public class StatisticsIncomeTopDTO implements Serializable {
         this.statisticsIncomeTopArrays = statisticsIncomeTopArrays;
     }
 
-    public BigDecimal getTotalMoney() {
-        return totalMoney;
+    public BigDecimal getFalseTotalMoney() {
+        return falseTotalMoney;
     }
 
-    public void setTotalMoney(BigDecimal totalMoney) {
-        this.totalMoney = totalMoney;
+    public void setFalseTotalMoney(BigDecimal falseTotalMoney) {
+        this.falseTotalMoney = falseTotalMoney;
+    }
+
+    public BigDecimal getTrueTotalMoney() {
+        return trueTotalMoney;
+    }
+
+    public void setTrueTotalMoney(BigDecimal trueTotalMoney) {
+        this.trueTotalMoney = trueTotalMoney;
     }
 }
