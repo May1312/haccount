@@ -176,7 +176,7 @@ public interface WarterOrderRestDao {
      * @param orderType
      * @return
      */
-    @Sql("SELECT MAX( money) FROM `hbird_water_order` WHERE account_book_id = :accountBookId AND delflag = 0 AND order_type = :orderType AND charge_date LIKE CONCAT( DATE_FORMAT( NOW(),'%Y'),'%');")
+    @Sql("SELECT MAX( dayList.sumMoney) from( SELECT sum(money) AS sumMoney FROM `hbird_water_order` WHERE account_book_id = :accountBookId AND delflag = 0 AND order_type = :orderType AND charge_date LIKE CONCAT( DATE_FORMAT( NOW( ), '%Y' ), '%' ) GROUP BY charge_date ) AS dayList;")
     String findMaxDayMoneyOfYear(@Param("accountBookId") Integer accountBookId, @Param("orderType")int orderType);
 
     /**
