@@ -74,7 +74,7 @@ public enum ApiResultType {
     PAGE_PARAMS_ERROR("04008","分页参数异常，请检查！"),
     ORDER_ID_IS_NULL("04009","单笔记账详情id为空，请检查！"),
     GET_ORDER_ERROR("04010","未查询到该笔记账，请检查！"),
-    SPEND_TYPE_ID_IS_NULL("04011","三级支出类目id为空，请检查！"),
+    SPEND_TYPE_ID_IS_NULL("04011","三级类目id为空，请检查！"),
     SPEND_TYPE_ID_IS_NOT_EXIST("04012","未查询到该支出类目id，请检查！"),
     SPEND_TYPE_ID_IS_ERROR("04013","当前类目id为二级id，请检查！"),
     SPEND_TYPE_IS_ADDED("04014","当前类目id已在常用类目列表，请检查！"),

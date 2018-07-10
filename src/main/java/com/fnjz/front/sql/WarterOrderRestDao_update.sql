@@ -1,8 +1,5 @@
 UPDATE `hbird_account`.`hbird_water_order`
-SET 
-	   <#if warterOrderRestEntity.accountBookId ?exists>
-		   account_book_id = :warterOrderRestEntity.accountBookId,
-		</#if>
+SET
 	   <#if warterOrderRestEntity.money ?exists>
 		   money = :warterOrderRestEntity.money,
 		</#if>
@@ -12,7 +9,9 @@ SET
 	    <#if warterOrderRestEntity.isStaged ?exists>
 		   is_staged = :warterOrderRestEntity.isStaged,
 		</#if>
+		<#if warterOrderRestEntity.spendHappiness ?exists>
 		   spend_happiness = :warterOrderRestEntity.spendHappiness,
+		   </#if>
 	   <#if warterOrderRestEntity.useDegree ?exists>
 		   useDegree = :warterOrderRestEntity.useDegree,
 		</#if>

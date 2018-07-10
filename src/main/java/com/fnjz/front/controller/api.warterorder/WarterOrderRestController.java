@@ -291,85 +291,14 @@ public class WarterOrderRestController extends BaseController {
             rb.setFailMsg(ApiResultType.ORDER_ID_IS_NULL);
             return rb;
         }
-        //校验金额
-        if (charge.getMoney() == null) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_MONEY_IS_NULL);
-            return rb;
-        }
-        if (!ValidateUtils.checkDecimal(charge.getMoney() + "")) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_MONEY_ERROR);
-            return rb;
-        }
-        //判断支出收入类型
-        if (charge.getOrderType() == null) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_TYPE_ERROR);
-            return rb;
-        }
-        //校验二三级类目 id
-        if (StringUtils.isEmpty(charge.getTypePid())) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_PARAMS_ERROR);
-            return rb;
-        }
-        if (StringUtils.isEmpty(charge.getTypeId())) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_PARAMS_ERROR);
-            return rb;
-        }
-        if (charge.getOrderType() == 1) {
-            //支出类型判断即时和分期类型
-            if (charge.getIsStaged() == null) {
-                rb.setFailMsg(ApiResultType.ACCOUNT_TYPE_ERROR);
-                return rb;
-            }
-        }
         String code = (String) request.getAttribute("code");
         String shareCode = (String) request.getAttribute("shareCode");
         String userInfoId = (String) request.getAttribute("userInfoId");
         String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
-        //获取到账本id 更新记录 TODO 当前账本为1，后台可以获取，后期 账本为多个时，需要传入指定的账本id
 
-        //1 为即时记账类型    2 为分期记账类型
-        if (charge.getIsStaged() == 1 && charge.getOrderType() == 1) {
-            //使用度必须为空
-            if (charge.getUseDegree() != null) {
-                charge.setUseDegree(null);
-            }
-            //设置更新时间
-            charge.setUpdateDate(new Date());
-            //绑定账本id
-            charge.setAccountBookId(userLoginRestEntity.getAccountBookId());
-            //绑定修改者id
-            charge.setUpdateBy(userLoginRestEntity.getUserInfoId());
-            //绑定修改者名称
-            charge.setUpdateName(code);
-            //设置记录状态
-            charge.setDelflag(0);
-            //转义表情
-            if (StringUtils.isNotEmpty(charge.getRemark())) {
-                charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
-            }
-            warterOrderRestService.update(charge);
-            rb.setSucResult(ApiResultType.OK);
-            logger.info("单笔支出记账更新完成");
-            return rb;
-        } else if (charge.getIsStaged() == 2 && charge.getOrderType() == 1) {
-            Map map = new HashMap<>();
-            map.put("msg", "分期功能未开放");
-            rb.setResult(map);
-            return rb;
-        }
-        //收入类型愉悦度必须为空
-        if (charge.getSpendHappiness() != null) {
-            charge.setSpendHappiness(null);
-        }
-        //收入类型即时/分期必须为空
-        if (charge.getIsStaged() != null) {
-            charge.setIsStaged(null);
-        }
         //设置创建时间
-        charge.setCreateDate(new Date());
-        //绑定账本id
-        charge.setAccountBookId(userLoginRestEntity.getAccountBookId());
+        charge.setUpdateDate(new Date());
         //绑定修改者id
         charge.setUpdateBy(userLoginRestEntity.getUserInfoId());
         //绑定修改者名称
@@ -379,7 +308,6 @@ public class WarterOrderRestController extends BaseController {
         if (StringUtils.isNotEmpty(charge.getRemark())) {
             charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
         }
-        charge.setDelflag(0);
         try {
             warterOrderRestService.update(charge);
             rb.setSucResult(ApiResultType.OK);

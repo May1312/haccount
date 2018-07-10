@@ -18,7 +18,6 @@ import java.util.Date;
 @Entity
 @DynamicUpdate(true)
 @DynamicInsert(true)
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @SuppressWarnings("serial")
 public class AppsRestDTO implements java.io.Serializable {
 
