@@ -116,13 +116,8 @@ public class UserRegisterRestController extends BaseController {
                 if(insertId>0){
                     //缓存用户信息
                     task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
-                    String user = JSON.toJSONString(task);
-                    redisTemplateUtils.updateCache(user,RedisPrefix.PREFIX_USER_LOGIN+ShareCodeUtil.id2sharecode(task.getUserInfoId()));
-                    rb.setSucResult(ApiResultType.OK);
-                    Map<String, Object> map2 = new HashMap<>();
-                    String token = createTokenUtils.createToken(ShareCodeUtil.id2sharecode(task.getUserInfoId()));
-                    map2 = SetTokenToAppUtils.getTokenResult(map2,token);
-                    rb.setResult(map2);
+                    rb = createTokenUtils.loginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
+                    return rb;
                 }else{
                     rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
                 }
