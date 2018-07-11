@@ -8,6 +8,8 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestDTO;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
+import com.fnjz.front.enums.LoginEnum;
+import com.fnjz.front.enums.QiNiuEnum;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.*;
 import com.fnjz.utils.upload.QiNiuUploadFileUtils;
@@ -65,18 +67,12 @@ public class UserInfoRestController extends BaseController {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         try {
-            String r_redis = (String) request.getAttribute("key");
-            String r_user = redisTemplateUtils.getUserCache(r_redis);
-            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
+            String key = (String) request.getAttribute("key");
+            UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
                 //判断手机号 验证码
-                if (StringUtil.isEmpty(map.get("mobile")) || StringUtil.isEmpty(map.get("verifycode"))) {
-                    rb.setFailMsg(ApiResultType.USERNAME_OR_VERIFYCODE_ISNULL);
-                    return rb;
-                }
-                if (!ValidateUtils.isMobile(map.get("mobile"))) {
-                    rb.setFailMsg(ApiResultType.MOBILE_FORMAT_ERROR);
-                    return rb;
+                if(ParamValidateUtils.checkeLongin(map,LoginEnum.LOGIN_BY_VERIFYCODE)!=null){
+                    return ParamValidateUtils.checkeLongin(map,LoginEnum.LOGIN_BY_VERIFYCODE);
                 }
                 //获取验证码
                 String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
@@ -95,17 +91,15 @@ public class UserInfoRestController extends BaseController {
                     }
                     //更新用户缓存
                     userLoginRestEntity.setMobile(map.get("mobile"));
-                    String user = JSON.toJSONString(userLoginRestEntity);
-                    redisTemplateUtils.updateCache(user, r_redis);
+                    redisTemplateUtils.updateCacheSimple(userLoginRestEntity,key);
                     rb.setSucResult(ApiResultType.OK);
                 } else {
                     rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
                 }
             } else {//微信绑定手机号密码
                 //判断手机号 密码 验证码
-                if (StringUtils.isEmpty(map.get("mobile")) || StringUtils.isEmpty(map.get("verifycode")) || StringUtils.isEmpty(map.get("password"))) {
-                    rb.setFailMsg(ApiResultType.REQ_PARAMS_ERROR);
-                    return rb;
+                if (ParamValidateUtils.checkResetpwd(map)!=null) {
+                    return ParamValidateUtils.checkResetpwd(map);
                 }
                 //获取验证码
                 String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
@@ -125,8 +119,7 @@ public class UserInfoRestController extends BaseController {
                     //更新用户缓存
                     userLoginRestEntity.setMobile(map.get("mobile"));
                     userLoginRestEntity.setPassword(map.get("password"));
-                    String user = JSON.toJSONString(userLoginRestEntity);
-                    redisTemplateUtils.updateCache(user, r_redis);
+                    redisTemplateUtils.updateCacheSimple(userLoginRestEntity,key);
                     rb.setSucResult(ApiResultType.OK);
                 } else {
                     rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
@@ -150,14 +143,12 @@ public class UserInfoRestController extends BaseController {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         //判断CODE
-        if (StringUtil.isEmpty(map.get("code"))) {
-            rb.setFailMsg(ApiResultType.WECHAT_CODE_ISNULL);
-            return rb;
+        if(ParamValidateUtils.checkeLoginByWechat(map,LoginEnum.LOGIN_BY_WECHAT)!=null){
+            return ParamValidateUtils.checkeLoginByWechat(map,LoginEnum.LOGIN_BY_WECHAT);
         }
         try {
-            String r_redis = (String) request.getAttribute("key");
-            String r_user = redisTemplateUtils.getUserCache(r_redis);
-            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
+            String key = (String) request.getAttribute("key");
+            UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
                 //获取unionid  user.getString("unionid")
                 JSONObject user = WeChatUtils.getUser(map.get("code"));
@@ -180,8 +171,7 @@ public class UserInfoRestController extends BaseController {
                 }
                 //设置redis缓存 缓存用户信息
                 userLoginRestEntity.setWechatAuth(user.getString("unionid"));
-                String userToString = JSON.toJSONString(userLoginRestEntity);
-                redisTemplateUtils.updateCache(userToString, r_redis);
+                redisTemplateUtils.updateCacheSimple(userLoginRestEntity,key);
                 rb.setSucResult(ApiResultType.OK);
             } else if (StringUtils.isNotEmpty(userLoginRestEntity.getWechatAuth())) {
                 //非手机号注册用户无法绑定微信
@@ -202,10 +192,9 @@ public class UserInfoRestController extends BaseController {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
         try {
-            String r_redis = (String) request.getAttribute("key");
+            String key = (String) request.getAttribute("key");
             //解绑用户--->将wechat_auth置为null
-            String r_user = redisTemplateUtils.getUserCache(r_redis);
-            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
+            UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             //判断是否为手机用户
             if (StringUtils.isEmpty(userLoginRestEntity.getMobile())) {
                 rb.setFailMsg(ApiResultType.NOT_ALLOW_UNBIND_WECHAT);
@@ -219,8 +208,7 @@ public class UserInfoRestController extends BaseController {
             }
             //设置redis缓存 缓存用户信息
             userLoginRestEntity.setWechatAuth(null);
-            String userToString = JSON.toJSONString(userLoginRestEntity);
-            redisTemplateUtils.updateCache(userToString, r_redis);
+            redisTemplateUtils.updateCacheSimple(userLoginRestEntity,key);
             rb.setSucResult(ApiResultType.OK);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -274,18 +262,16 @@ public class UserInfoRestController extends BaseController {
         ResultBean rb = new ResultBean();
         try {
             QiNiuUploadFileUtils qiniu = new QiNiuUploadFileUtils();
-            String upToken = null;
+            String upToken;
             if(StringUtils.isEmpty(map.get("flag"))){
-                //为空默认类型1 head-picture头像上传
-                upToken = qiniu.getUpToken("head-picture");
+                upToken = qiniu.getUpToken(QiNiuEnum.HEAD_PICTURE.getName());
             }else{
-                if(StringUtils.equals(map.get("flag"),"1")){
-                    upToken = qiniu.getUpToken("head-picture");
-                }else if(StringUtils.equals(map.get("flag"),"2")){
-                    //2为信息反馈图片
-                    upToken = qiniu.getUpToken("feedback-picture");
+                if(StringUtils.equals(map.get("flag"),QiNiuEnum.HEAD_PICTURE.getIndex())){
+                    upToken = qiniu.getUpToken(QiNiuEnum.HEAD_PICTURE.getName());
+                }else if(StringUtils.equals(map.get("flag"),QiNiuEnum.FEEDBACK_PICTURE.getIndex())){
+                    upToken = qiniu.getUpToken(QiNiuEnum.FEEDBACK_PICTURE.getName());
                 }else{
-                    upToken = qiniu.getUpToken("head-picture");
+                    upToken = qiniu.getUpToken(QiNiuEnum.HEAD_PICTURE.getName());
                 }
             }
             rb.setSucResult(ApiResultType.OK);

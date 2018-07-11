@@ -3,6 +3,7 @@ package com.fnjz.front.utils;
 import com.alibaba.fastjson.JSON;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
+import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,7 +135,33 @@ public class RedisTemplateUtils {
         return (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + shareCode);
     }
 
+    /**
+     * 更新我的页面统计缓存
+     * @param shareCode
+     * @param myCount
+     */
     public void updateMyCount(String shareCode,String myCount){
         redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,myCount,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+    }
+
+    /**
+     * 从缓存获取用户信息
+     * @param key
+     * @return
+     */
+    public UserLoginRestEntity getUserLoginRestEntityCache(String key){
+        String user = this.getUserCache(key);
+        UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
+        return userLoginRestEntity;
+    }
+
+    /**
+     * 更新用户缓存
+     * @param userLoginRestEntity
+     * @return
+     */
+    public void updateCacheSimple (UserLoginRestEntity userLoginRestEntity,String key){
+        String user = JSON.toJSONString(userLoginRestEntity);
+        this.updateCache(user, key);
     }
 }

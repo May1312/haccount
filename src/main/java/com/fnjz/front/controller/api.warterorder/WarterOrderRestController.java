@@ -54,40 +54,8 @@ public class WarterOrderRestController extends BaseController {
     public ResultBean toCharge(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody WarterOrderRestEntity charge) {
         System.out.println("登录终端：" + type);
         ResultBean rb = new ResultBean();
-        //校验记账时间
-        if (charge.getChargeDate() == null) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_SPENDDATE_ERROR);
-            return rb;
-        }
-        //校验金额
-        if (charge.getMoney() == null) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_MONEY_IS_NULL);
-            return rb;
-        }
-        if (!ValidateUtils.checkDecimal(charge.getMoney() + "")) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_MONEY_ERROR);
-            return rb;
-        }
-        //判断支出收入类型
-        if (charge.getOrderType() == null) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_TYPE_ERROR);
-            return rb;
-        }
-        //校验二三级类目 id
-        if (StringUtils.isEmpty(charge.getTypePid())) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_PARAMS_ERROR);
-            return rb;
-        }
-        if (StringUtils.isEmpty(charge.getTypeId())) {
-            rb.setFailMsg(ApiResultType.ACCOUNT_PARAMS_ERROR);
-            return rb;
-        }
-        if (charge.getOrderType() == 1) {
-            //支出类型判断即时和分期类型
-            if (charge.getIsStaged() == null) {
-                rb.setFailMsg(ApiResultType.ACCOUNT_TYPE_ERROR);
-                return rb;
-            }
+        if(ParamValidateUtils.checkToCharge(charge)!=null){
+            return ParamValidateUtils.checkToCharge(charge);
         }
         String code = (String) request.getAttribute("code");
         String shareCode = (String) request.getAttribute("shareCode");
@@ -121,7 +89,6 @@ public class WarterOrderRestController extends BaseController {
             //打卡统计
             myCount(shareCode, userLoginRestEntity);
             rb.setSucResult(ApiResultType.OK);
-            logger.info("单笔支出记账完成");
             //返回记账id
             Map<String,String> mapId = new HashMap<>();
             mapId.put("id",charge.getId());
@@ -162,7 +129,6 @@ public class WarterOrderRestController extends BaseController {
             //打卡统计
             myCount(shareCode, userLoginRestEntity);
             rb.setSucResult(ApiResultType.OK);
-            logger.info("单笔收入记账完成");
             //返回记账id
             Map<String,String> mapId = new HashMap<>();
             mapId.put("id",charge.getId());
@@ -311,7 +277,6 @@ public class WarterOrderRestController extends BaseController {
         try {
             warterOrderRestService.update(charge);
             rb.setSucResult(ApiResultType.OK);
-            logger.info("单笔收入记账更新完成");
             return rb;
         } catch (Exception e) {
             logger.error(e.toString());

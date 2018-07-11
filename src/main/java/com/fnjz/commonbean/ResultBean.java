@@ -9,6 +9,14 @@ import java.io.Serializable;
  */
 public class ResultBean implements Serializable {
 
+    public ResultBean() {}
+
+    public ResultBean(ApiResultType art, Object result) {
+        this.code = art.getCode();
+        this.msg = art.getStr();
+        this.result = result;
+    }
+
     public String code;
     public String msg;
     public Object result;
