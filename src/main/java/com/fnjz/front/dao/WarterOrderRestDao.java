@@ -78,7 +78,7 @@ public interface WarterOrderRestDao {
      * @param orderType
      * @return
      */
-    @Sql("select sum(money) as money,charge_date as time from hbird_water_order where account_book_id= :accountBookId AND charge_date >= :endTime AND charge_date<= :beginTime and order_type = :orderType and delflag = 0 group by charge_date order by charge_date DESC;")
+    @Sql("select sum(money) as money,charge_date as time from hbird_water_order where account_book_id= :accountBookId AND charge_date >= :endTime AND charge_date<= :beginTime and order_type = :orderType and delflag = 0 group by charge_date order by charge_date ACS;")
     List<StatisticsDaysRestDTO> statisticsForDays(@Param("beginTime")Date beginTime, @Param("endTime")Date endTime, @Param("accountBookId")Integer accountBookId, @Param("orderType")int orderType);
 
     /**
@@ -89,7 +89,7 @@ public interface WarterOrderRestDao {
      * @param accountBookId
      * @return
      */
-    @Sql("SELECT sum(wo.money) AS money, DATE_FORMAT( wo.charge_date, '%u' ) AS WEEK, DATE_FORMAT( wo.charge_date, '%Y-%u' ) AS yearweek FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = :orderType AND wo.delflag = 0 AND DATE_FORMAT( wo.charge_date, '%Y-%u' ) >= concat( DATE_FORMAT( NOW( ), '%Y' ),-:endWeek ) AND DATE_FORMAT( wo.charge_date, '%Y-%u' ) <= concat( DATE_FORMAT( NOW( ), '%Y' ),-:beginWeek ) GROUP BY yearweek ORDER BY yearweek DESC;")
+    @Sql("SELECT sum(wo.money) AS money, DATE_FORMAT( wo.charge_date, '%u' ) AS WEEK, DATE_FORMAT( wo.charge_date, '%Y-%u' ) AS yearweek FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = :orderType AND wo.delflag = 0 AND DATE_FORMAT( wo.charge_date, '%Y-%u' ) >= concat( DATE_FORMAT( NOW( ), '%Y' ),-:endWeek ) AND DATE_FORMAT( wo.charge_date, '%Y-%u' ) <= concat( DATE_FORMAT( NOW( ), '%Y' ),-:beginWeek ) GROUP BY yearweek ORDER BY yearweek ACS;")
     List<StatisticsWeeksRestDTO> statisticsForWeeks(@Param("beginWeek")String beginWeek, @Param("endWeek")String endWeek, @Param("accountBookId")Integer accountBookId, @Param("orderType")int orderType);
 
     /**
@@ -97,7 +97,7 @@ public interface WarterOrderRestDao {
      * @param accountBookId
      * @return
      */
-    @Sql("SELECT sum( money ) AS money,wo.charge_date as time,DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth,DATE_FORMAT( now( ), '%Y' ) AS year FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = :orderType AND wo.delflag = 0 GROUP BY yearmonth HAVING yearmonth >=year ORDER BY yearmonth DESC;")
+    @Sql("SELECT sum( money ) AS money,wo.charge_date as time,DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth,DATE_FORMAT( now( ), '%Y' ) AS year FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = :orderType AND wo.delflag = 0 GROUP BY yearmonth HAVING yearmonth >=year ORDER BY yearmonth ACS;")
     List<StatisticsDaysRestDTO> statisticsForMonths(@Param("accountBookId")Integer accountBookId,@Param("orderType")int orderType);
 
     /**
