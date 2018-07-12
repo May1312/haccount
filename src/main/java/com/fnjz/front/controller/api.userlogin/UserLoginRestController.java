@@ -225,7 +225,7 @@ public class UserLoginRestController extends BaseController {
                         int insert = userInfoRestServiceI.insert(uire);
                         if (insert > 0) {
                             UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
-                            rb = createTokenUtils.loginSuccess(task2, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
+                            rb = createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                             return rb;
                         } else {
                             rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
@@ -273,7 +273,7 @@ public class UserLoginRestController extends BaseController {
                 UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
                 String task_user = JSON.toJSONString(task);
                 if(task!=null){
-                    rb = createTokenUtils.loginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
+                    rb = createTokenUtils.wxappletLoginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                     return rb;
                 }
                 //注册
@@ -282,7 +282,7 @@ public class UserLoginRestController extends BaseController {
                     rb.setSucResult(ApiResultType.OK);
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
                     //unionid  expire
-                    rb = createTokenUtils.loginSuccess(task2, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
+                    rb = createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                     return rb;
                 }else{
                     rb.setFailMsg(ApiResultType.REGISTER_IS_ERROR);
