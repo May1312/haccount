@@ -28,6 +28,15 @@ import javax.persistence.SequenceGenerator;
 @DynamicInsert(true)
 @SuppressWarnings("serial")
 public class UserCommTypePriorityRestEntity implements java.io.Serializable {
+
+	public UserCommTypePriorityRestEntity() {}
+
+	public UserCommTypePriorityRestEntity(Integer userInfoId, Integer type, String relation) {
+		this.userInfoId = userInfoId;
+		this.type = type;
+		this.relation = relation;
+	}
+
 	/**id*/
 	private java.lang.Integer id;
 	/**用户详情id*/

@@ -44,10 +44,8 @@ public class UserFeedBackRestController extends BaseController {
 	@ResponseBody
 	public ResultBean uploadFeedBack(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody UserFeedBackRestEntity userFeedBackRestEntity) {
 		System.out.println("登录终端：" + type);
-		ResultBean rb = new ResultBean();
 		if(StringUtils.isEmpty(userFeedBackRestEntity.getContent())){
-			rb.setFailMsg(ApiResultType.CONTENT_IS_NULL);
-			return rb;
+			return new ResultBean(ApiResultType.CONTENT_IS_NULL,null);
 		}
 		//获取用户详情
 		String userInfoId = (String) request.getAttribute("userInfoId");
@@ -56,6 +54,7 @@ public class UserFeedBackRestController extends BaseController {
 		}
 		userFeedBackRestEntity.setStatus("0");//未处理状态
 		userFeedBackRestEntity.setCreateDate(new Date());
+		//转义emoji表情
 		if(StringUtils.isNotEmpty(userFeedBackRestEntity.getContent())){
 			userFeedBackRestEntity.setContent(EmojiUtils.emojiToAlias(userFeedBackRestEntity.getContent()));
 		}
@@ -64,12 +63,10 @@ public class UserFeedBackRestController extends BaseController {
 		}
 		try {
 			userFeedBackRestService.save(userFeedBackRestEntity);
-			rb.setSucResult(ApiResultType.OK);
-			return rb;
+			return new ResultBean(ApiResultType.OK,null);
 		} catch (Exception e) {
 			logger.error(e.toString());
-			rb.setFailMsg(ApiResultType.SERVER_ERROR);
-			return rb;
+			return new ResultBean(ApiResultType.SERVER_ERROR,null);
 		}
 	}
 

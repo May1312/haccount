@@ -9,6 +9,7 @@ import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.enums.StatisticsEnum;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,7 +19,7 @@ import java.util.Map;
 public class ParamValidateUtils {
 
     /**
-     * 账号密码/验证码登录校验
+     * 账号密码/验证码登录/修改手机号校验
      *
      * @param map
      * @return
@@ -235,6 +236,99 @@ public class ParamValidateUtils {
                     return new ResultBean(ApiResultType.TIME_IS_NULL,null);
                 }
             }
+        }
+        return null;
+    }
+
+    /**
+     * 手势密码参数校验
+     * @param map
+     * @return
+     */
+    public static ResultBean checkGesture(Map<String, String> map) {
+        if (StringUtils.isEmpty(map.get("gesturePwType"))) {
+            return new ResultBean(ApiResultType.GESTURE_PARAMS_ERROR,null);
+        }
+        if (map.get("gesturePwType").length() > 1) {
+            return new ResultBean(ApiResultType.GESTURE_PARAMS_LENGTH_ERROR,null);
+        }
+        return null;
+    }
+
+    /**
+     * 验证码校验
+     * @param map
+     * @return
+     */
+    public static ResultBean checkVerifycode(Map<String, String> map,String code) {
+        if (StringUtils.isEmpty(code)) {
+            return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT,null);
+        }
+        if (StringUtils.equals(code, map.get("verifycode"))) {
+            return new ResultBean(ApiResultType.OK,null);
+        } else {
+            return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR,null);
+        }
+    }
+
+    /**
+     * app检查更新校验
+     * @param map
+     * @param type
+     * @return
+     */
+    public static ResultBean checkApp(Map<String, String> map,String type) {
+        if(StringUtils.isEmpty(type)){
+            return new ResultBean(ApiResultType.SYSTEM_TYPE_IS_NULL,null);
+        }
+        //判断版本号
+        if (StringUtils.isEmpty(map.get("version"))) {
+            return new ResultBean(ApiResultType.VERSION_IS_NULL,null);
+        }
+        return null;
+    }
+
+    /**
+     * 用户常用类目排序参数校验
+     * @param map
+     * @return
+     */
+    public static ResultBean checkUserTypePriority(Map<String, Object> map) {
+        if(StringUtils.isEmpty(map.get("type")+"")){
+            return new ResultBean(ApiResultType.TYPE_IS_NULL,null);
+        }
+        if(map.get("relation")==null){
+            return new ResultBean(ApiResultType.TYPE_RELATION_IS_NULL,null);
+        }
+        return null;
+    }
+
+    /**
+     * 用户常用收入类目删除校验
+     * @param map
+     * @return
+     */
+    public static ResultBean checkDeleteCommIncomeType(Map<String, List<String>> map) {
+        if(map.get("incomeTypeIds")==null){
+            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL,null);
+        }
+        if(map.get("incomeTypeIds").size()<1){
+            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL,null);
+        }
+        return null;
+    }
+
+    /**
+     * 用户常用支出类目删除校验
+     * @param map
+     * @return
+     */
+    public static ResultBean checkDeleteCommSpendType(Map<String, List<String>> map) {
+        if(map.get("spendTypeIds")==null){
+            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL,null);
+        }
+        if(map.get("spendTypeIds").size()<1){
+            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL,null);
         }
         return null;
     }

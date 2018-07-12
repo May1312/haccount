@@ -1,6 +1,5 @@
 package com.fnjz.front.controller.api.userinfo;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
@@ -27,8 +26,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.annotations.ApiIgnore;
+
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -65,72 +64,67 @@ public class UserInfoRestController extends BaseController {
     @ResponseBody
     public ResultBean bindMobile(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
         try {
+            ResultBean rb;
             String key = (String) request.getAttribute("key");
             UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
                 //判断手机号 验证码
-                if(ParamValidateUtils.checkeLongin(map,LoginEnum.LOGIN_BY_VERIFYCODE)!=null){
-                    return ParamValidateUtils.checkeLongin(map,LoginEnum.LOGIN_BY_VERIFYCODE);
+                rb = ParamValidateUtils.checkeLongin(map, LoginEnum.LOGIN_BY_VERIFYCODE);
+                if (rb != null) {
+                    return rb;
                 }
                 //获取验证码
                 String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
                 if (StringUtils.isEmpty(code)) {
-                    //验证码为空
-                    rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
-                    return rb;
+                    return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
                 }
                 if (StringUtil.equals(code, map.get("verifycode"))) {
                     //执行更新手机号流程
                     String userInfoId = (String) request.getAttribute("userInfoId");
                     int i = userInfoRestServiceI.updateMobile(userInfoId, map.get("mobile"));
                     if (i < 1) {
-                        rb.setFailMsg(ApiResultType.MOBILE_UPDATE_ERROR);
-                        return rb;
+                        return new ResultBean(ApiResultType.MOBILE_UPDATE_ERROR, null);
                     }
                     //更新用户缓存
                     userLoginRestEntity.setMobile(map.get("mobile"));
-                    redisTemplateUtils.updateCacheSimple(userLoginRestEntity,key);
-                    rb.setSucResult(ApiResultType.OK);
+                    redisTemplateUtils.updateCacheSimple(userLoginRestEntity, key);
+                    return new ResultBean(ApiResultType.OK, null);
                 } else {
-                    rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
+                    return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
                 }
             } else {//微信绑定手机号密码
                 //判断手机号 密码 验证码
-                if (ParamValidateUtils.checkResetpwd(map)!=null) {
-                    return ParamValidateUtils.checkResetpwd(map);
+                rb = ParamValidateUtils.checkResetpwd(map);
+                if (rb != null) {
+                    return rb;
                 }
                 //获取验证码
                 String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"));
                 if (StringUtils.isEmpty(code)) {
                     //验证码为空
-                    rb.setFailMsg(ApiResultType.VERIFYCODE_TIME_OUT);
-                    return rb;
+                    return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
                 }
                 if (StringUtils.equals(code, map.get("verifycode"))) {
                     //执行更新手机号 密码 流程
                     String userInfoId = (String) request.getAttribute("userInfoId");
                     int i = userInfoRestServiceI.updateMobileAndPWD(userInfoId, map.get("mobile"), map.get("password"));
                     if (i < 1) {
-                        rb.setFailMsg(ApiResultType.BIND_MOBILE_PWD_ERROR);
-                        return rb;
+                        return new ResultBean(ApiResultType.BIND_MOBILE_PWD_ERROR, null);
                     }
                     //更新用户缓存
                     userLoginRestEntity.setMobile(map.get("mobile"));
                     userLoginRestEntity.setPassword(map.get("password"));
-                    redisTemplateUtils.updateCacheSimple(userLoginRestEntity,key);
-                    rb.setSucResult(ApiResultType.OK);
+                    redisTemplateUtils.updateCacheSimple(userLoginRestEntity, key);
+                    return new ResultBean(ApiResultType.OK, null);
                 } else {
-                    rb.setFailMsg(ApiResultType.VERIFYCODE_IS_ERROR);
+                    return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
                 }
             }
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
-        return rb;
     }
 
     @ApiOperation(value = "手机注册用户绑定微信wechat")
@@ -141,48 +135,44 @@ public class UserInfoRestController extends BaseController {
     @ResponseBody
     public ResultBean bindWeChat(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
+        ResultBean rb = ParamValidateUtils.checkeLoginByWechat(map, LoginEnum.LOGIN_BY_WECHAT);
         //判断CODE
-        if(ParamValidateUtils.checkeLoginByWechat(map,LoginEnum.LOGIN_BY_WECHAT)!=null){
-            return ParamValidateUtils.checkeLoginByWechat(map,LoginEnum.LOGIN_BY_WECHAT);
+        if (rb != null) {
+            return rb;
         }
         try {
             String key = (String) request.getAttribute("key");
             UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
-                //获取unionid  user.getString("unionid")
+                //获取unionid
                 JSONObject user = WeChatUtils.getUser(map.get("code"));
                 if (user == null) {
-                    rb.setFailMsg(ApiResultType.WECHAT_BIND_ERROR);
-                    return rb;
+                    return new ResultBean(ApiResultType.WECHAT_BIND_ERROR, null);
                 }
                 //判断db中是否已经存在此unionid
                 UserLoginRestEntity task = userLoginRestServiceI.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
                 if (task != null) {
                     //微信号已经注册
-                    rb.setFailMsg(ApiResultType.WECHAT_IS_BINDED);
-                    return rb;
+                    return new ResultBean(ApiResultType.WECHAT_IS_BINDED, null);
                 }
                 //更新绑定unionid
                 int i = userInfoRestServiceI.updateWeChat(userLoginRestEntity.getMobile(), user.getString("unionid"));
                 if (i < 1) {
-                    rb.setFailMsg(ApiResultType.WECHAT_BIND_ERROR);
-                    return rb;
+                    return new ResultBean(ApiResultType.WECHAT_BIND_ERROR, null);
                 }
                 //设置redis缓存 缓存用户信息
                 userLoginRestEntity.setWechatAuth(user.getString("unionid"));
-                redisTemplateUtils.updateCacheSimple(userLoginRestEntity,key);
-                rb.setSucResult(ApiResultType.OK);
+                redisTemplateUtils.updateCacheSimple(userLoginRestEntity, key);
+                return new ResultBean(ApiResultType.OK, null);
             } else if (StringUtils.isNotEmpty(userLoginRestEntity.getWechatAuth())) {
                 //非手机号注册用户无法绑定微信
-                rb.setFailMsg(ApiResultType.NOT_ALLOW_BIND_WECHAT);
+                return new ResultBean(ApiResultType.NOT_ALLOW_BIND_WECHAT, null);
             }
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
-        return rb;
+        return new ResultBean(ApiResultType.SERVER_ERROR, null);
     }
 
     @ApiOperation(value = "手机注册用户解绑微信wechat")
@@ -193,29 +183,24 @@ public class UserInfoRestController extends BaseController {
         ResultBean rb = new ResultBean();
         try {
             String key = (String) request.getAttribute("key");
-            //解绑用户--->将wechat_auth置为null
+            //解绑用户
             UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             //判断是否为手机用户
             if (StringUtils.isEmpty(userLoginRestEntity.getMobile())) {
-                rb.setFailMsg(ApiResultType.NOT_ALLOW_UNBIND_WECHAT);
-                return rb;
+                return new ResultBean(ApiResultType.NOT_ALLOW_UNBIND_WECHAT, null);
             }
-            //置空 wechat_auth
             int i = userInfoRestServiceI.updateWeChat(userLoginRestEntity.getMobile(), null);
             if (i < 1) {
-                rb.setFailMsg(ApiResultType.WECHAT_UNBIND_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.WECHAT_UNBIND_ERROR, null);
             }
-            //设置redis缓存 缓存用户信息
+            //设置redis缓存
             userLoginRestEntity.setWechatAuth(null);
-            redisTemplateUtils.updateCacheSimple(userLoginRestEntity,key);
-            rb.setSucResult(ApiResultType.OK);
+            redisTemplateUtils.updateCacheSimple(userLoginRestEntity, key);
+            return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
-        return rb;
     }
 
     @ApiOperation(value = "获取用户详情")
@@ -223,90 +208,76 @@ public class UserInfoRestController extends BaseController {
     @ResponseBody
     public ResultBean userInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             UserInfoRestDTO task = userInfoRestServiceI.findUniqueByProperty(UserInfoRestDTO.class, "id", Integer.valueOf(userInfoId));
-            if(task!=null){
+            if (task != null) {
                 //设置蜂鸟id
                 task.setId(Integer.valueOf(ShareCodeUtil.id2sharecode(task.getId())));
                 //转义昵称
-                if(StringUtils.isNotEmpty(task.getNickName())){
+                if (StringUtils.isNotEmpty(task.getNickName())) {
                     task.setNickName(EmojiUtils.aliasToEmoji(task.getNickName()));
                 }
-                if(StringUtils.isNotEmpty(task.getWechatAuth())){
+                if (StringUtils.isNotEmpty(task.getWechatAuth())) {
                     task.setWechatAuth("wechatAuth");
                 }
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(task);
-                return rb;
-            }else{
-                rb.setFailMsg(ApiResultType.USER_NOT_EXIST);
-                return rb;
+                return new ResultBean(ApiResultType.OK, task);
+            } else {
+                return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
             }
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
     /**
-     * 获取七牛云上传鉴权 1为头像   2为反馈
+     * 获取七牛云上传鉴权 1为头像 2为反馈
+     *
      * @param type
      * @return
      */
     @RequestMapping(value = "/getQiNiuAuth/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean getQiNiuAuth(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,@RequestBody Map<String,String> map) {
-        ResultBean rb = new ResultBean();
+    public ResultBean getQiNiuAuth(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody Map<String, String> map) {
         try {
             QiNiuUploadFileUtils qiniu = new QiNiuUploadFileUtils();
             String upToken;
-            if(StringUtils.isEmpty(map.get("flag"))){
+            if (StringUtils.isEmpty(map.get("flag"))) {
                 upToken = qiniu.getUpToken(QiNiuEnum.HEAD_PICTURE.getName());
-            }else{
-                if(StringUtils.equals(map.get("flag"),QiNiuEnum.HEAD_PICTURE.getIndex())){
+            } else {
+                if (StringUtils.equals(map.get("flag"), QiNiuEnum.HEAD_PICTURE.getIndex())) {
                     upToken = qiniu.getUpToken(QiNiuEnum.HEAD_PICTURE.getName());
-                }else if(StringUtils.equals(map.get("flag"),QiNiuEnum.FEEDBACK_PICTURE.getIndex())){
+                } else if (StringUtils.equals(map.get("flag"), QiNiuEnum.FEEDBACK_PICTURE.getIndex())) {
                     upToken = qiniu.getUpToken(QiNiuEnum.FEEDBACK_PICTURE.getName());
-                }else{
+                } else {
                     upToken = qiniu.getUpToken(QiNiuEnum.HEAD_PICTURE.getName());
                 }
             }
-            rb.setSucResult(ApiResultType.OK);
-            Map<String,String> map2 = new HashMap<>();
-            map2.put("auth",upToken);
-            rb.setResult(map2);
-            return rb;
+            return CommonUtils.returnQiNiuAuth(upToken);
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
     @RequestMapping(value = "/updateUserInfo/{type}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResultBean updateUserInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,@RequestBody UserInfoRestEntity userInfoRestEntity,HttpServletRequest request) {
-        ResultBean rb = new ResultBean();
-        if(userInfoRestEntity==null){
-            rb.setFailMsg(ApiResultType.MY_PARAMS_ERROR);
-            return rb;
+    public ResultBean updateUserInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody UserInfoRestEntity userInfoRestEntity, HttpServletRequest request) {
+        if (userInfoRestEntity == null) {
+            return new ResultBean(ApiResultType.MY_PARAMS_ERROR, null);
         }
         try {
-            String  userInfoId = (String) request.getAttribute("userInfoId");
+            String userInfoId = (String) request.getAttribute("userInfoId");
             userInfoRestEntity.setId(Integer.valueOf(userInfoId));
-            if(StringUtils.isNotEmpty(userInfoRestEntity.getNickName())){
+            if (StringUtils.isNotEmpty(userInfoRestEntity.getNickName())) {
                 userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(userInfoRestEntity.getNickName()));
             }
             userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
-            rb.setSucResult(ApiResultType.OK);
-            return rb;
+            return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
@@ -330,19 +301,19 @@ public class UserInfoRestController extends BaseController {
 
     @RequestMapping(value = "/getQiNiuAuth", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean getQiNiuAuth(@RequestBody Map<String,String> map) {
+    public ResultBean getQiNiuAuth(@RequestBody Map<String, String> map) {
         return this.getQiNiuAuth(null, map);
     }
 
     @RequestMapping(value = "/updateUserInfo", method = RequestMethod.PUT)
     @ResponseBody
-    public ResultBean updateUserInfo(@RequestBody UserInfoRestEntity userInfoRestEntity,HttpServletRequest request) {
-        return this.updateUserInfo(null, userInfoRestEntity,request);
+    public ResultBean updateUserInfo(@RequestBody UserInfoRestEntity userInfoRestEntity, HttpServletRequest request) {
+        return this.updateUserInfo(null, userInfoRestEntity, request);
     }
 
     @RequestMapping(value = "/userInfo", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean userInfo(HttpServletRequest request) {
-        return this.userInfo(null,request);
+        return this.userInfo(null, request);
     }
 }

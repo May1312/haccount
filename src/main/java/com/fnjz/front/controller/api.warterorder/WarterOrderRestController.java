@@ -53,9 +53,9 @@ public class WarterOrderRestController extends BaseController {
     @ResponseBody
     public ResultBean toCharge(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody WarterOrderRestEntity charge) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
-        if(ParamValidateUtils.checkToCharge(charge)!=null){
-            return ParamValidateUtils.checkToCharge(charge);
+        ResultBean rb = ParamValidateUtils.checkToCharge(charge);
+        if(rb!=null){
+            return rb;
         }
         String code = (String) request.getAttribute("code");
         String shareCode = (String) request.getAttribute("shareCode");
@@ -88,13 +88,7 @@ public class WarterOrderRestController extends BaseController {
             warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
             //打卡统计
             myCount(shareCode, userLoginRestEntity);
-            rb.setSucResult(ApiResultType.OK);
-            //返回记账id
-            Map<String,String> mapId = new HashMap<>();
-            mapId.put("id",charge.getId());
-            rb.setResult(mapId);
-            return rb;
-
+            return CommonUtils.returnCharge(charge.getId());
         } else if (charge.getOrderType() == 1 && charge.getIsStaged() == 2) {
             Map map = new HashMap<>();
             map.put("msg", "分期功能未开放");
@@ -128,16 +122,11 @@ public class WarterOrderRestController extends BaseController {
             warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
             //打卡统计
             myCount(shareCode, userLoginRestEntity);
-            rb.setSucResult(ApiResultType.OK);
             //返回记账id
-            Map<String,String> mapId = new HashMap<>();
-            mapId.put("id",charge.getId());
-            rb.setResult(mapId);
-            return rb;
+            return CommonUtils.returnCharge(charge.getId());
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR,null);
         }
     }
 
@@ -158,7 +147,6 @@ public class WarterOrderRestController extends BaseController {
         System.out.println("登录终端：" + type);
         logger.info("获取流水分页列表接口: year-->" + year + "  month-->" + month);
         String time = getTime(year, month);
-        ResultBean rb = new ResultBean();
         try {
             String shareCode = (String) request.getAttribute("shareCode");
             String userInfoId = (String) request.getAttribute("userInfoId");
@@ -205,13 +193,10 @@ public class WarterOrderRestController extends BaseController {
                 redisTemplateUtils.updateMyCount(shareCode, s1);
             }
             Map<String, Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
-            rb.setSucResult(ApiResultType.OK);
-            rb.setResult(json);
-            return rb;
+            return new ResultBean(ApiResultType.OK,json);
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR,null);
         }
     }
 
@@ -220,10 +205,8 @@ public class WarterOrderRestController extends BaseController {
     @ResponseBody
     public ResultBean getOrderInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestParam String id) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
         if (StringUtils.isEmpty(id)) {
-            rb.setFailMsg(ApiResultType.ORDER_ID_IS_NULL);
-            return rb;
+            return new ResultBean(ApiResultType.ORDER_ID_IS_NULL,null);
         }
         try {
             //获取单笔详情   TODO 现阶段只根据详情id， 后续要加上userid   account book id 判断！！
@@ -233,17 +216,13 @@ public class WarterOrderRestController extends BaseController {
                 if (StringUtils.isNotEmpty(task.getRemark())) {
                     task.setRemark(EmojiUtils.aliasToEmoji(task.getRemark()));
                 }
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(task);
-                return rb;
+                return new ResultBean(ApiResultType.OK,task);
             }
-            rb.setFailMsg(ApiResultType.GET_ORDER_ERROR);
+            return new ResultBean(ApiResultType.GET_ORDER_ERROR,null);
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR,null);
         }
-        return rb;
     }
 
     @ApiOperation(value = "修改单笔记账订单详情")
@@ -251,18 +230,15 @@ public class WarterOrderRestController extends BaseController {
     @ResponseBody
     public ResultBean updateOrderInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody WarterOrderRestEntity charge, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
         //判断单笔记账id
         if (charge.getId() == null) {
-            rb.setFailMsg(ApiResultType.ORDER_ID_IS_NULL);
-            return rb;
+            return new ResultBean(ApiResultType.ORDER_ID_IS_NULL,null);
         }
         String code = (String) request.getAttribute("code");
         String shareCode = (String) request.getAttribute("shareCode");
         String userInfoId = (String) request.getAttribute("userInfoId");
         String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
-
         //设置创建时间
         charge.setUpdateDate(new Date());
         //绑定修改者id
@@ -276,12 +252,10 @@ public class WarterOrderRestController extends BaseController {
         }
         try {
             warterOrderRestService.update(charge);
-            rb.setSucResult(ApiResultType.OK);
-            return rb;
+            return new ResultBean(ApiResultType.OK,null);
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR,null);
         }
     }
 
@@ -290,16 +264,13 @@ public class WarterOrderRestController extends BaseController {
     @ResponseBody
     public ResultBean deleteOrder(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
         if (StringUtils.isEmpty(map.get("id"))) {
-            rb.setFailMsg(ApiResultType.ORDER_ID_IS_NULL);
-            return rb;
+            return new ResultBean(ApiResultType.ORDER_ID_IS_NULL,null);
         }
         try {
             WarterOrderRestEntity task = warterOrderRestService.findUniqueByProperty(WarterOrderRestEntity.class, "id", map.get("id"));
             if (task == null) {
-                rb.setFailMsg(ApiResultType.GET_ORDER_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.GET_ORDER_ERROR,null);
             }
             //获取当前用户信息
             String userInfoId = (String) request.getAttribute("userInfoId");
@@ -308,8 +279,7 @@ public class WarterOrderRestController extends BaseController {
             //执行更新
             int i = warterOrderRestService.deleteOrder(map.get("id"), userInfoId, code);
             if (i < 1) {
-                rb.setFailMsg(ApiResultType.DELETE_RECORD_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.DELETE_RECORD_ERROR,null);
             }
             //统计记账总笔数-1
             String s = redisTemplateUtils.getMyCount(shareCode);
@@ -322,7 +292,6 @@ public class WarterOrderRestController extends BaseController {
                 }
             } else {
                 //为空情况
-                //统计记账总笔数
                 int chargeTotal = warterOrderRestService.chargeTotal(task.getAccountBookId());
                 myCountRestDTO.setChargeTotal(chargeTotal - 1);
             }
@@ -330,12 +299,10 @@ public class WarterOrderRestController extends BaseController {
             //重新设置redis
             String json = JSON.toJSONString(myCountRestDTO);
             redisTemplateUtils.updateMyCount(shareCode, json);
-            rb.setSucResult(ApiResultType.OK);
-            return rb;
+            return new ResultBean(ApiResultType.OK,null);
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR,null);
         }
     }
 
@@ -347,20 +314,16 @@ public class WarterOrderRestController extends BaseController {
         System.out.println("登录终端：" + type);
         logger.info("获取年份月份对应支出收入统计: year-->" + year + "  month-->" + month);
         String time = getTime(year, month);
-        ResultBean rb = new ResultBean();
         try {
             String shareCode = (String) request.getAttribute("shareCode");
             String userInfoId = (String) request.getAttribute("userInfoId");
             String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             Map<String, BigDecimal> map = warterOrderRestService.getAccount(time, userLoginRestEntity.getAccountBookId() + "");
-            rb.setSucResult(ApiResultType.OK);
-            rb.setResult(map);
-            return rb;
+            return new ResultBean(ApiResultType.OK,map);
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR,null);
         }
     }
 

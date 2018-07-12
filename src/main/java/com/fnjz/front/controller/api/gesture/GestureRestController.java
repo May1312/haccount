@@ -1,13 +1,13 @@
 package com.fnjz.front.controller.api.gesture;
 
-import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
+import com.fnjz.front.utils.CommonUtils;
+import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.*;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,23 +41,15 @@ public class GestureRestController extends BaseController {
     @ResponseBody
     public ResultBean checkGestureType(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
         //从缓存中查询开关状态
         try {
             String key = (String) request.getAttribute("key");
-            String user = redisTemplateUtils.getUserCache(key);
-            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
-            rb.setSucResult(ApiResultType.OK);
-            Map<String, String> map = new HashMap<>();
-            map.put("gesturePwType", userLoginRestEntity.getGesturePwType());
-            map.put("gesturePw", userLoginRestEntity.getGesturePw());
-            rb.setResult(map);
+            UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
+            return CommonUtils.returnGesture(userLoginRestEntity);
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
-        return rb;
     }
 
     @ApiOperation(value = "修改手势开关状态")
@@ -69,36 +60,27 @@ public class GestureRestController extends BaseController {
     @ResponseBody
     public ResultBean updateGestureType(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
-        if (StringUtils.isEmpty(map.get("gesturePwType"))) {
-            rb.setFailMsg(ApiResultType.GESTURE_PARAMS_ERROR);
-            return rb;
-        }
-        if (map.get("gesturePwType").length() > 1) {
-            rb.setFailMsg(ApiResultType.GESTURE_PARAMS_LENGTH_ERROR);
+        ResultBean rb;
+        rb = ParamValidateUtils.checkGesture(map);
+        if (rb != null) {
             return rb;
         }
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             int i = userInfoRestServiceI.updateGestureType(userInfoId, map.get("gesturePwType"));
             if (i < 1) {
-                rb.setFailMsg(ApiResultType.GESTURE_UPDATE_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.GESTURE_UPDATE_ERROR, null);
             }
             //更新redis缓存
             String key = (String) request.getAttribute("key");
-            String user = redisTemplateUtils.getUserCache(key);
-            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
+            UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             userLoginRestEntity.setGesturePwType(map.get("gesturePwType"));
-            String user2 = JSON.toJSONString(userLoginRestEntity);
-            redisTemplateUtils.updateCache(user2, key);
-            rb.setSucResult(ApiResultType.OK);
+            redisTemplateUtils.updateCacheSimple(userLoginRestEntity, key);
+            return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
-            rb.setFailMsg(ApiResultType.SERVER_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
-        return rb;
     }
 
     @ApiOperation(value = "上传/修改手势密码")
@@ -109,26 +91,21 @@ public class GestureRestController extends BaseController {
     @ResponseBody
     public ResultBean updateGesture(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
         String userInfoId = (String) request.getAttribute("userInfoId");
         if (map.containsKey("gesturePw")) {
             int i = userInfoRestServiceI.updateGesture(userInfoId, map.get("gesturePw"));
             if (i < 1) {
-                rb.setFailMsg(ApiResultType.GESTURE_UPDATE_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.GESTURE_UPDATE_ERROR, null);
             }
             //更新redis缓存
             String key = (String) request.getAttribute("key");
-            String user = redisTemplateUtils.getUserCache(key);
-            UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
+            UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             userLoginRestEntity.setGesturePw(map.get("gesturePw"));
-            String user2 = JSON.toJSONString(userLoginRestEntity);
-            redisTemplateUtils.updateCache(user2, key);
-            rb.setSucResult(ApiResultType.OK);
+            redisTemplateUtils.updateCacheSimple(userLoginRestEntity, key);
+            return new ResultBean(ApiResultType.OK, null);
         } else {
-            rb.setFailMsg(ApiResultType.GESTURE_PARAMS_ERROR);
+            return new ResultBean(ApiResultType.GESTURE_PARAMS_ERROR, null);
         }
-        return rb;
     }
 
     @RequestMapping(value = "/checkGestureType", method = RequestMethod.GET)

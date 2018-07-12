@@ -114,7 +114,6 @@ public class ChargeStatisticsRestController extends BaseController {
                 return new ResultBean(ApiResultType.SERVER_ERROR,null);
             }
         } else {
-            rb.setFailMsg(ApiResultType.QUERY_FLAG_IS_ERROR);
             return new ResultBean(ApiResultType.QUERY_FLAG_IS_ERROR,null);
         }
     }

@@ -2,6 +2,7 @@ package com.fnjz.front.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.MyCountRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
@@ -99,6 +100,14 @@ public class RedisTemplateUtils {
     }
 
     /**
+     * 缓存验证码
+     * @param key
+     */
+    public void cacheVerifyCode (String key,String random) {
+        redisTemplate.opsForValue().set(key, random, RedisPrefix.VERIFYCODE_VALID_TIME, TimeUnit.MINUTES);
+    }
+
+    /**
      * 缓存用户及账本信息
      * @param userInfoId
      * @param user
@@ -114,16 +123,21 @@ public class RedisTemplateUtils {
      * 从cache获取用户账本信息通用方法
      */
     public String getUseAccountCache(int userInfoId, String shareCode) {
-        String user_account = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode);
+        String userAccount = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode);
         //为null 重新获取缓存
-        if (StringUtils.isEmpty(user_account)) {
+        if (StringUtils.isEmpty(userAccount)) {
             UserAccountBookRestEntity task = userAccountBookRestServiceI.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
-            //设置redis缓存 缓存用户账本信息 30天
-            String userAccount = JSON.toJSONString(task);
-            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode, userAccount, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-            return userAccount;
+            String userAccount2 = JSON.toJSONString(task);
+            redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode, userAccount2, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+            return userAccount2;
         }
-        return user_account;
+        return userAccount;
+    }
+
+    public UserAccountBookRestEntity getUserAccountBookRestEntityCache(int userInfoId, String shareCode) {
+        String userAccount = this.getUseAccountCache(userInfoId,shareCode);
+        UserAccountBookRestEntity userAccountBookRestEntity = JSON.parseObject(userAccount, UserAccountBookRestEntity.class);
+        return userAccountBookRestEntity;
     }
 
     /**
@@ -133,6 +147,12 @@ public class RedisTemplateUtils {
      */
     public String getMyCount(String shareCode){
         return (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_MY_COUNT + shareCode);
+    }
+
+    public MyCountRestDTO getMyCountRestDTOCache(String shareCode){
+        String myCount = this.getMyCount(shareCode);
+        MyCountRestDTO myCountRestDTO = JSON.parseObject(myCount, MyCountRestDTO.class);
+        return myCountRestDTO;
     }
 
     /**

@@ -1,7 +1,13 @@
 package com.fnjz.front.utils;
 
+import com.fnjz.commonbean.ResultBean;
+import com.fnjz.constants.ApiResultType;
+import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -43,7 +49,37 @@ public class CommonUtils {
         return System.currentTimeMillis()+""+rannum;
     }
 
-    public static void main(String[] args){
-        System.out.println(getAccountOrder());
+    /**
+     * 手势查询结果返回集封装
+     * @param userLoginRestEntity
+     * @return
+     */
+    public static ResultBean returnGesture(UserLoginRestEntity userLoginRestEntity){
+        Map<String, String> map = new HashMap<>();
+        map.put("gesturePwType", userLoginRestEntity.getGesturePwType());
+        map.put("gesturePw", userLoginRestEntity.getGesturePw());
+        return new ResultBean(ApiResultType.OK,map);
+    }
+
+    /**
+     * qiniu token结果返回集封装
+     * @param upToken
+     * @return
+     */
+    public static ResultBean returnQiNiuAuth(String upToken){
+        Map<String, String> map = new HashMap<>();
+        map.put("auth",upToken);
+        return new ResultBean(ApiResultType.OK,map);
+    }
+
+    /**
+     * 记账成功结果返回集封装
+     * @param id
+     * @return
+     */
+    public static ResultBean returnCharge(String id){
+        Map<String, String> map = new HashMap<>();
+        map.put("id",id);
+        return new ResultBean(ApiResultType.OK,map);
     }
 }
