@@ -5,8 +5,10 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.statistics.*;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
+import com.fnjz.front.enums.StatisticsEnum;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.DateUtils;
+import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,16 +47,16 @@ public class ChargeStatisticsRestController extends BaseController {
     @ResponseBody
     public ResultBean statisticsForSpend(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody StatisticsParamsRestDTO statisticsParamsRestDTO) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
-        if (StringUtils.isEmpty(statisticsParamsRestDTO.getFlag())) {
-            rb.setFailMsg(ApiResultType.TYPE_FLAG_IS_NULL);
+        ResultBean rb;
+        rb = ParamValidateUtils.checkStatistics(statisticsParamsRestDTO,StatisticsEnum.STATISTICS_FOR_CHART);
+        if (rb!=null) {
             return rb;
         }
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         String useAccountCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userAccountBookRestEntity = JSON.parseObject(useAccountCache, UserAccountBookRestEntity.class);
-        if (StringUtils.equals("1", statisticsParamsRestDTO.getFlag())) {
+        if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_DAY.getIndex(), statisticsParamsRestDTO.getFlag())) {
             //统计日
             Date beginTime = statisticsParamsRestDTO.getBeginTime();
             Date endTime = statisticsParamsRestDTO.getEndTime();
@@ -71,19 +72,15 @@ public class ChargeStatisticsRestController extends BaseController {
                     //1为支出类型
                     int orderType = 1;
                     Map<String,Object> map = warterOrderRestServiceI.statisticsForDays(beginTime, endTime, userAccountBookRestEntity.getAccountBookId(), orderType);
-                    rb.setSucResult(ApiResultType.OK);
-                    rb.setResult(map);
-                    return rb;
+                    return new ResultBean(ApiResultType.OK,map);
                 } catch (Exception e) {
                     logger.error(e.toString());
-                    rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                    return rb;
+                    return new ResultBean(ApiResultType.SERVER_ERROR,null);
                 }
             } else {
-                rb.setFailMsg(ApiResultType.QUERY_TIME_IS_NULL);
-                return rb;
+                return new ResultBean(ApiResultType.QUERY_TIME_IS_NULL,null);
             }
-        } else if (StringUtils.equals("2", statisticsParamsRestDTO.getFlag())) {
+        } else if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_WEEK.getIndex(), statisticsParamsRestDTO.getFlag())) {
             //统计周
             if (StringUtils.isNotEmpty(statisticsParamsRestDTO.getBeginWeek()) && StringUtils.isNotEmpty(statisticsParamsRestDTO.getEndWeek())) {
                 String beginWeek = statisticsParamsRestDTO.getBeginWeek();
@@ -97,35 +94,28 @@ public class ChargeStatisticsRestController extends BaseController {
                     //1为支出类型
                     int orderType = 1;
                     Map<String,Object> map = warterOrderRestServiceI.statisticsForWeeks(beginWeek, endWeek, userAccountBookRestEntity.getAccountBookId(), orderType);
-                    rb.setSucResult(ApiResultType.OK);
-                    rb.setResult(map);
-                    return rb;
+                    return new ResultBean(ApiResultType.OK,map);
                 } catch (Exception e) {
                     logger.error(e.toString());
-                    rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                    return rb;
+                    return new ResultBean(ApiResultType.SERVER_ERROR,null);
                 }
             } else {
-                rb.setFailMsg(ApiResultType.QUERY_WEEK_IS_NULL);
-                return rb;
+                return new ResultBean(ApiResultType.QUERY_WEEK_IS_NULL,null);
             }
-        } else if (StringUtils.equals("3", statisticsParamsRestDTO.getFlag())) {
+        } else if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_MONTH.getIndex(), statisticsParamsRestDTO.getFlag())) {
             //统计月
             try {
                 //1为支出类型
                 int orderType = 1;
                 Map<String,Object> map = warterOrderRestServiceI.statisticsForMonths(userAccountBookRestEntity.getAccountBookId(), orderType);
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(map);
-                return rb;
+                return new ResultBean(ApiResultType.OK,map);
             } catch (Exception e) {
                 logger.error(e.toString());
-                rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.SERVER_ERROR,null);
             }
         } else {
             rb.setFailMsg(ApiResultType.QUERY_FLAG_IS_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.QUERY_FLAG_IS_ERROR,null);
         }
     }
 
@@ -134,51 +124,45 @@ public class ChargeStatisticsRestController extends BaseController {
     @ResponseBody
     public ResultBean statisticsForSpendTopAndHappiness(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody StatisticsParamsRestDTO statisticsParamsRestDTO) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
-        if (StringUtils.isEmpty(statisticsParamsRestDTO.getFlag())) {
-            rb.setFailMsg(ApiResultType.TYPE_FLAG_IS_NULL);
+        ResultBean rb;
+        rb = ParamValidateUtils.checkStatistics(statisticsParamsRestDTO,StatisticsEnum.STATISTICS_FOR_TOP);
+        if (rb!=null) {
             return rb;
         }
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         String useAccountCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userAccountBookRestEntity = JSON.parseObject(useAccountCache, UserAccountBookRestEntity.class);
-        if (StringUtils.equals("1", statisticsParamsRestDTO.getFlag())) {
-            if (statisticsParamsRestDTO.getDayTime() == null) {
-                rb.setFailMsg(ApiResultType.TIME_IS_NULL);
+        if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_DAY.getIndex(), statisticsParamsRestDTO.getFlag())) {
+            rb = ParamValidateUtils.checkStatistics(statisticsParamsRestDTO,StatisticsEnum.STATISTICS_FOR_TOP);
+            if (rb!=null) {
                 return rb;
             }
             //日统计支出排行榜和情绪统计
             try {
                 StatisticsSpendTopAndHappinessDTO list = warterOrderRestServiceI.statisticsForDaysTopAndHappiness(statisticsParamsRestDTO.getDayTime(), userAccountBookRestEntity.getAccountBookId());
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(list);
-                return rb;
+                return new ResultBean(ApiResultType.OK,list);
             } catch (Exception e) {
                 logger.error(e.toString());
-                rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.SERVER_ERROR,null);
             }
-        } else if (StringUtils.equals("2", statisticsParamsRestDTO.getFlag())) {
-            if (StringUtils.isEmpty(statisticsParamsRestDTO.getTime())) {
-                rb.setFailMsg(ApiResultType.TIME_IS_NULL);
+        } else if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_WEEK.getIndex(), statisticsParamsRestDTO.getFlag())) {
+            rb = ParamValidateUtils.checkStatistics(statisticsParamsRestDTO,StatisticsEnum.STATISTICS_FOR_TOP);
+            if (rb!=null) {
                 return rb;
             }
             //周统计支出排行榜和情绪统计
             try {
                 StatisticsSpendTopAndHappinessDTO list = warterOrderRestServiceI.statisticsForWeeksTopAndHappiness(statisticsParamsRestDTO.getTime(), userAccountBookRestEntity.getAccountBookId());
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(list);
-                return rb;
+                return new ResultBean(ApiResultType.OK,list);
             } catch (Exception e) {
                 logger.error(e.toString());
-                rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.SERVER_ERROR,null);
             }
-        } else if (StringUtils.equals("3", statisticsParamsRestDTO.getFlag())) {
+        } else if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_MONTH.getIndex(), statisticsParamsRestDTO.getFlag())) {
             //月统计支出排行榜和情绪统计
-            if (StringUtils.isEmpty(statisticsParamsRestDTO.getTime())) {
-                rb.setFailMsg(ApiResultType.TIME_IS_NULL);
+            rb = ParamValidateUtils.checkStatistics(statisticsParamsRestDTO,StatisticsEnum.STATISTICS_FOR_TOP);
+            if(rb!=null){
                 return rb;
             }
             if (!StringUtils.startsWithIgnoreCase(statisticsParamsRestDTO.getTime(), "0") && statisticsParamsRestDTO.getTime().length() < 2) {
@@ -186,13 +170,10 @@ public class ChargeStatisticsRestController extends BaseController {
             }
             try {
                 StatisticsSpendTopAndHappinessDTO list = warterOrderRestServiceI.statisticsForMonthsTopAndHappiness(statisticsParamsRestDTO.getTime(), userAccountBookRestEntity.getAccountBookId());
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(list);
-                return rb;
+                return new ResultBean(ApiResultType.OK,list);
             } catch (Exception e) {
                 logger.error(e.toString());
-                rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.SERVER_ERROR,null);
             }
         }
         return null;
@@ -203,16 +184,16 @@ public class ChargeStatisticsRestController extends BaseController {
     @ResponseBody
     public ResultBean statisticsForIncome(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody StatisticsParamsRestDTO statisticsParamsRestDTO) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
-        if (StringUtils.isEmpty(statisticsParamsRestDTO.getFlag())) {
-            rb.setFailMsg(ApiResultType.TYPE_FLAG_IS_NULL);
+        ResultBean rb;
+        rb = ParamValidateUtils.checkStatistics(statisticsParamsRestDTO,StatisticsEnum.STATISTICS_FOR_CHART);
+        if (rb!=null) {
             return rb;
         }
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         String useAccountCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userAccountBookRestEntity = JSON.parseObject(useAccountCache, UserAccountBookRestEntity.class);
-        if (StringUtils.equals("1", statisticsParamsRestDTO.getFlag())) {
+        if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_DAY.getIndex(), statisticsParamsRestDTO.getFlag())) {
             //统计日
             Date beginTime = statisticsParamsRestDTO.getBeginTime();
             Date endTime = statisticsParamsRestDTO.getEndTime();
@@ -228,19 +209,15 @@ public class ChargeStatisticsRestController extends BaseController {
                     //2为收入类型
                     int orderType = 2;
                     Map<String,Object> map = warterOrderRestServiceI.statisticsForDays(beginTime, endTime, userAccountBookRestEntity.getAccountBookId(), orderType);
-                    rb.setSucResult(ApiResultType.OK);
-                    rb.setResult(map);
-                    return rb;
+                    return new ResultBean(ApiResultType.OK,map);
                 } catch (Exception e) {
                     logger.error(e.toString());
-                    rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                    return rb;
+                    return new ResultBean(ApiResultType.SERVER_ERROR,null);
                 }
             } else {
-                rb.setFailMsg(ApiResultType.QUERY_TIME_IS_NULL);
-                return rb;
+                return new ResultBean(ApiResultType.QUERY_TIME_IS_NULL,null);
             }
-        } else if (StringUtils.equals("2", statisticsParamsRestDTO.getFlag())) {
+        } else if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_WEEK.getIndex(), statisticsParamsRestDTO.getFlag())) {
             //统计周
             if (StringUtils.isNotEmpty(statisticsParamsRestDTO.getBeginWeek()) && StringUtils.isNotEmpty(statisticsParamsRestDTO.getEndWeek())) {
                 String beginWeek = statisticsParamsRestDTO.getBeginWeek();
@@ -254,35 +231,27 @@ public class ChargeStatisticsRestController extends BaseController {
                     //2为收入类型
                     int orderType = 2;
                     Map<String,Object> map = warterOrderRestServiceI.statisticsForWeeks(beginWeek, endWeek, userAccountBookRestEntity.getAccountBookId(), orderType);
-                    rb.setSucResult(ApiResultType.OK);
-                    rb.setResult(map);
-                    return rb;
+                    return new ResultBean(ApiResultType.OK,map);
                 } catch (Exception e) {
                     logger.error(e.toString());
-                    rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                    return rb;
+                    return new ResultBean(ApiResultType.SERVER_ERROR,null);
                 }
             } else {
-                rb.setFailMsg(ApiResultType.QUERY_WEEK_IS_NULL);
-                return rb;
+                return new ResultBean(ApiResultType.QUERY_WEEK_IS_NULL,null);
             }
-        } else if (StringUtils.equals("3", statisticsParamsRestDTO.getFlag())) {
+        } else if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_MONTH.getIndex(), statisticsParamsRestDTO.getFlag())) {
             //统计月
             try {
                 //2为支出
                 int orderType = 2;
                 Map<String,Object> map = warterOrderRestServiceI.statisticsForMonths(userAccountBookRestEntity.getAccountBookId(), orderType);
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(map);
-                return rb;
+                return new ResultBean(ApiResultType.OK,map);
             } catch (Exception e) {
                 logger.error(e.toString());
-                rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.SERVER_ERROR,null);
             }
         } else {
-            rb.setFailMsg(ApiResultType.QUERY_FLAG_IS_ERROR);
-            return rb;
+            return new ResultBean(ApiResultType.QUERY_FLAG_IS_ERROR,null);
         }
     }
 
@@ -291,51 +260,45 @@ public class ChargeStatisticsRestController extends BaseController {
     @ResponseBody
     public ResultBean statisticsForIncomeTop(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody StatisticsParamsRestDTO statisticsParamsRestDTO) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
-        if (StringUtils.isEmpty(statisticsParamsRestDTO.getFlag())) {
-            rb.setFailMsg(ApiResultType.TYPE_FLAG_IS_NULL);
+        ResultBean rb;
+        rb = ParamValidateUtils.checkStatistics(statisticsParamsRestDTO,StatisticsEnum.STATISTICS_FOR_CHART);
+        if (rb!=null) {
             return rb;
         }
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         String useAccountCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userAccountBookRestEntity = JSON.parseObject(useAccountCache, UserAccountBookRestEntity.class);
-        if (StringUtils.equals("1", statisticsParamsRestDTO.getFlag())) {
-            if (statisticsParamsRestDTO.getDayTime() == null) {
-                rb.setFailMsg(ApiResultType.TIME_IS_NULL);
+        if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_DAY.getIndex(), statisticsParamsRestDTO.getFlag())) {
+            rb = ParamValidateUtils.checkStatistics(statisticsParamsRestDTO,StatisticsEnum.STATISTICS_FOR_TOP);
+            if (rb!=null) {
                 return rb;
             }
-            //日统计支出排行榜
+            //日统计收入排行榜
             try {
                 StatisticsIncomeTopDTO list = warterOrderRestServiceI.statisticsForDaysTop(statisticsParamsRestDTO.getDayTime(), userAccountBookRestEntity.getAccountBookId());
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(list);
-                return rb;
+                return new ResultBean(ApiResultType.OK,list);
             } catch (Exception e) {
                 logger.error(e.toString());
-                rb.setFailMsg(ApiResultType.SERVER_ERROR);
+                return new ResultBean(ApiResultType.SERVER_ERROR,null);
+            }
+        } else if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_WEEK.getIndex(), statisticsParamsRestDTO.getFlag())) {
+            rb = ParamValidateUtils.checkStatistics(statisticsParamsRestDTO,StatisticsEnum.STATISTICS_FOR_TOP);
+            if (rb!=null) {
                 return rb;
             }
-        } else if (StringUtils.equals("2", statisticsParamsRestDTO.getFlag())) {
-            if (StringUtils.isEmpty(statisticsParamsRestDTO.getTime())) {
-                rb.setFailMsg(ApiResultType.TIME_IS_NULL);
-                return rb;
-            }
-            //周统计支出排行榜
+            //周统计收入排行榜
             try {
                 StatisticsIncomeTopDTO list = warterOrderRestServiceI.statisticsForWeeksTop(statisticsParamsRestDTO.getTime(), userAccountBookRestEntity.getAccountBookId());
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(list);
-                return rb;
+                return new ResultBean(ApiResultType.OK,list);
             } catch (Exception e) {
                 logger.error(e.toString());
-                rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.SERVER_ERROR,null);
             }
-        } else if (StringUtils.equals("3", statisticsParamsRestDTO.getFlag())) {
-            //月统计支出排行榜和情绪统计
-            if (StringUtils.isEmpty(statisticsParamsRestDTO.getTime())) {
-                rb.setFailMsg(ApiResultType.TIME_IS_NULL);
+        } else if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_MONTH.getIndex(), statisticsParamsRestDTO.getFlag())) {
+            //月统计收入排行榜
+            rb = ParamValidateUtils.checkStatistics(statisticsParamsRestDTO,StatisticsEnum.STATISTICS_FOR_TOP);
+            if (rb!=null) {
                 return rb;
             }
             if (!StringUtils.startsWithIgnoreCase(statisticsParamsRestDTO.getTime(), "0") && statisticsParamsRestDTO.getTime().length() < 2) {
@@ -343,13 +306,10 @@ public class ChargeStatisticsRestController extends BaseController {
             }
             try {
                 StatisticsIncomeTopDTO list = warterOrderRestServiceI.statisticsForMonthsTop(statisticsParamsRestDTO.getTime(), userAccountBookRestEntity.getAccountBookId());
-                rb.setSucResult(ApiResultType.OK);
-                rb.setResult(list);
-                return rb;
+                return new ResultBean(ApiResultType.OK,list);
             } catch (Exception e) {
                 logger.error(e.toString());
-                rb.setFailMsg(ApiResultType.SERVER_ERROR);
-                return rb;
+                return new ResultBean(ApiResultType.SERVER_ERROR,null);
             }
         }
         return null;

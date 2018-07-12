@@ -45,6 +45,17 @@ public class CreateTokenUtils {
         return new ResultBean(ApiResultType.OK,map);
     }
 
+    public ResultBean wxappletLoginSuccess(UserLoginRestEntity task , String code){
+        Map<String, Object> map = new HashMap<>();
+        String token = this.createToken(code);
+        map.put("token", token);
+        map.put("expire", RedisPrefix.USER_EXPIRE_TIME);
+        //设置账本+用户缓存
+        String user = JSON.toJSONString(task);
+        redisTemplateUtils.cacheUserAndAccount(task.getUserInfoId(),user);
+        return new ResultBean(ApiResultType.OK,map);
+    }
+
     /**
      * 小程序01034情况下  返回key
      * @param sessionKey

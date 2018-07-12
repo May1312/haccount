@@ -232,7 +232,7 @@ public class UserLoginRestController extends BaseController {
                         }
                     } else {
                         //登录流程 {"session_key":"i2VyPTkFlFNh8bThTGXShg==","openid":"ojYTl5RhdfPo9hKspMa8sfJ3Fvno"}
-                        rb = createTokenUtils.loginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
+                        rb = createTokenUtils.wxappletLoginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                         return rb;
                     }
                 } else {

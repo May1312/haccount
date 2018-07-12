@@ -1,6 +1,5 @@
 package com.fnjz.front.controller.api.userregister;
 
-import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -10,7 +9,6 @@ import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.*;
 import io.swagger.annotations.*;
-import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-import java.util.HashMap;
 import java.util.Map;
 import org.apache.log4j.Logger;
 
@@ -44,9 +41,6 @@ public class UserRegisterRestController extends BaseController {
     private RedisTemplate redisTemplate;
 
     @Autowired
-    private RedisTemplateUtils redisTemplateUtils;
-
-    @Autowired
     private CreateTokenUtils createTokenUtils;
 
     @ApiOperation(value = "手机号验证码注册")
@@ -65,13 +59,8 @@ public class UserRegisterRestController extends BaseController {
         System.out.println("登录终端："+type);
         ResultBean rb = new ResultBean();
         //手机号或验证码或密码为空
-        if(StringUtil.isEmpty(map.get("mobile") ) || StringUtil.isEmpty(map.get("password")) || StringUtil.isEmpty(map.get("verifycode"))){
-            rb.setFailMsg(ApiResultType.REQ_PARAMS_ERROR);
-            return rb;
-        }
-        if(!ValidateUtils.isMobile(map.get("mobile"))){
-            rb.setFailMsg(ApiResultType.MOBILE_FORMAT_ERROR);
-            return rb;
+        if(ParamValidateUtils.checkResetpwd(map)!=null){
+            return ParamValidateUtils.checkResetpwd(map);
         }
         //验证手机号是否已存在
         UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
@@ -91,30 +80,11 @@ public class UserRegisterRestController extends BaseController {
                 //验证码校验通过
                 //先生成用户详情表获取id--->存入用户登录表
                 UserInfoRestEntity userInfo = new UserInfoRestEntity();
-                //设置手机号
-                userInfo.setMobile(map.get("mobile"));
-                //设置密码
-                userInfo.setPassword(map.get("password"));
-                if(StringUtils.isNotEmpty(map.get("mobileSystem"))){
-                    //终端系统
-                    userInfo.setMobileSystem(map.get("mobileSystem"));
-                }
-                if(StringUtils.isNotEmpty(map.get("mobileSystemVersion"))){
-                    //系统版本号
-                    userInfo.setMobileSystemVersion(map.get("mobileSystemVersion"));
-                }
-                if(StringUtils.isNotEmpty(map.get("mobileManufacturer"))){
-                    //终端厂商
-                    userInfo.setMobileManufacturer(map.get("mobileManufacturer"));
-                }
-                if(StringUtils.isNotEmpty(map.get("mobileDevice"))){
-                    //终端设备号
-                    userInfo.setMobileDevice(map.get("mobileDevice"));
-                }
+                userInfo = ParamValidateUtils.checkRegisterParams(userInfo,map);
                 //执行新增
                 int insertId = userInfoRestService.insert(userInfo);
                 if(insertId>0){
-                    //缓存用户信息
+                    //缓存用户信息  TODO 有必要重新查库？？
                     task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));
                     rb = createTokenUtils.loginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                     return rb;
