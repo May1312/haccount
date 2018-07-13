@@ -9,6 +9,7 @@ import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import net.sf.json.JSONArray;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -55,7 +56,11 @@ public class UserCommTypePriorityRestController extends BaseController {
             UserCommTypePriorityRestEntity userCommTypePriorityRestEntity = new UserCommTypePriorityRestEntity(Integer.valueOf(userInfoId),Integer.valueOf(map.get("type") + ""),relation1.toString());
             userCommTypePriorityRestService.saveOrUpdateRelation(userInfoId,userCommTypePriorityRestEntity);
             //清空用户类目缓存
-            redisTemplateUtils.deleteKey(RedisPrefix.USER_LABEL_TYPE + shareCode);
+            if(StringUtils.equals(map.get("type")+"","1")){
+                redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
+            }else{
+                redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+            }
             return new ResultBean(ApiResultType.OK,null);
         } catch (Exception e) {
             logger.error(e.toString());

@@ -54,7 +54,11 @@ public class RedisPrefix {
      */
     public static final long SESSION_KEY_TIME = 30L;
     /**
-     * 缓存类目前缀
+     * 缓存类目支出前缀
      */
-    public static final String USER_LABEL_TYPE = "user_label_type:";
+    public static final String USER_SPEND_LABEL_TYPE = "user_spend_label_type:";
+    /**
+     * 缓存类目收入前缀
+     */
+    public static final String USER_INCOME_LABEL_TYPE = "user_income_label_type:";
 }

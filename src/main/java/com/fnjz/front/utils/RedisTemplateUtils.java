@@ -189,19 +189,19 @@ public class RedisTemplateUtils {
     /**
      * 缓存用户类目信息map
      * @param map
-     * @param shareCode
+     * @param typeShareCode
      */
-    public void cacheLabelType(Map<String,Object> map,String shareCode){
-        redisTemplate.opsForValue().set(RedisPrefix.USER_LABEL_TYPE+shareCode, JSON.toJSONString(map));
+    public void cacheLabelType(Map<String,Object> map,String typeShareCode){
+        redisTemplate.opsForValue().set(typeShareCode, JSON.toJSONString(map));
     }
 
     /**
      * 获取缓存用户类目信息
-     * @param shareCode
+     * @param typeShareCode
      * @return
      */
-    public Map<String,Object> getCacheLabelType(String shareCode){
-        String cacheData = (String)redisTemplate.opsForValue().get(RedisPrefix.USER_LABEL_TYPE + shareCode);
+    public Map<String,Object> getCacheLabelType(String typeShareCode){
+        String cacheData = (String)redisTemplate.opsForValue().get(typeShareCode);
         return JSON.parseObject(cacheData,Map.class);
     }
 }

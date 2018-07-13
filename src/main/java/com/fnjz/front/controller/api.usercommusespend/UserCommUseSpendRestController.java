@@ -54,13 +54,13 @@ public class UserCommUseSpendRestController extends BaseController {
         try {
             String shareCode = (String) request.getAttribute("shareCode");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            Map<String,Object> map = redisTemplateUtils.getCacheLabelType(shareCode);
+            Map<String,Object> map = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_SPEND_LABEL_TYPE+shareCode);
             if(map!=null){
                 return new ResultBean(ApiResultType.OK,map);
             }else{
                 map = userCommUseSpendRestService.getListById(userInfoId);
                 //缓存类目数据
-                redisTemplateUtils.cacheLabelType(map,shareCode);
+                redisTemplateUtils.cacheLabelType(map,RedisPrefix.USER_SPEND_LABEL_TYPE+shareCode);
                 return new ResultBean(ApiResultType.OK,map);
             }
         } catch (Exception e) {
@@ -94,7 +94,7 @@ public class UserCommUseSpendRestController extends BaseController {
             }
             userCommUseSpendRestService.insertCommSpendType(userInfoId,task);
             //清空用户类目缓存
-            redisTemplateUtils.deleteKey(RedisPrefix.USER_LABEL_TYPE + shareCode);
+            redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
             return new ResultBean(ApiResultType.OK,null);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -115,7 +115,7 @@ public class UserCommUseSpendRestController extends BaseController {
             String shareCode = (String) request.getAttribute("shareCode");
             userCommUseSpendRestService.deleteCommSpendType(userInfoId,map.get("spendTypeIds"));
             //清空用户类目缓存
-            redisTemplateUtils.deleteKey(RedisPrefix.USER_LABEL_TYPE + shareCode);
+            redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
             return new ResultBean(ApiResultType.OK,null);
         } catch (Exception e) {
             logger.error(e.toString());

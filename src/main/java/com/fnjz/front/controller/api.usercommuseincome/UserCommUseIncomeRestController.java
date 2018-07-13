@@ -54,12 +54,12 @@ public class UserCommUseIncomeRestController extends BaseController {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
-            Map<String,Object> map = redisTemplateUtils.getCacheLabelType(shareCode);
+            Map<String,Object> map = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_INCOME_LABEL_TYPE+shareCode);
             if(map!=null){
                 return new ResultBean(ApiResultType.OK,map);
             }else{
                 map = userCommUseIncomeRestService.getListById(userInfoId);
-                redisTemplateUtils.cacheLabelType(map,shareCode);
+                redisTemplateUtils.cacheLabelType(map,RedisPrefix.USER_INCOME_LABEL_TYPE+shareCode);
                 return new ResultBean(ApiResultType.OK,map);
             }
         } catch (Exception e) {
@@ -93,7 +93,7 @@ public class UserCommUseIncomeRestController extends BaseController {
             }
             userCommUseIncomeRestService.insertCommIncomeType(userInfoId, task);
             //清空用户类目缓存
-            redisTemplateUtils.deleteKey(RedisPrefix.USER_LABEL_TYPE + shareCode);
+            redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -114,7 +114,7 @@ public class UserCommUseIncomeRestController extends BaseController {
             String shareCode = (String) request.getAttribute("shareCode");
             userCommUseIncomeRestService.deleteCommIncomeType(userInfoId, map.get("incomeTypeIds"));
             //清空用户类目缓存
-            redisTemplateUtils.deleteKey(RedisPrefix.USER_LABEL_TYPE + shareCode);
+            redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
