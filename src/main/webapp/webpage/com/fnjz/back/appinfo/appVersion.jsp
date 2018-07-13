@@ -108,8 +108,8 @@
                     <input class="inputxt" id="url" name="url" ignore="ignore" value="${appVersionPage.url}" style="width:100%"/>
                 <%--</c:if>--%>
 
-                <t:webUploader name="url" fileSingleSizeLimit="500" buttonStyle="btn-green btn-M mb20"
-                               fileNumLimit="1"></t:webUploader>
+                <t:webUploader name="url" fileSingleSizeLimit="800000"  buttonStyle="btn-green btn-M mb20"
+                               fileNumLimit="1000000"></t:webUploader>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>

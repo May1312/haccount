@@ -131,6 +131,9 @@ public class AppVersionController extends BaseController {
             }
         } else {
             message = "App版本升级添加成功";
+            if (appVersion.getUrl().startsWith(",")){
+                appVersion.setUrl(appVersion.getUrl().replaceAll(",",""));
+            }
             appVersionService.save(appVersion);
             systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
         }
