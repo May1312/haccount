@@ -158,9 +158,9 @@ public class ParamValidateUtils {
         if (charge.getMoney() == null) {
             return new ResultBean(ApiResultType.ACCOUNT_MONEY_IS_NULL, null);
         }
-        if (!ValidateUtils.checkDecimal(charge.getMoney() + "")) {
+        /*if (!ValidateUtils.checkDecimal(charge.getMoney() + "")) {
             return new ResultBean(ApiResultType.ACCOUNT_MONEY_ERROR, null);
-        }
+        }*/
         //判断支出收入类型
         if (charge.getOrderType() == null) {
             return new ResultBean(ApiResultType.ACCOUNT_TYPE_ERROR, null);
