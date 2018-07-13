@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -183,5 +184,24 @@ public class RedisTemplateUtils {
     public void updateCacheSimple (UserLoginRestEntity userLoginRestEntity,String key){
         String user = JSON.toJSONString(userLoginRestEntity);
         this.updateCache(user, key);
+    }
+
+    /**
+     * 缓存用户类目信息map
+     * @param map
+     * @param shareCode
+     */
+    public void cacheLabelType(Map<String,Object> map,String shareCode){
+        redisTemplate.opsForValue().set(RedisPrefix.USER_LABEL_TYPE+shareCode, JSON.toJSONString(map));
+    }
+
+    /**
+     * 获取缓存用户类目信息
+     * @param shareCode
+     * @return
+     */
+    public Map<String,Object> getCacheLabelType(String shareCode){
+        String cacheData = (String)redisTemplate.opsForValue().get(RedisPrefix.USER_LABEL_TYPE + shareCode);
+        return JSON.parseObject(cacheData,Map.class);
     }
 }

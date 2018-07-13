@@ -1,16 +1,21 @@
 package com.fnjz.front.controller.api.usercommusespend;
 
 import javax.servlet.http.HttpServletRequest;
+
+import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
 import com.fnjz.front.service.api.spendtype.SpendTypeRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -39,15 +44,25 @@ public class UserCommUseSpendRestController extends BaseController {
     private UserCommUseSpendRestServiceI userCommUseSpendRestService;
     @Autowired
     private SpendTypeRestServiceI spendTypeRestServiceI;
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     @ApiOperation(value = "获取支出类目列表")
     @RequestMapping(value = "/getSpendTypeList/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean getSpendTypeList(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         try {
+            String shareCode = (String) request.getAttribute("shareCode");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            Map<String, Object> map = userCommUseSpendRestService.getListById(userInfoId);
-            return new ResultBean(ApiResultType.OK,map);
+            Map<String,Object> map = redisTemplateUtils.getCacheLabelType(shareCode);
+            if(map!=null){
+                return new ResultBean(ApiResultType.OK,map);
+            }else{
+                map = userCommUseSpendRestService.getListById(userInfoId);
+                //缓存类目数据
+                redisTemplateUtils.cacheLabelType(map,shareCode);
+                return new ResultBean(ApiResultType.OK,map);
+            }
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR,null);
@@ -63,6 +78,7 @@ public class UserCommUseSpendRestController extends BaseController {
         }
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
+            String shareCode = (String) request.getAttribute("shareCode");
             //判断用户常用标签表里是否已存在
             boolean flag = userCommUseSpendRestService.findByUserInfoIdAndId(userInfoId,map.get("spendTypeId"));
             if(flag){
@@ -77,6 +93,8 @@ public class UserCommUseSpendRestController extends BaseController {
                 return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_ERROR,null);
             }
             userCommUseSpendRestService.insertCommSpendType(userInfoId,task);
+            //清空用户类目缓存
+            redisTemplateUtils.deleteKey(RedisPrefix.USER_LABEL_TYPE + shareCode);
             return new ResultBean(ApiResultType.OK,null);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -94,7 +112,10 @@ public class UserCommUseSpendRestController extends BaseController {
         }
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
+            String shareCode = (String) request.getAttribute("shareCode");
             userCommUseSpendRestService.deleteCommSpendType(userInfoId,map.get("spendTypeIds"));
+            //清空用户类目缓存
+            redisTemplateUtils.deleteKey(RedisPrefix.USER_LABEL_TYPE + shareCode);
             return new ResultBean(ApiResultType.OK,null);
         } catch (Exception e) {
             logger.error(e.toString());

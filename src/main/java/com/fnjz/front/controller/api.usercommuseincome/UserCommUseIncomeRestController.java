@@ -4,9 +4,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
 import com.fnjz.front.service.api.incometype.IncomeTypeRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +44,8 @@ public class UserCommUseIncomeRestController extends BaseController {
     private UserCommUseIncomeRestServiceI userCommUseIncomeRestService;
     @Autowired
     private IncomeTypeRestServiceI incomeTypeRestServiceI;
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     @ApiOperation(value = "获取收入类目列表")
     @RequestMapping(value = "/getIncomeTypeList/{type}", method = RequestMethod.GET)
@@ -49,8 +53,15 @@ public class UserCommUseIncomeRestController extends BaseController {
     public ResultBean getIncomeTypeList(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
-            Map<String, Object> map = userCommUseIncomeRestService.getListById(userInfoId);
-            return new ResultBean(ApiResultType.OK, map);
+            String shareCode = (String) request.getAttribute("shareCode");
+            Map<String,Object> map = redisTemplateUtils.getCacheLabelType(shareCode);
+            if(map!=null){
+                return new ResultBean(ApiResultType.OK,map);
+            }else{
+                map = userCommUseIncomeRestService.getListById(userInfoId);
+                redisTemplateUtils.cacheLabelType(map,shareCode);
+                return new ResultBean(ApiResultType.OK,map);
+            }
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -66,6 +77,7 @@ public class UserCommUseIncomeRestController extends BaseController {
         }
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
+            String shareCode = (String) request.getAttribute("shareCode");
             //传入当前用户详情id
             boolean flag = userCommUseIncomeRestService.findByUserInfoIdAndId(userInfoId, map.get("incomeTypeId"));
             if (flag) {
@@ -80,6 +92,8 @@ public class UserCommUseIncomeRestController extends BaseController {
                 return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_ERROR, null);
             }
             userCommUseIncomeRestService.insertCommIncomeType(userInfoId, task);
+            //清空用户类目缓存
+            redisTemplateUtils.deleteKey(RedisPrefix.USER_LABEL_TYPE + shareCode);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -97,7 +111,10 @@ public class UserCommUseIncomeRestController extends BaseController {
         }
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
+            String shareCode = (String) request.getAttribute("shareCode");
             userCommUseIncomeRestService.deleteCommIncomeType(userInfoId, map.get("incomeTypeIds"));
+            //清空用户类目缓存
+            redisTemplateUtils.deleteKey(RedisPrefix.USER_LABEL_TYPE + shareCode);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());

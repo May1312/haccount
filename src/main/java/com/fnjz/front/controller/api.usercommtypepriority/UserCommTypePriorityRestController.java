@@ -2,8 +2,10 @@ package com.fnjz.front.controller.api.usercommtypepriority;
 
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
 import com.fnjz.front.utils.ParamValidateUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import net.sf.json.JSONArray;
@@ -34,6 +36,8 @@ public class UserCommTypePriorityRestController extends BaseController {
 
     @Autowired
     private UserCommTypePriorityRestServiceI userCommTypePriorityRestService;
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     @ApiOperation(value = "上传/修改用户所属类目排序关系")
     @RequestMapping(value = "/uploadUserTypePriority/{type}", method = RequestMethod.POST)
@@ -46,9 +50,12 @@ public class UserCommTypePriorityRestController extends BaseController {
         }
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
+            String shareCode = (String) request.getAttribute("shareCode");
             JSONArray relation1 = JSONArray.fromObject((ArrayList) map.get("relation"));
             UserCommTypePriorityRestEntity userCommTypePriorityRestEntity = new UserCommTypePriorityRestEntity(Integer.valueOf(userInfoId),Integer.valueOf(map.get("type") + ""),relation1.toString());
             userCommTypePriorityRestService.saveOrUpdateRelation(userInfoId,userCommTypePriorityRestEntity);
+            //清空用户类目缓存
+            redisTemplateUtils.deleteKey(RedisPrefix.USER_LABEL_TYPE + shareCode);
             return new ResultBean(ApiResultType.OK,null);
         } catch (Exception e) {
             logger.error(e.toString());
