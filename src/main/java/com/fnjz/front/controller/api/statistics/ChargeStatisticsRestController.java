@@ -90,6 +90,12 @@ public class ChargeStatisticsRestController extends BaseController {
                     beginWeek = endWeek;
                     endWeek = i;
                 }
+                if(beginWeek.length()<2){
+                    beginWeek = "0"+beginWeek;
+                }
+                if(endWeek.length()<2){
+                    endWeek = "0"+endWeek;
+                }
                 try {
                     //1为支出类型
                     int orderType = 1;
@@ -225,6 +231,12 @@ public class ChargeStatisticsRestController extends BaseController {
                     String i = beginWeek;
                     beginWeek = endWeek;
                     endWeek = i;
+                }
+                if(beginWeek.length()<2){
+                    beginWeek = "0"+beginWeek;
+                }
+                if(endWeek.length()<2){
+                    endWeek = "0"+endWeek;
                 }
                 try {
                     //2为收入类型
