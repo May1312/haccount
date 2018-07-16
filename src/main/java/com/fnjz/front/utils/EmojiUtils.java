@@ -1,6 +1,5 @@
 package com.fnjz.front.utils;
 
-import com.vdurmont.emoji.EmojiManager;
 import com.vdurmont.emoji.EmojiParser;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class EmojiUtils {
     public static String emojiToAlias(String emoji) {
         //判断是否为emoji
         //if (EmojiManager.isEmoji(emoji)) {
-            return EmojiParser.parseToAliases(emoji,EmojiParser.FitzpatrickAction.PARSE);
+            return EmojiParser.parseToAliases(emoji);
         //}
         //return emoji;
     }

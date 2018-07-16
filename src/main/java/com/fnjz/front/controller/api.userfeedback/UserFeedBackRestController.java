@@ -56,10 +56,12 @@ public class UserFeedBackRestController extends BaseController {
 		userFeedBackRestEntity.setCreateDate(new Date());
 		//转义emoji表情
 		if(StringUtils.isNotEmpty(userFeedBackRestEntity.getContent())){
-			userFeedBackRestEntity.setContent(EmojiUtils.emojiToAlias(userFeedBackRestEntity.getContent()));
+			//userFeedBackRestEntity.setContent(EmojiUtils.emojiToAlias(userFeedBackRestEntity.getContent()));
+			userFeedBackRestEntity.setContent(userFeedBackRestEntity.getContent());
 		}
 		if(StringUtils.isNotEmpty(userFeedBackRestEntity.getContact())){
-			userFeedBackRestEntity.setContact(EmojiUtils.emojiToAlias(userFeedBackRestEntity.getContact()));
+			//userFeedBackRestEntity.setContact(EmojiUtils.emojiToAlias(userFeedBackRestEntity.getContact()));
+			userFeedBackRestEntity.setContact(userFeedBackRestEntity.getContact());
 		}
 		try {
 			userFeedBackRestService.save(userFeedBackRestEntity);

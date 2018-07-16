@@ -118,7 +118,7 @@ public interface WarterOrderRestDao {
      * @return
      */
     @ResultType(Map.class)
-    @Sql("SELECT SUM(wo.money) AS money, COUNT(money) AS moneytimes, wo.type_name , wo.spend_happiness, wo.charge_date, COUNT(wo.spend_happiness) AS count , CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END AS icon FROM hbird_water_order wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 1 AND wo.delflag = 0 AND wo.charge_date >= :beginTime AND wo.charge_date <= :endTime GROUP BY wo.type_id ORDER BY money DESC;")
+    @Sql("SELECT SUM(wo.money) AS money, COUNT(money) AS moneytimes, wo.type_name , wo.spend_happiness, wo.charge_date, COUNT(wo.spend_happiness) AS count , CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END AS icon FROM hbird_water_order wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 1 AND wo.delflag = 0 AND wo.charge_date >= :beginTime AND wo.charge_date <= :endTime GROUP BY wo.type_id,wo.spend_happiness ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForWeeksByTime(@Param("beginTime")String beginTime,@Param("endTime")String endTime, @Param("accountBookId")Integer accountBookId);
 
     /**
@@ -128,7 +128,7 @@ public interface WarterOrderRestDao {
      * @return
      */
     @ResultType(Map.class)
-    @Sql("SELECT SUM(wo.money) AS money, COUNT(wo.money) AS moneytimes, wo.type_name , wo.spend_happiness, COUNT(wo.spend_happiness) AS count , DATE_FORMAT(wo.charge_date, '%Y-%m') AS yearmonth, wo.charge_date , CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END AS icon FROM hbird_water_order wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 1 AND wo.delflag = 0 AND wo.charge_date LIKE concat(DATE_FORMAT(NOW(), '%Y'), '-',:time,'%') GROUP BY wo.type_id ORDER BY money DESC;")
+    @Sql("SELECT SUM(wo.money) AS money, COUNT(wo.money) AS moneytimes, wo.type_name , wo.spend_happiness, COUNT(wo.spend_happiness) AS count , DATE_FORMAT(wo.charge_date, '%Y-%m') AS yearmonth, wo.charge_date , CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END AS icon FROM hbird_water_order wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 1 AND wo.delflag = 0 AND wo.charge_date LIKE concat(DATE_FORMAT(NOW(), '%Y'), '-',:time,'%') GROUP BY wo.type_id,wo.spend_happiness ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForMonthsByTime(@Param("time")String time, @Param("accountBookId")Integer accountBookId);
 
     /**

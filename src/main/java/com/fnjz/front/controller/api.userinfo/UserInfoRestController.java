@@ -216,7 +216,8 @@ public class UserInfoRestController extends BaseController {
                 task.setId(Integer.valueOf(ShareCodeUtil.id2sharecode(task.getId())));
                 //转义昵称
                 if (StringUtils.isNotEmpty(task.getNickName())) {
-                    task.setNickName(EmojiUtils.aliasToEmoji(task.getNickName()));
+                    //task.setNickName(EmojiUtils.aliasToEmoji(task.getNickName()));
+                    task.setNickName(task.getNickName());
                 }
                 if (StringUtils.isNotEmpty(task.getWechatAuth())) {
                     task.setWechatAuth("wechatAuth");
@@ -271,7 +272,8 @@ public class UserInfoRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             userInfoRestEntity.setId(Integer.valueOf(userInfoId));
             if (StringUtils.isNotEmpty(userInfoRestEntity.getNickName())) {
-                userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(userInfoRestEntity.getNickName()));
+                //userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(userInfoRestEntity.getNickName()));
+                userInfoRestEntity.setNickName(userInfoRestEntity.getNickName());
             }
             userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
             return new ResultBean(ApiResultType.OK, null);

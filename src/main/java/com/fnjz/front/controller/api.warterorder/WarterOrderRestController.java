@@ -82,7 +82,8 @@ public class WarterOrderRestController extends BaseController {
             charge.setDelflag(0);
             //转义emoji表情
             if (StringUtils.isNotEmpty(charge.getRemark())) {
-                charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
+                //charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
+                charge.setRemark(charge.getRemark());
             }
             charge.setId(CommonUtils.getAccountOrder());
             warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
@@ -115,7 +116,8 @@ public class WarterOrderRestController extends BaseController {
         charge.setDelflag(0);
         //转义emoji表情
         if (StringUtils.isNotEmpty(charge.getRemark())) {
-            charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
+            //charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
+            charge.setRemark(charge.getRemark());
         }
         charge.setId(CommonUtils.getAccountOrder());
         try {
@@ -214,7 +216,8 @@ public class WarterOrderRestController extends BaseController {
             if (task != null) {
                 //转义表情
                 if (StringUtils.isNotEmpty(task.getRemark())) {
-                    task.setRemark(EmojiUtils.aliasToEmoji(task.getRemark()));
+                    //task.setRemark(EmojiUtils.aliasToEmoji(task.getRemark()));
+                    task.setRemark(task.getRemark());
                 }
                 return new ResultBean(ApiResultType.OK,task);
             }
@@ -264,7 +267,8 @@ public class WarterOrderRestController extends BaseController {
         //设置记录状态
         //转义表情
         if (StringUtils.isNotEmpty(charge.getRemark())) {
-            charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
+            //charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
+            charge.setRemark(charge.getRemark());
         }
         try {
             warterOrderRestService.update(charge);

@@ -37,7 +37,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             WarterOrderRestDTO warter = it.next();
             //转义表情
             if(StringUtils.isNotEmpty(warter.getRemark())){
-                warter.setRemark(EmojiUtils.aliasToEmoji(warter.getRemark()));
+                //warter.setRemark(EmojiUtils.aliasToEmoji(warter.getRemark()));
+                warter.setRemark(warter.getRemark());
             }
             //判断是否包含日期
             if (map.containsKey(warter.getChargeDate())) {
