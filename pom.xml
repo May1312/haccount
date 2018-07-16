@@ -1005,9 +1005,9 @@
 		</dependency>
 		<!--emoji表情处理-->
 		<dependency>
-			<groupId>com.github.binarywang</groupId>
-			<artifactId>java-emoji-converter</artifactId>
-			<version>0.0.1</version>
+			<groupId>com.vdurmont</groupId>
+			<artifactId>emoji-java</artifactId>
+			<version>4.0.0</version>
 		</dependency>
 	</dependencies>
 
