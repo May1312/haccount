@@ -6,12 +6,30 @@ SET
 	   <#if warterOrderRestEntity.orderType ?exists>
 		   order_type = :warterOrderRestEntity.orderType,
 		</#if>
-	    <#if warterOrderRestEntity.isStaged ?exists>
-		   is_staged = :warterOrderRestEntity.isStaged,
+		<#if warterOrderRestEntity.orderType ?exists>
+      <#if warterOrderRestEntity.orderType ==1>
+        <#if warterOrderRestEntity.isStaged ?exists>
+        /*设置支出类型*/
+		      is_staged = :warterOrderRestEntity.isStaged,
+		    </#if>
+		    /*设置愉悦度*/
+        <#if warterOrderRestEntity.spendHappiness ?exists>
+		      spend_happiness = :warterOrderRestEntity.spendHappiness,
+		    </#if>
+       <#elseif  warterOrderRestEntity.orderType ==2>
+       /*收入类型 愉悦度/支出类型必须置为null*/
+       spend_happiness = :warterOrderRestEntity.isStaged,
+       is_staged = :warterOrderRestEntity.isStaged,
+      </#if>
+      /*orderType 为null情况下*/
+      <#else>
+        <#if warterOrderRestEntity.spendHappiness ?exists>
+		      spend_happiness = :warterOrderRestEntity.spendHappiness,
+		    </#if>
+		    <#if warterOrderRestEntity.isStaged ?exists>
+		      is_staged = :warterOrderRestEntity.isStaged,
+		    </#if>
 		</#if>
-		<#if warterOrderRestEntity.spendHappiness ?exists>
-		   spend_happiness = :warterOrderRestEntity.spendHappiness,
-		   </#if>
 	   <#if warterOrderRestEntity.useDegree ?exists>
 		   useDegree = :warterOrderRestEntity.useDegree,
 		</#if>

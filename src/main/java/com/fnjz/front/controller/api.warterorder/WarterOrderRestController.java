@@ -239,6 +239,22 @@ public class WarterOrderRestController extends BaseController {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
+        if(charge.getOrderType()!=null){
+            if (charge.getOrderType() == 1) {
+                //使用度必须为空
+                if (charge.getUseDegree() != null) {
+                    charge.setUseDegree(null);
+                }
+            }else if (charge.getOrderType() == 2) {
+                //愉悦度必须为空
+                if (charge.getSpendHappiness() != null) {
+                    charge.setSpendHappiness(null);
+                }
+                if (charge.getIsStaged() != null) {
+                    charge.setIsStaged(null);
+                }
+            }
+        }
         //设置创建时间
         charge.setUpdateDate(new Date());
         //绑定修改者id
