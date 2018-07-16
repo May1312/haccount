@@ -19,7 +19,7 @@ public class EmojiUtils {
     public static String emojiToAlias(String emoji) {
         //判断是否为emoji
         //if (EmojiManager.isEmoji(emoji)) {
-            return EmojiParser.parseToAliases(emoji);
+            return EmojiParser.parseToAliases(emoji,EmojiParser.FitzpatrickAction.PARSE);
         //}
         //return emoji;
     }
@@ -37,7 +37,7 @@ public class EmojiUtils {
     @Test
     public void  emojiToAlias() {
         //🤣
-        String emoji = "\uD83D\uDE2D";
+        String emoji = " ";
         String alias = EmojiUtils.emojiToAlias(emoji);
         System.out.println(alias);
         System.out.println(EmojiUtils.aliasToEmoji(alias));

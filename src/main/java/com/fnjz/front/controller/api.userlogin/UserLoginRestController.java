@@ -164,7 +164,7 @@ public class UserLoginRestController extends BaseController {
                 int insert = userInfoRestServiceI.wechatinsert(user);
                 if (insert > 0) {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
-                    return createTokenUtils.loginSuccess(task2, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
+                    return createTokenUtils.loginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
                 } else {
                     return new ResultBean(ApiResultType.REGISTER_IS_ERROR, null);
                 }
@@ -214,7 +214,7 @@ public class UserLoginRestController extends BaseController {
                         int insert = userInfoRestServiceI.insert(uire);
                         if (insert > 0) {
                             UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
-                            return createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
+                            return createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
                         } else {
                             return new ResultBean(ApiResultType.REGISTER_IS_ERROR, null);
                         }
@@ -262,7 +262,7 @@ public class UserLoginRestController extends BaseController {
                 int insert = userInfoRestServiceI.wechatinsert(user);
                 if (insert > 0) {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
-                    return createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
+                    return createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
                 } else {
                     return new ResultBean(ApiResultType.REGISTER_IS_ERROR, null);
                 }
