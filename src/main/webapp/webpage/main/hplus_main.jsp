@@ -40,7 +40,7 @@
             <ul class="nav" id="side-menu">
                 <li class="nav-header">
                     <div class="dropdown profile-element">
-                        <span><img alt="image" width="180" height="61" src="plug-in/login/images/default_up.png" /></span>
+                        <span><img alt="image" width="180" height="61" src="plug-in/login/images/logo.png" /></span>
 
                     </div>
                     <div class="logo-element">蜂鸟
