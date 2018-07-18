@@ -54,13 +54,13 @@ public class UserCommUseIncomeRestController extends BaseController {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
-            Map<String,Object> map = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_INCOME_LABEL_TYPE+shareCode);
-            if(map!=null){
-                return new ResultBean(ApiResultType.OK,map);
-            }else{
+            Map<String, Object> map = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+            if (map.size() > 0) {
+                return new ResultBean(ApiResultType.OK, map);
+            } else {
                 map = userCommUseIncomeRestService.getListById(userInfoId);
-                redisTemplateUtils.cacheLabelType(map,RedisPrefix.USER_INCOME_LABEL_TYPE+shareCode);
-                return new ResultBean(ApiResultType.OK,map);
+                redisTemplateUtils.cacheLabelType(map, RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+                return new ResultBean(ApiResultType.OK, map);
             }
         } catch (Exception e) {
             logger.error(e.toString());

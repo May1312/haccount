@@ -97,7 +97,7 @@ public interface WarterOrderRestDao {
      * @param accountBookId
      * @return
      */
-    @Sql("SELECT sum( money ) AS money,wo.charge_date as time,DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth,DATE_FORMAT( now( ), '%Y' ) AS year FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = :orderType AND wo.delflag = 0 GROUP BY yearmonth HAVING yearmonth >=year ORDER BY yearmonth ASC;")
+    @Sql("SELECT sum( money ) AS money,wo.charge_date as time,DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth FROM hbird_water_order AS wo WHERE wo.account_book_id = :accountBookId AND wo.order_type = :orderType AND wo.delflag = 0 AND DATE_FORMAT( wo.charge_date, '%Y-%m' ) like CONCAT(DATE_FORMAT( now( ), '%Y' ),'%') GROUP BY yearmonth ORDER BY yearmonth ASC;")
     List<StatisticsDaysRestDTO> statisticsForMonths(@Param("accountBookId")Integer accountBookId,@Param("orderType")int orderType);
 
     /**

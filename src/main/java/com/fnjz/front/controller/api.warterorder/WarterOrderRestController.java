@@ -3,10 +3,10 @@ package com.fnjz.front.controller.api.warterorder;
 import java.math.BigDecimal;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
+
 import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
-import com.fnjz.front.entity.api.MyCountRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.utils.*;
@@ -54,7 +54,7 @@ public class WarterOrderRestController extends BaseController {
     public ResultBean toCharge(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody WarterOrderRestEntity charge) {
         System.out.println("登录终端：" + type);
         ResultBean rb = ParamValidateUtils.checkToCharge(charge);
-        if(rb!=null){
+        if (rb != null) {
             return rb;
         }
         String code = (String) request.getAttribute("code");
@@ -128,7 +128,7 @@ public class WarterOrderRestController extends BaseController {
             return CommonUtils.returnCharge(charge.getId());
         } catch (Exception e) {
             logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR,null);
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
@@ -155,50 +155,43 @@ public class WarterOrderRestController extends BaseController {
             String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             //连续打卡统计
-            String s = redisTemplateUtils.getMyCount(shareCode);
-            MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
-            if (myCountRestDTO != null) {
-                if (myCountRestDTO.getClockInDays() == 0 && myCountRestDTO.getClockInTime() == null) {
+            Map s = redisTemplateUtils.getMyCount(shareCode);
+            if (s.size() > 0) {
+                if (s.get("clockInDays") == null && s.get("clockInTime") == null) {
                     //首次打卡
-                    myCountRestDTO.setClockInDays(1);
-                    myCountRestDTO.setClockInTime(new Date());
-                    String s1 = JSON.toJSONString(myCountRestDTO);
-                    redisTemplateUtils.updateMyCount(shareCode, s1);
+                    s.put("clockInDays", "1");
+                    s.put("clockInTime", (System.currentTimeMillis() + ""));
+                    redisTemplateUtils.updateMyCount(shareCode, s);
                 } else {
                     //判断打卡间隔
                     //获取下一天凌晨时间间隔
-                    Date nextDay = DateUtils.getNextDay(myCountRestDTO.getClockInTime());
+                    Date nextDay = DateUtils.getNextDay(new Date(Long.valueOf(s.get("clockInTime") + "")));
                     //获取当天凌晨范围
                     Date dateOfBegin = DateUtils.fetchBeginOfDay(nextDay);
                     Date dateOfEnd = DateUtils.fetchEndOfDay(nextDay);
                     long now = System.currentTimeMillis();
                     if (now > dateOfBegin.getTime() && now < dateOfEnd.getTime()) {
                         //打卡成功
-                        myCountRestDTO.setClockInTime(new Date(now));
-                        myCountRestDTO.setClockInDays(myCountRestDTO.getClockInDays() + 1);
-                        String s1 = JSON.toJSONString(myCountRestDTO);
-                        redisTemplateUtils.updateMyCount(shareCode, s1);
+                        s.put("clockInDays", (Integer.valueOf(s.get("clockInDays") + "") + 1) + "");
+                        s.put("clockInTime", (System.currentTimeMillis() + ""));
+                        redisTemplateUtils.updateMyCount(shareCode, s);
                     } else if (now > dateOfEnd.getTime()) {
                         //置空
-                        myCountRestDTO.setClockInTime(new Date(now));
-                        myCountRestDTO.setClockInDays(1);
-                        String s1 = JSON.toJSONString(myCountRestDTO);
-                        redisTemplateUtils.updateMyCount(shareCode, s1);
+                        s.put("clockInDays", "1");
+                        s.put("clockInTime", System.currentTimeMillis() + "");
+                        redisTemplateUtils.updateMyCount(shareCode, s);
                     }
                 }
             } else {
-                myCountRestDTO = new MyCountRestDTO();
-                //首次打卡
-                myCountRestDTO.setClockInDays(1);
-                myCountRestDTO.setClockInTime(new Date());
-                String s1 = JSON.toJSONString(myCountRestDTO);
-                redisTemplateUtils.updateMyCount(shareCode, s1);
+                s.put("clockInDays", "1");
+                s.put("clockInTime", (System.currentTimeMillis() + ""));
+                redisTemplateUtils.updateMyCount(shareCode, s);
             }
             Map<String, Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
-            return new ResultBean(ApiResultType.OK,json);
+            return new ResultBean(ApiResultType.OK, json);
         } catch (Exception e) {
             logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR,null);
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
@@ -208,7 +201,7 @@ public class WarterOrderRestController extends BaseController {
     public ResultBean getOrderInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestParam String id) {
         System.out.println("登录终端：" + type);
         if (StringUtils.isEmpty(id)) {
-            return new ResultBean(ApiResultType.ORDER_ID_IS_NULL,null);
+            return new ResultBean(ApiResultType.ORDER_ID_IS_NULL, null);
         }
         try {
             //获取单笔详情   TODO 现阶段只根据详情id， 后续要加上userid   account book id 判断！！
@@ -219,12 +212,12 @@ public class WarterOrderRestController extends BaseController {
                     //task.setRemark(EmojiUtils.aliasToEmoji(task.getRemark()));
                     task.setRemark(task.getRemark());
                 }
-                return new ResultBean(ApiResultType.OK,task);
+                return new ResultBean(ApiResultType.OK, task);
             }
-            return new ResultBean(ApiResultType.GET_ORDER_ERROR,null);
+            return new ResultBean(ApiResultType.GET_ORDER_ERROR, null);
         } catch (Exception e) {
             logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR,null);
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
@@ -235,20 +228,20 @@ public class WarterOrderRestController extends BaseController {
         System.out.println("登录终端：" + type);
         //判断单笔记账id
         if (charge.getId() == null) {
-            return new ResultBean(ApiResultType.ORDER_ID_IS_NULL,null);
+            return new ResultBean(ApiResultType.ORDER_ID_IS_NULL, null);
         }
         String code = (String) request.getAttribute("code");
         String shareCode = (String) request.getAttribute("shareCode");
         String userInfoId = (String) request.getAttribute("userInfoId");
         String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
         UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
-        if(charge.getOrderType()!=null){
+        if (charge.getOrderType() != null) {
             if (charge.getOrderType() == 1) {
                 //使用度必须为空
                 if (charge.getUseDegree() != null) {
                     charge.setUseDegree(null);
                 }
-            }else if (charge.getOrderType() == 2) {
+            } else if (charge.getOrderType() == 2) {
                 //愉悦度必须为空
                 if (charge.getSpendHappiness() != null) {
                     charge.setSpendHappiness(null);
@@ -272,10 +265,10 @@ public class WarterOrderRestController extends BaseController {
         }
         try {
             warterOrderRestService.update(charge);
-            return new ResultBean(ApiResultType.OK,null);
+            return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR,null);
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
@@ -285,12 +278,12 @@ public class WarterOrderRestController extends BaseController {
     public ResultBean deleteOrder(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
         if (StringUtils.isEmpty(map.get("id"))) {
-            return new ResultBean(ApiResultType.ORDER_ID_IS_NULL,null);
+            return new ResultBean(ApiResultType.ORDER_ID_IS_NULL, null);
         }
         try {
             WarterOrderRestEntity task = warterOrderRestService.findUniqueByProperty(WarterOrderRestEntity.class, "id", map.get("id"));
             if (task == null) {
-                return new ResultBean(ApiResultType.GET_ORDER_ERROR,null);
+                return new ResultBean(ApiResultType.GET_ORDER_ERROR, null);
             }
             //获取当前用户信息
             String userInfoId = (String) request.getAttribute("userInfoId");
@@ -299,30 +292,20 @@ public class WarterOrderRestController extends BaseController {
             //执行更新
             int i = warterOrderRestService.deleteOrder(map.get("id"), userInfoId, code);
             if (i < 1) {
-                return new ResultBean(ApiResultType.DELETE_RECORD_ERROR,null);
+                return new ResultBean(ApiResultType.DELETE_RECORD_ERROR, null);
             }
             //统计记账总笔数-1
-            String s = redisTemplateUtils.getMyCount(shareCode);
-            MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
-            if (myCountRestDTO != null) {
-                int chargeTotal = myCountRestDTO.getChargeTotal();
-                if (chargeTotal > 0) {
+            Map s = redisTemplateUtils.getMyCount(shareCode);
+            if (s.size() > 0) {
+                if (s.containsKey("chargeTotal")) {
                     //统计记账总笔数
-                    myCountRestDTO.setChargeTotal(chargeTotal - 1);
+                    redisTemplateUtils.incrementMyCountTotal(shareCode, "chargeTotal", 2);
                 }
-            } else {
-                //为空情况
-                int chargeTotal = warterOrderRestService.chargeTotal(task.getAccountBookId());
-                myCountRestDTO.setChargeTotal(chargeTotal - 1);
-            }
-            //统计记账总笔数
-            //重新设置redis
-            String json = JSON.toJSONString(myCountRestDTO);
-            redisTemplateUtils.updateMyCount(shareCode, json);
-            return new ResultBean(ApiResultType.OK,null);
+            } //为空不处理
+            return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR,null);
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
@@ -340,10 +323,10 @@ public class WarterOrderRestController extends BaseController {
             String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             Map<String, BigDecimal> map = warterOrderRestService.getAccount(time, userLoginRestEntity.getAccountBookId() + "");
-            return new ResultBean(ApiResultType.OK,map);
+            return new ResultBean(ApiResultType.OK, map);
         } catch (Exception e) {
             logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR,null);
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
@@ -383,27 +366,20 @@ public class WarterOrderRestController extends BaseController {
      */
     private void myCount(String shareCode, UserAccountBookRestEntity userAccountBookRestEntity) {
         //统计记账总笔数+1
-        String s = redisTemplateUtils.getMyCount(shareCode);
-        MyCountRestDTO myCountRestDTO = JSON.parseObject(s, MyCountRestDTO.class);
-        if (myCountRestDTO != null) {
-            int chargeTotal = myCountRestDTO.getChargeTotal();
-            if (chargeTotal < 1) {
-                //统计记账总笔数
-                chargeTotal = warterOrderRestService.chargeTotal(userAccountBookRestEntity.getAccountBookId());
-                myCountRestDTO.setChargeTotal(chargeTotal);
-            } else {
-                myCountRestDTO.setChargeTotal(chargeTotal + 1);
-            }
-        } else {
-            //为空情况
+        Map s = redisTemplateUtils.getMyCount(shareCode);
+        if (s.size() > 0) {
+            if (s.containsKey("chargeTotal")) {
+                //直接递增
+                redisTemplateUtils.incrementMyCountTotal(shareCode, "chargeTotal", 1);
+            }//else {
+            //为空情况 TODO 存在高并发记账不准确情况 不做缓存修改
             //统计记账总笔数
-            int chargeTotal = warterOrderRestService.chargeTotal(userAccountBookRestEntity.getAccountBookId());
-            myCountRestDTO.setChargeTotal(chargeTotal);
+            //int chargeTotal = warterOrderRestService.chargeTotal(userAccountBookRestEntity.getAccountBookId());
+            //myCountRestDTO.setChargeTotal(chargeTotal);
+            //s.put("chargeTotal",chargeTotal+"");
+            //重新设置redis
+            //redisTemplateUtils.updateMyCount(shareCode, s);
         }
-        //统计记账总笔数
-        //重新设置redis
-        String json = JSON.toJSONString(myCountRestDTO);
-        redisTemplateUtils.updateMyCount(shareCode, json);
     }
 
     @RequestMapping(value = "/toCharge", method = RequestMethod.POST)
