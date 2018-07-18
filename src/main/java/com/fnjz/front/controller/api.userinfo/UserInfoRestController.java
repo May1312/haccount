@@ -108,13 +108,15 @@ public class UserInfoRestController extends BaseController {
                 if (StringUtils.equals(code, map.get("verifycode"))) {
                     //执行更新手机号 密码 流程
                     String userInfoId = (String) request.getAttribute("userInfoId");
-                    int i = userInfoRestServiceI.updateMobileAndPWD(userInfoId, map.get("mobile"), map.get("password"));
+                    String pwd = PasswordUtils.getEncryptpwd(map.get("password"));
+                    int i = userInfoRestServiceI.updateMobileAndPWD(userInfoId, map.get("mobile"),pwd);
                     if (i < 1) {
                         return new ResultBean(ApiResultType.BIND_MOBILE_PWD_ERROR, null);
                     }
                     //更新用户缓存
                     userLoginRestEntity.setMobile(map.get("mobile"));
-                    userLoginRestEntity.setPassword(map.get("password"));
+                    //TODO 更新密码？ 是否必要
+                    userLoginRestEntity.setPassword(pwd);
                     redisTemplateUtils.updateCacheSimple(userLoginRestEntity, key);
                     return new ResultBean(ApiResultType.OK, null);
                 } else {

@@ -276,9 +276,10 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 //统计总金额
                 BigDecimal bd = new BigDecimal(list.get(i).get("money") + "");
                 trueTotalMoney = trueTotalMoney.add(bd);
-                double money = Math.abs(Double.valueOf(list.get(i).get("money") + ""));
-                BigDecimal falseMoney = new BigDecimal(money);
-                falseTotalMoney = falseTotalMoney.add(falseMoney);
+                //double money = Math.abs(Double.valueOf(list.get(i).get("money") + ""));
+                BigDecimal falseMoney = new BigDecimal(list.get(i).get("money") + "");
+                BigDecimal abs = falseMoney.abs();
+                falseTotalMoney = falseTotalMoney.add(abs);
                 //统计深度为5
                 if (i < 5) {
                     //每个类目对应金额统计
@@ -360,9 +361,10 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 //统计总金额
                 BigDecimal bd = new BigDecimal(list.get(i).get("money") + "");
                 trueTotalMoney = trueTotalMoney.add(bd);
-                double money = Math.abs(Double.valueOf(list.get(i).get("money") + ""));
-                BigDecimal falseMoney = new BigDecimal(money);
-                falseTotalMoney = falseTotalMoney.add(falseMoney);
+                //double money = Math.abs(Double.valueOf(list.get(i).get("money") + ""));
+                BigDecimal falseMoney = new BigDecimal(Double.valueOf(list.get(i).get("money") + ""));
+                BigDecimal abs = falseMoney.abs();
+                falseTotalMoney = falseTotalMoney.add(abs);
                 //统计深度为5
                 if (i < 5) {
                     //每个类目对应金额统计

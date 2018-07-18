@@ -80,7 +80,7 @@ public class UserLoginRestController extends BaseController {
                 return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
             } else {
                 //判断密码
-                if (StringUtil.equals(task.getPassword(), map.get("password"))) {
+                if (StringUtil.equals(task.getPassword(), PasswordUtils.getEncryptpwd(map.get("password")))) {
                     return createTokenUtils.loginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                 } else {
                     return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ERROR, null);
@@ -304,7 +304,7 @@ public class UserLoginRestController extends BaseController {
             } else {
                 if (StringUtil.equals(code, map.get("verifycode"))) {
                     //执行更新密码流程
-                    int i = userInfoRestServiceI.updatePWDByMobile(map.get("mobile"), map.get("password"));
+                    int i = userInfoRestServiceI.updatePWDByMobile(map.get("mobile"), PasswordUtils.getEncryptpwd(map.get("password")));
                     if (i < 1) {
                         return new ResultBean(ApiResultType.PASSWORD_UPDATE_ERROR, null);
                     }
@@ -348,14 +348,16 @@ public class UserLoginRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             //转成对象
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(r_user, UserLoginRestEntity.class);
-            if (StringUtils.equals(userLoginRestEntity.getPassword(), map.get("oldpwd"))) {
+            String oldpwd = PasswordUtils.getEncryptpwd(map.get("oldpwd"));
+            if (StringUtils.equals(userLoginRestEntity.getPassword(), oldpwd)) {
                 //执行更新密码流程
-                int i = userInfoRestServiceI.updatePWD(Integer.valueOf(userInfoId), map.get("newpwd"));
+                String newpwd = PasswordUtils.getEncryptpwd(map.get("newpwd"));
+                int i = userInfoRestServiceI.updatePWD(Integer.valueOf(userInfoId), newpwd);
                 if (i < 1) {
                     return new ResultBean(ApiResultType.PASSWORD_UPDATE_ERROR, null);
                 }
                 //设置redis缓存 缓存用户信息
-                userLoginRestEntity.setPassword(map.get("newpwd"));
+                userLoginRestEntity.setPassword(newpwd);
                 redisTemplateUtils.updateCacheSimple(userLoginRestEntity, key);
                 return new ResultBean(ApiResultType.OK, null);
             } else {

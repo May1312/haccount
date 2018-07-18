@@ -192,7 +192,7 @@ public class ParamValidateUtils {
         //设置手机号
         userInfo.setMobile(map.get("mobile"));
         //设置密码
-        userInfo.setPassword(map.get("password"));
+        userInfo.setPassword(PasswordUtils.getEncryptpwd(map.get("password")));
 
         if (StringUtils.isNotEmpty(map.get("mobileSystem"))) {
             //终端系统
