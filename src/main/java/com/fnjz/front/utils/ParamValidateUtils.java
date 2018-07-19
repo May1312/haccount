@@ -187,7 +187,7 @@ public class ParamValidateUtils {
      * @param map
      * @return
      */
-    public static UserInfoRestEntity checkRegisterParams(UserInfoRestEntity userInfo, Map<String, String> map) {
+    public static UserInfoRestEntity checkRegisterParams(UserInfoRestEntity userInfo, Map<String, String> map,String type) {
 
         //设置手机号
         userInfo.setMobile(map.get("mobile"));
@@ -209,6 +209,10 @@ public class ParamValidateUtils {
         if (StringUtils.isNotEmpty(map.get("mobileDevice"))) {
             //终端设备号
             userInfo.setMobileDevice(map.get("mobileDevice"));
+        }
+        if (StringUtils.isNotEmpty(type)) {
+            //终端设备号
+            userInfo.setMobileSystem(type);
         }
         return userInfo;
     }

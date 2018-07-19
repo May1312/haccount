@@ -73,7 +73,7 @@ public class UserRegisterRestController extends BaseController {
             if(StringUtil.equals(code,map.get("verifycode"))){
                 //验证码校验通过
                 UserInfoRestEntity userInfo = new UserInfoRestEntity();
-                userInfo = ParamValidateUtils.checkRegisterParams(userInfo,map);
+                userInfo = ParamValidateUtils.checkRegisterParams(userInfo,map,type);
                 //执行新增
                 int insertId = userInfoRestService.insert(userInfo);
                 if(insertId>0){
