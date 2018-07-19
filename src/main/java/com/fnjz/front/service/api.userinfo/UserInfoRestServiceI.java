@@ -13,7 +13,7 @@ public interface UserInfoRestServiceI extends CommonService{
     /**
      * 微信注册用户
      */
-    int wechatinsert(JSONObject jsonObject);
+    int wechatinsert(JSONObject jsonObject,String mobileDevice);
 
     /**
      * 根据userInfoId更新密码

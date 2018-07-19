@@ -111,15 +111,13 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
 
     //微信注册用户
     @Override
-    public int wechatinsert(JSONObject jsonObject) {
+    public int wechatinsert(JSONObject jsonObject,String mobileDevice) {
         UserInfoRestEntity userInfoRestEntity = new UserInfoRestEntity();
         //设置昵称
         if(StringUtils.isNotEmpty(jsonObject.getString("nickname"))){
-            //userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(jsonObject.getString("nickname")));
             userInfoRestEntity.setNickName(jsonObject.getString("nickname"));
         }
         if(StringUtils.isNotEmpty(jsonObject.getString("nickName"))){
-            //userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(jsonObject.getString("nickName")));
             userInfoRestEntity.setNickName(jsonObject.getString("nickName"));
         }
         //设置性别
@@ -151,7 +149,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         if(StringUtils.isNotEmpty(jsonObject.getString("unionId"))){
             userInfoRestEntity.setWechatAuth(jsonObject.getString("unionId"));
         }
-
+        //设置设备号
+        if(StringUtils.isNotEmpty(mobileDevice)){
+            userInfoRestEntity.setMobileDevice(mobileDevice);
+        }
         //insert user info表
         int insertId = userInfoRestDao.insert(userInfoRestEntity);
         //获取主键,insert-->user login 表

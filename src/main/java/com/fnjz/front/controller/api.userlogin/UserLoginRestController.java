@@ -161,7 +161,7 @@ public class UserLoginRestController extends BaseController {
             UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
             if (task == null) {
                 //注册
-                int insert = userInfoRestServiceI.wechatinsert(user);
+                int insert = userInfoRestServiceI.wechatinsert(user,map.get("code"));
                 if (insert > 0) {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
                     return createTokenUtils.loginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
@@ -259,7 +259,7 @@ public class UserLoginRestController extends BaseController {
                     return createTokenUtils.wxappletLoginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                 }
                 //注册
-                int insert = userInfoRestServiceI.wechatinsert(user);
+                int insert = userInfoRestServiceI.wechatinsert(user,null);
                 if (insert > 0) {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
                     return createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
