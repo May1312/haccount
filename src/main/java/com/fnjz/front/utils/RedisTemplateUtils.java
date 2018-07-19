@@ -25,11 +25,6 @@ public class RedisTemplateUtils {
 
     private RedisTemplate redisTemplate;
 
-    /**
-     * 不序列化
-     */
-    private RedisTemplate redisTemplateForCount;
-
     @Autowired
     public void setRedisTemplate(RedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -37,15 +32,6 @@ public class RedisTemplateUtils {
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
-    }
-
-    //我的页面统计使用
-    @Autowired
-    public void setRedisTemplateForCount(RedisTemplate redisTemplateForCount) {
-        this.redisTemplateForCount = redisTemplateForCount;
-        redisTemplateForCount.setKeySerializer(new StringRedisSerializer());
-        redisTemplateForCount.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplateForCount.setHashValueSerializer(new StringRedisSerializer());
     }
 
     @Autowired
@@ -166,12 +152,12 @@ public class RedisTemplateUtils {
 
     /**
      * 获取我的页面 统计缓存
-     *
+     *Map 不能指定泛型  increment会异常
      * @param shareCode
      * @return
      */
     public Map getMyCount(String shareCode) {
-        return redisTemplateForCount.opsForHash().entries(RedisPrefix.PREFIX_MY_COUNT + shareCode);
+        return redisTemplate.opsForHash().entries(RedisPrefix.PREFIX_MY_COUNT + shareCode);
     }
 
     /**
@@ -181,16 +167,9 @@ public class RedisTemplateUtils {
      * @param myCount
      */
     public void updateMyCount(String shareCode, Map myCount) {
-        //redisTemplate.opsForValue().set(RedisPrefix.PREFIX_MY_COUNT + shareCode,myCount,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
-        if(myCount.containsKey("chargeTotal")){
-            int chargeTotal = Integer.valueOf(myCount.get("chargeTotal")+"");
-            myCount.remove("chargeTotal");
-            redisTemplateForCount.opsForHash().putAll(RedisPrefix.PREFIX_MY_COUNT + shareCode, myCount);
-            redisTemplateForCount.opsForHash().put(RedisPrefix.PREFIX_MY_COUNT + shareCode, "chargeTotal",chargeTotal);
-        }
-        redisTemplateForCount.opsForHash().putAll(RedisPrefix.PREFIX_MY_COUNT + shareCode, myCount);
+        redisTemplate.opsForHash().putAll(RedisPrefix.PREFIX_MY_COUNT + shareCode, myCount);
         //设置缓存时间
-        redisTemplateForCount.expire(RedisPrefix.PREFIX_MY_COUNT + shareCode, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+        redisTemplate.expire(RedisPrefix.PREFIX_MY_COUNT + shareCode, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
     }
 
     /**
@@ -202,13 +181,9 @@ public class RedisTemplateUtils {
      */
     public void incrementMyCountTotal(String shareCode, String file, int flag) {
         if (1 == flag) {
-            Long increment = redisTemplateForCount.opsForHash().increment(RedisPrefix.PREFIX_MY_COUNT + shareCode, file, 1);
-            //BoundHashOperations boundValueOperations = redisTemplateForCount.boundHashOps(RedisPrefix.PREFIX_MY_COUNT + shareCode);
-            //Long increment = boundValueOperations.increment(file,1);
-            System.out.println(increment);
+            redisTemplate.opsForHash().increment(RedisPrefix.PREFIX_MY_COUNT + shareCode, file, 1);
         } else {
-            Long increment = redisTemplateForCount.opsForHash().increment(RedisPrefix.PREFIX_MY_COUNT + shareCode, file, -1);
-            System.out.println(increment);
+            redisTemplate.opsForHash().increment(RedisPrefix.PREFIX_MY_COUNT + shareCode, file, -1);
         }
     }
 

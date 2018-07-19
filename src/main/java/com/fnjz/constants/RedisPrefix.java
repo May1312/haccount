@@ -42,17 +42,20 @@ public class RedisPrefix {
     /**
      * 验证码缓存有效时间 默认三分钟
      */
-    public static final long VERIFYCODE_VALID_TIME = 10L;
+    public static final long VERIFYCODE_VALID_TIME = 3L;
     /**
      * 用户信息缓存有效时间 默认三十天
      */
     public static final long USER_VALID_TIME = 30L;
-    //用户信息缓存有效时间 默认三十天  单位秒
+
+    /**
+     * 用户信息缓存有效时间 默认三十天  单位秒
+     */
     public static final String USER_EXPIRE_TIME = "2592000";
     /**
-     * session_key 缓存有效时间 默认三十分钟
+     * 小程序session key 信息缓存有效时间 默认1天
      */
-    public static final long SESSION_KEY_TIME = 30L;
+    public static final long SESSION_KEY_TIME = 1L;
     /**
      * 缓存类目支出前缀
      */

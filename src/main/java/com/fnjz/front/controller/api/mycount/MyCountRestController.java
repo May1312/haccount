@@ -56,27 +56,25 @@ public class MyCountRestController extends BaseController {
                 //chargeTotal 为空   查询db
                 if (chargeTotal < 1) {
                     chargeTotal = warterOrderRestServiceI.chargeTotal(userLoginRestEntity.getAccountBookId());
-                    map.put("chargeTotal", chargeTotal + "");
+                    map.put("chargeTotal", chargeTotal);
                 }
                 //打卡天数置为1
                 if (!map.containsKey("clockInDays")) {
-                    map.put("clockInDays", "1");
+                    map.put("clockInDays", 1);
                     map.put("clockInTime", (System.currentTimeMillis() + ""));
                 }
             } else {
                 chargeTotal = warterOrderRestServiceI.chargeTotal(userLoginRestEntity.getAccountBookId());
-                map.put("chargeTotal", chargeTotal + "");
+                map.put("chargeTotal", chargeTotal);
                 //打卡天数置为1
                 if (!map.containsKey("clockInDays")) {
-                    map.put("clockInDays", "1");
+                    map.put("clockInDays", 1);
                     map.put("clockInTime", (System.currentTimeMillis() + ""));
                 }
                 //重新设置redis javabean转map
                 redisTemplateUtils.updateMyCount(shareCode, map);
             }
             map.put("daysCount", daysCount + "/" + DateUtils.getCurrentDay());
-            //map 中的chargeTotal已删除 重新赋值
-            map.put("chargeTotal", chargeTotal + "");
             return new ResultBean(ApiResultType.OK, map);
         } catch (Exception e) {
             logger.error(e.toString());

@@ -159,7 +159,7 @@ public class WarterOrderRestController extends BaseController {
             if (s.size() > 0) {
                 if (s.get("clockInDays") == null && s.get("clockInTime") == null) {
                     //首次打卡
-                    s.put("clockInDays", "1");
+                    s.put("clockInDays", 1);
                     s.put("clockInTime", (System.currentTimeMillis() + ""));
                     redisTemplateUtils.updateMyCount(shareCode, s);
                 } else {
@@ -172,18 +172,18 @@ public class WarterOrderRestController extends BaseController {
                     long now = System.currentTimeMillis();
                     if (now > dateOfBegin.getTime() && now < dateOfEnd.getTime()) {
                         //打卡成功
-                        s.put("clockInDays", (Integer.valueOf(s.get("clockInDays") + "") + 1) + "");
+                        s.put("clockInDays", (Integer.valueOf(s.get("clockInDays") + "") + 1));
                         s.put("clockInTime", (System.currentTimeMillis() + ""));
                         redisTemplateUtils.updateMyCount(shareCode, s);
                     } else if (now > dateOfEnd.getTime()) {
                         //置空
-                        s.put("clockInDays", "1");
+                        s.put("clockInDays", 1);
                         s.put("clockInTime", System.currentTimeMillis() + "");
                         redisTemplateUtils.updateMyCount(shareCode, s);
                     }
                 }
             } else {
-                s.put("clockInDays", "1");
+                s.put("clockInDays", 1);
                 s.put("clockInTime", (System.currentTimeMillis() + ""));
                 redisTemplateUtils.updateMyCount(shareCode, s);
             }
