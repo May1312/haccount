@@ -69,7 +69,7 @@ public class RedisTemplateUtils {
      * @param session_key
      */
     public void cacheSessionKey(String sessionKeyPrefix, String session_key) {
-        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_WXAPPLET_SESSION_KEY + sessionKeyPrefix, session_key, RedisPrefix.SESSION_KEY_TIME, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(RedisPrefix.PREFIX_WXAPPLET_SESSION_KEY + sessionKeyPrefix, session_key, RedisPrefix.SESSION_KEY_TIME, TimeUnit.DAYS);
     }
 
     /**
