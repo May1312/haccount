@@ -51,6 +51,8 @@ public enum ApiResultType {
     encryptedData_IS_NULL("01035","encryptedData为空，请检查！"),
     IV_IS_NULL("01036","iv为空，请检查！"),
     KEY_IS_NULL("01037","key为空，请检查！"),
+    MOBILE_IS_VAILD("999","手机号无此权限!"),
+    ROBOT_IS_VAILD("888","测试用户号段必须不小于13位!"),
 
     //手势密码相关
     GESTURE_PARAMS_ERROR("02001","参数异常，请检查！"),

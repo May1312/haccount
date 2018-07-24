@@ -216,6 +216,8 @@
                         <value>/rest/api/v1/verifycodeToResetpwd</value>
                         <value>/rest/api/v1/resetpwd</value>
                         <value>/rest/api/v1/registerByWXApplet</value>
+                        <value>/rest/api/admin/sendVerifyCode</value>
+                        <value>/rest/api/admin/createRobot</value>
                     </list>
                 </property>
                 <property name="excludeContainUrls">
@@ -231,6 +233,8 @@
                         <value>/rest/api/v1/verifycodeToResetpwd</value>
                         <value>/rest/api/v1/resetpwd</value>
                         <value>/rest/api/v1/registerByWXApplet</value>
+                        <value>/rest/api/admin/sendVerifyCode</value>
+                        <value>/rest/api/admin/createRobot</value>
                     </list>
                 </property>
             </bean>

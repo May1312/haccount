@@ -26,7 +26,9 @@ public class ParamValidateUtils {
      */
     public static ResultBean checkeLongin(Map<String, String> map, LoginEnum login) {
         if (StringUtils.isEmpty(map.get("mobile"))) {
-            return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
+            if(map.get("mobile").length()<13){
+                return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
+            }
         }
         //密码登录校验密码
         if (login.getIndex() == 1) {

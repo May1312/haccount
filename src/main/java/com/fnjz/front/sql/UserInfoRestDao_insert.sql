@@ -1,5 +1,5 @@
 INSERT INTO `hbird_account`.`hbird_user_info`
-( mobile, password, mobile_system , mobile_system_version,mobile_manufacturer,mobile_device,login_ip, register_date,wechat_auth,nick_name,sex,province_name,city_name,avatar_url )
+( mobile, password, mobile_system , mobile_system_version,mobile_manufacturer,mobile_device,login_ip, register_date,wechat_auth,nick_name,sex,province_name,city_name,avatar_url,user_type )
 VALUES
 	(  :userInfoRestEntity.mobile,
 	 :userInfoRestEntity.password,
@@ -14,4 +14,5 @@ VALUES
   :userInfoRestEntity.sex,
   :userInfoRestEntity.provinceName,
   :userInfoRestEntity.cityName,
-  :userInfoRestEntity.avatarUrl);
+  :userInfoRestEntity.avatarUrl,
+  :userInfoRestEntity.userType);
