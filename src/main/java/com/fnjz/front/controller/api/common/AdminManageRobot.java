@@ -86,7 +86,7 @@ public class AdminManageRobot {
     public ResultBean createRobot(@RequestParam(required = false) String profix, @RequestParam(required = false) String pushnumber, @RequestParam(required = false) String robotnumber, @RequestParam(required = false) String verifycode, @RequestParam(required = false) String mobile) {
         if (StringUtils.isNotEmpty(profix) && StringUtils.isNotEmpty(pushnumber) && StringUtils.isNotEmpty(robotnumber) && StringUtils.isNotEmpty(verifycode) && StringUtils.isNotEmpty(mobile)) {
             //校验长度
-            if (profix.length() + Integer.valueOf(pushnumber) >= 13) {
+            //if (profix.length() + Integer.valueOf(pushnumber) >= 13) {
                 String code = redisTemplateUtils.getVerifyCode(RedisPrefix.ADMIN_CERTAIN + mobile);
                 List<UserInfoRestEntity> list = new ArrayList<>(Integer.valueOf(robotnumber));
                 if (StringUtils.equals(code, verifycode)) {
@@ -110,9 +110,9 @@ public class AdminManageRobot {
                     return new ResultBean(ApiResultType.ROBOT_IS_VAILD, null);
                 }
 
-            } else {
+            /*} else {
                 return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
-            }
+            }*/
         } else {
             return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
         }

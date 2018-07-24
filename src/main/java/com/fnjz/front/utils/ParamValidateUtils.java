@@ -25,11 +25,11 @@ public class ParamValidateUtils {
      * @return
      */
     public static ResultBean checkeLongin(Map<String, String> map, LoginEnum login) {
-        if (StringUtils.isEmpty(map.get("mobile"))) {
+        /*if (StringUtils.isEmpty(map.get("mobile"))) {
             if(map.get("mobile").length()<13){
                 return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
             }
-        }
+        }*/
         //密码登录校验密码
         if (login.getIndex() == 1) {
             if (StringUtils.isEmpty(map.get("password"))) {
