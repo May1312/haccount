@@ -25,11 +25,9 @@ public class ParamValidateUtils {
      * @return
      */
     public static ResultBean checkeLongin(Map<String, String> map, LoginEnum login) {
-        /*if (StringUtils.isEmpty(map.get("mobile"))) {
-            if(map.get("mobile").length()<13){
-                return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
-            }
-        }*/
+        if (StringUtils.isEmpty(map.get("mobile"))) {
+            return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
+        }
         //密码登录校验密码
         if (login.getIndex() == 1) {
             if (StringUtils.isEmpty(map.get("password"))) {
@@ -42,9 +40,9 @@ public class ParamValidateUtils {
                 return new ResultBean(ApiResultType.VERIFYCODE_IS_NULL, null);
             }
         }
-        if (!ValidateUtils.isMobile(map.get("mobile"))) {
+        /*if (!ValidateUtils.isMobile(map.get("mobile"))) {
             return new ResultBean(ApiResultType.MOBILE_FORMAT_ERROR, null);
-        }
+        }*/
         return null;
     }
 
