@@ -107,7 +107,7 @@ public class AdminManageRobot {
                     }
                     return new ResultBean(ApiResultType.OK, list);
                 } else {
-                    return new ResultBean(ApiResultType.ROBOT_IS_VAILD, null);
+                    return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
                 }
 
             /*} else {
