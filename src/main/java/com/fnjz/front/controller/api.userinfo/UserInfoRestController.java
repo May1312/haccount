@@ -70,7 +70,7 @@ public class UserInfoRestController extends BaseController {
             UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
                 //判断手机号 验证码
-                rb = ParamValidateUtils.checkeLongin(map, LoginEnum.LOGIN_BY_VERIFYCODE);
+                rb = ParamValidateUtils.checkLogin(map, LoginEnum.LOGIN_BY_VERIFYCODE);
                 if (rb != null) {
                     return rb;
                 }

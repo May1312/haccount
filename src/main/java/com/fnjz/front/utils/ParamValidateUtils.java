@@ -24,7 +24,7 @@ public class ParamValidateUtils {
      * @param map
      * @return
      */
-    public static ResultBean checkeLongin(Map<String, String> map, LoginEnum login) {
+    public static ResultBean checkLogin(Map<String, String> map, LoginEnum login) {
         if (StringUtils.isEmpty(map.get("mobile"))) {
             return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
         }

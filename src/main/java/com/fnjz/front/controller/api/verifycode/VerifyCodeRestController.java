@@ -119,7 +119,7 @@ public class VerifyCodeRestController {
     public ResultBean checkOldMobile(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
 
         System.out.println("登录终端：" + type);
-        ResultBean rb = ParamValidateUtils.checkeLongin(map, LoginEnum.LOGIN_BY_VERIFYCODE);
+        ResultBean rb = ParamValidateUtils.checkLogin(map, LoginEnum.LOGIN_BY_VERIFYCODE);
         if (rb != null) {
             return rb;
         }
