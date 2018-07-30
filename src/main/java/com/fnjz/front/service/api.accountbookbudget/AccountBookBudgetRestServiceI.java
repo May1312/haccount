@@ -18,5 +18,12 @@ public interface AccountBookBudgetRestServiceI extends CommonService{
      * @param budget
      * @return
      */
-    AccountBookBudgetRestEntity getBudget(AccountBookBudgetRestEntity budget);
+    AccountBookBudgetRestEntity getCurrentBudget(AccountBookBudgetRestEntity budget);
+
+    /**
+     * 获取库最新预算，不限制当月
+     * @param budget
+     * @return
+     */
+    AccountBookBudgetRestEntity getLatelyBudget(AccountBookBudgetRestEntity budget);
 }

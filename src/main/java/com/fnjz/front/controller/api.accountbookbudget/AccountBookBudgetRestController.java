@@ -40,7 +40,7 @@ public class AccountBookBudgetRestController extends BaseController {
     private RedisTemplateUtils redisTemplateUtils;
 
     /**
-     * 设置或修改 当月预算/最大支出
+     * 设置或修改 当月预算/固定支出
      *
      * @param type
      * @param budget
@@ -57,7 +57,7 @@ public class AccountBookBudgetRestController extends BaseController {
                 UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
                 budget.setAccountBookId(userAccountBookRestEntityCache.getAccountBookId());
                 //判断预算是否存在
-                AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getBudget(budget);
+                AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getCurrentBudget(budget);
                 //校验金额
                 if (budgetResult != null) {
                     //修改预算情况
@@ -136,15 +136,15 @@ public class AccountBookBudgetRestController extends BaseController {
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             AccountBookBudgetRestEntity budget = new AccountBookBudgetRestEntity();
             budget.setAccountBookId(userAccountBookRestEntityCache.getAccountBookId());
-            //判断预算是否存在
-            AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getBudget(budget);
+            //判断预算是否存在 lately
+            AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getLatelyBudget(budget);
             AccountBookBudgetRestDTO dto = null;
             if(budgetResult!=null){
                 dto = new AccountBookBudgetRestDTO();
                 BeanUtils.copyProperties(budgetResult,dto);
             }
             return new ResultBean(ApiResultType.OK,dto);
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
