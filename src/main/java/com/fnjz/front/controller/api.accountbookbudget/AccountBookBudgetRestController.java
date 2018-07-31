@@ -1,11 +1,14 @@
 package com.fnjz.front.controller.api.accountbookbudget;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestDTO;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
+import com.fnjz.front.entity.api.accountbookbudget.SavingEfficiencyRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
+import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiParam;
 import org.apache.log4j.Logger;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author zhangdaihao
@@ -124,6 +128,7 @@ public class AccountBookBudgetRestController extends BaseController {
 
     /**
      * 首页获取预算接口
+     *
      * @return
      */
     @RequestMapping(value = "/getbudget/{type}", method = RequestMethod.GET)
@@ -139,11 +144,35 @@ public class AccountBookBudgetRestController extends BaseController {
             //判断预算是否存在 lately
             AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getLatelyBudget(budget);
             AccountBookBudgetRestDTO dto = null;
-            if(budgetResult!=null){
+            if (budgetResult != null) {
                 dto = new AccountBookBudgetRestDTO();
-                BeanUtils.copyProperties(budgetResult,dto);
+                BeanUtils.copyProperties(budgetResult, dto);
             }
-            return new ResultBean(ApiResultType.OK,dto);
+            return new ResultBean(ApiResultType.OK, dto);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 存钱效率查询
+     *
+     * @param type
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/getsavingefficiency/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getSavingEfficiency(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
+        System.out.println("登录终端：" + type);
+        try {
+            String shareCode = (String) request.getAttribute("shareCode");
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+            JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
+            List<SavingEfficiencyRestDTO> list = accountBookBudgetRestService.getSavingEfficiency(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"),jsonObject.getString("range"));
+            return new ResultBean(ApiResultType.OK,list);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -160,5 +189,11 @@ public class AccountBookBudgetRestController extends BaseController {
     @ResponseBody
     public ResultBean getBudget(HttpServletRequest request) {
         return this.getBudget(null, request);
+    }
+
+    @RequestMapping(value = "/getsavingefficiency", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getSavingEfficiency(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
+        return this.getSavingEfficiency(null, request,month,range);
     }
 }

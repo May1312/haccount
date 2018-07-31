@@ -2,6 +2,7 @@ package com.fnjz.front.service.impl.api.accountbookbudget;
 
 import com.fnjz.front.dao.AccountBookBudgetRestDao;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
+import com.fnjz.front.entity.api.accountbookbudget.SavingEfficiencyRestDTO;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import org.apache.commons.lang.StringUtils;
@@ -9,6 +10,8 @@ import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service("accountBookBudgetRestService")
 @Transactional
@@ -80,5 +83,20 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             }
         }
         return budgetResult;
+    }
+
+    /**
+     * 获取存钱效率
+     * @param accountBookId
+     * @param month
+     * @param range
+     * @return
+     */
+    @Override
+    public List<SavingEfficiencyRestDTO> getSavingEfficiency(Integer accountBookId, String month, String range) {
+        String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
+        //查询在此区间内的预算值
+        List<SavingEfficiencyRestDTO> list = accountBookBudgetRestDao.listStatisticsByMonths(rangeMonth,month,accountBookId);
+        return list;
     }
 }

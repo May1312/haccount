@@ -174,11 +174,23 @@ public class DateUtils {
         return map;
     }
 
+    /**
+     * 根据传入月份，往前递推range个单位
+     * @param month
+     * @param range
+     * @return
+     */
+    public static String getRangeMonth(String month,int range){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH,Integer.valueOf(month));
+        cal.add(Calendar.MONTH, range);
+        Date starDate = cal.getTime();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM");
+        return formatter.format(starDate);
+    }
+
     public static void main(String[] args) throws ParseException {
-        //System.out.println(getCurrentYearMonth());
-        SimpleDateFormat format =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String d = format.format(1530439181000L);
-        Date date=format.parse(d);
-        System.out.println(getDateByWeeks(1));
+        System.out.println(getRangeMonth("02",-3));
+        System.out.println(Integer.valueOf("-"+"520"));
     }
 }

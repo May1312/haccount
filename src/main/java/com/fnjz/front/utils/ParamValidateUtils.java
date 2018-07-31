@@ -1,5 +1,6 @@
 package com.fnjz.front.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.statistics.StatisticsParamsRestDTO;
@@ -335,5 +336,28 @@ public class ParamValidateUtils {
             return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL,null);
         }
         return null;
+    }
+
+    /**
+     * 定义存钱效率中月份范围
+     */
+    private static final String RANGE_3 = "3";
+    private static final String RANGE_6 = "6";
+    private static final String RANGE_12 = "12";
+
+    public static JSONObject checkSavingEfficiency(String month, String range) {
+        if(StringUtils.isEmpty(month)){
+            month = DateUtils.getCurrentMonth();
+        }else if(!StringUtils.startsWithIgnoreCase(month, "0")
+                && month.length() < 2) {
+            month = "0" + month;
+        }
+        if(StringUtils.isEmpty(range)){
+            range = RANGE_3;
+        }
+        JSONObject jo = new JSONObject();
+        jo.put("month",month);
+        jo.put("range",range);
+        return jo;
     }
 }
