@@ -342,8 +342,6 @@ public class ParamValidateUtils {
      * 定义存钱效率中月份范围
      */
     private static final String RANGE_3 = "3";
-    private static final String RANGE_6 = "6";
-    private static final String RANGE_12 = "12";
 
     public static JSONObject checkSavingEfficiency(String month, String range) {
         if(StringUtils.isEmpty(month)){

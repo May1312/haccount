@@ -4,7 +4,9 @@ import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.SavingEfficiencyRestDTO;
 import org.jeecgframework.core.common.service.CommonService;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface AccountBookBudgetRestServiceI extends CommonService {
 
@@ -42,4 +44,12 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @return
      */
     List<SavingEfficiencyRestDTO> getSavingEfficiency(Integer accountBookId, String month, String range);
+
+    /**
+     * 获取消费结构比
+     * @param accountBookId
+     * @param month
+     * @return
+     */
+    List<Map<String,BigDecimal>> getConsumptionStructureRatio(Integer accountBookId, String month);
 }

@@ -1,17 +1,21 @@
 package com.fnjz.front.service.impl.api.accountbookbudget;
 
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.AccountBookBudgetRestDao;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.SavingEfficiencyRestDTO;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
 import com.fnjz.front.utils.DateUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Service("accountBookBudgetRestService")
 @Transactional
@@ -97,6 +101,19 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
         //查询在此区间内的预算值
         List<SavingEfficiencyRestDTO> list = accountBookBudgetRestDao.listStatisticsByMonths(rangeMonth,month,accountBookId);
+        return list;
+    }
+
+    /**
+     * 获取消费结构比
+     * @param accountBookId
+     * @param month
+     * @return
+     */
+    @Override
+    public List<Map<String, BigDecimal>> getConsumptionStructureRatio(Integer accountBookId, String month) {
+        List<Map<String, BigDecimal>> list = accountBookBudgetRestDao.getConsumptionStructureRatio(accountBookId,month,RedisPrefix.CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE);
+        System.out.println(ArrayUtils.toString(list));
         return list;
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhangdaihao
@@ -157,7 +158,7 @@ public class AccountBookBudgetRestController extends BaseController {
 
     /**
      * 存钱效率查询
-     *
+     * 存钱效率 = (单月收入-当月总支出)/(当月总支出-当月固定支出)
      * @param type
      * @param request
      * @return
@@ -172,6 +173,31 @@ public class AccountBookBudgetRestController extends BaseController {
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
             List<SavingEfficiencyRestDTO> list = accountBookBudgetRestService.getSavingEfficiency(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"),jsonObject.getString("range"));
+            return new ResultBean(ApiResultType.OK,list);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 消费结构比查询 Consumption structure ratio
+     * 非食物支出占总支出的比值
+     * @param type
+     * @param request
+     * @param month
+     * @return
+     */
+    @RequestMapping(value = "/getconsumptionstructureratio/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getConsumptionStructureRatio(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "month", required = false) String month) {
+        System.out.println("登录终端：" + type);
+        try {
+            String shareCode = (String) request.getAttribute("shareCode");
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+            JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month,null);
+            List<Map<String,BigDecimal>> list = accountBookBudgetRestService.getConsumptionStructureRatio(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"));
             return new ResultBean(ApiResultType.OK,list);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -195,5 +221,11 @@ public class AccountBookBudgetRestController extends BaseController {
     @ResponseBody
     public ResultBean getSavingEfficiency(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
         return this.getSavingEfficiency(null, request,month,range);
+    }
+
+    @RequestMapping(value = "/getconsumptionstructureratio", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getConsumptionStructureRatio(HttpServletRequest request, @RequestParam(value = "month", required = false) String month) {
+        return this.getConsumptionStructureRatio(null, request,month);
     }
 }
