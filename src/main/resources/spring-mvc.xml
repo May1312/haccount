@@ -218,6 +218,7 @@
                         <value>/rest/api/v1/registerByWXApplet</value>
                         <value>/rest/api/admin/sendVerifyCode</value>
                         <value>/rest/api/admin/createRobot</value>
+                        <value>/rest/api/v1/appCheck</value>
                     </list>
                 </property>
                 <property name="excludeContainUrls">
@@ -235,6 +236,7 @@
                         <value>/rest/api/v1/registerByWXApplet</value>
                         <value>/rest/api/admin/sendVerifyCode</value>
                         <value>/rest/api/admin/createRobot</value>
+                        <value>/rest/api/v1/appCheck</value>
                     </list>
                 </property>
             </bean>
