@@ -197,7 +197,7 @@ public class AccountBookBudgetRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month,null);
-            List<Map<String,BigDecimal>> list = accountBookBudgetRestService.getConsumptionStructureRatio(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"));
+            List<Map<String, Object>> list = accountBookBudgetRestService.getConsumptionStructureRatio(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"));
             return new ResultBean(ApiResultType.OK,list);
         } catch (Exception e) {
             logger.error(e.toString());

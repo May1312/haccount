@@ -18,7 +18,7 @@ SET
 		    </#if>
        <#elseif  warterOrderRestEntity.orderType ==2>
        /*收入类型 愉悦度/支出类型必须置为null*/
-       spend_happiness = :warterOrderRestEntity.spend_happiness,
+       spend_happiness = :warterOrderRestEntity.spendHappiness,
        is_staged = :warterOrderRestEntity.isStaged,
       </#if>
       /*orderType 为null情况下*/

@@ -6,16 +6,13 @@ import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.SavingEfficiencyRestDTO;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
 import com.fnjz.front.utils.DateUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("accountBookBudgetRestService")
 @Transactional
@@ -100,8 +97,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     public List<SavingEfficiencyRestDTO> getSavingEfficiency(Integer accountBookId, String month, String range) {
         String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
         //查询在此区间内的预算值
-        List<SavingEfficiencyRestDTO> list = accountBookBudgetRestDao.listStatisticsByMonths(rangeMonth,month,accountBookId);
-        return list;
+        return accountBookBudgetRestDao.listStatisticsByMonths(rangeMonth,month,accountBookId);
     }
 
     /**
@@ -111,9 +107,36 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @return
      */
     @Override
-    public List<Map<String, BigDecimal>> getConsumptionStructureRatio(Integer accountBookId, String month) {
-        List<Map<String, BigDecimal>> list = accountBookBudgetRestDao.getConsumptionStructureRatio(accountBookId,month,RedisPrefix.CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE);
-        System.out.println(ArrayUtils.toString(list));
+    public List<Map<String, Object>> getConsumptionStructureRatio(Integer accountBookId, String month) {
+        List<Map<String, Object>> list = accountBookBudgetRestDao.getConsumptionStructureRatio(accountBookId, month, RedisPrefix.CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE);
+        if(list.size()<3){
+            //获取传入月份
+            String yearMonth = DateUtils.getCurrentYear()+"-"+month;
+            //获取前一月
+            String frontMonth = DateUtils.getRangeMonth(month,-1);
+            //获取前一年月份
+            String oldYearMonth = DateUtils.getRangeMonthforYear(month,-1);
+
+            Map containMap = new HashMap<String, Object>();
+            containMap.put(yearMonth,null);
+            containMap.put(frontMonth,null);
+            containMap.put(oldYearMonth,null);
+            for(int i = 0 ; i < list.size() ; i ++){
+                if(containMap.containsKey(list.get(i).get("time"))){
+                    containMap.remove(list.get(i).get("time"));
+                }
+            }
+            //取出map中剩余的值
+            Set set = containMap.keySet();
+            Iterator<String> iter = set.iterator() ;
+            while(iter.hasNext()){
+                Map<String,Object> map = new HashMap<>();
+                map.put("time",iter.next());
+                map.put("monthspend",null);
+                map.put("foodspend",null);
+                list.add(map);
+            }
+        }
         return list;
     }
 }
