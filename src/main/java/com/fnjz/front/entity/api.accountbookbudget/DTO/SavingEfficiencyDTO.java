@@ -1,36 +1,24 @@
-package com.fnjz.front.entity.api.accountbookbudget;
+package com.fnjz.front.entity.api.accountbookbudget.DTO;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * Created by yhang on 2018/7/27.
+ * Created by yhang on 2018/8/2.
  */
-public class AccountBookBudgetRestDTO implements Serializable {
-
-    /**预算金额*/
-    private BigDecimal budgetMoney;
-    /**预算设置时间*/
-    private java.lang.String time;
+public class SavingEfficiencyDTO extends BudgetBaseDTO {
+    /**月收入*/
+    private BigDecimal monthIncome;
     /**每月固定大额支出*/
     private BigDecimal fixedLargeExpenditure;
     /**每月固定生活支出*/
     private BigDecimal fixedLifeExpenditure;
 
-    public BigDecimal getBudgetMoney() {
-        return budgetMoney;
+    public BigDecimal getMonthIncome() {
+        return monthIncome;
     }
 
-    public void setBudgetMoney(BigDecimal budgetMoney) {
-        this.budgetMoney = budgetMoney;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
+    public void setMonthIncome(BigDecimal monthIncome) {
+        this.monthIncome = monthIncome;
     }
 
     public BigDecimal getFixedLargeExpenditure() {

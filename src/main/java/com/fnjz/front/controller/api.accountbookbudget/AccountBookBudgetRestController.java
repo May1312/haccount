@@ -5,7 +5,9 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestDTO;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
-import com.fnjz.front.entity.api.accountbookbudget.SavingEfficiencyRestDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
@@ -21,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author zhangdaihao
@@ -172,7 +173,7 @@ public class AccountBookBudgetRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
-            List<SavingEfficiencyRestDTO> list = accountBookBudgetRestService.getSavingEfficiency(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"),jsonObject.getString("range"));
+            List<SavingEfficiencyDTO> list = accountBookBudgetRestService.getSavingEfficiency(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"),jsonObject.getString("range"));
             return new ResultBean(ApiResultType.OK,list);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -197,7 +198,7 @@ public class AccountBookBudgetRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month,null);
-            List<Map<String, Object>> list = accountBookBudgetRestService.getConsumptionStructureRatio(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"));
+            List<ConsumptionStructureRatioDTO> list = accountBookBudgetRestService.getConsumptionStructureRatio(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"));
             return new ResultBean(ApiResultType.OK,list);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -222,7 +223,7 @@ public class AccountBookBudgetRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
-            List<Map<String, Object>> list = accountBookBudgetRestService.getBudgetCompletionRate(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"),jsonObject.getString("range"));
+            List<BudgetCompletionRateDTO> list = accountBookBudgetRestService.getBudgetCompletionRate(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"),jsonObject.getString("range"));
             return new ResultBean(ApiResultType.OK,list);
         } catch (Exception e) {
             logger.error(e.toString());

@@ -3,7 +3,9 @@ package com.fnjz.front.service.impl.api.accountbookbudget;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.AccountBookBudgetRestDao;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
-import com.fnjz.front.entity.api.accountbookbudget.SavingEfficiencyRestDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import org.apache.commons.lang.StringUtils;
@@ -94,7 +96,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @return
      */
     @Override
-    public List<SavingEfficiencyRestDTO> getSavingEfficiency(Integer accountBookId, String month, String range) {
+    public List<SavingEfficiencyDTO> getSavingEfficiency(Integer accountBookId, String month, String range) {
         String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
         //查询在此区间内的预算值
         return accountBookBudgetRestDao.listSavingEfficiencyStatisticsByMonths(rangeMonth,month,accountBookId);
@@ -107,8 +109,8 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @return
      */
     @Override
-    public List<Map<String, Object>> getConsumptionStructureRatio(Integer accountBookId, String month) {
-        List<Map<String, Object>> list = accountBookBudgetRestDao.getConsumptionStructureRatio(accountBookId, month, RedisPrefix.CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE);
+    public List<ConsumptionStructureRatioDTO> getConsumptionStructureRatio(Integer accountBookId, String month) {
+        List<ConsumptionStructureRatioDTO> list = accountBookBudgetRestDao.getConsumptionStructureRatio(accountBookId, month, RedisPrefix.CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE);
         if(list.size()<3){
             //获取传入月份
             String yearMonth = DateUtils.getCurrentYear()+"-"+month;
@@ -121,28 +123,26 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             containMap.put(frontMonth,null);
             containMap.put(oldYearMonth,null);
             for(int i = 0 ; i < list.size() ; i ++){
-                if(containMap.containsKey(list.get(i).get("time"))){
-                    containMap.remove(list.get(i).get("time"));
+                if(containMap.containsKey(list.get(i).getTime())){
+                    containMap.remove(list.get(i).getTime());
                 }
             }
             //取出map中剩余的值
             Set set = containMap.keySet();
             Iterator<String> iter = set.iterator() ;
             while(iter.hasNext()){
-                Map<String,Object> map = new HashMap<>();
-                map.put("time",iter.next());
-                map.put("monthspend",null);
-                map.put("foodspend",null);
-                list.add(map);
+                ConsumptionStructureRatioDTO csr = new ConsumptionStructureRatioDTO();
+                csr.setTime(iter.next());
+                list.add(csr);
             }
         }
         return list;
     }
 
     @Override
-    public List<Map<String, Object>> getBudgetCompletionRate(Integer accountBookId, String month, String range) {
+    public List<BudgetCompletionRateDTO> getBudgetCompletionRate(Integer accountBookId, String month, String range) {
         String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
-        List<Map<String, Object>> list = accountBookBudgetRestDao.listBudgetCompletionRateStatisticsByMonths(rangeMonth,month,accountBookId);
-        return null;
+        List<BudgetCompletionRateDTO> list = accountBookBudgetRestDao.listBudgetCompletionRateStatisticsByMonths(rangeMonth,month,accountBookId);
+        return list;
     }
 }

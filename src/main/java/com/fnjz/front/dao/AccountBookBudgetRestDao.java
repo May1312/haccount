@@ -2,14 +2,15 @@ package com.fnjz.front.dao;
 
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestDTO;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
-import com.fnjz.front.entity.api.accountbookbudget.SavingEfficiencyRestDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
 import org.jeecgframework.minidao.annotation.MiniDao;
 import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.ResultType;
 import org.jeecgframework.minidao.annotation.Sql;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by yhang on 2018/7/27.
@@ -72,9 +73,9 @@ public interface AccountBookBudgetRestDao {
      * @param accountBookId
      * @return
      */
-    @ResultType(SavingEfficiencyRestDTO.class)
-    @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS spend, SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END ) AS income, DATE_FORMAT( charge_date, '%Y-%m' ) AS time, budget.budget_money, budget.fixed_large_expenditure, budget.fixed_life_expenditure FROM `hbird_water_order` AS wo, (SELECT time, budget_money, fixed_large_expenditure, fixed_life_expenditure FROM `hbird_accountbook_budget` WHERE account_book_id = :accountBookId AND time <= CONCAT( DATE_FORMAT( NOW( ), '%Y-' ), :month ) AND time >= :rangeMonth) AS budget WHERE DATE_FORMAT( charge_date, '%Y-%m' ) IN ( budget.time ) AND wo.account_book_id = :accountBookId  AND wo.delflag = 0 GROUP BY time;")
-    List<SavingEfficiencyRestDTO> listSavingEfficiencyStatisticsByMonths(@Param("rangeMonth") String rangeMonth, @Param("month") String month, @Param("accountBookId") Integer accountBookId);
+    @ResultType(SavingEfficiencyDTO.class)
+    @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS monthSpend, SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END ) AS monthIncome, DATE_FORMAT( charge_date, '%Y-%m' ) AS time, budget.budget_money as budgetMoney, budget.fixed_large_expenditure as fixedLargeExpenditure, budget.fixed_life_expenditure as fixedLifeExpenditure FROM `hbird_water_order` AS wo, (SELECT time, budget_money, fixed_large_expenditure, fixed_life_expenditure FROM `hbird_accountbook_budget` WHERE account_book_id = :accountBookId AND time <= CONCAT( DATE_FORMAT( NOW( ), '%Y-' ), :month ) AND time >= :rangeMonth) AS budget WHERE DATE_FORMAT( charge_date, '%Y-%m' ) IN ( budget.time ) AND wo.account_book_id = :accountBookId  AND wo.delflag = 0 GROUP BY time;")
+    List<SavingEfficiencyDTO> listSavingEfficiencyStatisticsByMonths(@Param("rangeMonth") String rangeMonth, @Param("month") String month, @Param("accountBookId") Integer accountBookId);
 
     /**
      * 获取消费结构比
@@ -82,9 +83,9 @@ public interface AccountBookBudgetRestDao {
      * @param month
      * @return
      */
-    @ResultType(Map.class)
+    @ResultType(ConsumptionStructureRatioDTO.class)
     @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS monthSpend, SUM( CASE WHEN type_pid = :foodType THEN money ELSE NULL END ) AS foodSpend, DATE_FORMAT( charge_date, '%Y-%m' ) AS time FROM `hbird_water_order` AS wo WHERE DATE_FORMAT( charge_date, '%Y-%m' ) IN ( DATE_FORMAT(DATE_ADD(CONCAT(DATE_FORMAT( NOW( ), '%Y-' ), :month,'-01'),INTERVAL -1 MONTH),'%Y-%m'),DATE_FORMAT(DATE_ADD(CONCAT(DATE_FORMAT( NOW( ), '%Y-' ), :month,'-01'),INTERVAL -1 YEAR),'%Y-%m'),CONCAT(DATE_FORMAT( NOW( ), '%Y-' ), :month)) AND wo.account_book_id = :accountBookId AND wo.delflag = 0 GROUP BY time DESC;")
-    List<Map<String,Object>> getConsumptionStructureRatio(@Param("accountBookId") Integer accountBookId, @Param("month") String month , @Param("foodType") String foodType);
+    List<ConsumptionStructureRatioDTO> getConsumptionStructureRatio(@Param("accountBookId") Integer accountBookId, @Param("month") String month , @Param("foodType") String foodType);
 
     /**
      * 获取预算完成率
@@ -93,7 +94,7 @@ public interface AccountBookBudgetRestDao {
      * @param accountBookId
      * @return
      */
-    @ResultType(Map.class)
-    @Sql("")
-    List<Map<String,Object>> listBudgetCompletionRateStatisticsByMonths(String rangeMonth, String month, Integer accountBookId);
+    @ResultType(BudgetCompletionRateDTO.class)
+    @Sql("SELECT SUM(money) AS monthSpend, DATE_FORMAT( charge_date, '%Y-%m' ) AS time, budget.budget_money as budgetMoney FROM `hbird_water_order` AS wo, (SELECT time, budget_money FROM `hbird_accountbook_budget` WHERE account_book_id = :accountBookId AND time <= CONCAT( DATE_FORMAT( NOW( ), '%Y-' ), :month ) AND time >= :rangeMonth) AS budget WHERE DATE_FORMAT( charge_date, '%Y-%m' ) IN ( budget.time ) AND wo.account_book_id = :accountBookId  AND wo.delflag = 0 AND order_type = 1 GROUP BY time;")
+    List<BudgetCompletionRateDTO> listBudgetCompletionRateStatisticsByMonths(@Param("rangeMonth") String rangeMonth, @Param("month") String month, @Param("accountBookId") Integer accountBookId);
 }

@@ -1,11 +1,12 @@
 package com.fnjz.front.service.api.accountbookbudget;
 
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
-import com.fnjz.front.entity.api.accountbookbudget.SavingEfficiencyRestDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.util.List;
-import java.util.Map;
 
 public interface AccountBookBudgetRestServiceI extends CommonService {
 
@@ -42,7 +43,7 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @param range
      * @return
      */
-    List<SavingEfficiencyRestDTO> getSavingEfficiency(Integer accountBookId, String month, String range);
+    List<SavingEfficiencyDTO> getSavingEfficiency(Integer accountBookId, String month, String range);
 
     /**
      * 获取消费结构比
@@ -50,7 +51,7 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @param month
      * @return
      */
-    List<Map<String, Object>> getConsumptionStructureRatio(Integer accountBookId, String month);
+    List<ConsumptionStructureRatioDTO> getConsumptionStructureRatio(Integer accountBookId, String month);
 
     /**
      * 获取预算完成率
@@ -59,5 +60,5 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @param range
      * @return
      */
-    List<Map<String,Object>> getBudgetCompletionRate(Integer accountBookId, String month, String range);
+    List<BudgetCompletionRateDTO> getBudgetCompletionRate(Integer accountBookId, String month, String range);
 }
