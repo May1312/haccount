@@ -6,7 +6,6 @@ import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import org.jeecgframework.minidao.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +105,7 @@ public interface WarterOrderRestDao {
      * @param accountBookId
      * @return
      */
-    @Sql("SELECT sum( wo.money ) as money,count(money) as moneytimes,wo.type_name,wo.spend_happiness,count(wo.spend_happiness) as count,( CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END ) AS icon FROM hbird_water_order AS wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 1 AND wo.delflag = 0 AND wo.charge_date = :date GROUP BY wo.type_id order by money DESC;")
+    @Sql("SELECT sum( wo.money ) as money,count(money) as moneytimes,wo.type_name,wo.spend_happiness,count(wo.spend_happiness) as count,( CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END ) AS icon FROM hbird_water_order AS wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id WHERE wo.account_book_id = :accountBookId AND wo.order_type = 1 AND wo.delflag = 0 AND wo.charge_date = :date GROUP BY wo.type_id,wo.spend_happiness order by money DESC;")
     @ResultType(Map.class)
     List<Map<String,Object>> statisticsForDaysByTime(@Param("date")String date, @Param("accountBookId")Integer accountBookId);
 
