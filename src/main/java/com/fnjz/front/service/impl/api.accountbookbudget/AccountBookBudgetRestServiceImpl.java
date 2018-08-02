@@ -97,7 +97,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     public List<SavingEfficiencyRestDTO> getSavingEfficiency(Integer accountBookId, String month, String range) {
         String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
         //查询在此区间内的预算值
-        return accountBookBudgetRestDao.listStatisticsByMonths(rangeMonth,month,accountBookId);
+        return accountBookBudgetRestDao.listSavingEfficiencyStatisticsByMonths(rangeMonth,month,accountBookId);
     }
 
     /**
@@ -116,7 +116,6 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             String frontMonth = DateUtils.getRangeMonth(month,-1);
             //获取前一年月份
             String oldYearMonth = DateUtils.getRangeMonthforYear(month,-1);
-
             Map containMap = new HashMap<String, Object>();
             containMap.put(yearMonth,null);
             containMap.put(frontMonth,null);
@@ -138,5 +137,12 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             }
         }
         return list;
+    }
+
+    @Override
+    public List<Map<String, Object>> getBudgetCompletionRate(Integer accountBookId, String month, String range) {
+        String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
+        List<Map<String, Object>> list = accountBookBudgetRestDao.listBudgetCompletionRateStatisticsByMonths(rangeMonth,month,accountBookId);
+        return null;
     }
 }

@@ -205,6 +205,31 @@ public class AccountBookBudgetRestController extends BaseController {
         }
     }
 
+    /**
+     * 获取预算完成率接口  Budget completion rate
+     * @param type
+     * @param request
+     * @param month
+     * @param range
+     * @return
+     */
+    @RequestMapping(value = "/getbudgetcompletionrate/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getBudgetCompletionRate(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
+        System.out.println("登录终端：" + type);
+        try {
+            String shareCode = (String) request.getAttribute("shareCode");
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+            JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
+            List<Map<String, Object>> list = accountBookBudgetRestService.getBudgetCompletionRate(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"),jsonObject.getString("range"));
+            return new ResultBean(ApiResultType.OK,list);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
     @RequestMapping(value = "/setbudget", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean setBudget(@RequestBody AccountBookBudgetRestEntity budget, HttpServletRequest request) {
@@ -227,5 +252,11 @@ public class AccountBookBudgetRestController extends BaseController {
     @ResponseBody
     public ResultBean getConsumptionStructureRatio(HttpServletRequest request, @RequestParam(value = "month", required = false) String month) {
         return this.getConsumptionStructureRatio(null, request,month);
+    }
+
+    @RequestMapping(value = "/getbudgetcompletionrate", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getBudgetCompletionRate(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
+        return this.getBudgetCompletionRate(null, request,month,range);
     }
 }

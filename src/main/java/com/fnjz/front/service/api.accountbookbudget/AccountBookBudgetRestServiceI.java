@@ -51,4 +51,13 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @return
      */
     List<Map<String, Object>> getConsumptionStructureRatio(Integer accountBookId, String month);
+
+    /**
+     * 获取预算完成率
+     * @param accountBookId
+     * @param month
+     * @param range
+     * @return
+     */
+    List<Map<String,Object>> getBudgetCompletionRate(Integer accountBookId, String month, String range);
 }

@@ -1,11 +1,14 @@
 package com.fnjz.front.entity.api.accountbookbudget;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.math.BigDecimal;
 
 /**
  * 存钱效率DTO
  * Created by yhang on 2018/7/31.
  */
+@JsonIgnoreProperties(value={"budgetMoney"})
 public class SavingEfficiencyRestDTO extends AccountBookBudgetRestDTO {
 
     /**
