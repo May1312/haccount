@@ -283,7 +283,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 BigDecimal abs = falseMoney.abs();
                 falseTotalMoney = falseTotalMoney.add(abs);
                 //统计深度为5
-                if (i < 5) {
+                //if (i < 5) {
                     //每个类目对应金额统计
                     StatisticsTopDTO statisticsSpendTopDTO = new StatisticsTopDTO();
                     //设置金额
@@ -302,7 +302,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                     }else{
                         mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
                     }
-                }
+                //}
                 //统计总笔数 moneytimes-->会统计进没心情的笔数  count--->不会统计
                 totalCount += Integer.valueOf(list.get(i).get("count") + "");
                 //每个情绪对应笔数统计
@@ -341,8 +341,32 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                     }
                 }
             });
+            //排行榜统计排序
+            Collections.sort(top, new Comparator<StatisticsTopDTO>() {
+                @Override
+                public int compare(StatisticsTopDTO o1, StatisticsTopDTO o2) {
+                    double i = Double.valueOf((o1.getMoney().subtract(o2.getMoney()))+"");
+                    if (i > 0) {
+                        return -1;
+                    } else if (i < 0) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+            //top 取前五位
+            List<StatisticsTopDTO> returnTop = new ArrayList<>();
+            for(int i = 0 ; i < top.size() && top.size()>5; i++){
+                if(i>=5){
+                    break;
+                }
+                returnTop.add(top.get(i));
+            }
+            //释放top
+            top = null;
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendHappinessArrays(happiness);
-            statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(top);
+            statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(returnTop);
             statisticsSpendTopAndHappinessDTO.setTotalCount(totalCount);
             statisticsSpendTopAndHappinessDTO.setTrueTotalMoney(trueTotalMoney);
             statisticsSpendTopAndHappinessDTO.setFalseTotalMoney(falseTotalMoney);
