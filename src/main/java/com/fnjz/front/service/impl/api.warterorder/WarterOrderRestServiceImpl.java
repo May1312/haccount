@@ -363,10 +363,12 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 }
                 returnTop.add(top.get(i));
             }
-            //释放top
-            top = null;
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendHappinessArrays(happiness);
-            statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(returnTop);
+            if(returnTop.size()>0){
+                statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(returnTop);
+            }else{
+                statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(top);
+            }
             statisticsSpendTopAndHappinessDTO.setTotalCount(totalCount);
             statisticsSpendTopAndHappinessDTO.setTrueTotalMoney(trueTotalMoney);
             statisticsSpendTopAndHappinessDTO.setFalseTotalMoney(falseTotalMoney);
