@@ -8,14 +8,14 @@ import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.statistics.*;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.DateUtils;
-import com.fnjz.front.utils.EmojiUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
-import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -272,6 +272,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         if (list != null && list.size() > 0) {
             //情绪统计去重map
             Map<String, StatisticsSpendHappinessDTO> map = new HashMap<>();
+            //排行榜去重
+            Map<String, StatisticsTopDTO> mapTop = new HashMap<>();
             for (int i = 0; i < list.size(); i++) {
                 //统计总金额
                 BigDecimal bd = new BigDecimal(list.get(i).get("money") + "");
@@ -281,18 +283,26 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 BigDecimal abs = falseMoney.abs();
                 falseTotalMoney = falseTotalMoney.add(abs);
                 //统计深度为5
-                if (i < 5) {
-                    //每个类目对应金额统计
-                    StatisticsTopDTO statisticsSpendTopDTO = new StatisticsTopDTO();
-                    //设置金额
-                    statisticsSpendTopDTO.setMoney((BigDecimal) list.get(i).get("money"));
-                    //设置类目名称
-                    statisticsSpendTopDTO.setTypeName(list.get(i).get("type_name") + "");
-                    //设置图标
-                    statisticsSpendTopDTO.setIcon(list.get(i).get("icon") + "");
-                    //添加到排行榜集合
-                    top.add(statisticsSpendTopDTO);
+                //if (i < 5) {
+                //每个类目对应金额统计
+                StatisticsTopDTO statisticsSpendTopDTO = new StatisticsTopDTO();
+                //设置金额
+                statisticsSpendTopDTO.setMoney((BigDecimal) list.get(i).get("money"));
+                //设置类目名称
+                statisticsSpendTopDTO.setTypeName(list.get(i).get("type_name") + "");
+                //设置图标
+                statisticsSpendTopDTO.setIcon(list.get(i).get("icon") + "");
+                //添加到排行榜集合
+                //top.add(statisticsSpendTopDTO);
+                if(mapTop.containsKey(list.get(i).get("type_name") + "")){
+                    //重复 金额累加
+                    BigDecimal money = mapTop.get(list.get(i).get("type_name") + "").getMoney().add(statisticsSpendTopDTO.getMoney());
+                    statisticsSpendTopDTO.setMoney(money);
+                    mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
+                }else{
+                    mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
                 }
+                //}
                 //统计总笔数 moneytimes-->会统计进没心情的笔数  count--->不会统计
                 totalCount += Integer.valueOf(list.get(i).get("count") + "");
                 //每个情绪对应笔数统计
@@ -314,6 +324,9 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             for (Map.Entry<String, StatisticsSpendHappinessDTO> entry : map.entrySet()) {
                 happiness.add(entry.getValue());
             }
+            for (Map.Entry<String, StatisticsTopDTO> entry : mapTop.entrySet()) {
+                top.add(entry.getValue());
+            }
             //情绪消费统计排序
             Collections.sort(happiness, new Comparator<StatisticsSpendHappinessDTO>() {
                 @Override
@@ -328,8 +341,34 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                     }
                 }
             });
+            //排行榜统计排序
+            Collections.sort(top, new Comparator<StatisticsTopDTO>() {
+                @Override
+                public int compare(StatisticsTopDTO o1, StatisticsTopDTO o2) {
+                    double i = Double.valueOf((o1.getMoney().subtract(o2.getMoney()))+"");
+                    if (i > 0) {
+                        return -1;
+                    } else if (i < 0) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+            //top 取前五位
+            List<StatisticsTopDTO> returnTop = new ArrayList<>();
+            for(int i = 0 ; i < top.size() && top.size()>5; i++){
+                if(i>=5){
+                    break;
+                }
+                returnTop.add(top.get(i));
+            }
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendHappinessArrays(happiness);
-            statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(top);
+            if(returnTop.size()>0){
+                statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(returnTop);
+            }else{
+                statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(top);
+            }
             statisticsSpendTopAndHappinessDTO.setTotalCount(totalCount);
             statisticsSpendTopAndHappinessDTO.setTrueTotalMoney(trueTotalMoney);
             statisticsSpendTopAndHappinessDTO.setFalseTotalMoney(falseTotalMoney);
