@@ -8,14 +8,14 @@ import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.statistics.*;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.DateUtils;
-import com.fnjz.front.utils.EmojiUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
-import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -272,6 +272,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         if (list != null && list.size() > 0) {
             //情绪统计去重map
             Map<String, StatisticsSpendHappinessDTO> map = new HashMap<>();
+            //排行榜去重
+            Map<String, StatisticsTopDTO> mapTop = new HashMap<>();
             for (int i = 0; i < list.size(); i++) {
                 //统计总金额
                 BigDecimal bd = new BigDecimal(list.get(i).get("money") + "");
@@ -291,7 +293,15 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                     //设置图标
                     statisticsSpendTopDTO.setIcon(list.get(i).get("icon") + "");
                     //添加到排行榜集合
-                    top.add(statisticsSpendTopDTO);
+                    //top.add(statisticsSpendTopDTO);
+                    if(mapTop.containsKey(list.get(i).get("type_name") + "")){
+                        //重复 金额累加
+                        BigDecimal money = mapTop.get(list.get(i).get("type_name") + "").getMoney().add(statisticsSpendTopDTO.getMoney());
+                        statisticsSpendTopDTO.setMoney(money);
+                        mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
+                    }else{
+                        mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
+                    }
                 }
                 //统计总笔数 moneytimes-->会统计进没心情的笔数  count--->不会统计
                 totalCount += Integer.valueOf(list.get(i).get("count") + "");
@@ -313,6 +323,9 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             }
             for (Map.Entry<String, StatisticsSpendHappinessDTO> entry : map.entrySet()) {
                 happiness.add(entry.getValue());
+            }
+            for (Map.Entry<String, StatisticsTopDTO> entry : mapTop.entrySet()) {
+                top.add(entry.getValue());
             }
             //情绪消费统计排序
             Collections.sort(happiness, new Comparator<StatisticsSpendHappinessDTO>() {
