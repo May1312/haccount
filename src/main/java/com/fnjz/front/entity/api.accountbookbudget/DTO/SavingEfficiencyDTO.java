@@ -3,6 +3,7 @@ package com.fnjz.front.entity.api.accountbookbudget.DTO;
 import java.math.BigDecimal;
 
 /**
+ * 存钱效率
  * Created by yhang on 2018/8/2.
  */
 public class SavingEfficiencyDTO extends BudgetBaseDTO {

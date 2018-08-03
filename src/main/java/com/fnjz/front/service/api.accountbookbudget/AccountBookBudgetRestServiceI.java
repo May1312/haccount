@@ -4,6 +4,7 @@ import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.StatisticAnalysisDTO;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.util.List;
@@ -61,4 +62,13 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @return
      */
     List<BudgetCompletionRateDTO> getBudgetCompletionRate(Integer accountBookId, String month, String range);
+
+    /**
+     * 获取统计-分析数据
+     * @param accountBookId
+     * @param month
+     * @param range
+     * @return
+     */
+    StatisticAnalysisDTO getStatisticAnalysis(Integer accountBookId, String month, String range);
 }

@@ -8,6 +8,7 @@ import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.StatisticAnalysisDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
@@ -231,6 +232,31 @@ public class AccountBookBudgetRestController extends BaseController {
         }
     }
 
+    /**
+     * 获取统计-分析接口 包含以上三个接口数据
+     * @param type
+     * @param request
+     * @param month
+     * @param range
+     * @return
+     */
+    @RequestMapping(value = "/getstatisticanalysis /{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getStatisticAnalysis(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
+        System.out.println("登录终端：" + type);
+        try {
+            String shareCode = (String) request.getAttribute("shareCode");
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+            JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
+            StatisticAnalysisDTO all = accountBookBudgetRestService.getStatisticAnalysis(userAccountBookRestEntityCache.getAccountBookId(),jsonObject.getString("month"),jsonObject.getString("range"));
+            return new ResultBean(ApiResultType.OK,all);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
     @RequestMapping(value = "/setbudget", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean setBudget(@RequestBody AccountBookBudgetRestEntity budget, HttpServletRequest request) {
@@ -259,5 +285,11 @@ public class AccountBookBudgetRestController extends BaseController {
     @ResponseBody
     public ResultBean getBudgetCompletionRate(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
         return this.getBudgetCompletionRate(null, request,month,range);
+    }
+
+    @RequestMapping(value = "/getstatisticanalysis", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getStatisticAnalysis(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
+        return this.getStatisticAnalysis(null, request,month,range);
     }
 }

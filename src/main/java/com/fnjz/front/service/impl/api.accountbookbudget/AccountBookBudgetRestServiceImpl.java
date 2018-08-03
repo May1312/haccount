@@ -6,6 +6,7 @@ import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.StatisticAnalysisDTO;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import org.apache.commons.lang.StringUtils;
@@ -139,10 +140,37 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         return list;
     }
 
+    /**
+     * 预算完成率
+     * @param accountBookId
+     * @param month
+     * @param range
+     * @return
+     */
     @Override
     public List<BudgetCompletionRateDTO> getBudgetCompletionRate(Integer accountBookId, String month, String range) {
         String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
         List<BudgetCompletionRateDTO> list = accountBookBudgetRestDao.listBudgetCompletionRateStatisticsByMonths(rangeMonth,month,accountBookId);
         return list;
+    }
+
+    /**
+     *
+     * @param accountBookId
+     * @param month
+     * @param range
+     * @return
+     */
+    @Override
+    public StatisticAnalysisDTO getStatisticAnalysis(Integer accountBookId, String month, String range) {
+        //TODO 三条sql是不是可以优化
+        //存钱效率
+        List<SavingEfficiencyDTO> savingEfficiency = getSavingEfficiency(accountBookId, month, range);
+        //消费结构比
+        List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatio(accountBookId, month);
+        //预算完成率
+        List<BudgetCompletionRateDTO> budgetCompletionRate = getBudgetCompletionRate(accountBookId, month, range);
+        StatisticAnalysisDTO statisticAnalysisDTO = new StatisticAnalysisDTO(savingEfficiency,consumptionStructureRatio,budgetCompletionRate);
+        return statisticAnalysisDTO;
     }
 }
