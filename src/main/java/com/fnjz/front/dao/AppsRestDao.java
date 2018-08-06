@@ -6,8 +6,6 @@ import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.ResultType;
 import org.jeecgframework.minidao.annotation.Sql;
 
-import java.util.List;
-
 /**
  * Created by yhang on 2018/6/13.
  */
@@ -21,7 +19,7 @@ public interface AppsRestDao {
      * @return
      */
     @ResultType(AppsRestDTO.class)
-    @Sql("SELECT ha.mobile_system,ha.install_status,ha.url,ha.size,ha.update_log,ha.create_date,ha.version FROM hbird_apps ha,(SELECT max(version) as version FROM `hbird_apps` where version > :version AND mobile_system = :flag and app_status = 1)as a where ha.version = a.version;")
+    @Sql("SELECT ha.mobile_system,ha.install_status,ha.url,ha.size,ha.update_log,ha.create_date,ha.version FROM hbird_apps ha,(SELECT max(version) as version FROM `hbird_apps` where version > :version AND mobile_system = :flag and app_status = 1)as a where ha.version = a.version AND ha.mobile_system = :flag;")
     AppsRestDTO appCheck(@Param("version") String version,@Param("flag") Integer flag);
 
 }
