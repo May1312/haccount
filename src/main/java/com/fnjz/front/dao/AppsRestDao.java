@@ -19,7 +19,7 @@ public interface AppsRestDao {
      * @return
      */
     @ResultType(AppsRestDTO.class)
-    @Sql("SELECT ha.mobile_system,ha.install_status,ha.url,ha.size,ha.update_log,ha.create_date,ha.version FROM hbird_apps ha,(SELECT max(version) as version FROM `hbird_apps` where version > :version AND mobile_system = :flag and app_status = 1)as a where ha.version = a.version AND ha.mobile_system = :flag;")
+    @Sql("SELECT ha.mobile_system,ha.install_status,ha.url,ha.size,ha.update_log,ha.create_date,ha.version FROM hbird_apps ha,(SELECT max(version) as version FROM `hbird_apps` where version > :version AND mobile_system = :flag and app_status = 1)as a where ha.version = a.version AND ha.mobile_system = :flag and ha.app_status = 1;")
     AppsRestDTO appCheck(@Param("version") String version,@Param("flag") Integer flag);
 
 }
