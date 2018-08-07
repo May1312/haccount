@@ -57,11 +57,20 @@ public class DateUtils {
     }
 
     /**
-     * 根据时间戳 获取对应的月份-天数
+     * 根据年-月 获取对应的月份-天数
      */
-    public static int getCurrentDaysByDate() {
-        Calendar a = Calendar.getInstance();
-        return a.get(Calendar.DAY_OF_MONTH);
+    public static int getMonthDaysByYearMonth(String yearMonth) {
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        try {
+            Date parse = sdf.parse(yearMonth);
+            cal.setTime(parse);
+            return cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        //异常
+        return 30;
     }
     /**
      * 获取当前时间 - 年份
@@ -204,9 +213,26 @@ public class DateUtils {
         return formatter.format(starDate);
     }
 
+    /**
+     * 字符串中的月份追加0
+     * @throws ParseException
+     */
+    public static String checkYearMonth(String yearMonth){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        try {
+            Date parse = sdf.parse(yearMonth);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM");
+            return formatter.format(parse);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void main(String[] args) throws ParseException {
         System.out.println(getRangeMonth("02",-1));
         System.out.println(getRangeMonthforYear("02",-1));
         System.out.println(Integer.valueOf("-"+"520"));
+        System.out.println(checkYearMonth("2018-2"));
     }
 }

@@ -3,7 +3,7 @@ INSERT INTO `hbird_account`.`hbird_accountbook_budget`
 VALUES
 	(  :budget.accountBookId,
 	 :budget.budgetMoney,
-	 DATE_FORMAT(NOW(),'%Y-%m'),
+	 :budget.time,
 	 :budget.fixedLargeExpenditure,
 	 :budget.fixedLifeExpenditure,
 	 NOW(),

@@ -43,30 +43,34 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
 
     /**
      * 获取当月预算
-     * @param budget
+     * @param time
+     * @param accountBookId
      * @return
      */
     @Override
-    public AccountBookBudgetRestEntity getCurrentBudget(AccountBookBudgetRestEntity budget) {
-        return accountBookBudgetRestDao.getCurrentBudget(budget);
+    public AccountBookBudgetRestEntity getCurrentBudget(String time, Integer accountBookId) {
+        return accountBookBudgetRestDao.getCurrentBudget(time,accountBookId);
     }
 
     /**
      * 获取库最新预算，不限制当月
-     * @param budget
+     * @param time
+     * @param accountBoodId
      * @return
      */
     @Override
-    public AccountBookBudgetRestEntity getLatelyBudget(AccountBookBudgetRestEntity budget) {
-        AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestDao.getLatelyBudget(budget);
-        //判断是否为当月，若不为当月 赋值当月预算
-        if(budgetResult!=null){
-            String currentYearMonth = DateUtils.getCurrentYearMonth();
-            if(StringUtils.equalsIgnoreCase(currentYearMonth,budgetResult.getTime())){
+    public AccountBookBudgetRestEntity getLatelyBudget(String time,Integer accountBoodId) {
+        String currentYearMonth = DateUtils.getCurrentYearMonth();
+        AccountBookBudgetRestEntity budgetResult;
+        if(StringUtils.equals(currentYearMonth,time)){
+            //判断 若查询当月 执行原有sql--->不限制time
+            budgetResult = accountBookBudgetRestDao.getLatelyBudget(accountBoodId);
+            if(StringUtils.equals(currentYearMonth,budgetResult.getTime())){
                 //当月 直接返回
                 return budgetResult;
             }else{
                 //执行新增
+                AccountBookBudgetRestEntity budget = new AccountBookBudgetRestEntity();
                 if(budgetResult.getBudgetMoney()!=null){
                     budget.setBudgetMoney(budgetResult.getBudgetMoney());
                 }
@@ -81,12 +85,14 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
                     //设置时间
                     budget.setTime(currentYearMonth);
                     return budget;
-               }else{
+                }else{
                     return null;
                 }
             }
+        }else{
+            //根据指定月份查询预算
+            return accountBookBudgetRestDao.getCurrentBudget(time,accountBoodId);
         }
-        return budgetResult;
     }
 
     /**

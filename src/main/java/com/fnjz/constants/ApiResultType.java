@@ -96,7 +96,8 @@ public enum ApiResultType {
 
     //预算相关
     BUDGET_MONEY_IS_SMALL("07001","预算金额小于当月固定支出金额，请检查"),
-    FIXED_EXPENDITURE_IS_LARGE("07002","固定支出金额大于当月预算金额，请检查");
+    FIXED_EXPENDITURE_IS_LARGE("07002","固定支出金额大于当月预算金额，请检查"),
+    TIME_IS_ERROR("07003","time格式异常，请检查！");
 
     ApiResultType(String status, String str) {
         setCode(status);

@@ -11,9 +11,13 @@ import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.StatisticAnalysisDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
+import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
+import com.fnjz.front.utils.CommonUtils;
+import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.BeanUtils;
@@ -46,8 +50,11 @@ public class AccountBookBudgetRestController extends BaseController {
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
 
+    @Autowired
+    private WarterOrderRestServiceI warterOrderRestServiceI;
+
     /**
-     * 设置或修改 当月预算/固定支出
+     * 设置或修改 预算/固定支出
      *
      * @param type
      * @param budget
@@ -63,8 +70,17 @@ public class AccountBookBudgetRestController extends BaseController {
                 String userInfoId = (String) request.getAttribute("userInfoId");
                 UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
                 budget.setAccountBookId(userAccountBookRestEntityCache.getAccountBookId());
+                if(StringUtils.isEmpty(budget.getTime())){
+                    budget.setTime(DateUtils.getCurrentYearMonth());
+                }else{
+                    if(!ParamValidateUtils.isValidYearMonthDate(budget.getTime())){
+                        return new ResultBean(ApiResultType.TIME_IS_ERROR,null);
+                    }
+                    //格式化日期
+                    budget.setTime(DateUtils.checkYearMonth(budget.getTime()));
+                }
                 //判断预算是否存在
-                AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getCurrentBudget(budget);
+                AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getCurrentBudget(budget.getTime(),budget.getAccountBookId());
                 //校验金额
                 if (budgetResult != null) {
                     //修改预算情况
@@ -136,16 +152,19 @@ public class AccountBookBudgetRestController extends BaseController {
      */
     @RequestMapping(value = "/getbudget/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getBudget(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
+    public ResultBean getBudget(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request,@RequestParam(required = false) String time) {
         System.out.println("登录终端：" + type);
         try {
             String shareCode = (String) request.getAttribute("shareCode");
             String userInfoId = (String) request.getAttribute("userInfoId");
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
-            AccountBookBudgetRestEntity budget = new AccountBookBudgetRestEntity();
-            budget.setAccountBookId(userAccountBookRestEntityCache.getAccountBookId());
-            //判断预算是否存在 lately
-            AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getLatelyBudget(budget);
+            //判断预算是否存在
+            try {
+                time = ParamValidateUtils.formatYearMonthDate(time);
+            } catch (RuntimeException e) {
+                return new ResultBean(ApiResultType.TIME_IS_ERROR,null);
+            }
+            AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getLatelyBudget(time,userAccountBookRestEntityCache.getAccountBookId());
             AccountBookBudgetRestDTO dto = null;
             if (budgetResult != null) {
                 dto = new AccountBookBudgetRestDTO();
@@ -257,6 +276,80 @@ public class AccountBookBudgetRestController extends BaseController {
         }
     }
 
+    /**
+     * 获取统计-本月记账天数获取
+     * @param type
+     * @param request
+     * @param time
+     * @return
+     */
+    @RequestMapping(value = "/getcountbyyearmonth/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getCountByYearMonth(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "time", required = false) String time) {
+        System.out.println("登录终端：" + type);
+        try {
+            String shareCode = (String) request.getAttribute("shareCode");
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+            try {
+                time = ParamValidateUtils.formatYearMonthDate(time);
+            } catch (RuntimeException e) {
+                return new ResultBean(ApiResultType.TIME_IS_ERROR,null);
+            }
+            int daysCount = warterOrderRestServiceI.countChargeDays(time, userAccountBookRestEntityCache.getAccountBookId());
+            int monthDaysByYearMonth = DateUtils.getMonthDaysByYearMonth(time);
+            JSONObject jo = new JSONObject();
+            jo.put("chargeDays",daysCount);
+            jo.put("monthDays",monthDaysByYearMonth);
+            jo.put("time",time);
+            return new ResultBean(ApiResultType.OK,jo);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 首页数据加载 统一接口 预算+记账天数
+     * @param type
+     * @param request
+     * @param time
+     * @return
+     */
+    @RequestMapping(value = "/getindexdata/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getIndexData(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "time", required = false) String time) {
+        System.out.println("登录终端：" + type);
+        try {
+            String shareCode = (String) request.getAttribute("shareCode");
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+            try {
+                time = ParamValidateUtils.formatYearMonthDate(time);
+            } catch (RuntimeException e) {
+                return new ResultBean(ApiResultType.TIME_IS_ERROR,null);
+            }
+            //首页预算数据加载
+            AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getLatelyBudget(time,userAccountBookRestEntityCache.getAccountBookId());
+            AccountBookBudgetRestDTO dto = null;
+            if (budgetResult != null) {
+                dto = new AccountBookBudgetRestDTO();
+                BeanUtils.copyProperties(budgetResult, dto);
+            }
+            //记账天数加载
+            int daysCount = warterOrderRestServiceI.countChargeDays(time, userAccountBookRestEntityCache.getAccountBookId());
+            int monthDaysByYearMonth = DateUtils.getMonthDaysByYearMonth(time);
+            JSONObject jo = new JSONObject();
+            jo.put("chargeDays",daysCount);
+            jo.put("monthDays",monthDaysByYearMonth);
+            jo.put("time",time);
+            return CommonUtils.returnIndex(dto,jo);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
     @RequestMapping(value = "/setbudget", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean setBudget(@RequestBody AccountBookBudgetRestEntity budget, HttpServletRequest request) {
@@ -265,8 +358,8 @@ public class AccountBookBudgetRestController extends BaseController {
 
     @RequestMapping(value = "/getbudget", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getBudget(HttpServletRequest request) {
-        return this.getBudget(null, request);
+    public ResultBean getBudget(HttpServletRequest request,@RequestParam(required = false) String time) {
+        return this.getBudget(null, request,time);
     }
 
     @RequestMapping(value = "/getsavingefficiency", method = RequestMethod.GET)
@@ -291,5 +384,17 @@ public class AccountBookBudgetRestController extends BaseController {
     @ResponseBody
     public ResultBean getStatisticAnalysis(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
         return this.getStatisticAnalysis(null, request,month,range);
+    }
+
+    @RequestMapping(value = "/getcountbyyearmonth", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getCountByYearMonth(HttpServletRequest request, @RequestParam(value = "time", required = false) String time) {
+        return this.getCountByYearMonth(null, request,time);
+    }
+
+    @RequestMapping(value = "/getindexdata", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getIndexData(HttpServletRequest request, @RequestParam(value = "time", required = false) String time) {
+        return this.getIndexData(null, request,time);
     }
 }

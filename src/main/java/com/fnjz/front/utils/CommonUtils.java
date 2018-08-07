@@ -1,7 +1,9 @@
 package com.fnjz.front.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestDTO;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 
 import java.text.SimpleDateFormat;
@@ -80,6 +82,17 @@ public class CommonUtils {
     public static ResultBean returnCharge(String id){
         Map<String, String> map = new HashMap<>();
         map.put("id",id);
+        return new ResultBean(ApiResultType.OK,map);
+    }
+
+    /**
+     * 首页预算和统计返回集
+     * @return
+     */
+    public static ResultBean returnIndex(AccountBookBudgetRestDTO dto, JSONObject jo){
+        Map<String, Object> map = new HashMap<>();
+        map.put("budget",dto);
+        map.put("count",jo);
         return new ResultBean(ApiResultType.OK,map);
     }
 }

@@ -23,18 +23,20 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
     /**
      * 获取当月预算
      *
-     * @param budget
+     * @param time
+     * @param accountBookId
      * @return
      */
-    AccountBookBudgetRestEntity getCurrentBudget(AccountBookBudgetRestEntity budget);
+    AccountBookBudgetRestEntity getCurrentBudget(String time,Integer accountBookId);
 
     /**
      * 获取库最新预算，不限制当月
      *
-     * @param budget
+     * @param time
+     * @param accountBookId
      * @return
      */
-    AccountBookBudgetRestEntity getLatelyBudget(AccountBookBudgetRestEntity budget);
+    AccountBookBudgetRestEntity getLatelyBudget(String time,Integer accountBookId);
 
     /**
      * 获取存钱效率

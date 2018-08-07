@@ -19,14 +19,13 @@ import java.util.List;
 public interface AccountBookBudgetRestDao {
 
     /**
-     * 获取当月预算结果集
+     * 获取指定时间预算结果集
      *
-     * @param budget
      * @return
      */
     @ResultType(AccountBookBudgetRestEntity.class)
-    @Sql("select * from hbird_accountbook_budget where account_book_id = :budget.accountBookId and time = DATE_FORMAT(NOW(),'%Y-%m');")
-    AccountBookBudgetRestEntity getCurrentBudget(@Param("budget") AccountBookBudgetRestEntity budget);
+    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId and time = :time;")
+    AccountBookBudgetRestEntity getCurrentBudget(@Param("time") String time,@Param("accountBookId") Integer accountBookId);
 
     /**
      * 更新预算/固定支出
@@ -46,13 +45,12 @@ public interface AccountBookBudgetRestDao {
 
     /**
      * 获取库中最新预算结果
-     *
-     * @param budget
+     * @param accountBookId
      * @return
      */
     @ResultType(AccountBookBudgetRestEntity.class)
-    @Sql("select * from hbird_accountbook_budget where account_book_id = :budget.accountBookId ORDER BY time DESC LIMIT 1")
-    AccountBookBudgetRestEntity getLatelyBudget(@Param("budget") AccountBookBudgetRestEntity budget);
+    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId ORDER BY time DESC LIMIT 1")
+    AccountBookBudgetRestEntity getLatelyBudget(@Param("accountBookId") Integer accountBookId);
 
     /**
      * 获取存钱效率
@@ -97,4 +95,5 @@ public interface AccountBookBudgetRestDao {
     @ResultType(BudgetCompletionRateDTO.class)
     @Sql("SELECT SUM(money) AS monthSpend, DATE_FORMAT( charge_date, '%Y-%m' ) AS time, budget.budget_money as budgetMoney FROM `hbird_water_order` AS wo, (SELECT time, budget_money FROM `hbird_accountbook_budget` WHERE account_book_id = :accountBookId AND time <= CONCAT( DATE_FORMAT( NOW( ), '%Y-' ), :month ) AND time >= :rangeMonth) AS budget WHERE DATE_FORMAT( charge_date, '%Y-%m' ) IN ( budget.time ) AND wo.account_book_id = :accountBookId  AND wo.delflag = 0 AND order_type = 1 GROUP BY time;")
     List<BudgetCompletionRateDTO> listBudgetCompletionRateStatisticsByMonths(@Param("rangeMonth") String rangeMonth, @Param("month") String month, @Param("accountBookId") Integer accountBookId);
+
 }
