@@ -65,29 +65,33 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         if(StringUtils.equals(currentYearMonth,time)){
             //判断 若查询当月 执行原有sql--->不限制time
             budgetResult = accountBookBudgetRestDao.getLatelyBudget(accountBoodId);
-            if(StringUtils.equals(currentYearMonth,budgetResult.getTime())){
-                //当月 直接返回
-                return budgetResult;
-            }else{
-                //执行新增
-                AccountBookBudgetRestEntity budget = new AccountBookBudgetRestEntity();
-                if(budgetResult.getBudgetMoney()!=null){
-                    budget.setBudgetMoney(budgetResult.getBudgetMoney());
-                }
-                if(budgetResult.getFixedLifeExpenditure()!=null){
-                    budget.setFixedLifeExpenditure(budgetResult.getFixedLifeExpenditure());
-                }
-                if(budgetResult.getFixedLargeExpenditure()!=null){
-                    budget.setFixedLargeExpenditure(budgetResult.getFixedLargeExpenditure());
-                }
-                int insert = accountBookBudgetRestDao.insert(budget);
-                if(insert>0){
-                    //设置时间
-                    budget.setTime(currentYearMonth);
-                    return budget;
+            if(budgetResult!=null){
+                if(StringUtils.equals(currentYearMonth,budgetResult.getTime())){
+                    //当月 直接返回
+                    return budgetResult;
                 }else{
-                    return null;
+                    //执行新增
+                    AccountBookBudgetRestEntity budget = new AccountBookBudgetRestEntity();
+                    if(budgetResult.getBudgetMoney()!=null){
+                        budget.setBudgetMoney(budgetResult.getBudgetMoney());
+                    }
+                    if(budgetResult.getFixedLifeExpenditure()!=null){
+                        budget.setFixedLifeExpenditure(budgetResult.getFixedLifeExpenditure());
+                    }
+                    if(budgetResult.getFixedLargeExpenditure()!=null){
+                        budget.setFixedLargeExpenditure(budgetResult.getFixedLargeExpenditure());
+                    }
+                    int insert = accountBookBudgetRestDao.insert(budget);
+                    if(insert>0){
+                        //设置时间
+                        budget.setTime(currentYearMonth);
+                        return budget;
+                    }else{
+                        return null;
+                    }
                 }
+            }else{
+                return budgetResult;
             }
         }else{
             //根据指定月份查询预算
