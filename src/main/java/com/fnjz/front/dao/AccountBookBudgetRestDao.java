@@ -49,8 +49,8 @@ public interface AccountBookBudgetRestDao {
      * @return
      */
     @ResultType(AccountBookBudgetRestEntity.class)
-    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId ORDER BY time DESC LIMIT 1")
-    AccountBookBudgetRestEntity getLatelyBudget(@Param("accountBookId") Integer accountBookId);
+    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId and time<= :time ORDER BY time DESC LIMIT 1")
+    AccountBookBudgetRestEntity getLatelyBudget(@Param("accountBookId") Integer accountBookId,@Param("time") String time);
 
     /**
      * 获取存钱效率

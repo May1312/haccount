@@ -264,6 +264,13 @@ public class UserInfoRestController extends BaseController {
         }
     }
 
+    /**
+     * 编辑用户详情
+     * @param type
+     * @param userInfoRestEntity
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/updateUserInfo/{type}", method = RequestMethod.PUT)
     @ResponseBody
     public ResultBean updateUserInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody UserInfoRestEntity userInfoRestEntity, HttpServletRequest request) {
@@ -274,8 +281,9 @@ public class UserInfoRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             userInfoRestEntity.setId(Integer.valueOf(userInfoId));
             if (StringUtils.isNotEmpty(userInfoRestEntity.getNickName())) {
-                //userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(userInfoRestEntity.getNickName()));
-                userInfoRestEntity.setNickName(userInfoRestEntity.getNickName());
+                if(!FilterCensorWordsUtils.checkNickName(userInfoRestEntity.getNickName())){
+                    return new ResultBean(ApiResultType.NICKNAME_NOT_FORMAT,null);
+                }
             }
             userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
             return new ResultBean(ApiResultType.OK, null);

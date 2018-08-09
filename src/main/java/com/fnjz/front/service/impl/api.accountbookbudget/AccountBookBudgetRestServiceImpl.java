@@ -63,8 +63,8 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         String currentYearMonth = DateUtils.getCurrentYearMonth();
         AccountBookBudgetRestEntity budgetResult;
         if(StringUtils.equals(currentYearMonth,time)){
-            //判断 若查询当月 执行原有sql--->不限制time
-            budgetResult = accountBookBudgetRestDao.getLatelyBudget(accountBoodId);
+            //判断 若查询当月 执行原有sql--->限制time 不能小于当月
+            budgetResult = accountBookBudgetRestDao.getLatelyBudget(accountBoodId,currentYearMonth);
             if(budgetResult!=null){
                 if(StringUtils.equals(currentYearMonth,budgetResult.getTime())){
                     //当月 直接返回
