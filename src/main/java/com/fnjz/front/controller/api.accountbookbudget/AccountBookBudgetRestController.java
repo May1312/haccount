@@ -26,7 +26,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -84,7 +83,7 @@ public class AccountBookBudgetRestController extends BaseController {
                 //校验金额
                 if (budgetResult != null) {
                     //修改预算情况
-                    if (budget.getBudgetMoney() != null && (budgetResult.getFixedLifeExpenditure() != null || budgetResult.getFixedLargeExpenditure() != null)) {
+                    /*if (budget.getBudgetMoney() != null && (budgetResult.getFixedLifeExpenditure() != null || budgetResult.getFixedLargeExpenditure() != null)) {
                         BigDecimal fixedLifeExpenditure = budgetResult.getFixedLifeExpenditure();
                         BigDecimal fixedLargeExpenditure = budgetResult.getFixedLargeExpenditure();
                         if (fixedLifeExpenditure == null) {
@@ -118,7 +117,7 @@ public class AccountBookBudgetRestController extends BaseController {
                                 }
                             }
                         }
-                    }
+                    }*/
                     //执行更新流程
                     budget.setUpdateBy(userAccountBookRestEntityCache.getUserInfoId());
                     budget.setId(budgetResult.getId());

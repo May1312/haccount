@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class FilterCensorWordsUtils {
 
-    private static final Logger logger = Logger.getLogger(WeChatUtils.class);
+    private static final Logger logger = Logger.getLogger(FilterCensorWordsUtils.class);
 
     private static List<String> list;
     //初始化敏感词库
@@ -28,7 +28,7 @@ public class FilterCensorWordsUtils {
             InputStreamReader reader=new InputStreamReader(in,"utf8");
             bufferedReader = new BufferedReader(reader);
             String tempString ;
-            // 一次读入一行，直到读入null为文件结束
+            // 一次读入一行
             while ((tempString = bufferedReader.readLine()) != null) {
                 list.add(tempString);
             }
@@ -38,27 +38,27 @@ public class FilterCensorWordsUtils {
         }
     }
 
-    public static boolean checkNickName(String nickNname){
+    public static boolean checkNickName(String nickName){
         for (String s : list) {
-            if(StringUtils.contains(nickNname,s)){
+            if(StringUtils.contains(nickName,s)){
                 return false;
             }
         }
-        if(nickNname.startsWith("蜂鸟")){
+        if(nickName.startsWith("蜂鸟")){
             return false;
         }
         return true;
     }
 
-    public static String checkWechatNickName(String nickNname){
-        if(nickNname.startsWith("蜂鸟")){
-            nickNname = nickNname.replace("蜂鸟","**");
-            return nickNname;
+    public static String checkWechatNickName(String nickName){
+        if(nickName.startsWith("蜂鸟")){
+            nickName = nickName.replace("蜂鸟","**");
+            return nickName;
         }
-        return nickNname;
+        return nickName;
     }
 
     public static void main(String[] args){
-        System.out.println(checkWechatNickName("蜂鸟快跑"));
+        System.out.println(checkWechatNickName("蜂鸟快飞"));
     }
 }

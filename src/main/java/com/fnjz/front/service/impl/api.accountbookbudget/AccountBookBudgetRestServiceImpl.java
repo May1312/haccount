@@ -81,6 +81,9 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
                     if(budgetResult.getFixedLargeExpenditure()!=null){
                         budget.setFixedLargeExpenditure(budgetResult.getFixedLargeExpenditure());
                     }
+                    if(budgetResult.getCreateBy()!=null){
+                        budget.setCreateBy(budgetResult.getCreateBy());
+                    }
                     int insert = accountBookBudgetRestDao.insert(budget);
                     if(insert>0){
                         //设置时间
