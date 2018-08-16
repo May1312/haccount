@@ -132,7 +132,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             String frontMonth = DateUtils.getRangeMonth(month,-1);
             //获取前一年月份
             String oldYearMonth = DateUtils.getRangeMonthforYear(month,-1);
-            Map containMap = new TreeMap<String, Object>();
+            Map containMap = new HashMap<String, Object>();
             containMap.put(yearMonth,null);
             containMap.put(frontMonth,null);
             containMap.put(oldYearMonth,null);
@@ -150,6 +150,19 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
                 list.add(csr);
             }
         }
+        Collections.sort(list, new Comparator<ConsumptionStructureRatioDTO>() {
+            @Override
+            public int compare(ConsumptionStructureRatioDTO o1, ConsumptionStructureRatioDTO o2) {
+                int i = o1.getTime().compareTo(o2.getTime());
+                if (i > 0) {
+                    return -1;
+                } else if (i < 0) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
         return list;
     }
 
