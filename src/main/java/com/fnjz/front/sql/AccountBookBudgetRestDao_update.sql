@@ -1,5 +1,5 @@
 UPDATE `hbird_account`.`hbird_accountbook_budget`
-SET 
+SET
 	   <#if budget.budgetMoney ?exists>
 		   budget_money = :budget.budgetMoney,
 		</#if>

@@ -132,7 +132,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             String frontMonth = DateUtils.getRangeMonth(month,-1);
             //获取前一年月份
             String oldYearMonth = DateUtils.getRangeMonthforYear(month,-1);
-            Map containMap = new HashMap<String, Object>();
+            Map containMap = new TreeMap<String, Object>();
             containMap.put(yearMonth,null);
             containMap.put(frontMonth,null);
             containMap.put(oldYearMonth,null);
