@@ -347,6 +347,21 @@ public class AccountBookBudgetRestController extends BaseController {
             }
             //首页预算数据加载
             AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getLatelyBudget(time, userAccountBookRestEntityCache.getAccountBookId());
+            if (budgetResult.getBudgetMoney() != null) {
+                if (budgetResult.getBudgetMoney().intValue() == -1) {
+                    budgetResult.setBudgetMoney(null);
+                }
+            }
+            if (budgetResult.getFixedLargeExpenditure() != null) {
+                if (budgetResult.getFixedLargeExpenditure().intValue() == -1) {
+                    budgetResult.setFixedLargeExpenditure(null);
+                }
+            }
+            if (budgetResult.getFixedLifeExpenditure() != null) {
+                if (budgetResult.getFixedLifeExpenditure().intValue() == -1) {
+                    budgetResult.setFixedLifeExpenditure(null);
+                }
+            }
             AccountBookBudgetRestDTO dto = null;
             if (budgetResult != null) {
                 dto = new AccountBookBudgetRestDTO();
