@@ -160,23 +160,23 @@ public class AccountBookBudgetRestController extends BaseController {
                 return new ResultBean(ApiResultType.TIME_IS_ERROR, null);
             }
             AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getLatelyBudget(time, userAccountBookRestEntityCache.getAccountBookId());
-            if (budgetResult.getBudgetMoney() != null) {
-                if (budgetResult.getBudgetMoney().intValue() == -1) {
-                    budgetResult.setBudgetMoney(null);
-                }
-            }
-            if (budgetResult.getFixedLargeExpenditure() != null) {
-                if (budgetResult.getFixedLargeExpenditure().intValue() == -1) {
-                    budgetResult.setFixedLargeExpenditure(null);
-                }
-            }
-            if (budgetResult.getFixedLifeExpenditure() != null) {
-                if (budgetResult.getFixedLifeExpenditure().intValue() == -1) {
-                    budgetResult.setFixedLifeExpenditure(null);
-                }
-            }
             AccountBookBudgetRestDTO dto = null;
             if (budgetResult != null) {
+                if (budgetResult.getBudgetMoney() != null) {
+                    if (budgetResult.getBudgetMoney().intValue() == -1) {
+                        budgetResult.setBudgetMoney(null);
+                    }
+                }
+                if (budgetResult.getFixedLargeExpenditure() != null) {
+                    if (budgetResult.getFixedLargeExpenditure().intValue() == -1) {
+                        budgetResult.setFixedLargeExpenditure(null);
+                    }
+                }
+                if (budgetResult.getFixedLifeExpenditure() != null) {
+                    if (budgetResult.getFixedLifeExpenditure().intValue() == -1) {
+                        budgetResult.setFixedLifeExpenditure(null);
+                    }
+                }
                 dto = new AccountBookBudgetRestDTO();
                 BeanUtils.copyProperties(budgetResult, dto);
             }
@@ -347,23 +347,23 @@ public class AccountBookBudgetRestController extends BaseController {
             }
             //首页预算数据加载
             AccountBookBudgetRestEntity budgetResult = accountBookBudgetRestService.getLatelyBudget(time, userAccountBookRestEntityCache.getAccountBookId());
-            if (budgetResult.getBudgetMoney() != null) {
-                if (budgetResult.getBudgetMoney().intValue() == -1) {
-                    budgetResult.setBudgetMoney(null);
-                }
-            }
-            if (budgetResult.getFixedLargeExpenditure() != null) {
-                if (budgetResult.getFixedLargeExpenditure().intValue() == -1) {
-                    budgetResult.setFixedLargeExpenditure(null);
-                }
-            }
-            if (budgetResult.getFixedLifeExpenditure() != null) {
-                if (budgetResult.getFixedLifeExpenditure().intValue() == -1) {
-                    budgetResult.setFixedLifeExpenditure(null);
-                }
-            }
             AccountBookBudgetRestDTO dto = null;
             if (budgetResult != null) {
+                if (budgetResult.getBudgetMoney() != null) {
+                    if (budgetResult.getBudgetMoney().intValue() == -1) {
+                        budgetResult.setBudgetMoney(null);
+                    }
+                }
+                if (budgetResult.getFixedLargeExpenditure() != null) {
+                    if (budgetResult.getFixedLargeExpenditure().intValue() == -1) {
+                        budgetResult.setFixedLargeExpenditure(null);
+                    }
+                }
+                if (budgetResult.getFixedLifeExpenditure() != null) {
+                    if (budgetResult.getFixedLifeExpenditure().intValue() == -1) {
+                        budgetResult.setFixedLifeExpenditure(null);
+                    }
+                }
                 dto = new AccountBookBudgetRestDTO();
                 BeanUtils.copyProperties(budgetResult, dto);
             }
