@@ -1,21 +1,13 @@
 package com.fnjz.front.controller.api.incometype;
-import java.util.List;
 
+import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.service.api.incometype.IncomeTypeRestServiceI;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.jeecgframework.core.common.controller.BaseController;
-import org.jeecgframework.web.system.service.SystemService;
-
-import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
-import com.fnjz.front.service.api.incometype.IncomeTypeRestServiceI;
-import org.springframework.web.bind.annotation.RequestMethod;
-import javax.validation.Validator;
 
 /**   
  * @Title: Controller
@@ -25,7 +17,7 @@ import javax.validation.Validator;
  *
  */
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 @Api(description = "android/ios",tags = "公用调用接口")
 public class IncomeTypeRestController extends BaseController {
 	/**

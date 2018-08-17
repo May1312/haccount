@@ -3,6 +3,7 @@ package com.fnjz.front.controller.api.accountbookbudget;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestDTO;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
@@ -36,7 +37,7 @@ import java.util.List;
  * @date 2018-07-26 16:14:37
  */
 @Controller
-@RequestMapping("/api/v2")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class AccountBookBudgetRestController extends BaseController {
     /**
      * Logger for this class

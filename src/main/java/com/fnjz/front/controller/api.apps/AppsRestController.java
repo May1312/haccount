@@ -2,23 +2,21 @@ package com.fnjz.front.controller.api.apps;
 
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.apps.AppsRestDTO;
+import com.fnjz.front.service.api.apps.AppsRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.jeecgframework.core.common.controller.BaseController;
-import com.fnjz.front.service.api.apps.AppsRestServiceI;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMethod;
-import java.util.Map;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
+import java.util.Map;
 
 /**
  * @version V1.0
@@ -27,7 +25,7 @@ import springfox.documentation.annotations.ApiIgnore;
  * @date 2018-06-26 13:11:13
  */
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class AppsRestController extends BaseController {
     /**
      * Logger for this class

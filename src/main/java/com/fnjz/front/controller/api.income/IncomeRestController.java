@@ -1,7 +1,5 @@
 package com.fnjz.front.controller.api.income;
 
-import java.util.Date;
-import javax.servlet.http.HttpServletRequest;
 import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
@@ -16,16 +14,15 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.common.controller.BaseController;
+import org.jeecgframework.web.system.service.SystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.jeecgframework.core.common.controller.BaseController;
-import org.jeecgframework.web.system.service.SystemService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2018-06-06 13:27:56
  */
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class IncomeRestController extends BaseController {
     /**
      * Logger for this class

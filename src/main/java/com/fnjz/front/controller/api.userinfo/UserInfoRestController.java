@@ -37,7 +37,7 @@ import java.util.Map;
  * @date 2018-05-30 14:05:50
  */
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 @Api(description = "android/ios", tags = "账户安全接口")
 public class UserInfoRestController extends BaseController {
     /**

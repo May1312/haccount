@@ -28,7 +28,7 @@ import java.util.Map;
  * @date 2018-06-21 15:47:15
  */
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class UserCommTypePriorityRestController extends BaseController {
     /**
      * Logger for this class

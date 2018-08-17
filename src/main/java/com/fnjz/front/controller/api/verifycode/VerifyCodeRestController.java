@@ -18,10 +18,10 @@ import io.swagger.annotations.*;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
 import java.util.Map;
 
 /**
@@ -30,7 +30,7 @@ import java.util.Map;
  */
 @Api(description = "android/ios", tags = "验证码相关接口")
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class VerifyCodeRestController {
 
     private static final Logger logger = Logger.getLogger(VerifyCodeRestController.class);

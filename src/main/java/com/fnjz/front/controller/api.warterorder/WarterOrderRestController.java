@@ -1,28 +1,32 @@
 package com.fnjz.front.controller.api.warterorder;
 
-import java.math.BigDecimal;
-import java.util.*;
-import javax.servlet.http.HttpServletRequest;
-
 import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
-import com.fnjz.front.utils.*;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
+import com.fnjz.front.utils.CommonUtils;
+import com.fnjz.front.utils.DateUtils;
+import com.fnjz.front.utils.ParamValidateUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.jeecgframework.core.common.controller.BaseController;
-import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
-import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @version V1.0
@@ -31,7 +35,7 @@ import springfox.documentation.annotations.ApiIgnore;
  * @date 2018-06-14 13:15:47
  */
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class WarterOrderRestController extends BaseController {
     /**
      * Logger for this class

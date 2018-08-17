@@ -2,6 +2,7 @@ package com.fnjz.front.controller.api.gesture;
 
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.CommonUtils;
@@ -24,7 +25,7 @@ import java.util.Map;
  */
 
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 @Api(description = "android/ios", tags = "手势密码相关")
 public class GestureRestController extends BaseController {
 

@@ -3,7 +3,10 @@ package com.fnjz.front.controller.api.statistics;
 import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
-import com.fnjz.front.entity.api.statistics.*;
+import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.statistics.StatisticsIncomeTopDTO;
+import com.fnjz.front.entity.api.statistics.StatisticsParamsRestDTO;
+import com.fnjz.front.entity.api.statistics.StatisticsSpendTopAndHappinessDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.enums.StatisticsEnum;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
@@ -30,7 +33,7 @@ import java.util.Map;
  */
 
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 @Api(description = "android/ios", tags = "用户记账统计相关")
 public class ChargeStatisticsRestController extends BaseController {
 

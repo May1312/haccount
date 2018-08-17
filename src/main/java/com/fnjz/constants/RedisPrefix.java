@@ -3,6 +3,8 @@ package com.fnjz.constants;
 
 public class RedisPrefix {
 
+    public static final String BASE_URL = "/api/*/";
+
     /**
      * 用户信息前缀
      */

@@ -2,6 +2,7 @@ package com.fnjz.front.controller.api.common;
 
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.ValidateUtils;
@@ -22,7 +23,7 @@ import java.util.Map;
  */
 
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 @Api(description = "android/ios",tags = "公用调用接口")
 public class CommonMethod extends BaseController {
 
