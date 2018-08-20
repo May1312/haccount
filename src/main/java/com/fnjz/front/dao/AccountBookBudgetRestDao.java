@@ -93,7 +93,7 @@ public interface AccountBookBudgetRestDao {
      * @return
      */
     @ResultType(BudgetCompletionRateDTO.class)
-    @Sql("SELECT SUM(money) AS monthSpend, DATE_FORMAT( charge_date, '%Y-%m' ) AS time, CASE budget.budget_money WHEN -1 THEN null ELSE budget.budget_money END AS budgetMoney FROM `hbird_water_order` AS wo, (SELECT time, budget_money FROM `hbird_accountbook_budget` WHERE account_book_id = :accountBookId AND time <= CONCAT( DATE_FORMAT( NOW( ), '%Y-' ), :month ) AND time >= :rangeMonth) AS budget WHERE DATE_FORMAT( charge_date, '%Y-%m' ) IN ( budget.time ) AND wo.account_book_id = :accountBookId  AND wo.delflag = 0 AND order_type = 1 GROUP BY time;")
+    @Sql("SELECT SUM(money) AS monthSpend, DATE_FORMAT( charge_date, '%Y-%m' ) AS time, CASE budget.budget_money WHEN -1 THEN null ELSE budget.budget_money END AS budgetMoney FROM `hbird_water_order` AS wo, (SELECT time, budget_money FROM `hbird_accountbook_budget` WHERE account_book_id = :accountBookId AND time <= CONCAT( DATE_FORMAT( NOW( ), '%Y-' ), :month ) AND time >= :rangeMonth AND budget_money!=-1) AS budget WHERE DATE_FORMAT( charge_date, '%Y-%m' ) IN ( budget.time ) AND wo.account_book_id = :accountBookId  AND wo.delflag = 0 AND order_type = 1 GROUP BY time;")
     List<BudgetCompletionRateDTO> listBudgetCompletionRateStatisticsByMonths(@Param("rangeMonth") String rangeMonth, @Param("month") String month, @Param("accountBookId") Integer accountBookId);
 
 }
