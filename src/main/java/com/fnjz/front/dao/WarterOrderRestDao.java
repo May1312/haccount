@@ -52,7 +52,7 @@ public interface WarterOrderRestDao {
     WarterOrderRestDTO findById(@Param("id")String id);
 
     /**
-     * 查询指定时间记账天数
+     * 查询指定时间记账天数  根据创建时间
      * @param time
      * @param accountBookId
      * @return
@@ -60,6 +60,16 @@ public interface WarterOrderRestDao {
     @ResultType(Map.class)
     @Sql("SELECT DATE_FORMAT( create_date, '%Y-%m-%d' ) AS days FROM hbird_water_order WHERE account_book_id = :accountBookId AND delflag = 0 AND create_date LIKE concat(:time,'%') GROUP BY days")
     List<Map<String,String>> countChargeDays(@Param("time")String time, @Param("accountBookId")Integer accountBookId);
+
+    /**
+     * 根据记账时间
+     * @param time
+     * @param accountBookId
+     * @return
+     */
+    @ResultType(Map.class)
+    @Sql("SELECT DATE_FORMAT( create_date, '%Y-%m-%d' ) AS days FROM hbird_water_order WHERE account_book_id = :accountBookId AND delflag = 0 AND charge_date LIKE concat(:time,'%') GROUP BY days")
+    List<Map<String,String>> countChargeDaysByChargeDays(@Param("time")String time, @Param("accountBookId")Integer accountBookId);
 
     /**
      * 统计用户记账总笔数

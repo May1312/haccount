@@ -369,7 +369,7 @@ public class AccountBookBudgetRestController extends BaseController {
                 BeanUtils.copyProperties(budgetResult, dto);
             }
             //记账天数加载
-            int daysCount = warterOrderRestServiceI.countChargeDays(time, userAccountBookRestEntityCache.getAccountBookId());
+            int daysCount = warterOrderRestServiceI.countChargeDaysByChargeDays(time, userAccountBookRestEntityCache.getAccountBookId());
             int monthDaysByYearMonth = DateUtils.getMonthDaysByYearMonth(time);
             JSONObject jo = new JSONObject();
             jo.put("chargeDays", daysCount);

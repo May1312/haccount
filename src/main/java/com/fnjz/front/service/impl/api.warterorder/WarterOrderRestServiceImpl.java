@@ -138,6 +138,11 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         List<Map<String, String>> maps = warterOrderRestDao.countChargeDays(currentYearMonth, accountBookId);
         return maps.size();
     }
+    @Override
+    public int countChargeDaysByChargeDays(String currentYearMonth, Integer accountBookId) {
+        List<Map<String, String>> maps = warterOrderRestDao.countChargeDaysByChargeDays(currentYearMonth, accountBookId);
+        return maps.size();
+    }
 
     @Override
     public int chargeTotal(Integer accountBookId) {
