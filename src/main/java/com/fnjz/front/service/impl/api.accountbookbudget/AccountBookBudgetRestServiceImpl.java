@@ -112,8 +112,19 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     @Override
     public List<SavingEfficiencyDTO> getSavingEfficiency(Integer accountBookId, String month, String range) {
         String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
+        System.out.println(rangeMonth);
         //查询在此区间内的预算值
-        return accountBookBudgetRestDao.listSavingEfficiencyStatisticsByMonths(rangeMonth,month,accountBookId);
+        List<SavingEfficiencyDTO> rangeSavingEfficiencyStatistics = accountBookBudgetRestDao.getRangeSavingEfficiencyStatistics(rangeMonth, month, accountBookId);
+        if(rangeSavingEfficiencyStatistics==null || rangeSavingEfficiencyStatistics.size()==0){
+            return rangeSavingEfficiencyStatistics;
+        }
+        List<SavingEfficiencyDTO> savingEfficiencyDTOS = accountBookBudgetRestDao.listSavingEfficiencyStatisticsByMonths(rangeMonth, month, accountBookId);
+        if(savingEfficiencyDTOS==null || savingEfficiencyDTOS.size()==0){
+            //有固定支出  但是没有月记账
+            return rangeSavingEfficiencyStatistics;
+        }
+        //正常情况
+        return savingEfficiencyDTOS;
     }
 
     /**
