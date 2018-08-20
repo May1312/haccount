@@ -190,6 +190,7 @@ public class DateUtils {
      * @return
      */
     public static String getRangeMonth(String month,int range){
+        range = range+1;
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH,Integer.valueOf(month)-1);
         cal.add(Calendar.MONTH, range);
@@ -230,7 +231,7 @@ public class DateUtils {
     }
 
     public static void main(String[] args) throws ParseException {
-        System.out.println(getRangeMonth("02",-1));
+        System.out.println(getRangeMonth("08",-3));
         System.out.println(getRangeMonthforYear("02",-1));
         System.out.println(Integer.valueOf("-"+"520"));
         System.out.println(checkYearMonth("2018-2"));
