@@ -68,7 +68,7 @@ public interface WarterOrderRestDao {
      * @return
      */
     @ResultType(Map.class)
-    @Sql("SELECT DATE_FORMAT( create_date, '%Y-%m-%d' ) AS days FROM hbird_water_order WHERE account_book_id = :accountBookId AND delflag = 0 AND charge_date LIKE concat(:time,'%') GROUP BY days")
+    @Sql("SELECT DATE_FORMAT( charge_date, '%Y-%m-%d' ) AS days FROM hbird_water_order WHERE account_book_id = :accountBookId AND delflag = 0 AND charge_date LIKE concat(:time,'%') GROUP BY days")
     List<Map<String,String>> countChargeDaysByChargeDays(@Param("time")String time, @Param("accountBookId")Integer accountBookId);
 
     /**
