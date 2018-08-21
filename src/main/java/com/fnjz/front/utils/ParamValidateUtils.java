@@ -1,5 +1,6 @@
 package com.fnjz.front.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.statistics.StatisticsParamsRestDTO;
@@ -9,6 +10,8 @@ import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.enums.StatisticsEnum;
 import org.apache.commons.lang.StringUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +27,7 @@ public class ParamValidateUtils {
      * @param map
      * @return
      */
-    public static ResultBean checkeLongin(Map<String, String> map, LoginEnum login) {
+    public static ResultBean checkLogin(Map<String, String> map, LoginEnum login) {
         if (StringUtils.isEmpty(map.get("mobile"))) {
             return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
         }
@@ -183,11 +186,12 @@ public class ParamValidateUtils {
 
     /**
      * 手机号注册参数校验
+     *
      * @param userInfo
      * @param map
      * @return
      */
-    public static UserInfoRestEntity checkRegisterParams(UserInfoRestEntity userInfo, Map<String, String> map,String type) {
+    public static UserInfoRestEntity checkRegisterParams(UserInfoRestEntity userInfo, Map<String, String> map, String type) {
 
         //设置手机号
         userInfo.setMobile(map.get("mobile"));
@@ -219,25 +223,26 @@ public class ParamValidateUtils {
 
     /**
      * 统计参数校验
+     *
      * @param statisticsParamsRestDTO
      * @return
      */
-    public static ResultBean checkStatistics(StatisticsParamsRestDTO statisticsParamsRestDTO,StatisticsEnum statistics){
+    public static ResultBean checkStatistics(StatisticsParamsRestDTO statisticsParamsRestDTO, StatisticsEnum statistics) {
         if (StringUtils.isEmpty(statisticsParamsRestDTO.getFlag())) {
-            return new ResultBean(ApiResultType.TYPE_FLAG_IS_NULL,null);
+            return new ResultBean(ApiResultType.TYPE_FLAG_IS_NULL, null);
         }
-        if(StringUtils.equals(statistics.getIndex(),StatisticsEnum.STATISTICS_FOR_TOP.getIndex())){
+        if (StringUtils.equals(statistics.getIndex(), StatisticsEnum.STATISTICS_FOR_TOP.getIndex())) {
             //排行榜统计接口
-            if(StringUtils.equals(StatisticsEnum.STATISTICS_FOR_DAY.getIndex(),statisticsParamsRestDTO.getFlag())){
+            if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_DAY.getIndex(), statisticsParamsRestDTO.getFlag())) {
                 //日统计
                 if (statisticsParamsRestDTO.getDayTime() == null) {
-                    return new ResultBean(ApiResultType.TIME_IS_NULL,null);
+                    return new ResultBean(ApiResultType.TIME_IS_NULL, null);
                 }
             }
-            if(StringUtils.equals(StatisticsEnum.STATISTICS_FOR_WEEK.getIndex(),statisticsParamsRestDTO.getFlag()) || StringUtils.equals(StatisticsEnum.STATISTICS_FOR_MONTH.getIndex(),statisticsParamsRestDTO.getFlag())){
+            if (StringUtils.equals(StatisticsEnum.STATISTICS_FOR_WEEK.getIndex(), statisticsParamsRestDTO.getFlag()) || StringUtils.equals(StatisticsEnum.STATISTICS_FOR_MONTH.getIndex(), statisticsParamsRestDTO.getFlag())) {
                 //周统计
                 if (StringUtils.isEmpty(statisticsParamsRestDTO.getTime())) {
-                    return new ResultBean(ApiResultType.TIME_IS_NULL,null);
+                    return new ResultBean(ApiResultType.TIME_IS_NULL, null);
                 }
             }
         }
@@ -246,94 +251,159 @@ public class ParamValidateUtils {
 
     /**
      * 手势密码参数校验
+     *
      * @param map
      * @return
      */
     public static ResultBean checkGesture(Map<String, String> map) {
         if (StringUtils.isEmpty(map.get("gesturePwType"))) {
-            return new ResultBean(ApiResultType.GESTURE_PARAMS_ERROR,null);
+            return new ResultBean(ApiResultType.GESTURE_PARAMS_ERROR, null);
         }
         if (map.get("gesturePwType").length() > 1) {
-            return new ResultBean(ApiResultType.GESTURE_PARAMS_LENGTH_ERROR,null);
+            return new ResultBean(ApiResultType.GESTURE_PARAMS_LENGTH_ERROR, null);
         }
         return null;
     }
 
     /**
      * 验证码校验
+     *
      * @param map
      * @return
      */
-    public static ResultBean checkVerifycode(Map<String, String> map,String code) {
+    public static ResultBean checkVerifycode(Map<String, String> map, String code) {
         if (StringUtils.isEmpty(code)) {
-            return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT,null);
+            return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
         }
         if (StringUtils.equals(code, map.get("verifycode"))) {
-            return new ResultBean(ApiResultType.OK,null);
+            return new ResultBean(ApiResultType.OK, null);
         } else {
-            return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR,null);
+            return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
         }
     }
 
     /**
      * app检查更新校验
+     *
      * @param map
      * @param type
      * @return
      */
-    public static ResultBean checkApp(Map<String, String> map,String type) {
-        if(StringUtils.isEmpty(type)){
-            return new ResultBean(ApiResultType.SYSTEM_TYPE_IS_NULL,null);
+    public static ResultBean checkApp(Map<String, String> map, String type) {
+        if (StringUtils.isEmpty(type)) {
+            return new ResultBean(ApiResultType.SYSTEM_TYPE_IS_NULL, null);
         }
         //判断版本号
         if (StringUtils.isEmpty(map.get("version"))) {
-            return new ResultBean(ApiResultType.VERSION_IS_NULL,null);
+            return new ResultBean(ApiResultType.VERSION_IS_NULL, null);
         }
         return null;
     }
 
     /**
      * 用户常用类目排序参数校验
+     *
      * @param map
      * @return
      */
     public static ResultBean checkUserTypePriority(Map<String, Object> map) {
-        if(StringUtils.isEmpty(map.get("type")+"")){
-            return new ResultBean(ApiResultType.TYPE_IS_NULL,null);
+        if (StringUtils.isEmpty(map.get("type") + "")) {
+            return new ResultBean(ApiResultType.TYPE_IS_NULL, null);
         }
-        if(map.get("relation")==null){
-            return new ResultBean(ApiResultType.TYPE_RELATION_IS_NULL,null);
+        if (map.get("relation") == null) {
+            return new ResultBean(ApiResultType.TYPE_RELATION_IS_NULL, null);
         }
         return null;
     }
 
     /**
      * 用户常用收入类目删除校验
+     *
      * @param map
      * @return
      */
     public static ResultBean checkDeleteCommIncomeType(Map<String, List<String>> map) {
-        if(map.get("incomeTypeIds")==null){
-            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL,null);
+        if (map.get("incomeTypeIds") == null) {
+            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL, null);
         }
-        if(map.get("incomeTypeIds").size()<1){
-            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL,null);
+        if (map.get("incomeTypeIds").size() < 1) {
+            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL, null);
         }
         return null;
     }
 
     /**
      * 用户常用支出类目删除校验
+     *
      * @param map
      * @return
      */
     public static ResultBean checkDeleteCommSpendType(Map<String, List<String>> map) {
-        if(map.get("spendTypeIds")==null){
-            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL,null);
+        if (map.get("spendTypeIds") == null) {
+            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL, null);
         }
-        if(map.get("spendTypeIds").size()<1){
-            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL,null);
+        if (map.get("spendTypeIds").size() < 1) {
+            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL, null);
         }
         return null;
+    }
+
+    /**
+     * 定义存钱效率中月份范围
+     */
+    private static final String RANGE_3 = "3";
+
+    public static JSONObject checkSavingEfficiency(String month, String range) {
+        if (StringUtils.isEmpty(month)) {
+            month = DateUtils.getCurrentMonth();
+        } else if (!StringUtils.startsWithIgnoreCase(month, "0")
+                && month.length() < 2) {
+            month = "0" + month;
+        }
+        if (StringUtils.isEmpty(range)) {
+            range = RANGE_3;
+        }
+        JSONObject jo = new JSONObject();
+        jo.put("month", month);
+        jo.put("range", range);
+        return jo;
+    }
+
+    /**
+     * 校验 年-月格式
+     * @param str
+     * @return
+     */
+    public static boolean isValidYearMonthDate(String str) {
+        boolean convertSuccess = true;
+        // 指定日期格式为四位年/两位月份/两位日期，注意yyyy/MM/dd区分大小写；
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
+        try {
+            // 设置lenient为false. 否则SimpleDateFormat会比较宽松地验证日期
+            format.setLenient(false);
+            format.parse(str);
+        } catch (ParseException e) {
+            // 如果throw java.text.ParseException或者NullPointerException，就说明格式不对
+            convertSuccess = false;
+        }
+        return convertSuccess;
+    }
+
+    /**
+     * 格式化 年-月
+     * @param time
+     * @return
+     */
+    public static String formatYearMonthDate(String time){
+        if(StringUtils.isEmpty(time)){
+            time = DateUtils.getCurrentYearMonth();
+        }else{
+            if(!ParamValidateUtils.isValidYearMonthDate(time)){
+                throw new RuntimeException("格式校验失败");
+            }
+            //格式化日期
+            time = DateUtils.checkYearMonth(time);
+        }
+        return time;
     }
 }

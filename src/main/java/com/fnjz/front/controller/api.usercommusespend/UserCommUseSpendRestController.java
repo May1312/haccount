@@ -1,26 +1,23 @@
 package com.fnjz.front.controller.api.usercommusespend;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
 import com.fnjz.front.service.api.spendtype.SpendTypeRestServiceI;
+import com.fnjz.front.service.api.usercommusespend.UserCommUseSpendRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.jeecgframework.core.common.controller.BaseController;
-import com.fnjz.front.service.api.usercommusespend.UserCommUseSpendRestServiceI;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +29,7 @@ import java.util.Map;
  * @date 2018-06-06 13:25:22
  */
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class UserCommUseSpendRestController extends BaseController {
     /**
      * Logger for this class

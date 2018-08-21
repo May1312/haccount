@@ -138,6 +138,11 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         List<Map<String, String>> maps = warterOrderRestDao.countChargeDays(currentYearMonth, accountBookId);
         return maps.size();
     }
+    @Override
+    public int countChargeDaysByChargeDays(String currentYearMonth, Integer accountBookId) {
+        List<Map<String, String>> maps = warterOrderRestDao.countChargeDaysByChargeDays(currentYearMonth, accountBookId);
+        return maps.size();
+    }
 
     @Override
     public int chargeTotal(Integer accountBookId) {
@@ -284,24 +289,24 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 falseTotalMoney = falseTotalMoney.add(abs);
                 //统计深度为5
                 //if (i < 5) {
-                //每个类目对应金额统计
-                StatisticsTopDTO statisticsSpendTopDTO = new StatisticsTopDTO();
-                //设置金额
-                statisticsSpendTopDTO.setMoney((BigDecimal) list.get(i).get("money"));
-                //设置类目名称
-                statisticsSpendTopDTO.setTypeName(list.get(i).get("type_name") + "");
-                //设置图标
-                statisticsSpendTopDTO.setIcon(list.get(i).get("icon") + "");
-                //添加到排行榜集合
-                //top.add(statisticsSpendTopDTO);
-                if(mapTop.containsKey(list.get(i).get("type_name") + "")){
-                    //重复 金额累加
-                    BigDecimal money = mapTop.get(list.get(i).get("type_name") + "").getMoney().add(statisticsSpendTopDTO.getMoney());
-                    statisticsSpendTopDTO.setMoney(money);
-                    mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
-                }else{
-                    mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
-                }
+                    //每个类目对应金额统计
+                    StatisticsTopDTO statisticsSpendTopDTO = new StatisticsTopDTO();
+                    //设置金额
+                    statisticsSpendTopDTO.setMoney((BigDecimal) list.get(i).get("money"));
+                    //设置类目名称
+                    statisticsSpendTopDTO.setTypeName(list.get(i).get("type_name") + "");
+                    //设置图标
+                    statisticsSpendTopDTO.setIcon(list.get(i).get("icon") + "");
+                    //添加到排行榜集合
+                    //top.add(statisticsSpendTopDTO);
+                    if(mapTop.containsKey(list.get(i).get("type_name") + "")){
+                        //重复 金额累加
+                        BigDecimal money = mapTop.get(list.get(i).get("type_name") + "").getMoney().add(statisticsSpendTopDTO.getMoney());
+                        statisticsSpendTopDTO.setMoney(money);
+                        mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
+                    }else{
+                        mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
+                    }
                 //}
                 //统计总笔数 moneytimes-->会统计进没心情的笔数  count--->不会统计
                 totalCount += Integer.valueOf(list.get(i).get("count") + "");

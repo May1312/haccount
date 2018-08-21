@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
  */
 
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 @Api(description = "android/ios",tags = "用户注册接口")
 public class UserRegisterRestController extends BaseController {
 

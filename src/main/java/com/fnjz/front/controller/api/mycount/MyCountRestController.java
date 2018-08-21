@@ -2,21 +2,23 @@ package com.fnjz.front.controller.api.mycount;
 
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.log4j.Logger;
-
 import java.util.Map;
 
 /**
@@ -25,7 +27,7 @@ import java.util.Map;
  */
 
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class MyCountRestController extends BaseController {
 
     private static final Logger logger = Logger.getLogger(MyCountRestController.class);

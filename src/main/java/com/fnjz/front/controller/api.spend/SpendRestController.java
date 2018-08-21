@@ -1,60 +1,30 @@
 package com.fnjz.front.controller.api.spend;
 
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.PageRest;
+import com.fnjz.front.entity.api.spend.SpendRestEntity;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
+import com.fnjz.front.service.api.spend.SpendRestServiceI;
 import com.fnjz.front.utils.CommonUtils;
 import com.fnjz.front.utils.ValidateUtils;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jeecgframework.core.common.hibernate.qbc.HqlQuery;
-import org.jeecgframework.core.common.hibernate.qbc.PageList;
+import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
-import org.jeecgframework.core.common.controller.BaseController;
-import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
-import org.jeecgframework.core.common.model.json.AjaxJson;
-import org.jeecgframework.core.common.model.json.DataGrid;
-import org.jeecgframework.core.constant.Globals;
-import org.jeecgframework.core.util.StringUtil;
-import org.jeecgframework.tag.core.easyui.TagUtil;
-import org.jeecgframework.web.system.pojo.base.TSDepart;
-import org.jeecgframework.web.system.service.SystemService;
-import org.jeecgframework.core.util.MyBeanUtils;
-
-import com.fnjz.front.entity.api.spend.SpendRestEntity;
-import com.fnjz.front.service.api.spend.SpendRestServiceI;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.jeecgframework.core.beanvalidator.BeanValidators;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import java.net.URI;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import org.springframework.http.MediaType;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * @version V1.0
@@ -63,7 +33,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @date 2018-06-06 11:59:47
  */
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class SpendRestController extends BaseController {
     /**
      * Logger for this class

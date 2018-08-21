@@ -11,15 +11,16 @@ import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
+import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.DateUtils;
-import com.fnjz.front.utils.EmojiUtils;
+import com.fnjz.front.utils.FilterCensorWordsUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
-import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -115,10 +116,14 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         UserInfoRestEntity userInfoRestEntity = new UserInfoRestEntity();
         //设置昵称
         if(StringUtils.isNotEmpty(jsonObject.getString("nickname"))){
-            userInfoRestEntity.setNickName(jsonObject.getString("nickname"));
+            String nickName = jsonObject.getString("nickname");
+            nickName = FilterCensorWordsUtils.checkWechatNickName(nickName);
+            userInfoRestEntity.setNickName(nickName);
         }
         if(StringUtils.isNotEmpty(jsonObject.getString("nickName"))){
-            userInfoRestEntity.setNickName(jsonObject.getString("nickName"));
+            String nickName = jsonObject.getString("nickName");
+            nickName = FilterCensorWordsUtils.checkWechatNickName(nickName);
+            userInfoRestEntity.setNickName(nickName);
         }
         //设置性别
         if(StringUtils.isNotEmpty(jsonObject.getString("sex"))){

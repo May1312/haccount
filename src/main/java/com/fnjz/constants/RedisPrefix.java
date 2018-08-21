@@ -3,6 +3,8 @@ package com.fnjz.constants;
 
 public class RedisPrefix {
 
+    public static final String BASE_URL = "/api/*/";
+
     /**
      * 用户信息前缀
      */
@@ -68,4 +70,9 @@ public class RedisPrefix {
      * admin 创建/删除测试用户验证码前缀
      */
     public static final String ADMIN_CERTAIN = "admin_certain:";
+
+    /**
+     * 结构消费比查询中饮食id
+     */
+    public static final String CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE = "2c91dbe363f72fec0163f818eea4001b";
 }

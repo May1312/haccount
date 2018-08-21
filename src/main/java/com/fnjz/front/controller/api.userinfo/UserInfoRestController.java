@@ -37,7 +37,7 @@ import java.util.Map;
  * @date 2018-05-30 14:05:50
  */
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 @Api(description = "android/ios", tags = "账户安全接口")
 public class UserInfoRestController extends BaseController {
     /**
@@ -70,7 +70,7 @@ public class UserInfoRestController extends BaseController {
             UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
                 //判断手机号 验证码
-                rb = ParamValidateUtils.checkeLongin(map, LoginEnum.LOGIN_BY_VERIFYCODE);
+                rb = ParamValidateUtils.checkLogin(map, LoginEnum.LOGIN_BY_VERIFYCODE);
                 if (rb != null) {
                     return rb;
                 }
@@ -264,6 +264,13 @@ public class UserInfoRestController extends BaseController {
         }
     }
 
+    /**
+     * 编辑用户详情
+     * @param type
+     * @param userInfoRestEntity
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/updateUserInfo/{type}", method = RequestMethod.PUT)
     @ResponseBody
     public ResultBean updateUserInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody UserInfoRestEntity userInfoRestEntity, HttpServletRequest request) {
@@ -274,8 +281,9 @@ public class UserInfoRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             userInfoRestEntity.setId(Integer.valueOf(userInfoId));
             if (StringUtils.isNotEmpty(userInfoRestEntity.getNickName())) {
-                //userInfoRestEntity.setNickName(EmojiUtils.emojiToAlias(userInfoRestEntity.getNickName()));
-                userInfoRestEntity.setNickName(userInfoRestEntity.getNickName());
+                if(!FilterCensorWordsUtils.checkNickName(userInfoRestEntity.getNickName())){
+                    return new ResultBean(ApiResultType.NICKNAME_NOT_FORMAT,null);
+                }
             }
             userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
             return new ResultBean(ApiResultType.OK, null);

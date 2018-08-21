@@ -34,7 +34,7 @@ import java.util.Map;
  * @date 2018-05-30 22:41:49
  */
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping(RedisPrefix.BASE_URL)
 @Api(description = "android/ios", tags = "用户登录接口")
 public class UserLoginRestController extends BaseController {
     /**
@@ -68,7 +68,7 @@ public class UserLoginRestController extends BaseController {
     @ResponseBody
     public ResultBean login(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = ParamValidateUtils.checkeLongin(map, LoginEnum.LOGIN_BY_PWD);
+        ResultBean rb = ParamValidateUtils.checkLogin(map, LoginEnum.LOGIN_BY_PWD);
         //校验用户名或密码错误
         if (rb != null) {
             return rb;
@@ -107,7 +107,7 @@ public class UserLoginRestController extends BaseController {
     @ResponseBody
     public ResultBean loginByCode(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = ParamValidateUtils.checkeLongin(map, LoginEnum.LOGIN_BY_VERIFYCODE);
+        ResultBean rb = ParamValidateUtils.checkLogin(map, LoginEnum.LOGIN_BY_VERIFYCODE);
         //用户名或验证码错误
         if (rb != null) {
             return rb;

@@ -57,11 +57,20 @@ public class DateUtils {
     }
 
     /**
-     * 根据时间戳 获取对应的月份-天数
+     * 根据年-月 获取对应的月份-天数
      */
-    public static int getCurrentDaysByDate() {
-        Calendar a = Calendar.getInstance();
-        return a.get(Calendar.DAY_OF_MONTH);
+    public static int getMonthDaysByYearMonth(String yearMonth) {
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        try {
+            Date parse = sdf.parse(yearMonth);
+            cal.setTime(parse);
+            return cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        //异常
+        return 30;
     }
     /**
      * 获取当前时间 - 年份
@@ -174,11 +183,63 @@ public class DateUtils {
         return map;
     }
 
+    /**
+     * 根据传入月份，往前递推range个单位
+     * @param month
+     * @param range
+     * @return
+     */
+    public static String getRangeMonth(String month,int range){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH,Integer.valueOf(month)-1);
+        cal.add(Calendar.MONTH, range);
+        Date starDate = cal.getTime();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM");
+        return formatter.format(starDate);
+    }
+
+    /**
+     * 根据传入月份，往前递推range年个单位
+     * @param month
+     * @param range
+     * @return
+     */
+    public static String getRangeMonthforYear(String month,int range){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH,Integer.valueOf(month)-1);
+        cal.add(Calendar.YEAR, range);
+        Date starDate = cal.getTime();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM");
+        return formatter.format(starDate);
+    }
+
+    /**
+     * 字符串中的月份追加0
+     * @throws ParseException
+     */
+    public static String checkYearMonth(String yearMonth){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        try {
+            Date parse = sdf.parse(yearMonth);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM");
+            return formatter.format(parse);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 根据日期 格式化为年-月
+     */
+    public static String getYearMonthByDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        return sdf.format(date);
+    }
     public static void main(String[] args) throws ParseException {
-        //System.out.println(getCurrentYearMonth());
-        SimpleDateFormat format =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String d = format.format(1530439181000L);
-        Date date=format.parse(d);
-        System.out.println(getDateByWeeks(1));
+        System.out.println(getRangeMonth("08",-3));
+        System.out.println(getRangeMonthforYear("02",-1));
+        System.out.println(Integer.valueOf("-"+"520"));
+        System.out.println(checkYearMonth("2018-2"));
     }
 }
