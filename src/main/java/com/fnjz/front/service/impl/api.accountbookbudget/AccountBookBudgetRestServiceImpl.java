@@ -121,7 +121,6 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     @Override
     public List<SavingEfficiencyDTO> getSavingEfficiency(Integer accountBookId, String month, String range) {
         String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
-        System.out.println(rangeMonth);
         //查询在此区间内的可支配金额
         List<SavingEfficiencyDTO> rangeSavingEfficiencyStatistics = accountBookBudgetRestDao.getRangeSavingEfficiencyStatistics(rangeMonth, month, accountBookId);
         //无可支配金额  结束
@@ -141,7 +140,8 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             savingEfficiencyDTOS.addAll(rangeSavingEfficiencyStatistics);
             return savingEfficiencyDTOS;
         }
-        return rangeSavingEfficiencyStatistics;
+        //正常返回
+        return savingEfficiencyDTOS;
     }
 
     /**
