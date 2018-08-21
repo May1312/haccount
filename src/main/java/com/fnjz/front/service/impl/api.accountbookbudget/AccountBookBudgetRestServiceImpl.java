@@ -127,6 +127,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         }
         //例 7月有可支配金额无月记账记录   6月有可以支配金额有月记账记录  此时会丢掉7月的记录  需处理
         if(rangeSavingEfficiencyStatistics.size()!=savingEfficiencyDTOS.size()){
+            //获取两个list--->无重复并集(根据time属性)
             rangeSavingEfficiencyStatistics.removeAll(savingEfficiencyDTOS);
             savingEfficiencyDTOS.addAll(rangeSavingEfficiencyStatistics);
             return savingEfficiencyDTOS;

@@ -35,6 +35,7 @@ public class BudgetBaseDTO implements Serializable {
         this.time = time;
     }
 
+    //getSavingEfficiency 需要比较time值  覆写equals hashcode方法
     @Override
     public boolean equals(Object o) {
         if (this == o) {return true;}
