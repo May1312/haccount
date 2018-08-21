@@ -70,25 +70,34 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
                     //当月 直接返回
                     return budgetResult;
                 }else{
-                    //执行新增
-                    AccountBookBudgetRestEntity budget = new AccountBookBudgetRestEntity();
-                    if(budgetResult.getBudgetMoney()!=null){
-                        budget.setBudgetMoney(budgetResult.getBudgetMoney());
-                    }
-                    if(budgetResult.getFixedLifeExpenditure()!=null){
-                        budget.setFixedLifeExpenditure(budgetResult.getFixedLifeExpenditure());
-                    }
-                    if(budgetResult.getFixedLargeExpenditure()!=null){
-                        budget.setFixedLargeExpenditure(budgetResult.getFixedLargeExpenditure());
-                    }
-                    if(budgetResult.getCreateBy()!=null){
-                        budget.setCreateBy(budgetResult.getCreateBy());
-                    }
-                    int insert = accountBookBudgetRestDao.insert(budget);
-                    if(insert>0){
-                        //设置时间
+                    //判断月份差额
+                    String rangeMonth = DateUtils.getRangeMonth(DateUtils.getCurrentMonth(), 1);
+                    if(StringUtils.equals(budgetResult.getTime(),rangeMonth)){
+//执行新增
+                        AccountBookBudgetRestEntity budget = new AccountBookBudgetRestEntity();
+                        if(budgetResult.getBudgetMoney()!=null){
+                            budget.setBudgetMoney(budgetResult.getBudgetMoney());
+                        }
+                        if(budgetResult.getFixedLifeExpenditure()!=null){
+                            budget.setFixedLifeExpenditure(budgetResult.getFixedLifeExpenditure());
+                        }
+                        if(budgetResult.getFixedLargeExpenditure()!=null){
+                            budget.setFixedLargeExpenditure(budgetResult.getFixedLargeExpenditure());
+                        }
+                        if(budgetResult.getCreateBy()!=null){
+                            budget.setCreateBy(budgetResult.getCreateBy());
+                        }
+                        if(budgetResult.getAccountBookId()!=null){
+                            budget.setAccountBookId(budgetResult.getAccountBookId());
+                        }
                         budget.setTime(currentYearMonth);
-                        return budget;
+                        int insert = accountBookBudgetRestDao.insert(budget);
+                        if(insert>0){
+                            //设置时间
+                            return budget;
+                        }else{
+                            return null;
+                        }
                     }else{
                         return null;
                     }
