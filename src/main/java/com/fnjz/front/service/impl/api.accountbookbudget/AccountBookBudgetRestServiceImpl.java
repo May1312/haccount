@@ -113,18 +113,25 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     public List<SavingEfficiencyDTO> getSavingEfficiency(Integer accountBookId, String month, String range) {
         String rangeMonth = DateUtils.getRangeMonth(month, Integer.valueOf("-" + range));
         System.out.println(rangeMonth);
-        //查询在此区间内的预算值
+        //查询在此区间内的可支配金额
         List<SavingEfficiencyDTO> rangeSavingEfficiencyStatistics = accountBookBudgetRestDao.getRangeSavingEfficiencyStatistics(rangeMonth, month, accountBookId);
+        //无可支配金额  结束
         if(rangeSavingEfficiencyStatistics==null || rangeSavingEfficiencyStatistics.size()==0){
             return rangeSavingEfficiencyStatistics;
         }
+        //在区级内查找
         List<SavingEfficiencyDTO> savingEfficiencyDTOS = accountBookBudgetRestDao.listSavingEfficiencyStatisticsByMonths(rangeMonth, month, accountBookId);
+        //有可支配金额  但是没有月记账
         if(savingEfficiencyDTOS==null || savingEfficiencyDTOS.size()==0){
-            //有固定支出  但是没有月记账
             return rangeSavingEfficiencyStatistics;
         }
-        //正常情况
-        return savingEfficiencyDTOS;
+        //例 7月有可支配金额无月记账记录   6月有可以支配金额有月记账记录  此时会丢掉7月的记录  需处理
+        if(rangeSavingEfficiencyStatistics.size()!=savingEfficiencyDTOS.size()){
+            rangeSavingEfficiencyStatistics.removeAll(savingEfficiencyDTOS);
+            savingEfficiencyDTOS.addAll(rangeSavingEfficiencyStatistics);
+            return savingEfficiencyDTOS;
+        }
+        return rangeSavingEfficiencyStatistics;
     }
 
     /**

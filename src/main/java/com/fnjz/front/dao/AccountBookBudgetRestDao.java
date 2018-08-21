@@ -85,18 +85,7 @@ public interface AccountBookBudgetRestDao {
     @ResultType(SavingEfficiencyDTO.class)
     @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS monthSpend, SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END ) AS monthIncome, DATE_FORMAT( charge_date, '%Y-%m' ) AS time, budget.budget_money as budgetMoney, budget.fixed_large_expenditure as fixedLargeExpenditure, budget.fixed_life_expenditure as fixedLifeExpenditure FROM `hbird_water_order` AS wo, (SELECT time, budget_money, fixed_large_expenditure, fixed_life_expenditure FROM `hbird_accountbook_budget` WHERE account_book_id = :accountBookId AND time <= CONCAT( DATE_FORMAT( NOW( ), '%Y-' ), :month ) AND time >= :rangeMonth AND (fixed_large_expenditure is not null OR fixed_life_expenditure is not null) AND (fixed_large_expenditure !=-1 OR fixed_life_expenditure !=-1)) AS budget WHERE DATE_FORMAT( charge_date, '%Y-%m' ) IN ( budget.time ) AND wo.account_book_id = :accountBookId  AND wo.delflag = 0 GROUP BY time;")
     List<SavingEfficiencyDTO> listSavingEfficiencyStatisticsByMonths(@Param("rangeMonth") String rangeMonth, @Param("month") String month, @Param("accountBookId") Integer accountBookId);
-
-    /**
-     * 获取存钱效率---->解决上述为null问题  去掉in校验
-     * @param rangeMonth
-     * @param month
-     * @param accountBookId
-     * @return
-     */
-    @ResultType(SavingEfficiencyDTO.class)
-    @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS monthSpend, SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END ) AS monthIncome, DATE_FORMAT( charge_date, '%Y-%m' ) AS time, budget.budget_money as budgetMoney, budget.fixed_large_expenditure as fixedLargeExpenditure, budget.fixed_life_expenditure as fixedLifeExpenditure FROM `hbird_water_order` AS wo, (SELECT time, budget_money, fixed_large_expenditure, fixed_life_expenditure FROM `hbird_accountbook_budget` WHERE account_book_id = :accountBookId AND time <= CONCAT( DATE_FORMAT( NOW( ), '%Y-' ), :month ) AND time >= :rangeMonth AND (fixed_large_expenditure is not null OR fixed_life_expenditure is not null) AND (fixed_large_expenditure !=-1 OR fixed_life_expenditure !=-1)) AS budget WHERE DATE_FORMAT( charge_date, '%Y-%m' ) IN ( budget.time ) AND wo.account_book_id = :accountBookId  AND wo.delflag = 0 GROUP BY time;")
-    List<SavingEfficiencyDTO> listSavingEfficiencyStatisticsByMonthsNoIn(@Param("rangeMonth") String rangeMonth, @Param("month") String month, @Param("accountBookId") Integer accountBookId);
-
+    
     /**
      * 获取消费结构比
      * @param accountBookId
