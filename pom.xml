@@ -341,7 +341,7 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/ojdbc14-10.2.0.5.0-20170917.jar</systemPath>
         </dependency>-->
-        <!-- jtds for mssql/db2 
+        <!-- jtds for mssql/db2
 		<dependency>
 			<groupId>net.sourceforge.jtds</groupId>
 			<artifactId>jtds</artifactId>
@@ -349,7 +349,7 @@
 			<scope>runtime</scope>
 		</dependency>
 		-->
-        <!-- h2 
+        <!-- h2
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
