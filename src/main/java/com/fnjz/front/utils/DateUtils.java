@@ -191,7 +191,10 @@ public class DateUtils {
      */
     public static String getRangeMonth(String month,int range){
         //范围需要减1
-        range = range+1;
+        if(range!=-1){
+            //TODO  方法不能复用  获取消费结构比不要用-1
+            range = range+1;
+        }
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH,Integer.valueOf(month)-1);
         cal.add(Calendar.MONTH, range);
