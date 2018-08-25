@@ -64,7 +64,14 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
                     Map array_map = (Map) jsonArray.get(i);
                     for (int j = 0; j < list3.size(); j++) {
                         if (StringUtils.equals(array_map.get("id") + "", list3.get(j).getId())) {
-                            list3.get(j).setPriority(Integer.valueOf(array_map.get("priority") + ""));
+                            try {
+                                list3.get(j).setPriority(Integer.valueOf(array_map.get("priority") + ""));
+                            } catch (NumberFormatException e) {
+                                e.printStackTrace();
+                                map.put("allList", allList);
+                                map.put("commonList", list3);
+                                return map;
+                            }
                         }
                     }
                 }

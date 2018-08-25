@@ -1,9 +1,10 @@
 package com.fnjz.front.entity.api.userinfo;
 
-import javax.persistence.*;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
+import javax.persistence.*;
 
 /**   
  * @Title: Entity
@@ -73,6 +74,8 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	private java.lang.String mobileManufacturer;
 	/**终端设备号*/
 	private java.lang.String mobileDevice;
+	/**安卓应用商店渠道标识*/
+	private java.lang.String androidChannel;
 	/**ios_token标识*/
 	private java.lang.String iosToken;
 	/**登录ip*/
@@ -599,5 +602,14 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	 */
 	public void setUpdateDate(java.util.Date updateDate){
 		this.updateDate = updateDate;
+	}
+
+	@Column(name ="ANDROID_CHANNEL")
+	public String getAndroidChannel() {
+		return androidChannel;
+	}
+
+	public void setAndroidChannel(String androidChannel) {
+		this.androidChannel = androidChannel;
 	}
 }

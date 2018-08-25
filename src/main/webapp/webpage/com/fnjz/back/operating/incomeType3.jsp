@@ -1,11 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@include file="/context/mytags.jsp" %>
 <!DOCTYPE html>
+<%--<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">--%>
 <html>
 <head>
     <title>收入标签管理</title>
     <t:base type="jquery,easyui,tools,DatePicker"></t:base>
-    <script src="${webRoot}/plug-in/qiniu/qiniu.js"></script>
+    <script src="plug-in/qiniu/qiniu.js"></script>
 </head>
 <body style="overflow-y:scroll" scroll="yes">
 <t:formvalid formid="formobj" dialog="true" usePlugin="password" layout="table" action="incomeTypeController.do?save">
@@ -59,6 +60,7 @@
                     <input class="inputxt" id="icon" name="icon" value="${incomeTypePage.icon}"/>
 
                     <input type="file" name="FileUpload" id="FileUpload" accept="image/*">
+
                     <a class="layui-btn layui-btn-mini" id="btn_uploadimg">上传图片</a>
 
                     <c:if test="${not empty  incomeTypePage.icon}">
@@ -139,7 +141,7 @@
 
     $(function () {
         $("#btn_uploadimg").click(function () {
-            var url = "${webRoot}/" + "/qiNiuUploadController.do?uploadFiles";
+            var url = "qiNiuUploadController.do?uploadFiles";
             qiNiuupload(url, "FileUpload", "icon", "show");
         })
     })

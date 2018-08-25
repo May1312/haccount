@@ -5,7 +5,7 @@
 <head>
     <title>支出标签管理</title>
     <t:base type="jquery,easyui,tools,DatePicker"></t:base>
-    <script src="${webRoot}/plug-in/qiniu/qiniu.js"></script>
+    <script src="plug-in/qiniu/qiniu.js"></script>
 </head>
 <body style="overflow-y: scroll" scroll="yes">
 <t:formvalid formid="formobj" dialog="true" usePlugin="password" layout="table" action="spendTypeController.do?save">
@@ -146,7 +146,7 @@
 <script>
     $(function () {
         $("#btn_uploadimg").click(function () {
-            var url = "${webRoot}/" + "/qiNiuUploadController.do?uploadFiles";
+            var url = "qiNiuUploadController.do?uploadFiles";
             qiNiuupload(url, "FileUpload", "icon", "show");
         })
     })

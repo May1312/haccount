@@ -9,22 +9,18 @@ import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.enums.QiNiuEnum;
+import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.*;
 import com.fnjz.utils.upload.QiNiuUploadFileUtils;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
-import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
@@ -285,6 +281,16 @@ public class UserInfoRestController extends BaseController {
                     return new ResultBean(ApiResultType.NICKNAME_NOT_FORMAT,null);
                 }
             }
+            //校验头像url
+            //七牛测试域名（以 clouddn.com/qiniucdn.com/qiniudn.com/qnssl.com/qbox.me 结尾）
+            /*if(StringUtils.isNotEmpty(userInfoRestEntity.getAvatarUrl())){
+                if(StringUtils.contains(userInfoRestEntity.getAvatarUrl(),".clouddn.com")){
+                    //若为七牛云链接 替换成自定义域名  +1不取/位
+                    String fileName = userInfoRestEntity.getAvatarUrl().substring(userInfoRestEntity.getAvatarUrl().lastIndexOf("/")+1);
+                    //重新设置url
+                    userInfoRestEntity.setAvatarUrl(DomainEnum.HEAD_PICTURE_DOMAIN.getDomainUrl()+fileName);
+                }
+            }*/
             userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
