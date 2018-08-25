@@ -3,7 +3,6 @@ package com.fnjz.front.controller.api.userinfo;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
-import com.fnjz.constants.DomainEnum;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestDTO;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
@@ -284,14 +283,14 @@ public class UserInfoRestController extends BaseController {
             }
             //校验头像url
             //七牛测试域名（以 clouddn.com/qiniucdn.com/qiniudn.com/qnssl.com/qbox.me 结尾）
-            if(StringUtils.isNotEmpty(userInfoRestEntity.getAvatarUrl())){
+            /*if(StringUtils.isNotEmpty(userInfoRestEntity.getAvatarUrl())){
                 if(StringUtils.contains(userInfoRestEntity.getAvatarUrl(),".clouddn.com")){
                     //若为七牛云链接 替换成自定义域名  +1不取/位
                     String fileName = userInfoRestEntity.getAvatarUrl().substring(userInfoRestEntity.getAvatarUrl().lastIndexOf("/")+1);
                     //重新设置url
                     userInfoRestEntity.setAvatarUrl(DomainEnum.HEAD_PICTURE_DOMAIN.getDomainUrl()+fileName);
                 }
-            }
+            }*/
             userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {

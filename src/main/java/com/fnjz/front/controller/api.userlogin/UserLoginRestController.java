@@ -157,11 +157,11 @@ public class UserLoginRestController extends BaseController {
             return new ResultBean(ApiResultType.WECHAT_LOGIN_ERROR, null);
         }
         try {
-            //查看openid是否存在
+            //查看unionid是否存在
             UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
             if (task == null) {
                 //注册
-                int insert = userInfoRestServiceI.wechatinsert(user,map.get("code"),type);
+                int insert = userInfoRestServiceI.wechatinsert(user,map,type);
                 if (insert > 0) {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
                     return createTokenUtils.loginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));

@@ -214,8 +214,12 @@ public class ParamValidateUtils {
             //终端设备号
             userInfo.setMobileDevice(map.get("mobileDevice"));
         }
+        if (StringUtils.isNotEmpty(map.get("androidChannel"))) {
+            //安卓应用商店渠道标识
+            userInfo.setAndroidChannel(map.get("androidChannel"));
+        }
         if (StringUtils.isNotEmpty(type)) {
-            //终端设备号
+            //终端系统
             userInfo.setMobileSystem(type);
         }
         return userInfo;

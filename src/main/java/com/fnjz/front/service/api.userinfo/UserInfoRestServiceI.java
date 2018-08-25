@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import org.jeecgframework.core.common.service.CommonService;
 
+import java.util.Map;
+
 public interface UserInfoRestServiceI extends CommonService{
 
     /**
@@ -13,7 +15,7 @@ public interface UserInfoRestServiceI extends CommonService{
     /**
      * 微信注册用户
      */
-    int wechatinsert(JSONObject jsonObject,String mobileDevice,String type);
+    int wechatinsert(JSONObject jsonObject, Map<String, String> map, String type);
 
     /**
      * 根据userInfoId更新密码
