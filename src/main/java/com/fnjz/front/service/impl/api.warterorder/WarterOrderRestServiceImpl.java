@@ -31,7 +31,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     public Map<String, Object> findListForPage(String time, String accountBookId) {
 
         List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(time, accountBookId);
-        //获取到当月所以记录
+        //获取到当月所有记录
         Map<Date, Object> map = new HashMap<>();
         for (Iterator<WarterOrderRestDTO> it = listForPage.iterator(); it.hasNext(); ) {
             WarterOrderRestDTO warter = it.next();
