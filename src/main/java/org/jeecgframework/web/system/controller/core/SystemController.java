@@ -1559,9 +1559,11 @@ public class SystemController extends BaseController {
 				msg="上传成功";
 				j.setMsg(msg);
 
-				String requestURL ="http://"+request.getServerName()+ ":"+ request.getServerPort()+ request.getContextPath();
+				String scheme = request.getScheme();
+
+				String requestURL =scheme+ "://" +request.getServerName()+ ":"+ request.getServerPort()+ request.getContextPath();
 				j.setObj(requestURL+"/uploadFiles/"+fileName);
-				System.out.println("访问地址========="+"http://"+requestURL+"/uploadFiles/"+fileName);
+				System.out.println("访问地址========="+requestURL+"/uploadFiles/"+fileName);
 				//1、将文件路径赋值给obj,前台可获取之,随表单提交,然后数据库中存储该路径
 				//2、demo这里用的是AjaxJson对象,开发者可自定义返回对象,但是用t标签的时候路径属性名需为  obj或 filePath 或自己在标签内指定若在标签内指定则action返回路径的名称应保持一致
 	          //如果是删除操作
