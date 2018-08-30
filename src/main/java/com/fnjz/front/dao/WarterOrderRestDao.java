@@ -213,9 +213,9 @@ public interface WarterOrderRestDao {
      * @param synDate
      * @return
      */
-    @ResultType(WarterOrderRestDTO.class)
-    @Sql("SELECT wo.id,wo.money,wo.account_book_id,wo.order_type,wo.is_staged,wo.spend_happiness,wo.use_degree,wo.type_pid,wo.type_pname,wo.type_id,wo.type_name,wo.picture_url,wo.create_date,wo.charge_date,wo.remark, ( CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END ) AS icon FROM hbird_water_order wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id where wo.create_by=:userInfoId AND wo.delflag = 0 AND if(:synDate is null,1=1,wo.update_date>:synDate);")
-    List<WarterOrderRestDTO> findAllWaterList(@Param("userInfoId") String userInfoId, @Param("synDate") Date synDate);
+    @ResultType(WarterOrderRestEntity.class)
+    @Sql("SELECT * FROM hbird_water_order where create_by=:userInfoId AND if(:synDate is null,1=1,update_date>:synDate);;")
+    List<WarterOrderRestEntity> findAllWaterList(@Param("userInfoId") String userInfoId, @Param("synDate") Date synDate);
 
     /**
      * 离线数据新增或更新

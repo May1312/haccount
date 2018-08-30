@@ -1,15 +1,14 @@
 package com.fnjz.front.entity.api.warterorder;
 
-import java.math.BigDecimal;
-import javax.persistence.*;
-
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fnjz.front.entity.api.stagedinfo.StagedInfoRestEntity;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
 
 /**   
  * @Title: Entity
@@ -22,7 +21,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Table(name = "hbird_water_order", schema = "")
 @DynamicUpdate(true)
 @DynamicInsert(true)
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL) //为空字段不返回
 @SuppressWarnings("serial")
 public class WarterOrderRestEntity implements java.io.Serializable {
 	/**流水记录号*/

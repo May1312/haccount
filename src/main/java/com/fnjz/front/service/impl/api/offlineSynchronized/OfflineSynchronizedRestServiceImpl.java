@@ -2,7 +2,6 @@ package com.fnjz.front.service.impl.api.offlineSynchronized;
 
 import com.fnjz.front.dao.OfflineSynchronizedRestDao;
 import com.fnjz.front.dao.WarterOrderRestDao;
-import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
@@ -45,7 +44,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
     @Override
     public Map<String,Object> offlinePull(String mobileDevice, String userInfoId) {
         Date latelySynDate = offlineSynchronizedRestDao.getLatelySynDate(mobileDevice, userInfoId);
-        List<WarterOrderRestDTO> list = warterOrderRestDao.findAllWaterList(userInfoId, null);
+        List<WarterOrderRestEntity> list = warterOrderRestDao.findAllWaterList(userInfoId, null);
         Map<String,Object> map = new HashMap<String,Object>();
         map.put("synData", list);
         map.put("synDate",latelySynDate);
