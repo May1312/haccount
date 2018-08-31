@@ -2,6 +2,7 @@ package com.fnjz.front.dao;
 
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
+import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
 import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import org.jeecgframework.minidao.annotation.MiniDao;
@@ -48,4 +49,12 @@ public interface SystemTypeRestDao {
     @ResultType(UserCommUseIncomeRestEntity.class)
     @Sql("select * from hbird_user_comm_use_income where user_info_id=:userInfoId")
     List<UserCommUseIncomeRestEntity> getAllUserCommUseIncomeType(@Param("userInfoId")String userInfoId);
+
+    /**
+     * 获取用户常用类目排序关系
+     * @return
+     */
+    @ResultType(UserCommTypePriorityRestEntity.class)
+    @Sql("select * from hbird_user_comm_type_priority where user_info_id=:userInfoId")
+    List<UserCommTypePriorityRestEntity> getAllUserCommUseTypePriority(@Param("userInfoId")String userInfoId);
 }

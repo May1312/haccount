@@ -4,6 +4,7 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.SystemTypeRestDao;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
+import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
 import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import com.fnjz.front.service.api.checkrest.CheckRestServiceI;
@@ -37,12 +38,16 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
         List<IncomeTypeRestEntity> allSysIncomeType = systemTypeRestDao.getAllSysIncomeType();
         //获取用户常用支出类目
         List<UserCommUseSpendRestEntity> allUserCommUseSpendType = systemTypeRestDao.getAllUserCommUseSpendType(userInfoId);
+        //获取用户常用收入类目
         List<UserCommUseIncomeRestEntity> allUserCommUseIncomeType = systemTypeRestDao.getAllUserCommUseIncomeType(userInfoId);
+        //获取用户常用类目排序关系
+        List<UserCommTypePriorityRestEntity> allUserCommUseTypePriority = systemTypeRestDao.getAllUserCommUseTypePriority(userInfoId);
         Map<String,Object> map = new HashMap();
         map.put("allSysSpendType",allSysSpendType);
         map.put("allSysIncomeType",allSysIncomeType);
         map.put("allUserCommUseSpendType",allUserCommUseSpendType);
         map.put("allUserCommUseIncomeType",allUserCommUseIncomeType);
+        map.put("allUserCommUseTypePriority",allUserCommUseTypePriority);
         //追加同步时间间隔
         map.put("synInterval",RedisPrefix.SYN_INTERVAL);
         return map;
