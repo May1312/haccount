@@ -1,15 +1,13 @@
 package com.fnjz.front.entity.api.incometype;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**   
  * @Title: Entity
@@ -22,7 +20,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "hbird_income_type", schema = "")
 @DynamicUpdate(true)
 @DynamicInsert(true)
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+//@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 @SuppressWarnings("serial")
 public class IncomeTypeRestEntity implements java.io.Serializable {
 	/**id*/
