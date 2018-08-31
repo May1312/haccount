@@ -196,7 +196,10 @@ public class DateUtils {
             range = range+1;
         }
         Calendar cal = Calendar.getInstance();
+        cal.clear();
+        cal.set(Calendar.YEAR,DateUtils.getCurrentYear());
         cal.set(Calendar.MONTH,Integer.valueOf(month)-1);
+        cal.set(Calendar.DAY_OF_MONTH,1);
         cal.add(Calendar.MONTH, range);
         Date starDate = cal.getTime();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM");
@@ -211,6 +214,8 @@ public class DateUtils {
      */
     public static String getRangeMonthforYear(String month,int range){
         Calendar cal = Calendar.getInstance();
+        cal.clear();
+        cal.set(Calendar.YEAR,DateUtils.getCurrentYear());
         cal.set(Calendar.MONTH,Integer.valueOf(month)-1);
         cal.add(Calendar.YEAR, range);
         Date starDate = cal.getTime();
