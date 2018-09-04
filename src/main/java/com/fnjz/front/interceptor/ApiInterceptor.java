@@ -7,6 +7,7 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
@@ -34,6 +35,9 @@ public class ApiInterceptor implements HandlerInterceptor {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     @Override
     public void afterCompletion(HttpServletRequest httpservletrequest, HttpServletResponse httpservletresponse, Object obj, Exception exception) throws Exception {
@@ -90,7 +94,10 @@ public class ApiInterceptor implements HandlerInterceptor {
             this.sendJsonMessage(response,rb);
             return false;
         } else {
+
             UserLoginRestEntity userLoginRestEntity = JSON.parseObject(user, UserLoginRestEntity.class);
+            //重置登录时限
+            redisTemplateUtils.updateCacheSimple(userLoginRestEntity,RedisPrefix.PREFIX_USER_LOGIN+username.toString());
             //如果token验证成功，将token对应的用户id存在request中，便于之后注入
             if(StringUtils.isNotEmpty(userLoginRestEntity.getMobile())){
                 request.setAttribute("code",userLoginRestEntity.getMobile());

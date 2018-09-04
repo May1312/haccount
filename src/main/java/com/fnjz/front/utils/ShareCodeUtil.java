@@ -1,7 +1,6 @@
 package com.fnjz.front.utils;
 
 import org.junit.Test;
-import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -213,7 +212,7 @@ public class ShareCodeUtil {
 
     @Test
     public void  main(){
-        String str2 = id2sharecode(261);
+        String str2 = id2sharecode(3343);
         System.out.println(str2);
         int str3 = sharecode2id("99999507");
         System.out.println(str3);
