@@ -52,6 +52,13 @@ public class ApiInterceptor implements HandlerInterceptor {
         }
         //从header中得到token
         String authHeader = request.getHeader("X-AUTH-TOKEN");
+        //校验系统参数接口 /checkSystemParam  包含token查询系统类目/个人类目  不包含token查询系统类目
+        if(requestPath.indexOf("/checkSystemParam")!=-1){
+            if(StringUtils.isEmpty(authHeader)){
+                request.setAttribute("containsToken",false);
+                return true;
+            }
+        }
         ResultBean rb = new ResultBean();
         if (authHeader == null) {
             rb.setFailMsg(ApiResultType.USER_IS_NOT_LOGIN);

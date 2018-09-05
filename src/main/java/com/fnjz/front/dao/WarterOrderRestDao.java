@@ -214,7 +214,7 @@ public interface WarterOrderRestDao {
      * @return
      */
     @ResultType(WarterOrderRestEntity.class)
-    @Sql("SELECT * FROM hbird_water_order where create_by=:userInfoId AND if(:synDate is null,1=1,update_date>:synDate);;")
+    @Sql("SELECT * FROM hbird_water_order where create_by=:userInfoId AND if(:synDate is null,1=1,update_date>:synDate);")
     List<WarterOrderRestEntity> findAllWaterList(@Param("userInfoId") String userInfoId, @Param("synDate") Date synDate);
 
     /**

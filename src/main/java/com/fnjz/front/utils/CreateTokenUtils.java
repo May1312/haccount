@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -34,14 +35,19 @@ public class CreateTokenUtils {
      * 登录/注册成功-->返回token-->设置缓存
      * @return
      */
-    public ResultBean loginSuccess(UserLoginRestEntity task , String code){
+    public ResultBean loginSuccess(UserLoginRestEntity task , String shareCode){
         Map<String, Object> map = new HashMap<>();
-        String token = this.createToken(code);
+        String token = this.createToken(shareCode);
         map.put("X-AUTH-TOKEN", token);
         map.put("expire", RedisPrefix.USER_EXPIRE_TIME);
         //设置账本+用户缓存
         String user = JSON.toJSONString(task);
         redisTemplateUtils.cacheUserAndAccount(task.getUserInfoId(),user);
+
+        //离线增加返回 userinfoid  accountbookid
+        map.put("userInfoId", task.getUserInfoId()+"");
+        UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(task.getUserInfoId(), shareCode);
+        map.put("accountBookId", userAccountBookRestEntityCache.getAccountBookId()+"");
         return new ResultBean(ApiResultType.OK,map);
     }
 

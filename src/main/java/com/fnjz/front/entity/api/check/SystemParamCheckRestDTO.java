@@ -1,59 +1,69 @@
 package com.fnjz.front.entity.api.check;
 
-import java.util.Date;
-
 /**
- * app启动检查类
+ * app启动系统参数检查类
  * Created by yhang on 2018/8/31.
  */
 public class SystemParamCheckRestDTO {
 
     /**
-     * 系统支出表最新时间
+     * 系统支出类目版本号
      */
-    private Date sysSpendTypeSynDate;
+    private String sysSpendTypeVersion;
     /**
-     * 系统收入表最新时间
+     * 系统收入类目版本号
      */
-    private Date sysIncomeTypeSynDate;
+    private String sysIncomeTypeVersion;
     /**
-     * 用户常用支出表最新时间
+     * 用户常用支出类目版本号
      */
-    private Date userCommUseSpendTypeSynDate;
+    private String userCommUseSpendTypeVersion;
     /**
-     * 用户常用收入表最新时间
+     * 用户常用收入类目版本号
      */
-    private Date userCommUseIncomeTypeSynDate;
+    private String userCommUseIncomeTypeVersion;
+    /**
+     * 用户常用类目排序版本号
+     */
+    private String userCommTypePriorityVersion;
 
-    public Date getSysSpendTypeSynDate() {
-        return sysSpendTypeSynDate;
+    public String getSysSpendTypeVersion() {
+        return sysSpendTypeVersion;
     }
 
-    public void setSysSpendTypeSynDate(Date sysSpendTypeSynDate) {
-        this.sysSpendTypeSynDate = sysSpendTypeSynDate;
+    public void setSysSpendTypeVersion(String sysSpendTypeVersion) {
+        this.sysSpendTypeVersion = sysSpendTypeVersion;
     }
 
-    public Date getSysIncomeTypeSynDate() {
-        return sysIncomeTypeSynDate;
+    public String getSysIncomeTypeVersion() {
+        return sysIncomeTypeVersion;
     }
 
-    public void setSysIncomeTypeSynDate(Date sysIncomeTypeSynDate) {
-        this.sysIncomeTypeSynDate = sysIncomeTypeSynDate;
+    public void setSysIncomeTypeVersion(String sysIncomeTypeVersion) {
+        this.sysIncomeTypeVersion = sysIncomeTypeVersion;
     }
 
-    public Date getUserCommUseSpendTypeSynDate() {
-        return userCommUseSpendTypeSynDate;
+    public String getUserCommUseSpendTypeVersion() {
+        return userCommUseSpendTypeVersion;
     }
 
-    public void setUserCommUseSpendTypeSynDate(Date userCommUseSpendTypeSynDate) {
-        this.userCommUseSpendTypeSynDate = userCommUseSpendTypeSynDate;
+    public void setUserCommUseSpendTypeVersion(String userCommUseSpendTypeVersion) {
+        this.userCommUseSpendTypeVersion = userCommUseSpendTypeVersion;
     }
 
-    public Date getUserCommUseIncomeTypeSynDate() {
-        return userCommUseIncomeTypeSynDate;
+    public String getUserCommUseIncomeTypeVersion() {
+        return userCommUseIncomeTypeVersion;
     }
 
-    public void setUserCommUseIncomeTypeSynDate(Date userCommUseIncomeTypeSynDate) {
-        this.userCommUseIncomeTypeSynDate = userCommUseIncomeTypeSynDate;
+    public void setUserCommUseIncomeTypeVersion(String userCommUseIncomeTypeVersion) {
+        this.userCommUseIncomeTypeVersion = userCommUseIncomeTypeVersion;
+    }
+
+    public String getUserCommTypePriorityVersion() {
+        return userCommTypePriorityVersion;
+    }
+
+    public void setUserCommTypePriorityVersion(String userCommTypePriorityVersion) {
+        this.userCommTypePriorityVersion = userCommTypePriorityVersion;
     }
 }

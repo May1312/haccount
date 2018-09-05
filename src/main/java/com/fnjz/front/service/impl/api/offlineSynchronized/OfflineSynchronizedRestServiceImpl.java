@@ -44,10 +44,17 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
     @Override
     public Map<String,Object> offlinePull(String mobileDevice, String userInfoId) {
         Date latelySynDate = offlineSynchronizedRestDao.getLatelySynDate(mobileDevice, userInfoId);
-        List<WarterOrderRestEntity> list = warterOrderRestDao.findAllWaterList(userInfoId, null);
+        //第一次同步  为null情况下 获取当前时间戳为同步时间
+        Date date = new Date();
         Map<String,Object> map = new HashMap<String,Object>();
+        if(null==latelySynDate){
+            offlineSynchronizedRestDao.firstInsert(mobileDevice,userInfoId,date);
+            map.put("synDate",date);
+        }else{
+            map.put("synDate",latelySynDate);
+        }
+        List<WarterOrderRestEntity> list = warterOrderRestDao.findAllWaterList(userInfoId, null);
         map.put("synData", list);
-        map.put("synDate",latelySynDate);
         return map;
     }
 

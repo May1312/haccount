@@ -27,4 +27,12 @@ public interface OfflineSynchronizedRestDao {
      */
     @Sql("INSERT INTO `hbird_offline_synchronized` (`mobile_device`,`user_info_id`,`syn_date`,`create_date`) VALUES (:mobileDevice,:userInfoId,NOW(),NOW())")
     void insert(@Param("mobileDevice")String mobileDevice, @Param("userInfoId")String userInfoId);
+
+    /**
+     * 第一次同步设置 同步时间
+     * @param mobileDevice
+     * @param userInfoId
+     */
+    @Sql("INSERT INTO `hbird_offline_synchronized` (`mobile_device`,`user_info_id`,`syn_date`,`create_date`) VALUES (:mobileDevice,:userInfoId,:synDate,NOW())")
+    void firstInsert(@Param("mobileDevice")String mobileDevice, @Param("userInfoId")String userInfoId,@Param("synDate") Date synDate);
 }

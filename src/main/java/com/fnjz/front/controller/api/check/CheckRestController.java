@@ -4,7 +4,10 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.check.SystemParamCheckRestDTO;
+import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.checkrest.CheckRestServiceI;
+import com.fnjz.front.utils.RedisTemplateUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,33 +34,71 @@ public class CheckRestController extends BaseController {
     @Autowired
     private CheckRestServiceI checkRestServiceI;
 
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
+
     /**
      * 入参 系统支出/收入表最后更新时间/个人常用支出/收入表最后更新时间/个人排序关系表最后更新时间
      * @param type
      * @param systemParamCheckRestDTO
      * @return
      */
-    @RequestMapping(value = "/checkChargeType/{type}", method = RequestMethod.POST)
+    @RequestMapping(value = "/checkSystemParam/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean checkChargeType(@PathVariable("type") String type, HttpServletRequest request, @RequestBody SystemParamCheckRestDTO systemParamCheckRestDTO) {
+    public ResultBean checkSystemParam(@PathVariable("type") String type, HttpServletRequest request, @RequestBody SystemParamCheckRestDTO systemParamCheckRestDTO) {
         System.out.println("登录终端：" + type);
+        Map<String,Object> map;
+        //判断是否包含token
+        Object containsToken = request.getAttribute("containsToken");
+        if(null!=containsToken){
+            boolean flag = Boolean.valueOf(containsToken+"");
+            if(!flag){
+                //只查询系统类目信息
+                if(StringUtils.isEmpty(systemParamCheckRestDTO.getSysSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getSysIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommTypePriorityVersion())) {
+                    try {
+                        map = checkRestServiceI.getSysAndUserSpendAndSynInterval(null,null);
+                    } catch (Exception e) {
+                        logger.error(e.toString());
+                        return new ResultBean(ApiResultType.SERVER_ERROR, null);
+                    }
+                    return new ResultBean(ApiResultType.OK,map);
+                }
+                //正常
+                try {
+                    map = checkRestServiceI.checkParamVersion(systemParamCheckRestDTO,null,null);
+                    return new ResultBean(ApiResultType.OK,map);
+                } catch (Exception e) {
+                    logger.error(e.toString());
+                    return new ResultBean(ApiResultType.SERVER_ERROR, null);
+                }
+            }
+        }
+        //正常流程执行
         String userInfoId = (String) request.getAttribute("userInfoId");
-        if(systemParamCheckRestDTO.getSysIncomeTypeSynDate()==null && systemParamCheckRestDTO.getSysSpendTypeSynDate()==null && systemParamCheckRestDTO.getUserCommUseIncomeTypeSynDate()==null && systemParamCheckRestDTO.getUserCommUseSpendTypeSynDate()==null){
+        String shareCode = (String) request.getAttribute("shareCode");
+        UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+        if(StringUtils.isEmpty(systemParamCheckRestDTO.getSysSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getSysIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommTypePriorityVersion())){
             //返回所有
-            Map<String,Object> map = checkRestServiceI.getSysAndUserSpendAndSynInterval(userInfoId);
+            try {
+                map = checkRestServiceI.getSysAndUserSpendAndSynInterval(userInfoId,userAccountBookRestEntityCache.getAccountBookId()+"");
+            } catch (Exception e) {
+                logger.error(e.toString());
+                return new ResultBean(ApiResultType.SERVER_ERROR, null);
+            }
             return new ResultBean(ApiResultType.OK,map);
         }
         try {
-            return null;
+            map = checkRestServiceI.checkParamVersion(systemParamCheckRestDTO,userAccountBookRestEntityCache.getAccountBookId()+"",userInfoId);
+            return new ResultBean(ApiResultType.OK,map);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
-    @RequestMapping(value = "/checkChargeType", method = RequestMethod.POST)
+    @RequestMapping(value = "/checkSystemParam", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean checkChargeType(HttpServletRequest request, @RequestBody SystemParamCheckRestDTO systemParamCheckRestDTO) {
-        return this.checkChargeType(null, request,systemParamCheckRestDTO);
+    public ResultBean checkSystemParam(HttpServletRequest request, @RequestBody SystemParamCheckRestDTO systemParamCheckRestDTO) {
+        return this.checkSystemParam(null, request,systemParamCheckRestDTO);
     }
 }
