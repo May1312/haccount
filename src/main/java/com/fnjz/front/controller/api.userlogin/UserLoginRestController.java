@@ -224,6 +224,15 @@ public class UserLoginRestController extends BaseController {
                         return createTokenUtils.wxappletLoginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                     }
                 } else {
+                    //统计从游戏渠道进入注册页面的人数
+                    if(StringUtils.isNotEmpty(map.get("wxappletChannel"))){
+                        String openid = jsonObject.getString("openid");
+                        //统计新用户访问量
+                        redisTemplateUtils.incrementNewVisitor(map.get("wxappletChannel"),"sumNewVisitor");
+                        //统计新用户去重访问量
+                        redisTemplateUtils.addNewVisitorToSet(map.get("wxappletChannel"),openid);
+                    }
+
                     String sessionKey = jsonObject.getString("session_key");
                     return createTokenUtils.returnKeyToWXApplet(sessionKey);
                 }
@@ -263,6 +272,10 @@ public class UserLoginRestController extends BaseController {
                 int insert = userInfoRestServiceI.wechatinsert(user,new HashMap<String, String>(),null);
                 if (insert > 0) {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
+                    //统计从游戏渠道注册成功的人数
+                    if(StringUtils.isNotEmpty(map.get("wxappletChannel"))){
+                        redisTemplateUtils.incrementNewRegister(map.get("wxappletChannel"),"sumNewRegister");
+                    }
                     return createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
                 } else {
                     return new ResultBean(ApiResultType.REGISTER_IS_ERROR, null);

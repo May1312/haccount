@@ -75,4 +75,9 @@ public class RedisPrefix {
      * 结构消费比查询中饮食id
      */
     public static final String CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE = "2c91dbe363f72fec0163f818eea4001b";
+
+    /**
+     * 小程序活动统计
+     */
+    public static final String PREFIX_WXAPPLET_ACTIVITY = "wxapplet_activity_statistics";
 }
