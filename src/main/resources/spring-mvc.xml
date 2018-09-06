@@ -219,6 +219,7 @@
                         <value>/rest/api/admin/sendVerifyCode</value>
                         <value>/rest/api/admin/createRobot</value>
                         <value>/rest/api/v1/appCheck</value>
+                        <value>/rest/api/wxActivity/sum</value>
                     </list>
                 </property>
                 <property name="excludeContainUrls">
@@ -237,6 +238,7 @@
                         <value>/rest/api/admin/sendVerifyCode</value>
                         <value>/rest/api/admin/createRobot</value>
                         <value>/rest/api/v1/appCheck</value>
+                        <value>/rest/api/wxActivity/sum</value>
                     </list>
                 </property>
             </bean>
