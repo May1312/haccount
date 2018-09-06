@@ -1,7 +1,9 @@
 package com.fnjz.front.dao;
 
+import com.fnjz.front.entity.api.offlineSynchronized.SynDateRestDTO;
 import org.jeecgframework.minidao.annotation.MiniDao;
 import org.jeecgframework.minidao.annotation.Param;
+import org.jeecgframework.minidao.annotation.ResultType;
 import org.jeecgframework.minidao.annotation.Sql;
 
 import java.util.Date;
@@ -17,8 +19,9 @@ public interface OfflineSynchronizedRestDao {
      *
      * @return
      */
-    @Sql("select max(syn_date) from hbird_offline_synchronized where mobile_device = :mobile_device and user_info_id = :userInfoId order by syn_date,create_date desc;")
-    Date getLatelySynDate(@Param("mobileDevice") String mobileDevice, @Param("userInfoId") String userInfoId);
+    @ResultType(SynDateRestDTO.class)
+    @Sql("select max(syn_date) as synDate from hbird_offline_synchronized where mobile_device = :mobileDevice and user_info_id = :userInfoId")
+    SynDateRestDTO getLatelySynDate(@Param("mobileDevice") String mobileDevice, @Param("userInfoId") String userInfoId);
 
     /**
      * 新增同步记录

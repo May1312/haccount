@@ -85,7 +85,7 @@ public class OfflineSynchronizedRestController extends BaseController {
 				//校验同步时间
 				if(null!=map.get("synDate")){
 					Date latelySynDate = offlineSynchronizedRestServiceI.getLatelySynDate(mobileDevice, userInfoId);
-					if(latelySynDate!=map.get("synDate")){
+					if(latelySynDate.getTime()!=Long.valueOf(map.get("synDate")+"")){
 						return new ResultBean(ApiResultType.SYN_DATE_IS_ERROR,null);
 					}
 				}

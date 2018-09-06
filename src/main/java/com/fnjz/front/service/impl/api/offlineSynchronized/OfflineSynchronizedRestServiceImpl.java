@@ -2,6 +2,7 @@ package com.fnjz.front.service.impl.api.offlineSynchronized;
 
 import com.fnjz.front.dao.OfflineSynchronizedRestDao;
 import com.fnjz.front.dao.WarterOrderRestDao;
+import com.fnjz.front.entity.api.offlineSynchronized.SynDateRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
@@ -32,7 +33,8 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
      */
     @Override
     public Date getLatelySynDate(String mobileDevice, String userInfoId) {
-        return offlineSynchronizedRestDao.getLatelySynDate(mobileDevice, userInfoId);
+        SynDateRestDTO latelySynDate = offlineSynchronizedRestDao.getLatelySynDate(mobileDevice, userInfoId);
+        return latelySynDate.getSynDate();
     }
 
     /**
@@ -43,11 +45,11 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
      */
     @Override
     public Map<String,Object> offlinePull(String mobileDevice, String userInfoId) {
-        Date latelySynDate = offlineSynchronizedRestDao.getLatelySynDate(mobileDevice, userInfoId);
+        SynDateRestDTO latelySynDate = offlineSynchronizedRestDao.getLatelySynDate(mobileDevice, userInfoId);
         //第一次同步  为null情况下 获取当前时间戳为同步时间
         Date date = new Date();
         Map<String,Object> map = new HashMap<String,Object>();
-        if(null==latelySynDate){
+        if(latelySynDate.getSynDate()==null){
             offlineSynchronizedRestDao.firstInsert(mobileDevice,userInfoId,date);
             map.put("synDate",date);
         }else{
