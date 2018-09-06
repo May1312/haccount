@@ -53,7 +53,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
             offlineSynchronizedRestDao.firstInsert(mobileDevice,userInfoId,date);
             map.put("synDate",date);
         }else{
-            map.put("synDate",latelySynDate);
+            map.put("synDate",latelySynDate.getSynDate());
         }
         List<WarterOrderRestEntity> list = warterOrderRestDao.findAllWaterList(userInfoId, null);
         map.put("synData", list);
