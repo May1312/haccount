@@ -57,7 +57,7 @@ public class OfflineSynchronizedRestController extends BaseController {
 		}
 		try {
 			String userInfoId = (String) request.getAttribute("userInfoId");
-			Map<String,Object> pullData = offlineSynchronizedRestServiceI.offlinePull(map.get("mobileDevice"),userInfoId);
+			Map<String,Object> pullData = offlineSynchronizedRestServiceI.offlinePull(map.get("mobileDevice"),map.get("isFirst"),userInfoId);
 			return new ResultBean(ApiResultType.OK,pullData);
 		} catch (Exception e) {
 			logger.error(e.toString());

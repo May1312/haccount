@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("offlinesynchronizedRestService")
 @Transactional
@@ -44,7 +41,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
      * @return
      */
     @Override
-    public Map<String,Object> offlinePull(String mobileDevice, String userInfoId) {
+    public Map<String,Object> offlinePull(String mobileDevice, String isFirst,String userInfoId) {
         SynDateRestDTO latelySynDate = offlineSynchronizedRestDao.getLatelySynDate(mobileDevice, userInfoId);
         //第一次同步  为null情况下 获取当前时间戳为同步时间
         Date date = new Date();
@@ -55,7 +52,13 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
         }else{
             map.put("synDate",latelySynDate.getSynDate());
         }
-        List<WarterOrderRestEntity> list = warterOrderRestDao.findAllWaterList(userInfoId, null);
+        List<WarterOrderRestEntity> list;
+        //判断 isFirst标识是否为true, true 获取所有
+        if(Boolean.valueOf(isFirst)){
+            list = warterOrderRestDao.findAllWaterList(userInfoId, null);
+        }else{
+            list = warterOrderRestDao.findAllWaterList(userInfoId, latelySynDate.getSynDate());
+        }
         map.put("synData", list);
         return map;
     }

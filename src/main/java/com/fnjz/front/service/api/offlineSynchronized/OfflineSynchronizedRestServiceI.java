@@ -22,7 +22,7 @@ public interface OfflineSynchronizedRestServiceI extends CommonService{
      * @param userInfoId
      * @return
      */
-    Map<String,Object> offlinePull(String mobileDevice, String userInfoId);
+    Map<String,Object> offlinePull(String mobileDevice, String isFirst,String userInfoId);
 
     /**
      * 移动端push 插入记录
