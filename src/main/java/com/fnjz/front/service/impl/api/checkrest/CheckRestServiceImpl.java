@@ -208,7 +208,7 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
                 List<UserCommTypePriorityRestEntity> allUserCommUseTypePriority = systemTypeRestDao.getAllUserCommUseTypePriority(userInfoId);
                 userCommUseTypePriority.remove("flag");
                 userCommUseTypePriority.put("allUserCommUseTypePriorityArrays", allUserCommUseTypePriority);
-                map.put("allUserCommUseTypePriority", allUserCommUseTypePriority);
+                map.put("allUserCommUseTypePriority", userCommUseTypePriority);
             }
         }
         //系统支出是否更新标识

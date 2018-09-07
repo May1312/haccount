@@ -21,7 +21,11 @@ public interface UserCommUseTypeOfflineCheckRestDao {
     @Sql("select type,max(version) as version from hbird_user_comm_use_type_offline_check where account_book_id =:accountBookId group by type;")
     List<UserCommUseTypeOfflineCheckRestEntity> getUserCommUseTypeOfflineCheck(@Param("accountBookId")String accountBookId);
 
-    //插入/更新版本标签
+    //first to 插入版本标签
     @Sql("INSERT INTO `hbird_account`.`hbird_user_comm_use_type_offline_check` (`account_book_id`, `type`, `version`, `create_date`) VALUES(:accountBookId, :type, 'v1', now());")
     void insert(@Param("accountBookId")String accountBookId, @Param("type")String type);
+
+    //first to 更新版本标签
+    @Sql("UPDATE `hbird_account`.`hbird_user_comm_use_type_offline_check` AS off, ( SELECT version FROM hbird_user_comm_use_type_offline_check WHERE account_book_id = :accountBookId and type = :type ) AS one SET off.`version` = CONCAT( 'v', SUBSTR( one.version, 2 )+1 ),update_date = NOW() WHERE off.account_book_id = :accountBookId and type = :type;")
+    void update(@Param("accountBookId")String accountBookId, @Param("type")String type);
 }
