@@ -105,7 +105,7 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
                             JSONObject userCommUseTypePriority = new JSONObject();
                             userCommUseTypePriority.put("version", entity.getVersion());
                             userCommUseTypePriority.put("allUserCommUseTypePriorityArrays", allUserCommUseTypePriority);
-                            map.put("allUserCommUseTypePriority", allUserCommUseTypePriority);
+                            map.put("allUserCommUseTypePriority", userCommUseTypePriority);
                         }
                     }
                 }
