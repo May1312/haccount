@@ -1,5 +1,6 @@
 package com.fnjz.front.controller.api.usercommtypepriority;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -65,7 +66,7 @@ public class UserCommTypePriorityRestController extends BaseController {
             }else{
                 redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
             }
-            return new ResultBean(ApiResultType.OK,null);
+            return new ResultBean(ApiResultType.OK,new JSONObject().put("version",version));
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR,null);
