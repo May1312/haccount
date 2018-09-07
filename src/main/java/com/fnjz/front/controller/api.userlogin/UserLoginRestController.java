@@ -224,15 +224,6 @@ public class UserLoginRestController extends BaseController {
                         return createTokenUtils.wxappletLoginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                     }
                 } else {
-                    //统计从游戏渠道进入注册页面的人数
-                    if(StringUtils.isNotEmpty(map.get("wxappletChannel"))){
-                        String openid = jsonObject.getString("openid");
-                        //统计新用户访问量
-                        redisTemplateUtils.incrementNewVisitor(map.get("wxappletChannel"),"sumNewVisitor");
-                        //统计新用户去重访问量
-                        redisTemplateUtils.addNewVisitorToSet(map.get("wxappletChannel"),openid);
-                    }
-
                     String sessionKey = jsonObject.getString("session_key");
                     return createTokenUtils.returnKeyToWXApplet(sessionKey);
                 }
