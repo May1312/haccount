@@ -135,9 +135,7 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
         }
         commonDao.saveOrUpdate(userCommUseIncomeRestEntity);
         //离线功能 更新用户当前类目版本号
-        String version = userCommUseTypeOfflineCheckRestDao.selectByType(accountBookId + "", "spend_type");
-        version = "v"+(Integer.valueOf(StringUtils.substring(version,1))+1);
-        userCommUseTypeOfflineCheckRestDao.update(accountBookId+"","spend_type",version);
+        String version = getTypeVersion(accountBookId, "spend_type");
         return version;
     }
 
@@ -151,9 +149,7 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
             userCommUseIncomeRestDao.delete(userInfoId, incomeTypeIds.get(i));
         }
         //离线功能 更新用户当前类目版本号
-        String version = userCommUseTypeOfflineCheckRestDao.selectByType(accountBookId + "", "spend_type");
-        version = "v"+(Integer.valueOf(StringUtils.substring(version,1))+1);
-        userCommUseTypeOfflineCheckRestDao.update(accountBookId+"","spend_type",version);
+        String version = getTypeVersion(accountBookId, "spend_type");
         return version;
     }
 
@@ -185,5 +181,25 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
             }
         });
         return list;
+    }
+
+    /**
+     * 获取用户类目版本公用方法
+     * @param accountBookId
+     * @param type
+     * @return
+     */
+    private String getTypeVersion(int accountBookId,String type){
+        String accountBookId2 = accountBookId+"";
+        String version = userCommUseTypeOfflineCheckRestDao.selectByType(accountBookId2, type);
+        if(StringUtils.isNotEmpty(version)){
+            version = "v"+(Integer.valueOf(StringUtils.substring(version,1))+1);
+            userCommUseTypeOfflineCheckRestDao.update(accountBookId2,type,version);
+        }else{
+            //version为null，打上版本号
+            userCommUseTypeOfflineCheckRestDao.insert(accountBookId2,type);
+            version = "v1";
+        }
+        return version;
     }
 }

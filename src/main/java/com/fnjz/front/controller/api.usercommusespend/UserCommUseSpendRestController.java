@@ -1,9 +1,11 @@
 package com.fnjz.front.controller.api.usercommusespend;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
+import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.spendtype.SpendTypeRestServiceI;
 import com.fnjz.front.service.api.usercommusespend.UserCommUseSpendRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
@@ -75,6 +77,8 @@ public class UserCommUseSpendRestController extends BaseController {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
+            //获取accountBookId
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             //判断用户常用标签表里是否已存在
             boolean flag = userCommUseSpendRestService.findByUserInfoIdAndId(userInfoId, map.get("spendTypeId"));
             if (flag) {
@@ -88,10 +92,10 @@ public class UserCommUseSpendRestController extends BaseController {
             if (task != null && StringUtils.isEmpty(task.getParentId())) {
                 return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_ERROR, null);
             }
-            userCommUseSpendRestService.insertCommSpendType(userInfoId, task);
+            String version = userCommUseSpendRestService.insertCommSpendType(userAccountBookRestEntityCache.getAccountBookId(),userInfoId, task);
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            return new ResultBean(ApiResultType.OK, null);
+            return new ResultBean(ApiResultType.OK, new JSONObject().put("version",version));
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -109,10 +113,12 @@ public class UserCommUseSpendRestController extends BaseController {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
-            userCommUseSpendRestService.deleteCommSpendType(userInfoId, map.get("spendTypeIds"));
+            //获取accountBookId
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+            String version = userCommUseSpendRestService.deleteCommSpendType(userAccountBookRestEntityCache.getAccountBookId(),userInfoId, map.get("spendTypeIds"));
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            return new ResultBean(ApiResultType.OK, null);
+            return new ResultBean(ApiResultType.OK, new JSONObject().put("version",version));
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);

@@ -136,7 +136,7 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
         }
         if (StringUtils.isNotEmpty(userInfoId)) {
             //添加 userinfoid accountbookid
-            map.put("userInfo", userInfoId);
+            map.put("userInfoId", userInfoId);
             map.put("accountBookId", accountBookId);
         }
         return map;
@@ -260,7 +260,7 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
         }
         if (StringUtils.isNotEmpty(accountBookId)) {
             //添加 userinfoid accountbookid
-            map.put("userInfo", userInfoId);
+            map.put("userInfoId", userInfoId);
             map.put("accountBookId", accountBookId);
         }
         //数据处理完成

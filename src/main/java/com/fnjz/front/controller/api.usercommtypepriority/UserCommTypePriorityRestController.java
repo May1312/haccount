@@ -3,7 +3,9 @@ package com.fnjz.front.controller.api.usercommtypepriority;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
+import com.fnjz.front.service.api.usercommtypepriority.UserCommTypePriorityRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiOperation;
@@ -11,11 +13,11 @@ import io.swagger.annotations.ApiParam;
 import net.sf.json.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.jeecgframework.core.common.controller.BaseController;
-import com.fnjz.front.service.api.usercommtypepriority.UserCommTypePriorityRestServiceI;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Map;
@@ -52,9 +54,11 @@ public class UserCommTypePriorityRestController extends BaseController {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
+            //获取accountBookId
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             JSONArray relation1 = JSONArray.fromObject((ArrayList) map.get("relation"));
             UserCommTypePriorityRestEntity userCommTypePriorityRestEntity = new UserCommTypePriorityRestEntity(Integer.valueOf(userInfoId),Integer.valueOf(map.get("type") + ""),relation1.toString());
-            userCommTypePriorityRestService.saveOrUpdateRelation(userInfoId,userCommTypePriorityRestEntity);
+            String version = userCommTypePriorityRestService.saveOrUpdateRelation(userAccountBookRestEntityCache.getAccountBookId(),userInfoId,userCommTypePriorityRestEntity);
             //清空用户类目缓存
             if(StringUtils.equals(map.get("type")+"","1")){
                 redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);

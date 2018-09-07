@@ -5,5 +5,5 @@ import org.jeecgframework.core.common.service.CommonService;
 
 public interface UserCommTypePriorityRestServiceI extends CommonService{
 
-    void saveOrUpdateRelation(String userInfoId, UserCommTypePriorityRestEntity userCommTypePriorityRestEntity);
+    String saveOrUpdateRelation(int accountBookId,String userInfoId, UserCommTypePriorityRestEntity userCommTypePriorityRestEntity);
 }

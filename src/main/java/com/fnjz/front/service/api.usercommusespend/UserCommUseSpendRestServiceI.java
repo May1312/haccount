@@ -21,7 +21,7 @@ public interface UserCommUseSpendRestServiceI extends CommonService{
      * @param task
      * @return
      */
-    void insertCommSpendType(String userInfoId, SpendTypeRestEntity task);
+    String insertCommSpendType(int accountBookId,String userInfoId, SpendTypeRestEntity task);
 
     /**
      * 查看是否已经是用户常用类目
@@ -36,5 +36,5 @@ public interface UserCommUseSpendRestServiceI extends CommonService{
      * @param userInfoId
      * @param spendTypeId
      */
-    void deleteCommSpendType(String userInfoId, List<String> spendTypeId);
+    String deleteCommSpendType(int accountBookId,String userInfoId, List<String> spendTypeId);
 }
