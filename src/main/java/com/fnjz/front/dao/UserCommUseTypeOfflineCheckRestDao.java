@@ -25,7 +25,11 @@ public interface UserCommUseTypeOfflineCheckRestDao {
     @Sql("INSERT INTO `hbird_account`.`hbird_user_comm_use_type_offline_check` (`account_book_id`, `type`, `version`, `create_date`) VALUES(:accountBookId, :type, 'v1', now());")
     void insert(@Param("accountBookId")String accountBookId, @Param("type")String type);
 
-    //first to 更新版本标签
-    @Sql("UPDATE `hbird_account`.`hbird_user_comm_use_type_offline_check` AS off, ( SELECT version FROM hbird_user_comm_use_type_offline_check WHERE account_book_id = :accountBookId and type = :type ) AS one SET off.`version` = CONCAT( 'v', SUBSTR( one.version, 2 )+1 ),update_date = NOW() WHERE off.account_book_id = :accountBookId and type = :type;")
-    void update(@Param("accountBookId")String accountBookId, @Param("type")String type);
+    //更新版本标签
+    @Sql("UPDATE `hbird_account`.`hbird_user_comm_use_type_offline_check` SET `version` = :version,update_date = NOW() WHERE account_book_id = :accountBookId and type = :type;")
+    void update(@Param("accountBookId")String accountBookId, @Param("type")String type,@Param("version")String version);
+
+    //查询版本标签
+    @Sql("select max(version) from hbird_user_comm_use_type_offline_check where account_book_id =:accountBookId and type = :type;")
+    String selectByType(@Param("accountBookId")String accountBookId, @Param("type")String type);
 }

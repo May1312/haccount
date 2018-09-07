@@ -1,18 +1,20 @@
 package com.fnjz.front.service.impl.api.usercommuseincome;
 
 import com.fnjz.front.dao.UserCommUseIncomeRestDao;
+import com.fnjz.front.dao.UserCommUseTypeOfflineCheckRestDao;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestDTO;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
 import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
 import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
+import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestServiceI;
 import net.sf.json.JSONArray;
 import org.apache.commons.lang.StringUtils;
+import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestServiceI;
-import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+
 import java.util.*;
 
 @Service("userCommUseIncomeRestService")
@@ -21,6 +23,9 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
 
     @Autowired
     private UserCommUseIncomeRestDao userCommUseIncomeRestDao;
+
+    @Autowired
+    private UserCommUseTypeOfflineCheckRestDao userCommUseTypeOfflineCheckRestDao;
 
     @Override
     public Map<String, Object> getListById(String userInfoId) {
@@ -95,7 +100,7 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
     }
 
     @Override
-    public void insertCommIncomeType(String userInfoId, IncomeTypeRestEntity task) {
+    public String insertCommIncomeType(int accountBookId , String userInfoId, IncomeTypeRestEntity task) {
         UserCommUseIncomeRestEntity userCommUseIncomeRestEntity = new UserCommUseIncomeRestEntity();
         userCommUseIncomeRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
         //TODO 需要设置这么多属性么！！！！！！！
@@ -129,6 +134,11 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
             userCommUseIncomeRestEntity.setPriority(1);
         }
         commonDao.saveOrUpdate(userCommUseIncomeRestEntity);
+        //离线功能 更新用户当前类目版本号
+        String version = userCommUseTypeOfflineCheckRestDao.selectByType(accountBookId + "", "spend_type");
+        version = "v"+(Integer.valueOf(StringUtils.substring(version,1))+1);
+        userCommUseTypeOfflineCheckRestDao.update(accountBookId+"","spend_type",version);
+        return version;
     }
 
     /**
@@ -136,10 +146,15 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
      * @param incomeTypeIds
      */
     @Override
-    public void deleteCommIncomeType(String userInfoId, List<String> incomeTypeIds) {
+    public String deleteCommIncomeType(int accountBookId,String userInfoId, List<String> incomeTypeIds) {
         for (int i = 0; i < incomeTypeIds.size(); i++) {
             userCommUseIncomeRestDao.delete(userInfoId, incomeTypeIds.get(i));
         }
+        //离线功能 更新用户当前类目版本号
+        String version = userCommUseTypeOfflineCheckRestDao.selectByType(accountBookId + "", "spend_type");
+        version = "v"+(Integer.valueOf(StringUtils.substring(version,1))+1);
+        userCommUseTypeOfflineCheckRestDao.update(accountBookId+"","spend_type",version);
+        return version;
     }
 
     /**

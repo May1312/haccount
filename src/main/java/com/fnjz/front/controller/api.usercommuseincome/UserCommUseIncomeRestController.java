@@ -1,9 +1,11 @@
 package com.fnjz.front.controller.api.usercommuseincome;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
+import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.incometype.IncomeTypeRestServiceI;
 import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
@@ -73,6 +75,8 @@ public class UserCommUseIncomeRestController extends BaseController {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
+            //获取accountBookId
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             //传入当前用户详情id
             boolean flag = userCommUseIncomeRestService.findByUserInfoIdAndId(userInfoId, map.get("incomeTypeId"));
             if (flag) {
@@ -86,10 +90,10 @@ public class UserCommUseIncomeRestController extends BaseController {
             if (task != null && StringUtils.isEmpty(task.getParentId())) {
                 return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_ERROR, null);
             }
-            userCommUseIncomeRestService.insertCommIncomeType(userInfoId, task);
+            String version = userCommUseIncomeRestService.insertCommIncomeType(userAccountBookRestEntityCache.getAccountBookId(), userInfoId, task);
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-            return new ResultBean(ApiResultType.OK, null);
+            return new ResultBean(ApiResultType.OK, new JSONObject().put("version",version));
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -107,10 +111,12 @@ public class UserCommUseIncomeRestController extends BaseController {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
-            userCommUseIncomeRestService.deleteCommIncomeType(userInfoId, map.get("incomeTypeIds"));
+            //获取accountBookId
+            UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+            String version = userCommUseIncomeRestService.deleteCommIncomeType(userAccountBookRestEntityCache.getAccountBookId(), userInfoId, map.get("incomeTypeIds"));
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-            return new ResultBean(ApiResultType.OK, null);
+            return new ResultBean(ApiResultType.OK, new JSONObject().put("version",version));
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);

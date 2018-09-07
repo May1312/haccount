@@ -200,7 +200,7 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
                 List<UserCommUseIncomeRestEntity> allUserCommUseIncomeType = systemTypeRestDao.getAllUserCommUseIncomeType(userInfoId);
                 userCommUseIncomeType.remove("flag");
                 userCommUseIncomeType.put("allUserCommUseIncomeTypeArrays", allUserCommUseIncomeType);
-                map.put("allUserCommUseIncomeType", allUserCommUseIncomeType);
+                map.put("allUserCommUseIncomeType", userCommUseIncomeType);
             }
             //离线-用户常用类目排序需要更新
             if (userCommUseTypePriority.getBoolean("flag")) {
