@@ -234,5 +234,64 @@ public class RedisTemplateUtils {
         redisTemplate.expire(typeShareCode, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
         return cacheData;
     }
+
+    /**
+     * 小程序活动老用户引导到记账小程序总访问量
+     * @param wxappletChannel
+     * @param field
+     */
+    public void incrementOldVisitor(String wxappletChannel,String field){
+        redisTemplate.opsForHash().increment(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY +"_" +wxappletChannel+":sumOldVisitor", field, 1);
+    }
+
+    public void addOldVisitorToSet(String wxappletChannel,String shareCode){
+        redisTemplate.opsForSet().add(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY +"_"+ wxappletChannel+":oldVisitorSet",shareCode);
+    }
+
+    /**
+     * 统计游戏注册成功人数
+     * @param wxappletChannel
+     * @param field
+     */
+    public void incrementNewRegister(String wxappletChannel, String field) {
+        redisTemplate.opsForHash().increment(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY +"_" +wxappletChannel+":sumNewRegister", field, 1);
+
+    }
+
+    /**
+     * 小程序活动新用户引导到记账小程序总访问量
+     * @param wxappletChannel
+     * @param field
+     */
+    public void incrementNewVisitor(String wxappletChannel, String field) {
+        redisTemplate.opsForHash().increment(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY +"_" +wxappletChannel+":sumNewVisitor", field, 1);
+
+    }
+
+    /**
+     * 统计游戏进入的有效注册用户数
+     * @param wxappletChannel
+     * @param shareCode
+     */
+    public void addNewVisitorToSet(String wxappletChannel,String shareCode){
+        redisTemplate.opsForSet().add(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY +"_"+ wxappletChannel+":newVisitorSet",shareCode);
+    }
+
+    /**
+     * 获取hash中的值以map形式返回
+     * @param wxappletChannel
+     * @return
+     */
+    public int getHashValue(String wxappletChannel,String keyName) {
+        Map<String,Integer> entries = redisTemplate.opsForHash().entries(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + "_" + wxappletChannel + ":"+keyName);
+        if(entries.get(keyName)==null){
+            return 0;
+        }
+        return entries.get(keyName);
+    }
+
+    public long getSetSize(String wxappletChannel,String keyName) {
+        return redisTemplate.opsForSet().size(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + "_" + wxappletChannel + ":" + keyName);
+    }
 }
 

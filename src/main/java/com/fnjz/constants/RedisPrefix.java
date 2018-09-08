@@ -80,4 +80,9 @@ public class RedisPrefix {
      * 离线同步时间间隔设置  1天
      */
     public static final String SYN_INTERVAL = "86400000";
+
+    /**
+     * 小程序活动统计
+     */
+    public static final String PREFIX_WXAPPLET_ACTIVITY = "wxapplet_activity_statistics";
 }
