@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.controller.api.common.ClockInDays;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
@@ -46,6 +47,8 @@ public class WarterOrderRestController extends BaseController {
     private WarterOrderRestServiceI warterOrderRestService;
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+    @Autowired
+    private ClockInDays clockInDays;
 
     /**
      * 账本流水表相关列表 页面跳转
@@ -159,38 +162,7 @@ public class WarterOrderRestController extends BaseController {
             String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             //连续打卡统计
-            Map s = redisTemplateUtils.getMyCount(shareCode);
-            if (s.size() > 0) {
-                if (s.get("clockInDays") == null && s.get("clockInTime") == null) {
-                    //首次打卡
-                    s.put("clockInDays", 1);
-                    s.put("clockInTime", (System.currentTimeMillis() + ""));
-                    redisTemplateUtils.updateMyCount(shareCode, s);
-                } else {
-                    //判断打卡间隔
-                    //获取下一天凌晨时间间隔
-                    Date nextDay = DateUtils.getNextDay(new Date(Long.valueOf(s.get("clockInTime") + "")));
-                    //获取当天凌晨范围
-                    Date dateOfBegin = DateUtils.fetchBeginOfDay(nextDay);
-                    Date dateOfEnd = DateUtils.fetchEndOfDay(nextDay);
-                    long now = System.currentTimeMillis();
-                    if (now > dateOfBegin.getTime() && now < dateOfEnd.getTime()) {
-                        //打卡成功
-                        s.put("clockInDays", (Integer.valueOf(s.get("clockInDays") + "") + 1));
-                        s.put("clockInTime", (System.currentTimeMillis() + ""));
-                        redisTemplateUtils.updateMyCount(shareCode, s);
-                    } else if (now > dateOfEnd.getTime()) {
-                        //置空
-                        s.put("clockInDays", 1);
-                        s.put("clockInTime", System.currentTimeMillis() + "");
-                        redisTemplateUtils.updateMyCount(shareCode, s);
-                    }
-                }
-            } else {
-                s.put("clockInDays", 1);
-                s.put("clockInTime", (System.currentTimeMillis() + ""));
-                redisTemplateUtils.updateMyCount(shareCode, s);
-            }
+            clockInDays.clockInDays(shareCode);
             Map<String, Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
             return new ResultBean(ApiResultType.OK, json);
         } catch (Exception e) {

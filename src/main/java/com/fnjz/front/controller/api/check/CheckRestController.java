@@ -3,6 +3,7 @@ package com.fnjz.front.controller.api.check;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.controller.api.common.ClockInDays;
 import com.fnjz.front.entity.api.check.SystemParamCheckRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.checkrest.CheckRestServiceI;
@@ -37,6 +38,9 @@ public class CheckRestController extends BaseController {
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
 
+    @Autowired
+    private ClockInDays clockInDays;
+
     /**
      * 入参 系统支出/收入表最后更新时间/个人常用支出/收入表最后更新时间/个人排序关系表最后更新时间
      * @param type
@@ -65,7 +69,7 @@ public class CheckRestController extends BaseController {
                 }
                 //正常
                 try {
-                    map = checkRestServiceI.checkParamVersion(systemParamCheckRestDTO,null,null);
+                    map = checkRestServiceI.checkParamVersion2(null,systemParamCheckRestDTO,null,null);
                     return new ResultBean(ApiResultType.OK,map);
                 } catch (Exception e) {
                     logger.error(e.toString());
@@ -77,10 +81,12 @@ public class CheckRestController extends BaseController {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+        //连续打卡统计
+        clockInDays.clockInDays(shareCode);
         if(StringUtils.isEmpty(systemParamCheckRestDTO.getSysSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getSysIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommTypePriorityVersion())){
             //返回所有
             try {
-                map = checkRestServiceI.getSysAndUserSpendAndSynInterval(userInfoId,userAccountBookRestEntityCache.getAccountBookId()+"");
+                map = checkRestServiceI.getSysAndUserSpendAndSynInterval2(shareCode,userInfoId,userAccountBookRestEntityCache.getAccountBookId()+"");
             } catch (Exception e) {
                 logger.error(e.toString());
                 return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -88,7 +94,7 @@ public class CheckRestController extends BaseController {
             return new ResultBean(ApiResultType.OK,map);
         }
         try {
-            map = checkRestServiceI.checkParamVersion(systemParamCheckRestDTO,userAccountBookRestEntityCache.getAccountBookId()+"",userInfoId);
+            map = checkRestServiceI.checkParamVersion2(shareCode,systemParamCheckRestDTO,userAccountBookRestEntityCache.getAccountBookId()+"",userInfoId);
             return new ResultBean(ApiResultType.OK,map);
         } catch (Exception e) {
             logger.error(e.toString());

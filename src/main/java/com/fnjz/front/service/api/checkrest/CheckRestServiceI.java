@@ -20,4 +20,8 @@ public interface CheckRestServiceI {
      * @return
      */
     Map<String,Object> checkParamVersion(SystemParamCheckRestDTO systemParamCheckRestDTO,String accountBookId,String userInfoId);
+
+    Map<String,Object> checkParamVersion2(String shareCode,SystemParamCheckRestDTO systemParamCheckRestDTO,String accountBookId,String userInfoId);
+
+    Map<String,Object> getSysAndUserSpendAndSynInterval2(String shareCode,String userInfoId,String accountBookId);
 }
