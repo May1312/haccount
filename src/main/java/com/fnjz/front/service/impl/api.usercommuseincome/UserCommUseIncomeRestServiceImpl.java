@@ -135,7 +135,7 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
         }
         commonDao.saveOrUpdate(userCommUseIncomeRestEntity);
         //离线功能 更新用户当前类目版本号
-        String version = getTypeVersion(accountBookId, "spend_type");
+        String version = getTypeVersion(accountBookId, "income_type");
         return version;
     }
 
@@ -149,7 +149,7 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
             userCommUseIncomeRestDao.delete(userInfoId, incomeTypeIds.get(i));
         }
         //离线功能 更新用户当前类目版本号
-        String version = getTypeVersion(accountBookId, "spend_type");
+        String version = getTypeVersion(accountBookId, "income_type");
         return version;
     }
 

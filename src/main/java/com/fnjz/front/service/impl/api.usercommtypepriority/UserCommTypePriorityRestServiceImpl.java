@@ -30,7 +30,7 @@ public class UserCommTypePriorityRestServiceImpl extends CommonServiceImpl imple
             commonDao.saveOrUpdate(userCommTypePriorityRestEntity);
         }
         //离线功能 更新用户当前类目版本号
-        String version = getTypeVersion(accountBookId, "spend_type");
+        String version = getTypeVersion(accountBookId, "type_priority");
         return version;
     }
 
