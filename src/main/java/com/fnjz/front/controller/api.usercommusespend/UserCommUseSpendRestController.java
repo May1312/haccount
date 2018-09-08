@@ -95,7 +95,9 @@ public class UserCommUseSpendRestController extends BaseController {
             String version = userCommUseSpendRestService.insertCommSpendType(userAccountBookRestEntityCache.getAccountBookId(),userInfoId, task);
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            return new ResultBean(ApiResultType.OK, new JSONObject().put("version",version));
+            JSONObject jb = new JSONObject();
+            jb.put("version",version);
+            return new ResultBean(ApiResultType.OK,jb);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -118,7 +120,9 @@ public class UserCommUseSpendRestController extends BaseController {
             String version = userCommUseSpendRestService.deleteCommSpendType(userAccountBookRestEntityCache.getAccountBookId(),userInfoId, map.get("spendTypeIds"));
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            return new ResultBean(ApiResultType.OK, new JSONObject().put("version",version));
+            JSONObject jb = new JSONObject();
+            jb.put("version",version);
+            return new ResultBean(ApiResultType.OK,jb);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);

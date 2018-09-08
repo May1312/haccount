@@ -66,7 +66,9 @@ public class UserCommTypePriorityRestController extends BaseController {
             }else{
                 redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
             }
-            return new ResultBean(ApiResultType.OK,new JSONObject().put("version",version));
+            JSONObject jb = new JSONObject();
+            jb.put("version",version);
+            return new ResultBean(ApiResultType.OK,jb);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR,null);

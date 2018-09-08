@@ -93,7 +93,9 @@ public class UserCommUseIncomeRestController extends BaseController {
             String version = userCommUseIncomeRestService.insertCommIncomeType(userAccountBookRestEntityCache.getAccountBookId(), userInfoId, task);
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-            return new ResultBean(ApiResultType.OK, new JSONObject().put("version",version));
+            JSONObject jb = new JSONObject();
+            jb.put("version",version);
+            return new ResultBean(ApiResultType.OK,jb);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -116,7 +118,9 @@ public class UserCommUseIncomeRestController extends BaseController {
             String version = userCommUseIncomeRestService.deleteCommIncomeType(userAccountBookRestEntityCache.getAccountBookId(), userInfoId, map.get("incomeTypeIds"));
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-            return new ResultBean(ApiResultType.OK, new JSONObject().put("version",version));
+            JSONObject jb = new JSONObject();
+            jb.put("version",version);
+            return new ResultBean(ApiResultType.OK,jb);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
