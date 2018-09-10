@@ -1,5 +1,6 @@
 package com.fnjz.front.service.impl.api.usercommusespend;
 
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.UserCommUseSpendRestDao;
 import com.fnjz.front.dao.UserCommUseTypeOfflineCheckRestDao;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestDTO;
@@ -7,6 +8,7 @@ import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
 import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import com.fnjz.front.service.api.usercommusespend.UserCommUseSpendRestServiceI;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import net.sf.json.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
@@ -26,6 +28,9 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
 
     @Autowired
     private UserCommUseTypeOfflineCheckRestDao userCommUseTypeOfflineCheckRestDao;
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     @Override
     public Map<String, Object> getListById(String userInfoId) {
@@ -125,8 +130,39 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
         }
         commonDao.saveOrUpdate(userCommUseSpendRestEntity);
         //离线功能 更新用户当前类目版本号
-        String version = getTypeVersion(accountBookId, "income_type");
+        String version = getTypeVersion(accountBookId, "spend_type");
         return version;
+    }
+
+    @Override
+    public Map<String,Object> insertCommSpendTypeForMap(String shareCode,int accountBookId,String userInfoId, SpendTypeRestEntity task) {
+        UserCommUseSpendRestEntity userCommUseSpendRestEntity = new UserCommUseSpendRestEntity();
+        userCommUseSpendRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
+        //设置三级类目id
+        if (StringUtils.isNotEmpty(task.getId())) {
+            userCommUseSpendRestEntity.setSpendTypeId(task.getId());
+        }
+        //获取当前db优先级
+        Integer max = userCommUseSpendRestDao.getMaxPriority(userCommUseSpendRestEntity.getUserInfoId());
+        if(max!=null){
+            userCommUseSpendRestEntity.setPriority(max+1);
+        }else{
+            userCommUseSpendRestEntity.setPriority(1);
+        }
+        commonDao.saveOrUpdate(userCommUseSpendRestEntity);
+        //离线功能 更新用户当前类目版本号
+        String version = getTypeVersion(accountBookId, "spend_type");
+        //重新查询排序关系
+        //获取离线-用户常用支出类目
+        Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
+        if (!(map2.size() > 0)) {
+            map2 = this.getListById(userInfoId);
+            redisTemplateUtils.cacheLabelType(map2, RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
+        }
+        //移除全部list  只保留commonList
+        map2.remove("allList");
+        map2.put("version",version);
+        return map2;
     }
 
     @Override
@@ -151,8 +187,28 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
             userCommUseSpendRestDao.delete(userInfoId, spendTypeIds.get(i));
         }
         //离线功能 更新用户当前类目版本号
-        String version = getTypeVersion(accountBookId, "income_type");
+        String version = getTypeVersion(accountBookId, "spend_type");
         return version;
+    }
+
+    @Override
+    public Map<String,Object> deleteCommSpendTypeForMap(String shareCode,int accountBookId,String userInfoId, List<String> spendTypeIds) {
+        for (int i = 0; i < spendTypeIds.size(); i++) {
+            userCommUseSpendRestDao.delete(userInfoId, spendTypeIds.get(i));
+        }
+        //离线功能 更新用户当前类目版本号
+        String version = getTypeVersion(accountBookId, "spend_type");
+        //重新查询排序关系
+        //获取离线-用户常用支出类目
+        Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
+        if (!(map2.size() > 0)) {
+            map2 = this.getListById(userInfoId);
+            redisTemplateUtils.cacheLabelType(map2, RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
+        }
+        //移除全部list  只保留commonList
+        map2.remove("allList");
+        map2.put("version",version);
+        return map2;
     }
 
     /**

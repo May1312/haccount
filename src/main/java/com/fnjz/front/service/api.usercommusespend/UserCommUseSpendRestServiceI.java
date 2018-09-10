@@ -24,6 +24,14 @@ public interface UserCommUseSpendRestServiceI extends CommonService{
     String insertCommSpendType(int accountBookId,String userInfoId, SpendTypeRestEntity task);
 
     /**
+     * 添加用户常用支出类目 返回版本和新数据数组
+     * @param userInfoId
+     * @param task
+     * @return
+     */
+    Map<String,Object> insertCommSpendTypeForMap(String shareCode,int accountBookId,String userInfoId, SpendTypeRestEntity task);
+
+    /**
      * 查看是否已经是用户常用类目
      * @param userInfoId
      * @param spendTypeId
@@ -37,4 +45,11 @@ public interface UserCommUseSpendRestServiceI extends CommonService{
      * @param spendTypeId
      */
     String deleteCommSpendType(int accountBookId,String userInfoId, List<String> spendTypeId);
+
+    /**
+     * 删除用户常用类目 返回版本，新数据集合
+     * @param userInfoId
+     * @param spendTypeId
+     */
+    Map<String,Object> deleteCommSpendTypeForMap(String shareCode,int accountBookId,String userInfoId, List<String> spendTypeId);
 }

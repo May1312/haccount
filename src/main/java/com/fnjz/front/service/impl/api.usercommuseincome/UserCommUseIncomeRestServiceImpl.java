@@ -1,5 +1,6 @@
 package com.fnjz.front.service.impl.api.usercommuseincome;
 
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.UserCommUseIncomeRestDao;
 import com.fnjz.front.dao.UserCommUseTypeOfflineCheckRestDao;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestDTO;
@@ -7,6 +8,7 @@ import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
 import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
 import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestServiceI;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import net.sf.json.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
@@ -26,6 +28,9 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
 
     @Autowired
     private UserCommUseTypeOfflineCheckRestDao userCommUseTypeOfflineCheckRestDao;
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     @Override
     public Map<String, Object> getListById(String userInfoId) {
@@ -139,6 +144,37 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
         return version;
     }
 
+    @Override
+    public Map<String,Object> insertCommIncomeTypeForMap(String shareCode,int accountBookId , String userInfoId, IncomeTypeRestEntity task) {
+        UserCommUseIncomeRestEntity userCommUseIncomeRestEntity = new UserCommUseIncomeRestEntity();
+        userCommUseIncomeRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
+        //设置三级类目id
+        if (StringUtils.isNotEmpty(task.getId())) {
+            userCommUseIncomeRestEntity.setIncomeTypeId(task.getId());
+        }
+        //获取当前db优先级
+        Integer max = userCommUseIncomeRestDao.getMaxPriority(userCommUseIncomeRestEntity.getUserInfoId());
+        if(max!=null){
+            userCommUseIncomeRestEntity.setPriority(max+1);
+        }else{
+            userCommUseIncomeRestEntity.setPriority(1);
+        }
+        commonDao.saveOrUpdate(userCommUseIncomeRestEntity);
+        //离线功能 更新用户当前类目版本号
+        String version = getTypeVersion(accountBookId, "income_type");
+        //重新查询排序关系
+        //获取离线-用户常用收入类目
+        Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+        if (!(map2.size() > 0)) {
+            map2 = this.getListById(userInfoId);
+            redisTemplateUtils.cacheLabelType(map2, RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+        }
+        //移除全部list  只保留commonList
+        map2.remove("allList");
+        map2.put("version",version);
+        return map2;
+    }
+
     /**
      * @param userInfoId
      * @param incomeTypeIds
@@ -151,6 +187,31 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
         //离线功能 更新用户当前类目版本号
         String version = getTypeVersion(accountBookId, "income_type");
         return version;
+    }
+
+    /**
+     * @param userInfoId
+     * @param incomeTypeIds
+     */
+    @Override
+    public Map<String,Object> deleteCommIncomeTypeForMap(String shareCode,int accountBookId,String userInfoId, List<String> incomeTypeIds) {
+        for (int i = 0; i < incomeTypeIds.size(); i++) {
+            userCommUseIncomeRestDao.delete(userInfoId, incomeTypeIds.get(i));
+        }
+        //离线功能 更新用户当前类目版本号
+        String version = getTypeVersion(accountBookId, "income_type");
+
+        //重新查询排序关系
+        //获取离线-用户常用支出类目
+        Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+        if (!(map2.size() > 0)) {
+            map2 = this.getListById(userInfoId);
+            redisTemplateUtils.cacheLabelType(map2, RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+        }
+        //移除全部list  只保留commonList
+        map2.remove("allList");
+        map2.put("version",version);
+        return map2;
     }
 
     /**

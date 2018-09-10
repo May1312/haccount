@@ -417,7 +417,7 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
                 Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
                 if (!(map2.size() > 0)) {
                     map2 = userCommUseSpendRestService.getListById(userInfoId);
-                    redisTemplateUtils.cacheLabelType(map, RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
+                    redisTemplateUtils.cacheLabelType(map2, RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
                 }
                 userCommUseSpendType.remove("flag");
                 userCommUseSpendType.put("allUserCommUseSpendTypeArrays", map2.get("commonList"));
@@ -429,7 +429,7 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
                 Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
                 if (!(map2.size() > 0)) {
                     map2 = userCommUseIncomeRestService.getListById(userInfoId);
-                    redisTemplateUtils.cacheLabelType(map, RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+                    redisTemplateUtils.cacheLabelType(map2, RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
                 }
                 userCommUseIncomeType.remove("flag");
                 userCommUseIncomeType.put("allUserCommUseIncomeTypeArrays", map2.get("commonList"));

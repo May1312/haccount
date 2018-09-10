@@ -22,11 +22,18 @@ public interface UserCommUseIncomeRestServiceI extends CommonService{
     boolean findByUserInfoIdAndId(String userInfoId, String incomeTypeId);
 
     /**
-     * 添加用户常用类目
+     * 添加用户常用类目 返回版本
      * @param userInfoId
      * @param task
      */
     String insertCommIncomeType(int accountBookId,String userInfoId, IncomeTypeRestEntity task);
+
+    /**
+     * 添加用户常用类目 返回版本,新数据数组
+     * @param userInfoId
+     * @param task
+     */
+    Map<String,Object> insertCommIncomeTypeForMap(String shareCode,int accountBookId,String userInfoId, IncomeTypeRestEntity task);
 
     /**
      * 删除用户常用类目
@@ -34,4 +41,11 @@ public interface UserCommUseIncomeRestServiceI extends CommonService{
      * @param incomeTypeIds
      */
     String deleteCommIncomeType(int accountBookId,String userInfoId, List<String> incomeTypeIds);
+
+    /**
+     * 删除用户常用类目 返回版本,新数据数组
+     * @param userInfoId
+     * @param incomeTypeIds
+     */
+    Map<String,Object> deleteCommIncomeTypeForMap(String shareCode,int accountBookId,String userInfoId, List<String> incomeTypeIds);
 }

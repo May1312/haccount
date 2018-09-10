@@ -1,6 +1,5 @@
 package com.fnjz.front.controller.api.usercommtypepriority;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -59,16 +59,20 @@ public class UserCommTypePriorityRestController extends BaseController {
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             JSONArray relation1 = JSONArray.fromObject((ArrayList) map.get("relation"));
             UserCommTypePriorityRestEntity userCommTypePriorityRestEntity = new UserCommTypePriorityRestEntity(Integer.valueOf(userInfoId),Integer.valueOf(map.get("type") + ""),relation1.toString());
-            String version = userCommTypePriorityRestService.saveOrUpdateRelation(userAccountBookRestEntityCache.getAccountBookId(),userInfoId,userCommTypePriorityRestEntity);
             //清空用户类目缓存
             if(StringUtils.equals(map.get("type")+"","1")){
                 redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
             }else{
                 redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
             }
-            JSONObject jb = new JSONObject();
-            jb.put("version",version);
-            return new ResultBean(ApiResultType.OK,jb);
+            Map<String,Object> resultmap = new HashMap<>();
+            if(StringUtils.equalsIgnoreCase("ios",type) || StringUtils.equalsIgnoreCase("android",type)){
+                resultmap = userCommTypePriorityRestService.saveOrUpdateRelationForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(),userInfoId,userCommTypePriorityRestEntity);
+            }else{
+                String version = userCommTypePriorityRestService.saveOrUpdateRelation(userAccountBookRestEntityCache.getAccountBookId(),userInfoId,userCommTypePriorityRestEntity);
+                resultmap.put("version",version);
+            }
+            return new ResultBean(ApiResultType.OK,resultmap);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR,null);
