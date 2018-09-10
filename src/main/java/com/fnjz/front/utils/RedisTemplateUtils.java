@@ -91,6 +91,15 @@ public class RedisTemplateUtils {
     }
 
     /**
+     * 删除hash 字段
+     * @param hash
+     * @param field
+     */
+    public void deleteHashKey(String hash,String ... field) {
+        redisTemplate.opsForHash().delete(hash,field);
+    }
+
+    /**
      * 从cache获取用户信息
      */
     public String getUserCache(String code) {
