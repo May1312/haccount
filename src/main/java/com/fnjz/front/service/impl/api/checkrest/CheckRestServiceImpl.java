@@ -279,12 +279,13 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
 
     /**
      * 个人常用返回排序好的数据
+     *
      * @param userInfoId
      * @param accountBookId
      * @return
      */
     @Override
-    public Map<String, Object> getSysAndUserSpendAndSynInterval2(String shareCode,String userInfoId, String accountBookId) {
+    public Map<String, Object> getSysAndUserSpendAndSynInterval2(String shareCode, String userInfoId, String accountBookId) {
         //获取系统支出表
         List<SpendTypeRestEntity> allSysSpendType = systemTypeRestDao.getAllSysSpendType();
         //获取系统收入表
@@ -370,15 +371,17 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
         }
         return map;
     }
+
     /**
      * 个人常用返回排序好的数据
+     *
      * @param systemParamCheckRestDTO
      * @param accountBookId
      * @param userInfoId
      * @return
      */
     @Override
-    public Map<String, Object> checkParamVersion2(String shareCode,SystemParamCheckRestDTO systemParamCheckRestDTO, String accountBookId, String userInfoId) {
+    public Map<String, Object> checkParamVersion2(String shareCode, SystemParamCheckRestDTO systemParamCheckRestDTO, String accountBookId, String userInfoId) {
         //获取系统参数检查表数据
         List<SystemParamRestEntity> systemParam = systemParamRestDao.getSystemParam();
         Map<String, Object> map = new HashMap();
