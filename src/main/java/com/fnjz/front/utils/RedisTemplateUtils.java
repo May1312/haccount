@@ -5,13 +5,14 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
+import net.sf.json.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -232,16 +233,37 @@ public class RedisTemplateUtils {
     }
 
     /**
+     * 缓存list格式数据   类目缓存
+     * @param list
+     * @param typeShareCode
+     */
+    public void cacheLabelTypeForList(String list, String typeShareCode) {
+        redisTemplate.opsForValue().set(typeShareCode,list,RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+    }
+
+    /**
      * 获取缓存用户类目信息
      *
      * @param typeShareCode
      * @return
      */
+    @Deprecated
     public Map<String, Object> getCacheLabelType(String typeShareCode) {
         Map<String, Object> cacheData = redisTemplate.opsForHash().entries(typeShareCode);
         //重置缓存时间
         redisTemplate.expire(typeShareCode, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
         return cacheData;
+    }
+    public List<?> getCacheLabelTypeForList(String typeShareCode) {
+        String o = (String)redisTemplate.opsForValue().get(typeShareCode);
+        JSONArray jsonArray = new JSONArray();
+        if(StringUtils.isNotEmpty(o)){
+            jsonArray = JSONArray.fromObject(o);
+            //重置缓存时间
+            redisTemplate.expire(typeShareCode, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+        }
+
+        return jsonArray;
     }
 
     /**

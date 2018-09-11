@@ -15,8 +15,6 @@ import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import com.fnjz.front.entity.api.usercommusetypeofflinecheck.UserCommUseTypeOfflineCheckRestEntity;
 import com.fnjz.front.service.api.checkrest.CheckRestServiceI;
 import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestServiceI;
-import com.fnjz.front.service.api.usercommusespend.UserCommUseSpendRestServiceI;
-import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,10 +41,6 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
     //用户常用类目/排序关系检查表
     @Autowired
     private UserCommUseTypeOfflineCheckRestDao userCommUseTypeOfflineCheckRestDao;
-    @Autowired
-    private RedisTemplateUtils redisTemplateUtils;
-    @Autowired
-    private UserCommUseSpendRestServiceI userCommUseSpendRestService;
     @Autowired
     private UserCommUseIncomeRestServiceI userCommUseIncomeRestService;
 
@@ -119,7 +113,6 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
                         }
                     }
                 }
-
             }
         }
 
@@ -142,7 +135,6 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
                     map.put("synInterval", systemParamRestEntity.getVersion());
                 }
             }
-
         }
         if (StringUtils.isNotEmpty(userInfoId)) {
             //添加 userinfoid accountbookid
@@ -294,17 +286,9 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
         //不需要查询用户常用类目情况
         if (StringUtils.isNotEmpty(userInfoId)) {
             //获取用户常用支出类目
-            Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            if (!(map2.size() > 0)) {
-                map2 = userCommUseSpendRestService.getListById(userInfoId);
-                redisTemplateUtils.cacheLabelType(map, RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            }
+            Map<String, Object> map2 = userCommUseIncomeRestService.getUserCacheTypes(userInfoId,shareCode,RedisPrefix.SPEND);
             //获取用户常用收入类目
-            Map<String, Object> map3 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-            if (!(map3.size() > 0)) {
-                map3 = userCommUseIncomeRestService.getListById(userInfoId);
-                redisTemplateUtils.cacheLabelType(map, RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-            }
+            Map<String, Object> map3 = userCommUseIncomeRestService.getUserCacheTypes(userInfoId,shareCode,RedisPrefix.INCOME);
             //获取离线-用户常用类目/排序关系检查表数据
             List<UserCommUseTypeOfflineCheckRestEntity> userCommUseTypeOfflineCheck = userCommUseTypeOfflineCheckRestDao.getUserCommUseTypeOfflineCheck(accountBookId);
             //第一次调用追加用户个 人常用版本
@@ -339,7 +323,6 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
                         }
                     }
                 }
-
             }
         }
 
@@ -417,11 +400,7 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
             //离线-用户常用支出类目需要更新
             if (userCommUseSpendType.getBoolean("flag")) {
                 //获取离线-用户常用支出类目
-                Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-                if (!(map2.size() > 0)) {
-                    map2 = userCommUseSpendRestService.getListById(userInfoId);
-                    redisTemplateUtils.cacheLabelType(map2, RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-                }
+                Map<String,Object> map2 = userCommUseIncomeRestService.getUserCacheTypes(userInfoId,shareCode,RedisPrefix.SPEND);
                 userCommUseSpendType.remove("flag");
                 userCommUseSpendType.put("allUserCommUseSpendTypeArrays", map2.get("commonList"));
                 map.put("allUserCommUseSpendType", userCommUseSpendType);
@@ -429,11 +408,7 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
             //离线-用户常用收入类目需要更新
             if (userCommUseIncomeType.getBoolean("flag")) {
                 //获取离线-用户常用收入类目
-                Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-                if (!(map2.size() > 0)) {
-                    map2 = userCommUseIncomeRestService.getListById(userInfoId);
-                    redisTemplateUtils.cacheLabelType(map2, RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-                }
+                Map<String,Object> map2 = userCommUseIncomeRestService.getUserCacheTypes(userInfoId,shareCode,RedisPrefix.INCOME);
                 userCommUseIncomeType.remove("flag");
                 userCommUseIncomeType.put("allUserCommUseIncomeTypeArrays", map2.get("commonList"));
                 map.put("allUserCommUseIncomeType", userCommUseIncomeType);

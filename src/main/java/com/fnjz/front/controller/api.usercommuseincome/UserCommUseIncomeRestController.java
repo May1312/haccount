@@ -51,14 +51,8 @@ public class UserCommUseIncomeRestController extends BaseController {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
-            Map<String, Object> map = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-            if (map.size() > 0) {
-                return new ResultBean(ApiResultType.OK, map);
-            } else {
-                map = userCommUseIncomeRestService.getListById(userInfoId);
-                redisTemplateUtils.cacheLabelType(map, RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-                return new ResultBean(ApiResultType.OK, map);
-            }
+            Map<String, Object> map = userCommUseIncomeRestService.getCacheTypes(userInfoId,shareCode,RedisPrefix.INCOME);
+            return new ResultBean(ApiResultType.OK, map);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -94,7 +88,7 @@ public class UserCommUseIncomeRestController extends BaseController {
             redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
             Map<String,Object> resultmap = new HashMap<>();
             if(StringUtils.equalsIgnoreCase("ios",type) || StringUtils.equalsIgnoreCase("android",type)){
-                resultmap = userCommUseIncomeRestService.insertCommIncomeTypeForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(), userInfoId, task);
+                resultmap = userCommUseIncomeRestService.insertCommTypeForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(), userInfoId, task,RedisPrefix.INCOME);
             }else{
                 String version = userCommUseIncomeRestService.insertCommIncomeType(userAccountBookRestEntityCache.getAccountBookId(), userInfoId, task);
                 resultmap.put("version",version);
@@ -121,10 +115,9 @@ public class UserCommUseIncomeRestController extends BaseController {
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-
             Map<String,Object> resultmap = new HashMap<>();
             if(StringUtils.equalsIgnoreCase("ios",type) || StringUtils.equalsIgnoreCase("android",type)){
-                resultmap = userCommUseIncomeRestService.deleteCommIncomeTypeForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(), userInfoId, map.get("incomeTypeIds"));
+                resultmap = userCommUseIncomeRestService.deleteCommTypeForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(), userInfoId, map.get("incomeTypeIds"),RedisPrefix.INCOME);
             }else{
                 String version = userCommUseIncomeRestService.deleteCommIncomeType(userAccountBookRestEntityCache.getAccountBookId(), userInfoId, map.get("incomeTypeIds"));
                 resultmap.put("version",version);

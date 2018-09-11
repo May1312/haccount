@@ -61,6 +61,7 @@ public class CheckRestController extends BaseController {
                 //只查询系统类目信息
                 if (StringUtils.isEmpty(systemParamCheckRestDTO.getSysSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getSysIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommTypePriorityVersion())) {
                     try {
+                        //不查询个人相关
                         map = checkRestServiceI.getSysAndUserSpendAndSynInterval(null, null);
                     } catch (Exception e) {
                         logger.error(e.toString());
