@@ -333,7 +333,11 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
             //个人失效
             userCommUseType = this.getUserCommUseType(userInfoId,type);
             //缓存个人类目
-            redisTemplateUtils.cacheLabelTypeForList(JSON.toJSONString(userCommUseType), RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+            if(StringUtils.equals(type,RedisPrefix.INCOME)){
+                redisTemplateUtils.cacheLabelTypeForList(JSON.toJSONString(userCommUseType), RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+            }else{
+                redisTemplateUtils.cacheLabelTypeForList(JSON.toJSONString(userCommUseType), RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
+            }
             map.put("commonList", userCommUseType);
         }
         return map;
