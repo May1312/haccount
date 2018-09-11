@@ -17,10 +17,24 @@ public class DateUtils {
 
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final DateFormat DATE_FORMAT_NO_YEAR = new SimpleDateFormat("MM/dd");
+    private static final DateFormat DATE_FORMAT_ALL = new SimpleDateFormat("yyyy-MM-dd  HH mm ss");
 
     public static String convert2String(Date date) {
         return DATE_FORMAT.format(date);
     }
+
+    public static String convert2String(long date) {
+        return DATE_FORMAT.format(date);
+    }
+
+    public static String convert2StringAll(Date date) {
+        return DATE_FORMAT_ALL.format(date);
+    }
+
+    public static String convert2StringAll(long date) {
+        return DATE_FORMAT_ALL.format(date);
+    }
+
     public static String convert2StringNoYear(Date date) {
         return DATE_FORMAT_NO_YEAR.format(date);
     }

@@ -7,6 +7,8 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
+import com.fnjz.front.utils.DateUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -41,6 +43,9 @@ public class OfflineSynchronizedRestController extends BaseController {
 
 	@Autowired
 	private ThreadPoolTaskExecutor taskExecutor;
+
+	@Autowired
+	private RedisTemplateUtils redisTemplateUtils;
 
 	/**
 	 * 移动端pull同步
@@ -81,11 +86,12 @@ public class OfflineSynchronizedRestController extends BaseController {
 		}
 		try {
 			final String userInfoId = (String) request.getAttribute("userInfoId");
+			final String shareCode = (String) request.getAttribute("shareCode");
 			if(map.get("synData")!=null){
 				//校验同步时间
 				if(null!=map.get("synDate")){
 					Date latelySynDate = offlineSynchronizedRestServiceI.getLatelySynDate(mobileDevice, userInfoId);
-					if(latelySynDate.getTime()!=Long.valueOf(map.get("synDate")+"")){
+					if(!StringUtils.equals(DateUtils.convert2StringAll(latelySynDate),DateUtils.convert2StringAll(Long.valueOf(map.get("synDate")+"")))){
 						return new ResultBean(ApiResultType.SYN_DATE_IS_ERROR,null);
 					}
 				}
@@ -95,7 +101,10 @@ public class OfflineSynchronizedRestController extends BaseController {
 				taskExecutor.execute(new Runnable() {
 					@Override
 					public void run() {
+						//插入数据
 						offlineSynchronizedRestServiceI.offlinePush(list,mobileDevice,userInfoId);
+						//重置redis 记账总笔数 记账天数
+						redisTemplateUtils.deleteHashKey(RedisPrefix.PREFIX_MY_COUNT + shareCode,"chargeTotal");
 					}
 				});
 			}

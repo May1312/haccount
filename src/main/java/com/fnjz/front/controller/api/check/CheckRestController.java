@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * @version V1.0
  * @Title: Controller
- * @Description: app启动检查类目更新,返回同步时间
+ * @Description: app启动检查类目更新, 返回同步时间
  * @date 2018-06-26 13:11:13
  */
 @Controller
@@ -43,6 +43,7 @@ public class CheckRestController extends BaseController {
 
     /**
      * 入参 系统支出/收入表最后更新时间/个人常用支出/收入表最后更新时间/个人排序关系表最后更新时间
+     *
      * @param type
      * @param systemParamCheckRestDTO
      * @return
@@ -51,26 +52,26 @@ public class CheckRestController extends BaseController {
     @ResponseBody
     public ResultBean checkSystemParam(@PathVariable("type") String type, HttpServletRequest request, @RequestBody SystemParamCheckRestDTO systemParamCheckRestDTO) {
         System.out.println("登录终端：" + type);
-        Map<String,Object> map;
+        Map<String, Object> map;
         //判断是否包含token
         Object containsToken = request.getAttribute("containsToken");
-        if(null!=containsToken){
-            boolean flag = Boolean.valueOf(containsToken+"");
-            if(!flag){
+        if (null != containsToken) {
+            boolean flag = Boolean.valueOf(containsToken + "");
+            if (!flag) {
                 //只查询系统类目信息
-                if(StringUtils.isEmpty(systemParamCheckRestDTO.getSysSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getSysIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommTypePriorityVersion())) {
+                if (StringUtils.isEmpty(systemParamCheckRestDTO.getSysSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getSysIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommTypePriorityVersion())) {
                     try {
-                        map = checkRestServiceI.getSysAndUserSpendAndSynInterval(null,null);
+                        map = checkRestServiceI.getSysAndUserSpendAndSynInterval(null, null);
                     } catch (Exception e) {
                         logger.error(e.toString());
                         return new ResultBean(ApiResultType.SERVER_ERROR, null);
                     }
-                    return new ResultBean(ApiResultType.OK,map);
+                    return new ResultBean(ApiResultType.OK, map);
                 }
                 //正常
                 try {
-                    map = checkRestServiceI.checkParamVersion2(null,systemParamCheckRestDTO,null,null);
-                    return new ResultBean(ApiResultType.OK,map);
+                    map = checkRestServiceI.checkParamVersion2(null, systemParamCheckRestDTO, null, null);
+                    return new ResultBean(ApiResultType.OK, map);
                 } catch (Exception e) {
                     logger.error(e.toString());
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -83,19 +84,19 @@ public class CheckRestController extends BaseController {
         UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
         //连续打卡统计
         clockInDays.clockInDays(shareCode);
-        if(StringUtils.isEmpty(systemParamCheckRestDTO.getSysSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getSysIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommTypePriorityVersion())){
+        if (StringUtils.isEmpty(systemParamCheckRestDTO.getSysSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getSysIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommTypePriorityVersion()) || StringUtils.isNotEmpty(systemParamCheckRestDTO.getSysSpendTypeVersion()) && StringUtils.isNotEmpty(systemParamCheckRestDTO.getSysIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseSpendTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommUseIncomeTypeVersion()) && StringUtils.isEmpty(systemParamCheckRestDTO.getUserCommTypePriorityVersion())) {
             //返回所有
             try {
-                map = checkRestServiceI.getSysAndUserSpendAndSynInterval2(shareCode,userInfoId,userAccountBookRestEntityCache.getAccountBookId()+"");
+                map = checkRestServiceI.getSysAndUserSpendAndSynInterval2(shareCode, userInfoId, userAccountBookRestEntityCache.getAccountBookId() + "");
             } catch (Exception e) {
                 logger.error(e.toString());
                 return new ResultBean(ApiResultType.SERVER_ERROR, null);
             }
-            return new ResultBean(ApiResultType.OK,map);
+            return new ResultBean(ApiResultType.OK, map);
         }
         try {
-            map = checkRestServiceI.checkParamVersion2(shareCode,systemParamCheckRestDTO,userAccountBookRestEntityCache.getAccountBookId()+"",userInfoId);
-            return new ResultBean(ApiResultType.OK,map);
+            map = checkRestServiceI.checkParamVersion2(shareCode, systemParamCheckRestDTO, userAccountBookRestEntityCache.getAccountBookId() + "", userInfoId);
+            return new ResultBean(ApiResultType.OK, map);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -105,6 +106,6 @@ public class CheckRestController extends BaseController {
     @RequestMapping(value = "/checkSystemParam", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean checkSystemParam(HttpServletRequest request, @RequestBody SystemParamCheckRestDTO systemParamCheckRestDTO) {
-        return this.checkSystemParam(null, request,systemParamCheckRestDTO);
+        return this.checkSystemParam(null, request, systemParamCheckRestDTO);
     }
 }

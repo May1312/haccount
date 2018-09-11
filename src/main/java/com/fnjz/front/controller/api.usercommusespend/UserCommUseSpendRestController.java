@@ -1,6 +1,5 @@
 package com.fnjz.front.controller.api.usercommusespend;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -92,12 +92,16 @@ public class UserCommUseSpendRestController extends BaseController {
             if (task != null && StringUtils.isEmpty(task.getParentId())) {
                 return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_ERROR, null);
             }
-            String version = userCommUseSpendRestService.insertCommSpendType(userAccountBookRestEntityCache.getAccountBookId(),userInfoId, task);
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            JSONObject jb = new JSONObject();
-            jb.put("version",version);
-            return new ResultBean(ApiResultType.OK,jb);
+            Map<String,Object> resultmap = new HashMap<>();
+            if(StringUtils.equalsIgnoreCase("ios",type) || StringUtils.equalsIgnoreCase("android",type)){
+                resultmap = userCommUseSpendRestService.insertCommSpendTypeForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(), userInfoId, task);
+            }else{
+                String version = userCommUseSpendRestService.insertCommSpendType(userAccountBookRestEntityCache.getAccountBookId(),userInfoId, task);
+                resultmap.put("version",version);
+            }
+            return new ResultBean(ApiResultType.OK,resultmap);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -117,12 +121,16 @@ public class UserCommUseSpendRestController extends BaseController {
             String shareCode = (String) request.getAttribute("shareCode");
             //获取accountBookId
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
-            String version = userCommUseSpendRestService.deleteCommSpendType(userAccountBookRestEntityCache.getAccountBookId(),userInfoId, map.get("spendTypeIds"));
             //清空用户类目缓存
             redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            JSONObject jb = new JSONObject();
-            jb.put("version",version);
-            return new ResultBean(ApiResultType.OK,jb);
+            Map<String,Object> resultmap = new HashMap<>();
+            if(StringUtils.equalsIgnoreCase("ios",type) || StringUtils.equalsIgnoreCase("android",type)){
+                resultmap = userCommUseSpendRestService.deleteCommSpendTypeForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(), userInfoId,  map.get("spendTypeIds"));
+            }else{
+                String version = userCommUseSpendRestService.deleteCommSpendType(userAccountBookRestEntityCache.getAccountBookId(),userInfoId, map.get("spendTypeIds"));
+                resultmap.put("version",version);
+            }
+            return new ResultBean(ApiResultType.OK,resultmap);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
