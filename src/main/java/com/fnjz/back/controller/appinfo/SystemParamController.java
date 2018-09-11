@@ -4,6 +4,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -66,7 +68,8 @@ public class SystemParamController extends BaseController {
 	@Autowired
 	private Validator validator;
 	
-
+	@Autowired
+	private RedisTemplateUtils redisTemplateUtils;
 
 	/**
 	 * 系统参数控制表列表 页面跳转
@@ -133,6 +136,11 @@ public class SystemParamController extends BaseController {
 			try {
 				MyBeanUtils.copyBeanNotNull2Bean(systemParam, t);
 				systemParamService.saveOrUpdate(t);
+
+				//清除缓存
+				redisTemplateUtils.deleteKey(RedisPrefix.SYS_SPEND_LABEL_TYPE);
+				redisTemplateUtils.deleteKey(RedisPrefix.SYS_INCOME_LABEL_TYPE);
+
 				systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
 			} catch (Exception e) {
 				e.printStackTrace();
