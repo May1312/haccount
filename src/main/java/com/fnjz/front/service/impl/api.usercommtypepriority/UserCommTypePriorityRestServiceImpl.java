@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service("userCommTypePriorityRestService")
@@ -64,28 +66,20 @@ public class UserCommTypePriorityRestServiceImpl extends CommonServiceImpl imple
             String version = getTypeVersion(accountBookId, "spend_type");
             //支出
             //获取离线-用户常用类目
-            Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            if (!(map2.size() > 0)) {
-                map2 = userCommUseSpendRestService.getListById(userInfoId);
-                redisTemplateUtils.cacheLabelType(map2, RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            }
-            //移除全部list  只保留commonList
-            map2.remove("allList");
-            map2.put("version", version);
-            return map2;
+            List<?> cacheLabelTypeForList = redisTemplateUtils.getCacheLabelTypeForList(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
+            Map<String,Object> map = new HashMap<>();
+            map.put("version", version);
+            map.put("commonList",cacheLabelTypeForList);
+            return map;
         }else{
             String version = getTypeVersion(accountBookId, "income_type");
             //收入
             //获取离线-用户常用类目
-            Map<String, Object> map2 = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-            if (!(map2.size() > 0)) {
-                map2 = userCommUseIncomeRestService.getListById(userInfoId);
-                redisTemplateUtils.cacheLabelType(map2, RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-            }
-            //移除全部list  只保留commonList
-            map2.remove("allList");
-            map2.put("version", version);
-            return map2;
+            List<?> cacheLabelTypeForList = redisTemplateUtils.getCacheLabelTypeForList(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
+            Map<String,Object> map = new HashMap<>();
+            map.put("version", version);
+            map.put("commonList",cacheLabelTypeForList);
+            return map;
         }
     }
 

@@ -6,6 +6,7 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.spendtype.SpendTypeRestServiceI;
+import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestServiceI;
 import com.fnjz.front.service.api.usercommusespend.UserCommUseSpendRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
@@ -41,6 +42,8 @@ public class UserCommUseSpendRestController extends BaseController {
     @Autowired
     private UserCommUseSpendRestServiceI userCommUseSpendRestService;
     @Autowired
+    private UserCommUseIncomeRestServiceI userCommUseIncomeRestService;
+    @Autowired
     private SpendTypeRestServiceI spendTypeRestServiceI;
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
@@ -52,15 +55,8 @@ public class UserCommUseSpendRestController extends BaseController {
         try {
             String shareCode = (String) request.getAttribute("shareCode");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            Map<String, Object> map = redisTemplateUtils.getCacheLabelType(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            if (map.size() > 0) {
-                return new ResultBean(ApiResultType.OK, map);
-            } else {
-                map = userCommUseSpendRestService.getListById(userInfoId);
-                //缓存类目数据
-                redisTemplateUtils.cacheLabelType(map, RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-                return new ResultBean(ApiResultType.OK, map);
-            }
+            Map<String, Object> map = userCommUseIncomeRestService.getCacheTypes(userInfoId,shareCode,RedisPrefix.SPEND);
+            return new ResultBean(ApiResultType.OK, map);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -96,7 +92,7 @@ public class UserCommUseSpendRestController extends BaseController {
             redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
             Map<String,Object> resultmap = new HashMap<>();
             if(StringUtils.equalsIgnoreCase("ios",type) || StringUtils.equalsIgnoreCase("android",type)){
-                resultmap = userCommUseSpendRestService.insertCommSpendTypeForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(), userInfoId, task);
+                resultmap = userCommUseIncomeRestService.insertCommTypeForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(), userInfoId, task,RedisPrefix.SPEND);
             }else{
                 String version = userCommUseSpendRestService.insertCommSpendType(userAccountBookRestEntityCache.getAccountBookId(),userInfoId, task);
                 resultmap.put("version",version);

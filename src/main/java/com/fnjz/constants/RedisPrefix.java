@@ -66,6 +66,21 @@ public class RedisPrefix {
      * 缓存类目收入前缀
      */
     public static final String USER_INCOME_LABEL_TYPE = "user_income_label_type:";
+
+    /**
+     * 缓存系统类目收入前缀
+     */
+    public static final String SYS_INCOME_LABEL_TYPE = "sys_label_type:income";
+
+    /**
+     * 缓存系统类目支出前缀
+     */
+    public static final String SYS_SPEND_LABEL_TYPE = "sys_label_type:spend";
+
+    public static final String SPEND = "SPEND";
+
+    public static final String INCOME = "INCOME";
+
     /**
      * admin 创建/删除测试用户验证码前缀
      */
