@@ -17,7 +17,9 @@ import com.rabbitmq.client.ShutdownSignalException;
  * 其中最主要的是处理新消息到来的事件。
  */
 public class QueueConsumer extends EndPoint implements Runnable, Consumer {
-
+    //
+    boolean autoAck = false;
+    //
     public QueueConsumer(String endpointName, String hostIP, String username, String password) throws IOException {
         super(endpointName, hostIP, username, password);
     }
@@ -26,8 +28,8 @@ public class QueueConsumer extends EndPoint implements Runnable, Consumer {
     public void run() {
         try
         {
-            // start consuming messages. Auto acknowledge messages.
-            channel.basicConsume(endPointName, true, this);
+            // start consuming messages.
+            channel.basicConsume(endPointName, autoAck, this);
         }
         catch (IOException e)
         {
@@ -48,8 +50,22 @@ public class QueueConsumer extends EndPoint implements Runnable, Consumer {
      */
     public void handleDelivery(String consumerTag, Envelope env, BasicProperties props, byte[] body) throws IOException
     {
+        //
+        String routingKey = env.getRoutingKey();
+        String contentType = props.getContentType();
+        long deliveryTag = env.getDeliveryTag();
+        //处理接收到的消息
+        if (doMessage(body)) {
+            //手工应答模式
+            channel.basicAck(deliveryTag, false);
+        }
+    }
+
+
+    public boolean doMessage(byte[] body){
         Map map = (HashMap) SerializationUtils.deserialize(body);
         System.out.println("Message Number " + map.get("message number") + " received.");
+        return true;
     }
 
     public void handleCancel(String consumerTag)
