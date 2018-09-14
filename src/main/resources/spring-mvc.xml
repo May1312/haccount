@@ -251,9 +251,11 @@
     <!--集成cxf webservice接口
     <import resource="classpath:cxf-servlet.xml" />
     -->
-    <import resource="classpath:redis.xml"/>
     <!-- jeecg plugin dev -->
     <import resource="classpath:config/spring-config-p3.xml"/>
+
+    <import resource="classpath:redis.xml"/>
+    <import resource="classpath:rabbit.xml"/>
 
     <!-- 启用aop -->
     <aop:aspectj-autoproxy proxy-target-class="true"/>

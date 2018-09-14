@@ -1,8 +1,7 @@
 package com.fnjz.front.aspect;
 
 import com.alibaba.fastjson.JSON;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -13,8 +12,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.Map;
 
 /**
  * 请求响应切面类

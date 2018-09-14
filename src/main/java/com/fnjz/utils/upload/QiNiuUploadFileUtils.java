@@ -90,7 +90,7 @@ public class QiNiuUploadFileUtils {
      * @param bucket
      * @param key
      */
-    public void delFile(String bucket, String key) {
+   /* public void delFile(String bucket, String key) {
 
         //实例化一个BucketManager对象
         BucketManager bucketManager = new BucketManager(auth, null);
@@ -106,7 +106,7 @@ public class QiNiuUploadFileUtils {
             Response r = e.response;
             System.out.println(r.toString());
         }
-    }
+    }*/
 
     public static void main(String[] args) throws Exception {
         String file = "C:\\Users\\zyh\\Pictures\\Saved Pictures\\1.jpg";//图片路径

@@ -1,14 +1,12 @@
 package com.fnjz.front.controller.api.offlinesynchronized;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
+import com.fnjz.utils.rabbitmq.RabbitmqUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**   
@@ -46,6 +43,9 @@ public class OfflineSynchronizedRestController extends BaseController {
 
 	@Autowired
 	private RedisTemplateUtils redisTemplateUtils;
+
+	@Autowired
+	private RabbitmqUtils rabbitmqUtils;
 
 	/**
 	 * 移动端pull同步
@@ -87,6 +87,8 @@ public class OfflineSynchronizedRestController extends BaseController {
 		try {
 			final String userInfoId = (String) request.getAttribute("userInfoId");
 			final String shareCode = (String) request.getAttribute("shareCode");
+			//追加userinfoid 消费校验
+			map.put("userInfoId",userInfoId);
 			if(map.get("synData")!=null){
 				//校验同步时间
 				if(null!=map.get("synDate")){
@@ -96,17 +98,19 @@ public class OfflineSynchronizedRestController extends BaseController {
 					}
 				}
 				//转json对象
-				final List<WarterOrderRestEntity> list = JSONObject.parseArray(JSON.toJSONString(map.get("synData")),WarterOrderRestEntity.class);
+				//final List<WarterOrderRestEntity> list = JSONObject.parseArray(JSON.toJSONString(map.get("synData")),WarterOrderRestEntity.class);
 				//异步处理插入
-				taskExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
+				//taskExecutor.execute(new Runnable() {
+				//	@Override
+				//	public void run() {
 						//插入数据
-						offlineSynchronizedRestServiceI.offlinePush(list,mobileDevice,userInfoId);
+				//		offlineSynchronizedRestServiceI.offlinePush(list,mobileDevice,userInfoId);
 						//重置redis 记账总笔数 记账天数
-						redisTemplateUtils.deleteHashKey(RedisPrefix.PREFIX_MY_COUNT + shareCode,"chargeTotal");
-					}
-				});
+				//		redisTemplateUtils.deleteHashKey(RedisPrefix.PREFIX_MY_COUNT + shareCode,"chargeTotal");
+				//	}
+				//});
+				//发送消息队列
+				rabbitmqUtils.publish(map);
 			}
 			return new ResultBean(ApiResultType.OK,null);
 		} catch (Exception e) {
