@@ -138,8 +138,12 @@ public class SystemParamController extends BaseController {
 				systemParamService.saveOrUpdate(t);
 
 				//清除缓存
-				redisTemplateUtils.deleteKey(RedisPrefix.SYS_SPEND_LABEL_TYPE);
-				redisTemplateUtils.deleteKey(RedisPrefix.SYS_INCOME_LABEL_TYPE);
+				if (systemParam.getParamType().equals("spend_type")  ){
+					redisTemplateUtils.deleteKey(RedisPrefix.SYS_SPEND_LABEL_TYPE);
+
+				}else if (systemParam.getParamType().equals("income_type")){
+					redisTemplateUtils.deleteKey(RedisPrefix.SYS_INCOME_LABEL_TYPE);
+				}
 
 				systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
 			} catch (Exception e) {
