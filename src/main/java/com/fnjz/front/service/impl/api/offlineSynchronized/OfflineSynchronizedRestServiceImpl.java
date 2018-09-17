@@ -55,7 +55,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
         List<WarterOrderRestEntity> list;
         //判断 isFirst标识是否为true, true 获取所有
         if(Boolean.valueOf(isFirst)){
-            list = warterOrderRestDao.findAllWaterList(userInfoId, null);
+            list = warterOrderRestDao.findAllWaterListOfNoDel(userInfoId, null);
         }else{
             list = warterOrderRestDao.findAllWaterList(userInfoId, latelySynDate.getSynDate());
         }

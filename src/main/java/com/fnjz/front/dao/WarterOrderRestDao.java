@@ -218,6 +218,16 @@ public interface WarterOrderRestDao {
     List<WarterOrderRestEntity> findAllWaterList(@Param("userInfoId") String userInfoId, @Param("synDate") Date synDate);
 
     /**
+     * 只返回有效记录
+     * @param userInfoId
+     * @param synDate
+     * @return
+     */
+    @ResultType(WarterOrderRestEntity.class)
+    @Sql("SELECT * FROM hbird_water_order where create_by=:userInfoId AND if(:synDate is null,1=1,update_date>:synDate) and delflag=0;")
+    List<WarterOrderRestEntity> findAllWaterListOfNoDel(@Param("userInfoId") String userInfoId, @Param("synDate") Date synDate);
+
+    /**
      * 离线数据新增或更新
      * @param warter
      */
