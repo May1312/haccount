@@ -1,7 +1,6 @@
 package com.fnjz.back.entity.user;
 
-import java.math.BigDecimal;
-import java.util.Date;
+
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,8 +11,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
+
 
 /**   
  * @Title: Entity
@@ -76,6 +74,10 @@ public class UserInfoEntity implements java.io.Serializable {
 	private java.lang.String constellation;
 	/**终端系统*/
 	private java.lang.String mobileSystem;
+
+
+
+	private java.lang.String androidChannel;
 	/**终端系统版本*/
 	private java.lang.String mobileSystemVersion;
 	/**终端厂商*/
@@ -127,6 +129,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  昵称
 	 */
+	@Column(name ="NICK_NAME",nullable=true,length=32)
 	public void setNickName(java.lang.String nickName){
 		this.nickName = nickName;
 	}
@@ -591,6 +594,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.util.Date
 	 *@param: java.util.Date  注册时间
 	 */
+	@Column(name ="REGISTER_DATE",nullable=false)
 	public void setRegisterDate(java.util.Date registerDate){
 		this.registerDate = registerDate;
 	}
@@ -609,5 +613,14 @@ public class UserInfoEntity implements java.io.Serializable {
 	 */
 	public void setUpdateDate(java.util.Date updateDate){
 		this.updateDate = updateDate;
+	}
+
+	@Column(name ="ANDROID_CHANNEL",nullable=true,length=32)
+	public String getAndroidChannel() {
+		return androidChannel;
+	}
+
+	public void setAndroidChannel(String androidChannel) {
+		this.androidChannel = androidChannel;
 	}
 }

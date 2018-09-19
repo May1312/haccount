@@ -61,6 +61,7 @@ public class UserInfoController extends BaseController {
      */
     @RequestMapping(params = "list")
     public ModelAndView list(HttpServletRequest request) {
+
         return new ModelAndView("com/fnjz/back/user/userInfoList");
     }
 

@@ -73,7 +73,7 @@
          </span>
                 <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="userInfoListsearch();"
                    style="text-align: right;width: 670px">查询</a>
-
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-putout" onclick="exportExcel();">导出excel</a>
                 <%--<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-putout" onclick="restart();">重置</a>--%>
             </div>
         </div>
