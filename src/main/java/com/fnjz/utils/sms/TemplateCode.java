@@ -7,7 +7,15 @@ public enum TemplateCode {
     RESETPWD_CODE("SMS_136394915","找回密码验证码"),
     BIND_MOBILE_CODE("SMS_136389856","绑定/解绑验证码"),
     /*admin 创建/删除测试用户验证码*/
-    ADMIN_CERTAIN("SMS_140120912","验证管理员");
+    ADMIN_CERTAIN("SMS_140120912","验证管理员"),
+
+    //创蓝模板定义
+    CL_REGISTER("CL_REGISTER","【蜂鸟记账】验证码为：{s}，您注册所使用的验证码，若非本人操作，请勿泄露，3分钟内有效。"),
+    CL_LOGIN("CL_LOGIN","【蜂鸟记账】验证码为：{s}，您本次登录所使用的验证码，若非本人操作，请勿泄露，3分钟内有效。"),
+    CL_RESETPWD("CL_LOGIN","【蜂鸟记账】验证码为：{s}，您本次找回密码所使用的验证码，若非本人操作，请勿泄露，3分钟内有效。"),
+    CL_BIND_MOBILE("CL_LOGIN","【蜂鸟记账】验证码为：{s}，您正在绑定/解绑手机号，若非本人操作，请勿泄露，3分钟内有效。"),
+    CL_ADMIN_CERTAIN("CL_LOGIN","【蜂鸟记账】验证码为：{s}，您好，管理员，此验证码仅用于创建/删除测试用户，若非本人操作，请勿泄露，3分钟内有效。"),
+    ;
     TemplateCode(String templateCode, String templateContent) {
         TemplateCode = templateCode;
         TemplateContent = templateContent;

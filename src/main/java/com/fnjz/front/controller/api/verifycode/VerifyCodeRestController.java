@@ -1,7 +1,5 @@
 package com.fnjz.front.controller.api.verifycode;
 
-import com.alibaba.fastjson.JSON;
-import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -12,8 +10,9 @@ import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.utils.CreateVerifyCodeUtils;
-import com.fnjz.utils.sms.DySms;
 import com.fnjz.utils.sms.TemplateCode;
+import com.fnjz.utils.sms.chuanglan.sms.response.SmsSendResponse;
+import com.fnjz.utils.sms.chuanglan.sms.util.ChuangLanSmsUtil;
 import io.swagger.annotations.*;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.util.StringUtil;
@@ -154,81 +153,120 @@ public class VerifyCodeRestController {
                 if (task == null) {
                     return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
                 }
-                SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.LOGIN_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
-                if (StringUtil.equals(sendSmsResponse.getCode(), "OK")) {
+                //SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.LOGIN_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
+                SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.CL_LOGIN.getTemplateContent(),map.get("mobile"),true);
+                if (StringUtil.equals(smsSingleResponse.getCode(), "0")) {
                     //验证码存放redis
                     redisTemplateUtils.cacheVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN + map.get("mobile"),random);
                     logger.info("生成登录验证码:" + random);
                     return new ResultBean(ApiResultType.OK, null);
-                } else if (StringUtil.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
+                } /*else if (StringUtil.equals(smsSingleResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
                     return new ResultBean(ApiResultType.VERIFYCODE_LIMIT, null);
                 } else {
                     logger.error(JSON.toJSONString(sendSmsResponse));
                     return new ResultBean(ApiResultType.SEND_VERIFYCODE_ERROR, null);
+                }*/
+                else {
+                    logger.error(smsSingleResponse.getErrorMsg());
+                    ResultBean rb = new ResultBean();
+                    rb.setFailMsg(smsSingleResponse.getCode(),smsSingleResponse.getErrorMsg());
+                    return rb;
                 }
             } else if (verifycode.getIndex() == 2) {
                 if (task != null) {
                     return new ResultBean(ApiResultType.MOBILE_IS_EXISTED, null);
                 }
-                SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.REGISTER_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
-                if (StringUtil.equals(sendSmsResponse.getCode(), "OK")) {
+                //SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.REGISTER_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
+                SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.CL_REGISTER.getTemplateContent(),map.get("mobile"),true);
+                //if (StringUtil.equals(sendSmsResponse.getCode(), "OK")) {
+                if(StringUtil.equals(smsSingleResponse.getCode(), "0")){
                     //验证码存放redis
                     redisTemplateUtils.cacheVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_REGISTER + map.get("mobile"),random);
                     logger.info("生成注册验证码:" + random);
                     return new ResultBean(ApiResultType.OK, null);
-                } else if (StringUtil.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
+                } /*else if (StringUtil.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
                     return new ResultBean(ApiResultType.VERIFYCODE_LIMIT, null);
                 } else {
                     logger.error(JSON.toJSONString(sendSmsResponse));
                     return new ResultBean(ApiResultType.SEND_VERIFYCODE_ERROR, null);
+                }*/
+                else {
+                    logger.error(smsSingleResponse.getErrorMsg());
+                    ResultBean rb = new ResultBean();
+                    rb.setFailMsg(smsSingleResponse.getCode(),smsSingleResponse.getErrorMsg());
+                    return rb;
                 }
             } else if (verifycode.getIndex() == 3) {
                 if (task == null) {
                     return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
                 }
-                SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.RESETPWD_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
-                if (StringUtil.equals(sendSmsResponse.getCode(), "OK")) {
+                //SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.RESETPWD_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
+                SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.CL_RESETPWD.getTemplateContent(),map.get("mobile"),true);
+                //if (StringUtil.equals(sendSmsResponse.getCode(), "OK")) {
+                if(StringUtil.equals(smsSingleResponse.getCode(), "0")){
                     //验证码存放redis
                     redisTemplateUtils.cacheVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_RESETPWD + map.get("mobile"),random);
                     logger.info("生成重置密码验证码:" + random);
                     return new ResultBean(ApiResultType.OK, null);
-                } else if (StringUtil.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
+                } /*else if (StringUtil.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
                     return new ResultBean(ApiResultType.VERIFYCODE_LIMIT, null);
                 } else {
                     logger.error(JSON.toJSONString(sendSmsResponse));
                     return new ResultBean(ApiResultType.SEND_VERIFYCODE_ERROR, null);
+                }*/
+                else {
+                    logger.error(smsSingleResponse.getErrorMsg());
+                    ResultBean rb = new ResultBean();
+                    rb.setFailMsg(smsSingleResponse.getCode(),smsSingleResponse.getErrorMsg());
+                    return rb;
                 }
             } else if (verifycode.getIndex() == 4) {
                 if (task != null) {
                     return new ResultBean(ApiResultType.MOBILE_IS_EXISTED, null);
                 }
-                SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.BIND_MOBILE_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
-                if (StringUtil.equals(sendSmsResponse.getCode(), "OK")) {
+                //SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.BIND_MOBILE_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
+                SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.CL_BIND_MOBILE.getTemplateContent(),map.get("mobile"),true);
+                //if (StringUtil.equals(sendSmsResponse.getCode(), "OK")) {
+                if(StringUtil.equals(smsSingleResponse.getCode(), "0")){
                     //验证码存放redis
                     redisTemplateUtils.cacheVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_BIND_MOBILE + map.get("mobile"),random);
                     logger.info("生成绑定手机号验证码:" + random);
                     return new ResultBean(ApiResultType.OK, null);
-                } else if (StringUtil.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
+                } /*else if (StringUtil.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
                     return new ResultBean(ApiResultType.VERIFYCODE_LIMIT, null);
                 } else {
                     logger.error(JSON.toJSONString(sendSmsResponse));
                     return new ResultBean(ApiResultType.SEND_VERIFYCODE_ERROR, null);
+                }*/
+                else {
+                    logger.error(smsSingleResponse.getErrorMsg());
+                    ResultBean rb = new ResultBean();
+                    rb.setFailMsg(smsSingleResponse.getCode(),smsSingleResponse.getErrorMsg());
+                    return rb;
                 }
             } else if (verifycode.getIndex() == 5) {
                 if (task == null) {
                     return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
                 }
-                SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.BIND_MOBILE_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
-                if (StringUtil.equals(sendSmsResponse.getCode(), "OK")) {
+                //SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.BIND_MOBILE_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
+                SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.BIND_MOBILE_CODE.getTemplateContent(),map.get("mobile"),true);
+                //if (StringUtil.equals(sendSmsResponse.getCode(), "OK")) {
+                if(StringUtil.equals(smsSingleResponse.getCode(), "0")){
                     //验证码存放redis
                     redisTemplateUtils.cacheVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CHANGE_MOBILE + map.get("mobile"),random);
                     logger.info("生成修改手机号验证码:" + random);
                     return new ResultBean(ApiResultType.OK, null);
-                } else if (StringUtil.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
+                } /*else if (StringUtil.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
                     return new ResultBean(ApiResultType.VERIFYCODE_LIMIT, null);
                 } else {
                     logger.error(JSON.toJSONString(sendSmsResponse));
                     return new ResultBean(ApiResultType.SEND_VERIFYCODE_ERROR, null);
+                }*/
+                else {
+                    logger.error(smsSingleResponse.getErrorMsg());
+                    ResultBean rb = new ResultBean();
+                    rb.setFailMsg(smsSingleResponse.getCode(),smsSingleResponse.getErrorMsg());
+                    return rb;
                 }
             }
         } catch (Exception e) {
