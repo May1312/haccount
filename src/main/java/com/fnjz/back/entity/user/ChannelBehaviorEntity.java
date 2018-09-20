@@ -12,7 +12,7 @@ import java.util.Date;
  * @Description:用户渠道行为统计
  */
 @ExcelTarget(value = "ChannelBehaviorEntity")
-public class ChannelBehaviorEntity implements Serializable,Comparable<ChannelBehaviorEntity> {
+public class ChannelBehaviorEntity implements Serializable, Comparable<ChannelBehaviorEntity> {
 
     /**
      * 用户id
@@ -128,18 +128,18 @@ public class ChannelBehaviorEntity implements Serializable,Comparable<ChannelBeh
 
     @Override
     public int compareTo(ChannelBehaviorEntity o) {
-        if(accountTotalTheNumber < o.getAccountTotalTheNumber()){
+        if (accountTotalTheNumber < o.getAccountTotalTheNumber()) {
             return 1;
         }
-        if(accountTotalTheNumber > o.getAccountTotalTheNumber()){
+        if (accountTotalTheNumber > o.getAccountTotalTheNumber()) {
             return -1;
         }
 
-        if(accountTotalTheNumber ==o.getAccountTotalTheNumber()){
-            if(accountTotalDayNumber < o.getAccountTotalDayNumber()){
+        if (accountTotalTheNumber == o.getAccountTotalTheNumber()) {
+            if (accountTotalDayNumber < o.getAccountTotalDayNumber()) {
                 return 1;
             }
-            if(accountTotalDayNumber > o.getAccountTotalDayNumber()){
+            if (accountTotalDayNumber > o.getAccountTotalDayNumber()) {
                 return -1;
             }
         }

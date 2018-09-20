@@ -96,8 +96,6 @@ public class DataCenterController {
         }
         List<ChannelBehaviorEntity> list =  dataCenterService.queryListByPage(pageSize,rows,registerstartDate,registerendDate,userId,downloadChannel, sort, order);
 
-        //统计排序
-        Collections.sort(list);
         //总记录条数
         dataGrid.setResults(list);
         dataGrid.setTotal(dataCenterService.getCount(registerstartDate,registerendDate,userId,downloadChannel).intValue());
@@ -125,8 +123,6 @@ public class DataCenterController {
 
         List<ChannelBehaviorEntity> list =  dataCenterService.queryListByPage(pageSize,rows,registerstartDate,registerendDate,userId,downloadChannel,null,null);
 
-        //统计排序
-        Collections.sort(list);
         modelMap.put(NormalExcelConstants.FILE_NAME,"用户行为统计表");
         modelMap.put(NormalExcelConstants.CLASS,ChannelBehaviorEntity.class);
         modelMap.put(NormalExcelConstants.PARAMS,new ExportParams("用户行为统计列表", "导出人:"+ResourceUtil.getSessionUser().getRealName(),
