@@ -3,7 +3,6 @@ package com.fnjz.back.controller.user;
 import com.fnjz.back.entity.user.ChannelBehaviorEntity;
 import com.fnjz.back.service.user.DataCenterServiceI;
 import com.fnjz.back.service.user.UserInfoServiceI;
-import com.google.gson.annotations.Since;
 import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.util.DateUtils;
 import org.jeecgframework.core.util.ResourceUtil;
@@ -21,8 +20,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
 
 
 @Controller
