@@ -1,7 +1,5 @@
 package com.fnjz.front.controller.api.common;
 
-import com.alibaba.fastjson.JSON;
-import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -10,10 +8,12 @@ import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.PasswordUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.utils.CreateVerifyCodeUtils;
-import com.fnjz.utils.sms.DySms;
 import com.fnjz.utils.sms.TemplateCode;
+import com.fnjz.utils.sms.chuanglan.sms.response.SmsSendResponse;
+import com.fnjz.utils.sms.chuanglan.sms.util.ChuangLanSmsUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,16 +56,24 @@ public class AdminManageRobot {
         if (StringUtils.isNotEmpty(mobile) && StringUtils.equals(mobile, admin)) {
             //生成六位随机验证码
             String random = CreateVerifyCodeUtils.createRandom(6);
-            SendSmsResponse sendSmsResponse = DySms.sendSms(mobile, TemplateCode.ADMIN_CERTAIN.getTemplateCode(), "{\"code\":\"" + random + "\"}");
-            if (StringUtils.equals(sendSmsResponse.getCode(), "OK")) {
+            //SendSmsResponse sendSmsResponse = DySms.sendSms(mobile, TemplateCode.ADMIN_CERTAIN.getTemplateCode(), "{\"code\":\"" + random + "\"}");
+            SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.CL_ADMIN_CERTAIN.getTemplateContent(),mobile,true);
+            //if (StringUtils.equals(sendSmsResponse.getCode(), "OK")) {
+            if(StringUtil.equals(smsSingleResponse.getCode(), "0")){
                 //验证码存放redis
                 redisTemplateUtils.cacheVerifyCode(RedisPrefix.ADMIN_CERTAIN + mobile, random);
                 return new ResultBean(ApiResultType.OK, null);
-            } else if (StringUtils.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
+            } /*else if (StringUtils.equals(sendSmsResponse.getCode(), "isv.BUSINESS_LIMIT_CONTROL")) {
                 return new ResultBean(ApiResultType.VERIFYCODE_LIMIT, null);
             } else {
                 logger.error(JSON.toJSONString(sendSmsResponse));
                 return new ResultBean(ApiResultType.SEND_VERIFYCODE_ERROR, null);
+            }*/
+            else {
+                logger.error(smsSingleResponse.getErrorMsg());
+                ResultBean rb = new ResultBean();
+                rb.setFailMsg(smsSingleResponse.getCode(),smsSingleResponse.getErrorMsg());
+                return rb;
             }
         } else {
             return new ResultBean(ApiResultType.MOBILE_IS_VAILD, null);

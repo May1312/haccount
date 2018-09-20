@@ -249,7 +249,7 @@ public class VerifyCodeRestController {
                     return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
                 }
                 //SendSmsResponse sendSmsResponse = DySms.sendSms(map.get("mobile"), TemplateCode.BIND_MOBILE_CODE.getTemplateCode(), "{\"code\":\"" + random + "\"}");
-                SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.BIND_MOBILE_CODE.getTemplateContent(),map.get("mobile"),true);
+                SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.CL_BIND_MOBILE.getTemplateContent(),map.get("mobile"),true);
                 //if (StringUtil.equals(sendSmsResponse.getCode(), "OK")) {
                 if(StringUtil.equals(smsSingleResponse.getCode(), "0")){
                     //验证码存放redis
