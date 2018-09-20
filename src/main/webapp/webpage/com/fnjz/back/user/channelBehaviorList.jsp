@@ -26,7 +26,8 @@
                       <span style="vertical-align:middle;display:-moz-inline-box;display:inline-block;width: 80px;text-align:right;"
                             title="终端系统">渠道: </span>
                       <select name="downloadChannel" id="downloadChannel" style="width: 80px">
-                            <option value="全部">全部</option>
+                            <option value="all">全部</option>
+                          <option value="xiaochengxu">小程序</option>
                             <c:forEach items="${channelList}" var="channel">
                                 <option value=${channel}>${channel}</option>
                             </c:forEach>
@@ -59,12 +60,12 @@
 
     });
     function exportExcel() {
-        var userId = $("*[name='userId']").val();
+        /*var userId = $("*[name='userId']").val();
         var downloadChannel = $("*[name='downloadChannel']").val();
         var registerstartDate = $("*[name='registerDate_begin']").val();
-        var registerendDate = $("*[name='registerDate_end']").val();
-        var url = "dataCenterController.do?exportXls";
+        var registerendDate = $("*[name='registerDate_end']").val();*/
 
+        var url = "dataCenterController.do?exportXls";
         JeecgExcelExport("dataCenterController.do?exportXls","dataCenterList");
 
         /*$.ajax({
