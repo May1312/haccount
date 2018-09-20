@@ -65,7 +65,6 @@ public class DataCenterController {
         String sql = "SELECT DISTINCT android_channel FROM hbird_user_info where android_channel IS NOT NULL ;";
         List<String> channellistbySql = dataCenterService.findListbySql(sql);
         channellistbySql.add("ios");
-        channellistbySql.add("小程序");
         request.setAttribute("channelList",channellistbySql);
         return new ModelAndView("com/fnjz/back/user/channelBehaviorList");
     }
@@ -85,6 +84,13 @@ public class DataCenterController {
         String downloadChannel = request.getParameter("downloadChannel");
         String registerstartDate = request.getParameter("registerDate_begin");
         String registerendDate = request.getParameter("registerDate_end");
+        if (StringUtil.isNotEmpty(downloadChannel)){
+            if (downloadChannel.equals("all")){
+                downloadChannel="全部";
+            }else if (downloadChannel.equals("xiaochengxu")){
+                downloadChannel="小程序";
+            }
+        }
         int pageSize=1;
         int rows = 100;
         //排序
@@ -114,6 +120,14 @@ public class DataCenterController {
         String downloadChannel = request.getParameter("downloadChannel");
         String registerstartDate = request.getParameter("registerDate_begin");
         String registerendDate = request.getParameter("registerDate_end");
+        System.out.println("download--------------====================-----------------"+downloadChannel);
+        if (StringUtil.isNotEmpty(downloadChannel)){
+            if (downloadChannel.equals("all")){
+                downloadChannel="全部";
+            }else if (downloadChannel.equals("xiaochengxu")){
+                downloadChannel="小程序";
+            }
+        }
         int pageSize=1;
         int rows = 100;
         if (StringUtil.isNotEmpty(request.getParameter("page")) && StringUtil.isNotEmpty(request.getParameter("rows"))){
