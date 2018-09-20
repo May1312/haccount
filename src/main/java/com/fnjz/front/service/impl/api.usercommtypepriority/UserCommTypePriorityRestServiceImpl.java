@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service("userCommTypePriorityRestService")
@@ -66,19 +64,15 @@ public class UserCommTypePriorityRestServiceImpl extends CommonServiceImpl imple
             String version = getTypeVersion(accountBookId, "spend_type");
             //支出
             //获取离线-用户常用类目
-            List<?> cacheLabelTypeForList = redisTemplateUtils.getCacheLabelTypeForList(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            Map<String,Object> map = new HashMap<>();
+            Map<String,Object> map = userCommUseIncomeRestService.getUserCacheTypes(userInfoId,shareCode,RedisPrefix.SPEND);
             map.put("version", version);
-            map.put("commonList",cacheLabelTypeForList);
             return map;
         }else{
             String version = getTypeVersion(accountBookId, "income_type");
             //收入
             //获取离线-用户常用类目
-            List<?> cacheLabelTypeForList = redisTemplateUtils.getCacheLabelTypeForList(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
-            Map<String,Object> map = new HashMap<>();
+            Map<String,Object> map = userCommUseIncomeRestService.getUserCacheTypes(userInfoId,shareCode,RedisPrefix.INCOME);
             map.put("version", version);
-            map.put("commonList",cacheLabelTypeForList);
             return map;
         }
     }
