@@ -100,11 +100,11 @@ public class OfflineSynchronizedRestController extends BaseController {
 				}
 				//校验数组长度
 				JSONArray jsonarray = JSONArray.fromObject(map.get("synData"));
-				if(jsonarray.size()>0){
+				//if(jsonarray.size()>0){
 					//发送消息队列
 					logger.info("离线同步校验通过,发送消息");
 					rabbitmqUtils.publish(map);
-				}
+				//}
 				//转json对象
 				//final List<WarterOrderRestEntity> list = JSONObject.parseArray(JSON.toJSONString(map.get("synData")),WarterOrderRestEntity.class);
 				//异步处理插入

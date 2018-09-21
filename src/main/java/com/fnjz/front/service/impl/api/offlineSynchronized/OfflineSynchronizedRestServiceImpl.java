@@ -73,9 +73,11 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
     public void offlinePush(List<WarterOrderRestEntity> list, String mobileDevice, String userInfoId) {
         //生成本次同步记录
         offlineSynchronizedRestDao.insert(mobileDevice,userInfoId);
-        for(WarterOrderRestEntity warter:list){
-            //同步数据
-            warterOrderRestDao.saveOrUpdateOfflineData(warter);
+        if(list.size()>0){
+            for(WarterOrderRestEntity warter:list){
+                //同步数据
+                warterOrderRestDao.saveOrUpdateOfflineData(warter);
+            }
         }
     }
 }
