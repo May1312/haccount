@@ -7,7 +7,6 @@ import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestSer
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.utils.rabbitmq.RabbitmqUtils;
-import net.sf.json.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -90,7 +89,7 @@ public class OfflineSynchronizedRestController extends BaseController {
 			final String shareCode = (String) request.getAttribute("shareCode");
 			//追加userinfoid 消费校验
 			map.put("userInfoId",userInfoId);
-			if(map.get("synData")!=null){
+			//if(map.get("synData")!=null){
 				//校验同步时间
 				if(null!=map.get("synDate")){
 					Date latelySynDate = offlineSynchronizedRestServiceI.getLatelySynDate(mobileDevice, userInfoId);
@@ -99,11 +98,8 @@ public class OfflineSynchronizedRestController extends BaseController {
 					}
 				}
 				//校验数组长度
-				JSONArray jsonarray = JSONArray.fromObject(map.get("synData"));
+				//JSONArray jsonarray = JSONArray.fromObject(map.get("synData"));
 				//if(jsonarray.size()>0){
-					//发送消息队列
-					logger.info("离线同步校验通过,发送消息");
-					rabbitmqUtils.publish(map);
 				//}
 				//转json对象
 				//final List<WarterOrderRestEntity> list = JSONObject.parseArray(JSON.toJSONString(map.get("synData")),WarterOrderRestEntity.class);
@@ -118,7 +114,10 @@ public class OfflineSynchronizedRestController extends BaseController {
 				//	}
 				//});
 
-			}
+			//}
+			//发送消息队列
+			logger.info("离线同步校验通过,发送消息");
+			rabbitmqUtils.publish(map);
 			return new ResultBean(ApiResultType.OK,null);
 		} catch (Exception e) {
 			logger.error(e.toString());
