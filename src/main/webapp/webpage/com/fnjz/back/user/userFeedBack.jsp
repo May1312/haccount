@@ -29,7 +29,7 @@
                 </label>
             </td>
             <td class="value">
-                <input class="inputxt" id="content" name="content" ignore="ignore" value="${userFeedBackPage.content}"/>
+                <textarea  style="width: 475px;height: 100px" id="content" name="content" ignore="ignore" value="${userFeedBackPage.content}">${userFeedBackPage.content}</textarea>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
