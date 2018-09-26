@@ -3,6 +3,7 @@ package com.fnjz.back.controller.user;
 import com.fnjz.back.entity.user.ChannelBehaviorEntity;
 import com.fnjz.back.service.user.DataCenterServiceI;
 import com.fnjz.back.service.user.UserInfoServiceI;
+import com.fnjz.front.utils.ShareCodeUtil;
 import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.util.DateUtils;
 import org.jeecgframework.core.util.ResourceUtil;
@@ -79,7 +80,12 @@ public class DataCenterController {
     @RequestMapping(params = "datagrid")
 
     public void datagrid(ChannelBehaviorEntity channelBehaviorEntity, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-        String userId = request.getParameter("userId");
+        String fengniaoId = request.getParameter("fengniaoId");
+        String userId = "";
+        //转换查询条件
+        if (StringUtil.isNotEmpty(fengniaoId)){
+            userId=String.valueOf(ShareCodeUtil.sharecode2id(fengniaoId));
+        }
         String downloadChannel = request.getParameter("downloadChannel");
         String registerstartDate = request.getParameter("registerDate_begin");
         String registerendDate = request.getParameter("registerDate_end");

@@ -20,85 +20,83 @@ import javax.persistence.*;
 @SuppressWarnings("serial")
 public class UserInfoEntity implements java.io.Serializable {
 	/**蜂鸟ID*/
-	private java.lang.Integer id;
+	private Integer id;
 	/**昵称*/
-	private java.lang.String nickName;
+	private String nickName;
 	/**手机*/
-	private java.lang.String mobile;
+	private String mobile;
 	/**邮箱*/
-	private java.lang.String email;
+	private String email;
 	/**性别*/
-	private java.lang.String sex;
+	private String sex;
 	/**出生年月日*/
 	private java.util.Date birthday;
 	/**密码*/
-	private java.lang.String password;
+	private String password;
 	/**手势密码*/
-	private java.lang.String gesturePw;
+	private String gesturePw;
 	/**手势密码打开关闭状态 0关闭  1打开*/
-	private java.lang.String gesturePwType;
+	private String gesturePwType;
 	/**微信授权token*/
-	private java.lang.String wechatAuth;
+	private String wechatAuth;
 	/**微博授权token*/
-	private java.lang.String weiboAuth;
+	private String weiboAuth;
 	/**省份_id*/
-	private java.lang.String provinceId;
+	private String provinceId;
 	/**省份_value*/
-	private java.lang.String provinceName;
+	private String provinceName;
 	/**城市_id*/
-	private java.lang.String cityId;
+	private String cityId;
 	/**城市_name*/
-	private java.lang.String cityName;
+	private String cityName;
 	/**区县_id*/
-	private java.lang.String districtId;
+	private String districtId;
 	/**区县_name*/
-	private java.lang.String districtName;
+	private String districtName;
 	/**账户状态*/
-	private java.lang.String status;
+	private String status;
 	/**用户类型,vip*/
-	private java.lang.String userType;
+	private String userType;
 	/**用户所属行业*/
-	private java.lang.String profession;
+	private String profession;
 	/**用户职位,基层/中层/高层*/
-	private java.lang.String position;
+	private String position;
 	/**年龄*/
-	private java.lang.String age;
+	private String age;
 	/**星座*/
-	private java.lang.String constellation;
+	private String constellation;
 	/**终端系统*/
-	private java.lang.String mobileSystem;
+	private String mobileSystem;
 
-
-
-	private java.lang.String androidChannel;
+	private String androidChannel;
 	/**终端系统版本*/
-	private java.lang.String mobileSystemVersion;
+	private String mobileSystemVersion;
 	/**终端厂商*/
-	private java.lang.String mobileManufacturer;
+	private String mobileManufacturer;
 	/**终端设备号*/
-	private java.lang.String mobileDevice;
+	private String mobileDevice;
 	/**ios_token标识*/
-	private java.lang.String iosToken;
+	private String iosToken;
 	/**登录ip*/
-	private java.lang.String loginIp;
+	private String loginIp;
 	/**用户头像*/
-	private java.lang.String avatarUrl;
+	private String avatarUrl;
 	/**注册时间*/
 	private java.util.Date registerDate;
 	/**更新时间*/
 	private java.util.Date updateDate;
-	
+
 	/**
 	 *方法: 取得java.lang.Integer
 	 *@return: java.lang.Integer  蜂鸟ID
 	 */
-	
+
 	@Id
 	/*@GeneratedValue(generator = "paymentableGenerator")
 	@GenericGenerator(name = "paymentableGenerator", strategy = "uuid")*/
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name ="ID",nullable=false,precision=10,scale=0)
-	public java.lang.Integer getId(){
+	public Integer getId(){
 		return this.id;
 	}
 
@@ -106,7 +104,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  蜂鸟ID
 	 */
-	public void setId(java.lang.Integer id){
+	public void setId(Integer id){
 		this.id = id;
 	}
 	/**
@@ -114,7 +112,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  昵称
 	 */
 	@Column(name ="NICK_NAME",nullable=true,length=32)
-	public java.lang.String getNickName(){
+	public String getNickName(){
 		return this.nickName;
 	}
 
@@ -123,7 +121,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@param: java.lang.String  昵称
 	 */
 	@Column(name ="NICK_NAME",nullable=true,length=32)
-	public void setNickName(java.lang.String nickName){
+	public void setNickName(String nickName){
 		this.nickName = nickName;
 	}
 	/**
@@ -131,7 +129,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  手机
 	 */
 	@Column(name ="MOBILE",nullable=true,length=11)
-	public java.lang.String getMobile(){
+	public String getMobile(){
 		return this.mobile;
 	}
 
@@ -139,7 +137,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  手机
 	 */
-	public void setMobile(java.lang.String mobile){
+	public void setMobile(String mobile){
 		this.mobile = mobile;
 	}
 	/**
@@ -147,7 +145,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  邮箱
 	 */
 	@Column(name ="EMAIL",nullable=true,length=64)
-	public java.lang.String getEmail(){
+	public String getEmail(){
 		return this.email;
 	}
 
@@ -155,7 +153,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  邮箱
 	 */
-	public void setEmail(java.lang.String email){
+	public void setEmail(String email){
 		this.email = email;
 	}
 	/**
@@ -163,7 +161,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  性别
 	 */
 	@Column(name ="SEX",nullable=true,length=1)
-	public java.lang.String getSex(){
+	public String getSex(){
 		return this.sex;
 	}
 
@@ -171,7 +169,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  性别
 	 */
-	public void setSex(java.lang.String sex){
+	public void setSex(String sex){
 		this.sex = sex;
 	}
 	/**
@@ -195,7 +193,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  密码
 	 */
 	@Column(name ="PASSWORD",nullable=false,length=64)
-	public java.lang.String getPassword(){
+	public String getPassword(){
 		return this.password;
 	}
 
@@ -203,7 +201,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  密码
 	 */
-	public void setPassword(java.lang.String password){
+	public void setPassword(String password){
 		this.password = password;
 	}
 	/**
@@ -211,7 +209,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  手势密码
 	 */
 	@Column(name ="GESTURE_PW",nullable=true,length=32)
-	public java.lang.String getGesturePw(){
+	public String getGesturePw(){
 		return this.gesturePw;
 	}
 
@@ -219,7 +217,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  手势密码
 	 */
-	public void setGesturePw(java.lang.String gesturePw){
+	public void setGesturePw(String gesturePw){
 		this.gesturePw = gesturePw;
 	}
 	/**
@@ -227,7 +225,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  手势密码打开关闭状态 0关闭  1打开
 	 */
 	@Column(name ="GESTURE_PW_TYPE",nullable=true,length=2)
-	public java.lang.String getGesturePwType(){
+	public String getGesturePwType(){
 		return this.gesturePwType;
 	}
 
@@ -235,7 +233,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  手势密码打开关闭状态 0关闭  1打开
 	 */
-	public void setGesturePwType(java.lang.String gesturePwType){
+	public void setGesturePwType(String gesturePwType){
 		this.gesturePwType = gesturePwType;
 	}
 	/**
@@ -243,7 +241,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  微信授权token
 	 */
 	@Column(name ="WECHAT_AUTH",nullable=true,length=32)
-	public java.lang.String getWechatAuth(){
+	public String getWechatAuth(){
 		return this.wechatAuth;
 	}
 
@@ -251,7 +249,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  微信授权token
 	 */
-	public void setWechatAuth(java.lang.String wechatAuth){
+	public void setWechatAuth(String wechatAuth){
 		this.wechatAuth = wechatAuth;
 	}
 	/**
@@ -259,7 +257,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  微博授权token
 	 */
 	@Column(name ="WEIBO_AUTH",nullable=true,length=32)
-	public java.lang.String getWeiboAuth(){
+	public String getWeiboAuth(){
 		return this.weiboAuth;
 	}
 
@@ -267,7 +265,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  微博授权token
 	 */
-	public void setWeiboAuth(java.lang.String weiboAuth){
+	public void setWeiboAuth(String weiboAuth){
 		this.weiboAuth = weiboAuth;
 	}
 	/**
@@ -275,7 +273,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  省份_id
 	 */
 	@Column(name ="PROVINCE_ID",nullable=true,length=32)
-	public java.lang.String getProvinceId(){
+	public String getProvinceId(){
 		return this.provinceId;
 	}
 
@@ -283,7 +281,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  省份_id
 	 */
-	public void setProvinceId(java.lang.String provinceId){
+	public void setProvinceId(String provinceId){
 		this.provinceId = provinceId;
 	}
 	/**
@@ -291,7 +289,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  省份_value
 	 */
 	@Column(name ="PROVINCE_NAME",nullable=true,length=32)
-	public java.lang.String getProvinceName(){
+	public String getProvinceName(){
 		return this.provinceName;
 	}
 
@@ -299,7 +297,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  省份_value
 	 */
-	public void setProvinceName(java.lang.String provinceName){
+	public void setProvinceName(String provinceName){
 		this.provinceName = provinceName;
 	}
 	/**
@@ -307,7 +305,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  城市_id
 	 */
 	@Column(name ="CITY_ID",nullable=true,length=32)
-	public java.lang.String getCityId(){
+	public String getCityId(){
 		return this.cityId;
 	}
 
@@ -315,7 +313,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  城市_id
 	 */
-	public void setCityId(java.lang.String cityId){
+	public void setCityId(String cityId){
 		this.cityId = cityId;
 	}
 	/**
@@ -323,7 +321,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  城市_name
 	 */
 	@Column(name ="CITY_NAME",nullable=true,length=32)
-	public java.lang.String getCityName(){
+	public String getCityName(){
 		return this.cityName;
 	}
 
@@ -331,7 +329,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  城市_name
 	 */
-	public void setCityName(java.lang.String cityName){
+	public void setCityName(String cityName){
 		this.cityName = cityName;
 	}
 	/**
@@ -339,7 +337,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  区县_id
 	 */
 	@Column(name ="DISTRICT_ID",nullable=true,length=32)
-	public java.lang.String getDistrictId(){
+	public String getDistrictId(){
 		return this.districtId;
 	}
 
@@ -347,7 +345,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  区县_id
 	 */
-	public void setDistrictId(java.lang.String districtId){
+	public void setDistrictId(String districtId){
 		this.districtId = districtId;
 	}
 	/**
@@ -355,7 +353,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  区县_name
 	 */
 	@Column(name ="DISTRICT_NAME",nullable=true,length=32)
-	public java.lang.String getDistrictName(){
+	public String getDistrictName(){
 		return this.districtName;
 	}
 
@@ -363,7 +361,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  区县_name
 	 */
-	public void setDistrictName(java.lang.String districtName){
+	public void setDistrictName(String districtName){
 		this.districtName = districtName;
 	}
 	/**
@@ -371,7 +369,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  账户状态
 	 */
 	@Column(name ="STATUS",nullable=true,length=2)
-	public java.lang.String getStatus(){
+	public String getStatus(){
 		return this.status;
 	}
 
@@ -379,7 +377,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  账户状态
 	 */
-	public void setStatus(java.lang.String status){
+	public void setStatus(String status){
 		this.status = status;
 	}
 	/**
@@ -387,7 +385,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  用户类型,vip
 	 */
 	@Column(name ="USER_TYPE",nullable=true,length=2)
-	public java.lang.String getUserType(){
+	public String getUserType(){
 		return this.userType;
 	}
 
@@ -395,7 +393,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  用户类型,vip
 	 */
-	public void setUserType(java.lang.String userType){
+	public void setUserType(String userType){
 		this.userType = userType;
 	}
 	/**
@@ -403,7 +401,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  用户所属行业
 	 */
 	@Column(name ="PROFESSION",nullable=true,length=32)
-	public java.lang.String getProfession(){
+	public String getProfession(){
 		return this.profession;
 	}
 
@@ -411,7 +409,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  用户所属行业
 	 */
-	public void setProfession(java.lang.String profession){
+	public void setProfession(String profession){
 		this.profession = profession;
 	}
 	/**
@@ -419,7 +417,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  用户职位,基层/中层/高层
 	 */
 	@Column(name ="POSITION",nullable=true,length=32)
-	public java.lang.String getPosition(){
+	public String getPosition(){
 		return this.position;
 	}
 
@@ -427,7 +425,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  用户职位,基层/中层/高层
 	 */
-	public void setPosition(java.lang.String position){
+	public void setPosition(String position){
 		this.position = position;
 	}
 	/**
@@ -435,7 +433,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  年龄
 	 */
 	@Column(name ="AGE",nullable=true,length=32)
-	public java.lang.String getAge(){
+	public String getAge(){
 		return this.age;
 	}
 
@@ -443,7 +441,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  年龄
 	 */
-	public void setAge(java.lang.String age){
+	public void setAge(String age){
 		this.age = age;
 	}
 	/**
@@ -451,7 +449,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.Integer  星座
 	 */
 	@Column(name ="CONSTELLATION",nullable=true,precision=10,scale=0)
-	public java.lang.String getConstellation(){
+	public String getConstellation(){
 		return this.constellation;
 	}
 
@@ -459,7 +457,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  星座
 	 */
-	public void setConstellation(java.lang.String constellation){
+	public void setConstellation(String constellation){
 		this.constellation = constellation;
 	}
 	/**
@@ -467,7 +465,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  终端系统
 	 */
 	@Column(name ="MOBILE_SYSTEM",nullable=true,length=32)
-	public java.lang.String getMobileSystem(){
+	public String getMobileSystem(){
 		return this.mobileSystem;
 	}
 
@@ -475,7 +473,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  终端系统
 	 */
-	public void setMobileSystem(java.lang.String mobileSystem){
+	public void setMobileSystem(String mobileSystem){
 		this.mobileSystem = mobileSystem;
 	}
 	/**
@@ -483,7 +481,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  终端系统版本
 	 */
 	@Column(name ="MOBILE_SYSTEM_VERSION",nullable=true,length=64)
-	public java.lang.String getMobileSystemVersion(){
+	public String getMobileSystemVersion(){
 		return this.mobileSystemVersion;
 	}
 
@@ -491,7 +489,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  终端系统版本
 	 */
-	public void setMobileSystemVersion(java.lang.String mobileSystemVersion){
+	public void setMobileSystemVersion(String mobileSystemVersion){
 		this.mobileSystemVersion = mobileSystemVersion;
 	}
 	/**
@@ -499,7 +497,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  终端厂商
 	 */
 	@Column(name ="MOBILE_MANUFACTURER",nullable=true,length=64)
-	public java.lang.String getMobileManufacturer(){
+	public String getMobileManufacturer(){
 		return this.mobileManufacturer;
 	}
 
@@ -507,7 +505,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  终端厂商
 	 */
-	public void setMobileManufacturer(java.lang.String mobileManufacturer){
+	public void setMobileManufacturer(String mobileManufacturer){
 		this.mobileManufacturer = mobileManufacturer;
 	}
 	/**
@@ -515,7 +513,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  终端设备号
 	 */
 	@Column(name ="MOBILE_DEVICE",nullable=true,length=64)
-	public java.lang.String getMobileDevice(){
+	public String getMobileDevice(){
 		return this.mobileDevice;
 	}
 
@@ -523,7 +521,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  终端设备号
 	 */
-	public void setMobileDevice(java.lang.String mobileDevice){
+	public void setMobileDevice(String mobileDevice){
 		this.mobileDevice = mobileDevice;
 	}
 	/**
@@ -531,7 +529,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  ios_token标识
 	 */
 	@Column(name ="IOS_TOKEN",nullable=true,length=64)
-	public java.lang.String getIosToken(){
+	public String getIosToken(){
 		return this.iosToken;
 	}
 
@@ -539,7 +537,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  ios_token标识
 	 */
-	public void setIosToken(java.lang.String iosToken){
+	public void setIosToken(String iosToken){
 		this.iosToken = iosToken;
 	}
 	/**
@@ -547,7 +545,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  登录ip
 	 */
 	@Column(name ="LOGIN_IP",nullable=true,length=32)
-	public java.lang.String getLoginIp(){
+	public String getLoginIp(){
 		return this.loginIp;
 	}
 
@@ -555,7 +553,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  登录ip
 	 */
-	public void setLoginIp(java.lang.String loginIp){
+	public void setLoginIp(String loginIp){
 		this.loginIp = loginIp;
 	}
 	/**
@@ -563,7 +561,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *@return: java.lang.String  用户头像
 	 */
 	@Column(name ="AVATAR_URL",nullable=true,length=255)
-	public java.lang.String getAvatarUrl(){
+	public String getAvatarUrl(){
 		return this.avatarUrl;
 	}
 
@@ -571,7 +569,7 @@ public class UserInfoEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  用户头像
 	 */
-	public void setAvatarUrl(java.lang.String avatarUrl){
+	public void setAvatarUrl(String avatarUrl){
 		this.avatarUrl = avatarUrl;
 	}
 	/**
