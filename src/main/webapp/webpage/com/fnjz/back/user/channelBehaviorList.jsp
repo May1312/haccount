@@ -8,6 +8,7 @@
         <t:datagrid name="dataCenterList" title="用户信息" actionUrl="dataCenterController.do?datagrid"
                     idField="userId" fit="true">
             <%--<t:dgCol title="编号" field="id"></t:dgCol>--%>
+            <t:dgCol title="蜂鸟id" field="fengniaoId" autocomplete="true"></t:dgCol>
             <t:dgCol title="用户id" field="userId" autocomplete="true"></t:dgCol>
             <t:dgCol title="用户昵称" field="userNickName" width="120" autocomplete="true"></t:dgCol>
             <t:dgCol title="注册时间" field="registerDate" formatter="yyyy-MM-dd hh:mm:ss" width="120" autocomplete="true"></t:dgCol>
@@ -21,8 +22,8 @@
             <div name="searchColums" style="float: left; padding-left: 15px;">
                 <span>
                       <span style="vertical-align:middle;display:-moz-inline-box;display:inline-block;width: 80px;text-align:right;"
-                            title="用户id ">用户id: </span>
-                      <input type="text" name="userId" style="width: 100px; height: 24px;">
+                            title="蜂鸟id ">用户id: </span>
+                      <input type="text" name="fengniaoId" style="width: 100px; height: 24px;">
                       <span style="vertical-align:middle;display:-moz-inline-box;display:inline-block;width: 80px;text-align:right;"
                             title="终端系统">渠道: </span>
                       <select name="downloadChannel" id="downloadChannel" style="width: 80px">

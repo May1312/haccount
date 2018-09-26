@@ -15,6 +15,11 @@ import java.util.Date;
 public class ChannelBehaviorEntity implements Serializable, Comparable<ChannelBehaviorEntity> {
 
     /**
+     * 蜂鸟id
+     */
+    @Excel(name = "蜂鸟id")
+    private String fengniaoId;
+    /**
      * 用户id
      */
     @Excel(name = "用户id")
@@ -123,6 +128,14 @@ public class ChannelBehaviorEntity implements Serializable, Comparable<ChannelBe
 
     public void setAccountTotalTheNumber(int accountTotalTheNumber) {
         this.accountTotalTheNumber = accountTotalTheNumber;
+    }
+
+    public String getFengniaoId() {
+        return fengniaoId;
+    }
+
+    public void setFengniaoId(String fengniaoId) {
+        this.fengniaoId = fengniaoId;
     }
 
 

@@ -3,6 +3,8 @@ package com.fnjz.back.service.impl.user;
 import com.fnjz.back.entity.user.ChannelBehaviorEntity;
 import com.fnjz.back.service.user.DataCenterServiceI;
 import com.fnjz.back.service.user.UserInfoServiceI;
+import com.fnjz.front.utils.ShareCodeUtil;
+import io.swagger.models.auth.In;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +106,9 @@ public class DataCenterServiceImpl extends CommonServiceImpl implements DataCent
         List<Map<String, Object>> userinfoList = userInfoService.findForJdbc(sql, pageSize, rows);
         for (int i = 0; i < userinfoList.size(); i++) {
             ChannelBehaviorEntity channelBehaviorEntity = new ChannelBehaviorEntity();
-            channelBehaviorEntity.setUserId(String.valueOf(userinfoList.get(i).get("id")));
+            String id = String.valueOf(userinfoList.get(i).get("id"));
+            channelBehaviorEntity.setFengniaoId(ShareCodeUtil.id2sharecode(Integer.parseInt(id)));
+            channelBehaviorEntity.setUserId(id);
             channelBehaviorEntity.setUserNickName((String) userinfoList.get(i).get("nick_name"));
             channelBehaviorEntity.setRegisterDate((Date) userinfoList.get(i).get("register_date"));
             String downloadChannel = (String) userinfoList.get(i).get("mobile_system");

@@ -68,8 +68,6 @@ public class UserInfoEntity implements java.io.Serializable {
 	/**终端系统*/
 	private java.lang.String mobileSystem;
 
-
-
 	private java.lang.String androidChannel;
 	/**终端系统版本*/
 	private java.lang.String mobileSystemVersion;

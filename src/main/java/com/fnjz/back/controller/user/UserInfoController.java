@@ -2,6 +2,7 @@ package com.fnjz.back.controller.user;
 
 import com.fnjz.back.entity.user.UserInfoEntity;
 import com.fnjz.back.service.user.UserInfoServiceI;
+import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -76,10 +77,23 @@ public class UserInfoController extends BaseController {
 
     @RequestMapping(params = "datagrid")
     public void datagrid(UserInfoEntity userInfo, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+        if (StringUtil.isNotEmpty(userInfo.getId())){
+            userInfo.setId(ShareCodeUtil.sharecode2id(String.valueOf(userInfo.getId())));
+        }
         CriteriaQuery cq = new CriteriaQuery(UserInfoEntity.class, dataGrid);
+        if (StringUtil.isNotEmpty(userInfo.getMobileSystem()) && userInfo.getMobileSystem().equals("xiaochengxu")){
+            cq.isNull("mobileSystem");
+            userInfo.setMobileSystem(null);
+        }
         //查询条件组装器
         org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, userInfo, request.getParameterMap());
+
         this.userInfoService.getDataGridReturn(cq, true);
+        //蜂鸟id
+        List<UserInfoEntity> results = dataGrid.getResults();
+        for (UserInfoEntity result : results) {
+            result.setId(Integer.parseInt(ShareCodeUtil.id2sharecode(result.getId())));
+        }
         TagUtil.datagrid(response, dataGrid);
     }
 
