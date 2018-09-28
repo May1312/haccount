@@ -121,7 +121,7 @@ public class UserCommUseSpendRestController extends BaseController {
             redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
             Map<String,Object> resultmap = new HashMap<>();
             if(StringUtils.equalsIgnoreCase("ios",type) || StringUtils.equalsIgnoreCase("android",type)){
-                resultmap = userCommUseSpendRestService.deleteCommSpendTypeForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(), userInfoId,  map.get("spendTypeIds"));
+                resultmap = userCommUseIncomeRestService.deleteCommTypeForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(), userInfoId,  map.get("spendTypeIds"),RedisPrefix.SPEND);
             }else{
                 String version = userCommUseSpendRestService.deleteCommSpendType(userAccountBookRestEntityCache.getAccountBookId(),userInfoId, map.get("spendTypeIds"));
                 resultmap.put("version",version);
