@@ -97,7 +97,6 @@ public class UserInfoController extends BaseController {
         for (UserInfoEntity result : results) {
             result.setId(Integer.parseInt(ShareCodeUtil.id2sharecode(result.getId())));
         }
-        //sessionFactory.getCurrentSession().evict(results);
         TagUtil.datagrid(response, dataGrid);
     }
 

@@ -2,7 +2,8 @@ package com.fnjz.utils.upload;
 
 public enum QiNiuStorageSpace {
 
-    LABEL_PICTURE("http://p9twjlzxw.bkt.clouddn.com/", "label-picture"),
+    //LABEL_PICTURE("http://p9twjlzxw.bkt.clouddn.com/", "label-picture"),
+    LABEL_PICTURE("http://label.image.fengniaojizhang.cn/", "label-picture"),
     HEAD_PICTURE("http://p9tz2oly9.bkt.clouddn.com/", "head-picture"),
     FEEDBACK_PICTURE("http://p9vuhnix3.bkt.clouddn.com/", "feedback-picture");
 
