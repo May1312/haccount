@@ -4,6 +4,7 @@ import com.fnjz.back.entity.user.UserInfoEntity;
 import com.fnjz.back.service.user.UserInfoServiceI;
 import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
@@ -53,6 +54,8 @@ public class UserInfoController extends BaseController {
     private SystemService systemService;
     @Autowired
     private Validator validator;
+    @Autowired(required = false)
+    private SessionFactory sessionFactory;
 
 
     /**
@@ -94,6 +97,7 @@ public class UserInfoController extends BaseController {
         for (UserInfoEntity result : results) {
             result.setId(Integer.parseInt(ShareCodeUtil.id2sharecode(result.getId())));
         }
+        //sessionFactory.getCurrentSession().evict(results);
         TagUtil.datagrid(response, dataGrid);
     }
 

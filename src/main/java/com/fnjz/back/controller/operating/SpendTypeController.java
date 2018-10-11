@@ -2,6 +2,8 @@ package com.fnjz.back.controller.operating;
 
 import com.fnjz.back.entity.operating.SpendTypeEntity;
 import com.fnjz.back.service.operating.SpendTypeServiceI;
+import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.beanvalidator.BeanValidators;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -54,6 +56,8 @@ public class SpendTypeController extends BaseController {
     private SystemService systemService;
     @Autowired
     private Validator validator;
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
 
     /**
@@ -127,6 +131,8 @@ public class SpendTypeController extends BaseController {
             String sql = "UPDATE hbird_spend_type SET `status`='1'   WHERE id='" + id + "'";
             Integer i = spendTypeService.executeSql(sql);
             if (i > 0) {
+                //清除缓存
+                redisTemplateUtils.deleteKey(RedisPrefix.SYS_SPEND_LABEL_TYPE);
                 msg = "上线成功";
             } else {
                 msg = "上线失败";
@@ -150,8 +156,9 @@ public class SpendTypeController extends BaseController {
         message = "支出标签管理删除成功";
         spendTypeService.delete(spendType);
         systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
-
         j.setMsg(message);
+        //清除缓存
+        redisTemplateUtils.deleteKey(RedisPrefix.SYS_SPEND_LABEL_TYPE);
         return j;
     }
 
@@ -191,7 +198,8 @@ public class SpendTypeController extends BaseController {
             CompareSpendTypePriorty(spendType.getParentId(), spendType.getPriority(), 0, "save");
         }
         j.setMsg(message);
-
+        //清除缓存
+        redisTemplateUtils.deleteKey(RedisPrefix.SYS_SPEND_LABEL_TYPE);
         return j;
     }
 
