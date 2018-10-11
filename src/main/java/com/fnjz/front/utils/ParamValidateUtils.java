@@ -410,4 +410,34 @@ public class ParamValidateUtils {
         }
         return time;
     }
+
+    /**
+     * 时间year month处理公用方法
+     * @param year
+     * @param month
+     * @return
+     */
+    public static String getTime(String year, String month) {
+        String time = null;
+        if (StringUtils.isEmpty(year) && StringUtils.isEmpty(month)) {
+            //都为空情况下 获取当年当月
+            time = DateUtils.getCurrentYearMonth();
+        } else if (StringUtils.isEmpty(year) && StringUtils.isNotEmpty(month)) {
+            //获取当年
+            year = DateUtils.getCurrentYear() + "";
+            time = year + "-" + month;
+        } else if (StringUtils.isNotEmpty(year) && StringUtils.isEmpty(month)) {
+            //获取当月
+            month = DateUtils.getCurrentMonth();
+            time = year + "-" + month;
+        }
+        if (StringUtils.isEmpty(time)) {
+            if (!StringUtils.startsWithIgnoreCase(month, "0")
+                    && month.length() < 2) {
+                month = "0" + month;
+            }
+            time = year + "-" + month;
+        }
+        return time;
+    }
 }

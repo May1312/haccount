@@ -171,6 +171,16 @@ public class DateUtils {
     }
 
     /**
+     * 获取date 前一天日期时间戳
+     */
+    public static Date getBeforeDay(Date date){
+        Calendar a=Calendar.getInstance();
+        a.setTime(date);
+        a.add(Calendar.DAY_OF_YEAR, -1);
+        return a.getTime();
+    }
+
+    /**
      * 获取年中的星期数
      */
     public static int getWeeks(Date date){
@@ -195,6 +205,25 @@ public class DateUtils {
         Date end = cal.getTime();
         map.put("endTime",convert2String(end));
         return map;
+    }
+
+    /**
+     * 根据当前时间获取周一日期
+     */
+    public static Date getMonday(){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_WEEK, 2); // 1表示周日，2表示周一，7表示周六
+        return cal.getTime();
+    }
+
+    /**
+     * 根据当前时间获取周一日期
+     */
+    public static Date getSunday(){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_WEEK, 2); // 1表示周日，2表示周一，7表示周六
+        cal.add(Calendar.DATE,6);
+        return cal.getTime();
     }
 
     /**

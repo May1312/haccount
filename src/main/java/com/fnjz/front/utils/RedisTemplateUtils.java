@@ -171,6 +171,15 @@ public class RedisTemplateUtils {
     }
 
     /**
+     * 根据key获取hash类型value
+     * @param key
+     * @return
+     */
+    public Map getForHash(String key) {
+        return redisTemplate.opsForHash().entries(key);
+    }
+
+    /**
      * 更新我的页面统计缓存
      * Map类型不能指定泛型 否则increment执行异常
      * @param shareCode
@@ -182,6 +191,14 @@ public class RedisTemplateUtils {
         redisTemplate.expire(RedisPrefix.PREFIX_MY_COUNT + shareCode, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
     }
 
+    /**
+     * 更新hash类型 数据
+     * @param key
+     * @param map
+     */
+    public void updateForHash(String key, Map map) {
+        redisTemplate.opsForHash().putAll(key, map);
+    }
     /**
      * 记账总笔数 1为递增  2 为递减
      *

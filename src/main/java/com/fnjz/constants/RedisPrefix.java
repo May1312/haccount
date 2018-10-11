@@ -42,6 +42,10 @@ public class RedisPrefix {
      */
     public static final String PREFIX_MY_COUNT = "my_info_count:";
     /**
+     * 签到前缀
+     */
+    public static final String PREFIX_SIGN_IN = "user_sign_in:";
+    /**
      * 验证码缓存有效时间 默认三分钟
      */
     public static final long VERIFYCODE_VALID_TIME = 3L;
