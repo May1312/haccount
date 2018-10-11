@@ -1,6 +1,6 @@
 package com.fnjz.front.entity.api.usersignin;
 
-import javax.persistence.*;
+import javax.persistence.Column;
 import java.util.Date;
 
 /**   
@@ -10,9 +10,7 @@ import java.util.Date;
  * @version V1.0   
  *
  */
-@Entity
-@Table(name = "hbird_user_sign_in", schema = "")
-@SuppressWarnings("serial")
+
 public class UserSignInRestDTO {
 
 	/**签到日期*/
