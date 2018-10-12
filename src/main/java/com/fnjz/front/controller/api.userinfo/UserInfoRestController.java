@@ -179,7 +179,6 @@ public class UserInfoRestController extends BaseController {
     @ResponseBody
     public ResultBean unbindWeChat(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
         try {
             String key = (String) request.getAttribute("key");
             //解绑用户
@@ -341,4 +340,5 @@ public class UserInfoRestController extends BaseController {
     public ResultBean userInfo(HttpServletRequest request) {
         return this.userInfo(null, request);
     }
+
 }

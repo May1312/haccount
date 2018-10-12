@@ -9,6 +9,9 @@ public enum DomainEnum {
     //七牛云上传域名---->用户头像
     HEAD_PICTURE_DOMAIN("head-picture","http://head.image.fengniaojizhang.cn/"),
 
+    //七牛云上传域名---->小程序邀请码生成
+    WXAPPLET_QR_CODE_DOMAIN("head-picture","https://head.image.fengniaojizhang.cn/"),
+
     //七牛云上传域名---->记账类目
     LABEL_PICTURE_DOMAIN("label-picture","http://label.image.fengniaojizhang.cn/");
 

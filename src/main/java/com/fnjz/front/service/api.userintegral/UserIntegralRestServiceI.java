@@ -4,5 +4,10 @@ import org.jeecgframework.core.common.service.CommonService;
 
 public interface UserIntegralRestServiceI extends CommonService{
 
-    void integral(String userInfoId, String shareCode);
+    /**
+     * 添加积分流水记录
+     * @param userInfoId
+     * @param userIntegralRestEntity
+     */
+    void integral(String userInfoId, Object userIntegralRestEntity);
 }

@@ -1,5 +1,6 @@
 package com.fnjz.front.service.impl.api.usersignin;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.dao.UserSignInRestDao;
 import com.fnjz.front.entity.api.usersignin.UserSignInRestDTO;
@@ -231,12 +232,29 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         jsonObject.put("signInWeek", result);
         //测试 返回连续打卡奖励
         JSONObject jsonObject1 = new JSONObject();
-        jsonObject1.put("seven", 5);
-        jsonObject1.put("fourteen", 12);
-        jsonObject1.put("twentyOne", 18);
-        jsonObject1.put("twentyEight", 26);
+        jsonObject1.put("cycle", 7);
+        jsonObject1.put("behaviorTicketValue", 5);
 
-        jsonObject.put("signInAward", jsonObject1);
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("cycle", 14);
+        jsonObject2.put("behaviorTicketValue", 12);
+
+        JSONObject jsonObject3 = new JSONObject();
+        jsonObject3.put("cycle", 21);
+        jsonObject3.put("behaviorTicketValue", 18);
+
+
+        JSONObject jsonObject4 = new JSONObject();
+        jsonObject4.put("cycle", 28);
+        jsonObject4.put("behaviorTicketValue", 26);
+
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.add(jsonObject1);
+        jsonArray.add(jsonObject2);
+        jsonArray.add(jsonObject3);
+        jsonArray.add(jsonObject4);
+
+        jsonObject.put("signInAward", jsonArray);
         return jsonObject;
     }
 

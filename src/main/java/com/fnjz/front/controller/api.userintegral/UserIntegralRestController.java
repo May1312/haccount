@@ -3,7 +3,6 @@ package com.fnjz.front.controller.api.userintegral;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.entity.api.userintegral.UserIntegralRestEntity;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**   
  * @Title: Controller
@@ -36,27 +36,25 @@ public class UserIntegralRestController extends BaseController {
 	private UserIntegralRestServiceI userIntegralRestServiceI;
 
 	/**
-	 * 获取/消耗积分接口
+	 * 领取签到积分接口
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = {"/integral", "/integral/{type}"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/signInIntegral", "/signInIntegral/{type}"}, method = RequestMethod.POST)
 	@ResponseBody
-	public ResultBean integral(HttpServletRequest request, @RequestBody UserIntegralRestEntity userIntegralRestEntity) {
+	public ResultBean integral(HttpServletRequest request, @RequestBody Map<String,String> map) {
 		String userInfoId = (String) request.getAttribute("userInfoId");
 		String shareCode = (String) request.getAttribute("shareCode");
 		//类型不为null情况下
-		if(userIntegralRestEntity.getType()!=null){
-
+		if(map.size()>0){
+			try {
+				userIntegralRestServiceI.integral(userInfoId, map);
+			} catch (Exception e) {
+				logger.error(e.toString());
+				return new ResultBean(ApiResultType.SERVER_ERROR, null);
+			}
 		}
-		try {
-			userIntegralRestServiceI.integral(userInfoId, shareCode);
-			return new ResultBean(ApiResultType.OK, null);
-
-		} catch (Exception e) {
-			logger.error(e.toString());
-			return new ResultBean(ApiResultType.SERVER_ERROR, null);
-		}
+		return new ResultBean(ApiResultType.OK, null);
 	}
 
 }
