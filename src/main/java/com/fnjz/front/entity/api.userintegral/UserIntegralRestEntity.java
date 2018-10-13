@@ -1,5 +1,6 @@
 package com.fnjz.front.entity.api.userintegral;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -16,15 +17,19 @@ import javax.persistence.*;
 @Table(name = "hbird_user_integral", schema = "")
 @DynamicUpdate(true)
 @DynamicInsert(true)
+@JsonInclude(JsonInclude.Include.NON_NULL) //为null字段不序列化
 @SuppressWarnings("serial")
 public class UserIntegralRestEntity implements java.io.Serializable {
 	/**id*/
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private java.lang.Integer id;
 	/**用户详情id*/
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private java.lang.Integer userInfoId;
 	/**积分数*/
 	private java.lang.Integer integralNum;
 	/**积分类型*/
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private java.lang.Integer type;
 	/**类型描述*/
 	private java.lang.String description;

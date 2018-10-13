@@ -9,6 +9,7 @@ import com.fnjz.front.dao.UserSignInRestDao;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.usersignin.UserSignInRestDTO;
 import com.fnjz.front.entity.api.usersignin.UserSignInRestEntity;
+import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.IntegralEnum;
 import com.fnjz.front.enums.SignInEnum;
 import com.fnjz.front.service.api.usersignin.UserSignInRestServiceI;
@@ -66,7 +67,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 }
                 //签到积分记录
                 if(ff.getBehaviorTicketValue()!=null){
-                    userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue(),ff.getAcquisitionMode(),AcquisitionModeEnum.SignIn.getDescription());
                 }
             }
         } else {
@@ -82,7 +83,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     userSignInRestDao.signIn(userInfoId, 1);
                     //签到积分记录
                     if(ff.getBehaviorTicketValue()!=null){
-                        userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue());
+                        userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue(),ff.getAcquisitionMode(),AcquisitionModeEnum.SignIn.getDescription());
                     }
                 }
             } else {
@@ -100,7 +101,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                         userSignInRestDao.signIn(userInfoId, 1);
                         //签到积分记录
                         if(ff.getBehaviorTicketValue()!=null){
-                            userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue());
+                            userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue(),ff.getAcquisitionMode(),AcquisitionModeEnum.SignIn.getDescription());
                         }
                     }
                 }
