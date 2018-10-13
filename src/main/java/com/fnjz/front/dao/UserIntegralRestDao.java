@@ -19,6 +19,6 @@ public interface UserIntegralRestDao {
     @Sql("INSERT INTO `hbird_user_integral` (`user_info_id`,`integral_num`,`fengfeng_ticket_id`,`create_date`) VALUES (:userInfoId,:behaviorTicketValue,:id,NOW());")
     void insertSignInIntegral(@Param("userInfoId") String userInfoId,@Param("id") String id,@Param("behaviorTicketValue") Integer behaviorTicketValue);
 
-    @Sql("SELECT sum(integral_num) from `hbird_user_integral` where `user_info_id`=:userInfoId;")
+    @Sql("SELECT COALESCE(SUM(integral_num),0) from `hbird_user_integral` where `user_info_id`=:userInfoId;")
     int getTotalIntegral(@Param("userInfoId") String userInfoId);
 }
