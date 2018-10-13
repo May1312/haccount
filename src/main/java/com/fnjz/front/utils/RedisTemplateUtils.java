@@ -199,6 +199,17 @@ public class RedisTemplateUtils {
     public void updateForHash(String key, Map map) {
         redisTemplate.opsForHash().putAll(key, map);
     }
+
+    /**
+     * 更新map中的指定key
+     * @param key
+     * @param mapKey
+     * @param map
+     */
+    public void updateForHashKey(String key,String mapKey, int value) {
+        redisTemplate.opsForHash().put(key,mapKey, value);
+    }
+
     /**
      * 记账总笔数 1为递增  2 为递减
      *

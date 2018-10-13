@@ -85,6 +85,11 @@ public class RedisPrefix {
      */
     public static final String SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE = "sys_integral:sign_in_cycle_aware";
 
+    /**
+     * 缓存用户连续签到领取积分数据
+     */
+    public static final String USER_INTEGRAL_SIGN_IN_CYCLE_AWARE = "user_sign_in_cycle_aware_status:";
+
     public static final String SPEND = "SPEND";
 
     public static final String INCOME = "INCOME";

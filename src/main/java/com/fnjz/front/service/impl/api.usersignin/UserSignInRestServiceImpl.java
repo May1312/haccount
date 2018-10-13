@@ -273,16 +273,41 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             }
             redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE, map3);
         }
+        //TODO   上述获取系统 若获取不到系统数据   --->自有数据要更新？？？？？
+        //获取自己的签到领取情况
+        Map<String, Integer> map4 = redisTemplateUtils.getForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE+shareCode);
         JSONArray jsonArray = new JSONArray();
-        for (Map.Entry<String,Integer> entry : map3.entrySet()) {
-            JSONObject jsonObject1 = new JSONObject();
-            jsonObject1.put("cycle",StringUtils.substringAfterLast(entry.getKey(),"_"));
-            jsonObject1.put("cycleAware",entry.getValue());
-            jsonArray.add(jsonObject1);
+        JSONObject cacheJson = new JSONObject();
+        if(map4.size()<1){
+            //TODO 置为未领取状态吧
+            //返给前端数据
+            for (Map.Entry<String,Integer> entry : map3.entrySet()) {
+                JSONObject jsonObject1 = new JSONObject();
+                jsonObject1.put("cycle",StringUtils.substringAfterLast(entry.getKey(),"_"));
+                jsonObject1.put("cycleAware",entry.getValue());
+                //未领取1  领取2
+                jsonObject1.put("cycleAwareStatus",1);
+                cacheJson.put(entry.getKey(),1);
+                jsonArray.add(jsonObject1);
+            }
+            redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE+shareCode, cacheJson);
+        }else{
+            for (Map.Entry<String,Integer> entry : map3.entrySet()) {
+                JSONObject jsonObject1 = new JSONObject();
+                for (Map.Entry<String,Integer> entry2 : map4.entrySet()) {
+                    if(StringUtils.equals(entry.getKey(),entry2.getKey())){
+                        jsonObject1.put("cycle",StringUtils.substringAfterLast(entry.getKey(),"_"));
+                        jsonObject1.put("cycleAware",entry.getValue());
+                        jsonObject1.put("cycleAwareStatus",entry2.getValue());
+                    }
+                }
+                jsonArray.add(jsonObject1);
+            }
         }
         //排序
         jsonArray.sort(Comparator.comparing(obj -> ((JSONObject) obj).getInteger("cycle")));
         jsonObject.put("signInAward", jsonArray);
+        //TODO 总积分数统计？？？
         jsonObject.put("totalIntegral", 99);
         return jsonObject;
     }
