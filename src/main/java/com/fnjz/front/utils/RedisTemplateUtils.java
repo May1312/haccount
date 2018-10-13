@@ -341,5 +341,6 @@ public class RedisTemplateUtils {
     public long getSetSize(String wxappletChannel,String keyName) {
         return redisTemplate.opsForSet().size(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + "_" + wxappletChannel + ":" + keyName);
     }
+
 }
 

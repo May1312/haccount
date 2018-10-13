@@ -42,13 +42,13 @@ public class UserIntegralRestController extends BaseController {
 	 */
 	@RequestMapping(value = {"/signInIntegral", "/signInIntegral/{type}"}, method = RequestMethod.POST)
 	@ResponseBody
-	public ResultBean integral(HttpServletRequest request, @RequestBody Map<String,String> map) {
+	public ResultBean signInIntegral(HttpServletRequest request, @RequestBody Map<String,String> map) {
 		String userInfoId = (String) request.getAttribute("userInfoId");
 		String shareCode = (String) request.getAttribute("shareCode");
 		//类型不为null情况下
 		if(map.size()>0){
 			try {
-				userIntegralRestServiceI.integral(userInfoId, map);
+				userIntegralRestServiceI.signInIntegral(userInfoId, shareCode,map);
 			} catch (Exception e) {
 				logger.error(e.toString());
 				return new ResultBean(ApiResultType.SERVER_ERROR, null);

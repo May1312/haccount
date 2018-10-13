@@ -43,6 +43,8 @@ public class UserSignInRestController extends BaseController {
         String shareCode = (String) request.getAttribute("shareCode");
         try {
             userSignInRestServiceI.signIn(userInfoId, shareCode);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("signInAware",3);
             return new ResultBean(ApiResultType.OK, null);
 
         } catch (Exception e) {

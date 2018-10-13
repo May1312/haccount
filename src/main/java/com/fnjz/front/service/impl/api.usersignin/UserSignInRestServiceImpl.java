@@ -2,9 +2,12 @@ package com.fnjz.front.service.impl.api.usersignin;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.dao.FengFengTicketRestDao;
 import com.fnjz.front.dao.UserSignInRestDao;
 import com.fnjz.front.entity.api.usersignin.UserSignInRestDTO;
 import com.fnjz.front.entity.api.usersignin.UserSignInRestEntity;
+import com.fnjz.front.enums.IntegralEnum;
 import com.fnjz.front.enums.SignInEnum;
 import com.fnjz.front.service.api.usersignin.UserSignInRestServiceI;
 import com.fnjz.front.utils.DateUtils;
@@ -20,10 +23,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.fnjz.constants.RedisPrefix.PREFIX_SIGN_IN;
 
@@ -36,6 +36,9 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
 
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+
+    @Autowired
+    private FengFengTicketRestDao fengFengTicketRestDao;
 
     /**
      * 签到
@@ -154,8 +157,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 UserSignInRestEntity userSignInRestEntity = userSignInRestDao.getSignInForFisrtDesc(userInfoId);
                 if (userSignInRestEntity != null) {
                     //计算签到日期间隔
-                    String[] args = StringUtils.split(DateUtils.convert2String(userSignInRestEntity.getSignInDate()),"-");
-                    Period period = Period.between(LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf(args[2])),LocalDate.now());
+                    String[] args = StringUtils.split(DateUtils.convert2String(userSignInRestEntity.getSignInDate()), "-");
+                    Period period = Period.between(LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf(args[2])), LocalDate.now());
                     int days = period.getDays();
                     // TODO days大于58情况下存在误差
                     days = (days) % 29;
@@ -185,13 +188,13 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                         result[i] = SignInEnum.HAS_SIGNED.getIndex();
                         flag = true;
                         break;
-                    }else{
+                    } else {
                         //当天未签到情况
                         result[i] = SignInEnum.NOT_SIGN.getIndex();
                         flag = true;
                         break;
                     }
-                }else{
+                } else {
                     if (StringUtils.equals(DateUtils.convert2String(monday), DateUtils.convert2String(userSignInRestEntity.getSignInDate()))) {
                         //签到状态
                         result[i] = SignInEnum.HAS_SIGNED.getIndex();
@@ -205,7 +208,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 if (!flag) {
                     result[i] = SignInEnum.NOT_SIGN.getIndex();
                 }
-            }else{
+            } else {
                 if (!flag) {
                     result[i] = SignInEnum.COMPLEMENT_SIGNED.getIndex();
                 }
@@ -231,7 +234,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         jsonObject.put("signInDays", map.get("signInDays") == null ? 0 : map.get("signInDays"));
         jsonObject.put("signInWeek", result);
         //测试 返回连续打卡奖励
-        JSONObject jsonObject1 = new JSONObject();
+        /*JSONObject jsonObject1 = new JSONObject();
         jsonObject1.put("cycle", 7);
         jsonObject1.put("behaviorTicketValue", 5);
 
@@ -252,24 +255,52 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         jsonArray.add(jsonObject1);
         jsonArray.add(jsonObject2);
         jsonArray.add(jsonObject3);
-        jsonArray.add(jsonObject4);
-
+        jsonArray.add(jsonObject4);*/
+        //读取签到奖励规则
+        Map<String, Integer> map3 = redisTemplateUtils.getForHash(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
+        if (map3.size() < 1) {
+            List<Map<String, String>> list2 = fengFengTicketRestDao.getSignInCycle(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription());
+            for (Map map2 : list2) {
+                if (StringUtils.equals(map2.get("cycle") + "", IntegralEnum.SIGNIN_7.getIndex() + "")) {
+                    map3.put("signIn_" + IntegralEnum.SIGNIN_7.getIndex(), Integer.valueOf(map2.get("cycleaware") + ""));
+                } else if (StringUtils.equals(map2.get("cycle") + "", IntegralEnum.SIGNIN_14.getIndex() + "")) {
+                    map3.put("signIn_" + IntegralEnum.SIGNIN_14.getIndex(), Integer.valueOf(map2.get("cycleaware") + ""));
+                } else if (StringUtils.equals(map2.get("cycle") + "", IntegralEnum.SIGNIN_21.getIndex() + "")) {
+                    map3.put("signIn_" + IntegralEnum.SIGNIN_21.getIndex(), Integer.valueOf(map2.get("cycleaware") + ""));
+                } else {
+                    map3.put("signIn_" + IntegralEnum.SIGNIN_28.getIndex(), Integer.valueOf(map2.get("cycleaware") + ""));
+                }
+            }
+            redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE, map3);
+        }
+        JSONArray jsonArray = new JSONArray();
+        for (Map.Entry<String,Integer> entry : map3.entrySet()) {
+            JSONObject jsonObject1 = new JSONObject();
+            jsonObject1.put("cycle",StringUtils.substringAfterLast(entry.getKey(),"_"));
+            jsonObject1.put("cycleAware",entry.getValue());
+            jsonArray.add(jsonObject1);
+        }
+        //排序
+        jsonArray.sort(Comparator.comparing(obj -> ((JSONObject) obj).getInteger("cycle")));
         jsonObject.put("signInAward", jsonArray);
+        jsonObject.put("totalIntegral", 99);
         return jsonObject;
     }
 
     /**
      * 根据月份查询签到数据
+     *
      * @param userInfoId
      * @param time
      * @return
      */
     @Override
     public JSONObject getSignInForMonth(String userInfoId, String time) {
-        List<UserSignInRestDTO> list = userSignInRestDao.getSignInForMonth(userInfoId,time);
+        List<UserSignInRestDTO> list = userSignInRestDao.getSignInForMonth(userInfoId, time);
         JSONObject json = new JSONObject();
-        json.put("signInMonth",list);
-        json.put("time",time);
+        json.put("signInMonth", list);
+        json.put("time", time);
         return json;
     }
+
 }

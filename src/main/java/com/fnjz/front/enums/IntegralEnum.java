@@ -9,19 +9,29 @@ public enum IntegralEnum {
     /**
      * 七天签到
      */
-    SIGNIN_7(1,"七天签到"),
+    SIGNIN_7(7,"七天签到"),
     /**
      * 十四天签到
      */
-    SIGNIN_14(2,"十四天签到"),
+    SIGNIN_14(14,"十四天签到"),
     /**
      * 二十一天签到
      */
-    SIGNIN_21(3,"二十一天签到"),
+    SIGNIN_21(21,"二十一天签到"),
     /**
      * 二十八天签到
      */
-    SIGNIN_28(4,"二十八天签到");
+    SIGNIN_28(28,"二十八天签到"),
+
+    /**
+     * 行为类别
+     */
+    CATEGORY_OF_BEHAVIOR_SIGN_IN(29,"SignIn"),
+
+    /**
+     * 获取方式
+     */
+    ACQUISITION_MODE_SIGN_IN(30,"SignIn");
 
     private int index;
     private String description;

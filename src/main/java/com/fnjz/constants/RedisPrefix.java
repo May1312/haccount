@@ -80,6 +80,10 @@ public class RedisPrefix {
      * 缓存系统类目支出前缀
      */
     public static final String SYS_SPEND_LABEL_TYPE = "sys_label_type:spend";
+    /**
+     * 缓存系统连续签到领取积分
+     */
+    public static final String SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE = "sys_integral:sign_in_cycle_aware";
 
     public static final String SPEND = "SPEND";
 
