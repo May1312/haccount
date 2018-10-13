@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.FengFengTicketRestDao;
+import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.dao.UserSignInRestDao;
+import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.usersignin.UserSignInRestDTO;
 import com.fnjz.front.entity.api.usersignin.UserSignInRestEntity;
 import com.fnjz.front.enums.IntegralEnum;
@@ -40,15 +42,19 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
     @Autowired
     private FengFengTicketRestDao fengFengTicketRestDao;
 
+    @Autowired
+    private UserIntegralRestDao userIntegralRestDao;
+
     /**
      * 签到
      *
      * @param userInfoId
      */
     @Override
-    public void signIn(String userInfoId, String shareCode) {
+    public Integer signIn(String userInfoId, String shareCode) {
 
         Map map = signInForCache(shareCode);
+        FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(),IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(),IntegralEnum.SIGNIN_1.getIndex());
         if (map != null) {
             //map为空情况下--->即当天未签到
             if (map.get("hasSigned") == null) {
@@ -57,6 +63,10 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     userSignInRestDao.signIn(userInfoId, 1);
                 } else {
                     userSignInRestDao.signIn(userInfoId, null);
+                }
+                //签到积分记录
+                if(ff.getBehaviorTicketValue()!=null){
+                    userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue());
                 }
             }
         } else {
@@ -70,6 +80,10 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 map.put("signInDate", System.currentTimeMillis() + "");
                 if (!flag) {
                     userSignInRestDao.signIn(userInfoId, 1);
+                    //签到积分记录
+                    if(ff.getBehaviorTicketValue()!=null){
+                        userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue());
+                    }
                 }
             } else {
                 //统计最近一次标记时间
@@ -84,6 +98,10 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     map.put("signInDate", System.currentTimeMillis() + "");
                     if (!flag) {
                         userSignInRestDao.signIn(userInfoId, 1);
+                        //签到积分记录
+                        if(ff.getBehaviorTicketValue()!=null){
+                            userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue());
+                        }
                     }
                 }
             }
@@ -93,6 +111,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             map.remove("hasSigned");
         }
         redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map);
+        return ff.getBehaviorTicketValue();
     }
 
     private Map signInForCache(String shareCode) {
@@ -307,8 +326,9 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         //排序
         jsonArray.sort(Comparator.comparing(obj -> ((JSONObject) obj).getInteger("cycle")));
         jsonObject.put("signInAward", jsonArray);
-        //TODO 总积分数统计？？？
-        jsonObject.put("totalIntegral", 99);
+        //T总积分数统计
+        int total = userIntegralRestDao.getTotalIntegral(userInfoId);
+        jsonObject.put("totalIntegral", total);
         return jsonObject;
     }
 

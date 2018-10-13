@@ -7,6 +7,10 @@ package com.fnjz.front.enums;
 public enum IntegralEnum {
 
     /**
+     * 一天签到
+     */
+    SIGNIN_1(1,"一天签到"),
+    /**
      * 七天签到
      */
     SIGNIN_7(7,"七天签到"),

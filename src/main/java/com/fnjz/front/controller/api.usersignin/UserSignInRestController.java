@@ -42,10 +42,10 @@ public class UserSignInRestController extends BaseController {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         try {
-            userSignInRestServiceI.signIn(userInfoId, shareCode);
+            Integer integer = userSignInRestServiceI.signIn(userInfoId, shareCode);
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("signInAware",3);
-            return new ResultBean(ApiResultType.OK, null);
+            jsonObject.put("signInAware",integer);
+            return new ResultBean(ApiResultType.OK, jsonObject);
 
         } catch (Exception e) {
             logger.error(e.toString());
@@ -73,7 +73,7 @@ public class UserSignInRestController extends BaseController {
     }
 
     /**
-     * 获取签到情况
+     * 获取日历签到情况
      * @param request
      * @return
      */

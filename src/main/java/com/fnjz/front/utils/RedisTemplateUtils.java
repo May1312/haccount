@@ -204,10 +204,18 @@ public class RedisTemplateUtils {
      * 更新map中的指定key
      * @param key
      * @param mapKey
-     * @param map
      */
     public void updateForHashKey(String key,String mapKey, int value) {
         redisTemplate.opsForHash().put(key,mapKey, value);
+    }
+
+    /**
+     * 获取map中的指定key的value
+     * @param key
+     * @param mapKey
+     */
+    public int getForHashKey(String key,String mapKey) {
+        return Integer.valueOf(redisTemplate.opsForHash().get(key,mapKey)+"");
     }
 
     /**

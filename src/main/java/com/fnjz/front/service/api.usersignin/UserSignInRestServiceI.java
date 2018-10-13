@@ -9,7 +9,7 @@ public interface UserSignInRestServiceI extends CommonService{
      * 签到
      * @param userInfoId
      */
-    void signIn(String userInfoId,String shareCode);
+    Integer signIn(String userInfoId,String shareCode);
 
     /**
      * 查看当天是否已签到
