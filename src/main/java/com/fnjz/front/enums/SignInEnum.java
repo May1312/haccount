@@ -9,11 +9,11 @@ public enum SignInEnum {
     /**
      * 已签到
      */
-    HAS_SIGNED(1),
+    HAS_SIGNED(2),
     /**
      * 未签到
      */
-    NOT_SIGN(2),
+    NOT_SIGN(1),
     /**
      * 可补签
      */
