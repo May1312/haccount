@@ -15,7 +15,7 @@ public enum AcquisitionModeEnum {
     Perfecting_personal_data("Perfecting_personal_data","完善个人资料"),
     Setup_account_reminder("Setup_account_reminder","设置记账提醒"),
     Check_in("Check_in","补签到"),
-    SignIn("SignIn","补签到"),
+    SignIn("SignIn","签到"),
     Record_keeping_mood("Record_keeping_mood","记录记账心情");
 
     private String enlish;

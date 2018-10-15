@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.*;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @author zhangdaihao
@@ -33,6 +36,7 @@ public class UserSignInRestController extends BaseController {
 
     /**
      * 签到
+     *
      * @param request
      * @return
      */
@@ -44,9 +48,8 @@ public class UserSignInRestController extends BaseController {
         try {
             Integer integer = userSignInRestServiceI.signIn(userInfoId, shareCode);
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("signInAware",integer);
+            jsonObject.put("signInAware", integer);
             return new ResultBean(ApiResultType.OK, jsonObject);
-
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -54,7 +57,36 @@ public class UserSignInRestController extends BaseController {
     }
 
     /**
+     * 补签
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/reSignIn", "/reSignIn/{type}"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean reSignIn(HttpServletRequest request, @RequestBody Map<String, Date> map) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        String shareCode = (String) request.getAttribute("shareCode");
+        //周一
+        LocalDateTime monday = LocalDate.now().with(DayOfWeek.MONDAY).atTime(0, 0, 0);
+        //昨天
+        LocalDateTime yesterday = LocalDate.now().atTime(0, 0, 0);
+        LocalDateTime signInDate = LocalDateTime.ofInstant( map.get("signInDate").toInstant(), ZoneId.systemDefault());
+        //校验日期是否在本周
+        if (signInDate.isAfter(monday) && signInDate.isBefore(yesterday)) {
+            try {
+                userSignInRestServiceI.reSignIn(userInfoId, shareCode, signInDate);
+            } catch (Exception e) {
+                logger.error(e.toString());
+                return new ResultBean(ApiResultType.SERVER_ERROR, null);
+            }
+        }
+        return new ResultBean(ApiResultType.OK, null);
+    }
+
+    /**
      * 获取签到情况
+     *
      * @param request
      * @return
      */
@@ -74,16 +106,17 @@ public class UserSignInRestController extends BaseController {
 
     /**
      * 获取日历签到情况
+     *
      * @param request
      * @return
      */
     @RequestMapping(value = {"/signInForMonth", "/signIn/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getSignInForMonth(HttpServletRequest request,@RequestParam(value = "year",required = false)String year,@RequestParam(value="month",required = false)String month) {
+    public ResultBean getSignInForMonth(HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String time = ParamValidateUtils.getTime(year, month);
         try {
-            JSONObject json = userSignInRestServiceI.getSignInForMonth(userInfoId,time);
+            JSONObject json = userSignInRestServiceI.getSignInForMonth(userInfoId, time);
             return new ResultBean(ApiResultType.OK, json);
         } catch (Exception e) {
             logger.error(e.toString());

@@ -26,12 +26,12 @@ public interface FengFengTicketRestDao {
     List<Map<String,String>> getSignInCycle(@Param("categoryOfBehavior")String categoryOfBehavior, @Param("acquisitionMode")String acquisitionMode);
 
     /**
-     * 获取所有参数
+     * 根据周数获取所有参数
      * @param categoryOfBehavior
      * @param acquisitionMode
      * @param cycle
      * @return
      */
-    @Sql("SELECT * FROM `hbird_fengfeng_ticket` where category_of_behavior = :categoryOfBehavior and acquisition_mode=:acquisitionMode and cycle=:cycle and status=1;")
-    FengFengTicketRestEntity getFengFengTicket(@Param("categoryOfBehavior")String categoryOfBehavior, @Param("acquisitionMode")String acquisitionMode, @Param("cycle")int cycle);
+    @Sql("SELECT * FROM `hbird_fengfeng_ticket` where category_of_behavior = :categoryOfBehavior and acquisition_mode=:acquisitionMode and if(:cycle is null,1=1,cycle=:cycle) and status=1;")
+    FengFengTicketRestEntity getFengFengTicket(@Param("categoryOfBehavior")String categoryOfBehavior, @Param("acquisitionMode")String acquisitionMode, @Param("cycle")Integer cycle);
 }

@@ -234,6 +234,20 @@ public class RedisTemplateUtils {
     }
 
     /**
+     * 1为递增  2 为递减
+     * @param shareCode
+     * @param file
+     * @param flag
+     */
+    public void incrementForHashKey(String shareCode, String file, int flag) {
+        if (1 == flag) {
+            redisTemplate.opsForHash().increment(shareCode, file, 1);
+        } else {
+            redisTemplate.opsForHash().increment( shareCode, file, -1);
+        }
+    }
+
+    /**
      * 从缓存获取用户信息
      *
      * @param key

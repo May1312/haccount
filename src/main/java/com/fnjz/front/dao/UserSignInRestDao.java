@@ -7,6 +7,7 @@ import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.ResultType;
 import org.jeecgframework.minidao.annotation.Sql;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -21,6 +22,13 @@ public interface UserSignInRestDao {
      */
     @Sql("INSERT INTO `hbird_account`.`hbird_user_sign_in`(`user_info_id`, `sign_in_date`, `status`, `create_date`) VALUES (:userInfoId, NOW(), :status, NOW());")
     void signIn(@Param("userInfoId") String userInfoId,@Param("status") Integer status);
+
+    /**
+     * 补签
+     * @param userInfoId
+     */
+    @Sql("INSERT INTO `hbird_account`.`hbird_user_sign_in`(`user_info_id`, `sign_in_date`, `status`, `create_date`) VALUES (:userInfoId, :signInDate, :status, NOW());")
+    void reSignIn(@Param("userInfoId") String userInfoId,@Param("status") Integer status,@Param("signInDate") LocalDate signInDate);
 
     /**
      * 查看当天是否已签到
@@ -47,6 +55,15 @@ public interface UserSignInRestDao {
     UserSignInRestEntity getSignInForFisrtDesc(@Param("userInfoId") String userInfoId);
 
     /**
+     * 获取最近两次次 --->第一次签到记录
+     * @param userInfoId
+     * @return
+     */
+    @ResultType(UserSignInRestEntity.class)
+    @Sql("select * from `hbird_account`.`hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and status=1 order by sign_in_date DESC limit 0,2;")
+    List<UserSignInRestEntity> getSignInForSecondDesc(@Param("userInfoId") String userInfoId);
+
+    /**
      * 获取当前周签到情况
      * @param userInfoId
      * @return
@@ -56,4 +73,21 @@ public interface UserSignInRestDao {
 
     @Sql("SELECT sign_in_date FROM hbird_user_sign_in WHERE user_info_id = :userInfoId AND sign_in_date like concat(:time,'%');")
     List<UserSignInRestDTO> getSignInForMonth(@Param("userInfoId") String userInfoId, @Param("time") String time);
+
+    /**
+     * 根据指定时间查询是否存在签到记录
+     * @param userInfoId
+     * @param signInDate
+     * @return
+     */
+    @Sql("SELECT count(id) FROM `hbird_account`.`hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and `sign_in_date`=:signInDate;")
+    int checkSignInForSignInDay(@Param("userInfoId") String userInfoId, @Param("signInDate") LocalDate signInDate);
+
+    /**
+     * 修改签到记录中status状态
+     * @param userInfoId
+     * @param localDate
+     */
+    @Sql("UPDATE `hbird_account`.`hbird_user_sign_in` `status` = :status WHERE `user_info_id` = :userInfoId and sign_in_date=:signInDate;")
+    void updateSignInStatusBySignInDate(@Param("userInfoId") String userInfoId,@Param("status") Integer status, @Param("signInDate") LocalDate localDate);
 }

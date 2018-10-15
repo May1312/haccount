@@ -3,6 +3,8 @@ package com.fnjz.front.service.api.usersignin;
 import com.alibaba.fastjson.JSONObject;
 import org.jeecgframework.core.common.service.CommonService;
 
+import java.time.LocalDateTime;
+
 public interface UserSignInRestServiceI extends CommonService{
 
     /**
@@ -32,4 +34,11 @@ public interface UserSignInRestServiceI extends CommonService{
      * @return
      */
     JSONObject getSignInForMonth(String userInfoId, String time);
+
+    /**
+     * 补签
+     * @param userInfoId
+     * @param shareCode
+     */
+    void reSignIn(String userInfoId, String shareCode, LocalDateTime signInDate);
 }
