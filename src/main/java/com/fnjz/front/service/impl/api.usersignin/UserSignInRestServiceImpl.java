@@ -55,7 +55,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
     public Integer signIn(String userInfoId, String shareCode) {
 
         Map map = signInForCache(shareCode);
-        FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(),IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(),IntegralEnum.SIGNIN_1.getIndex());
+        FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_1.getIndex());
         if (map != null) {
             //map为空情况下--->即当天未签到
             if (map.get("hasSigned") == null) {
@@ -66,8 +66,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     userSignInRestDao.signIn(userInfoId, null);
                 }
                 //签到积分记录
-                if(ff.getBehaviorTicketValue()!=null){
-                    userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue(),ff.getAcquisitionMode(),AcquisitionModeEnum.SignIn.getDescription());
+                if (ff.getBehaviorTicketValue() != null) {
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), ff.getAcquisitionMode(), AcquisitionModeEnum.SignIn.getDescription());
                 }
             }
         } else {
@@ -82,8 +82,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 if (!flag) {
                     userSignInRestDao.signIn(userInfoId, 1);
                     //签到积分记录
-                    if(ff.getBehaviorTicketValue()!=null){
-                        userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue(),ff.getAcquisitionMode(),AcquisitionModeEnum.SignIn.getDescription());
+                    if (ff.getBehaviorTicketValue() != null) {
+                        userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), ff.getAcquisitionMode(), AcquisitionModeEnum.SignIn.getDescription());
                     }
                 }
             } else {
@@ -100,8 +100,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     if (!flag) {
                         userSignInRestDao.signIn(userInfoId, 1);
                         //签到积分记录
-                        if(ff.getBehaviorTicketValue()!=null){
-                            userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue(),ff.getAcquisitionMode(),AcquisitionModeEnum.SignIn.getDescription());
+                        if (ff.getBehaviorTicketValue() != null) {
+                            userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), ff.getAcquisitionMode(), AcquisitionModeEnum.SignIn.getDescription());
                         }
                     }
                 }
@@ -176,15 +176,33 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 //统计最近一次标记时间
                 UserSignInRestEntity userSignInRestEntity = userSignInRestDao.getSignInForFisrtDesc(userInfoId);
                 if (userSignInRestEntity != null) {
-                    //计算签到日期间隔
+                    //计算签到日期间隔 获取当天签到状态
+                    count = userSignInRestDao.checkSignInForCurrentDay(userInfoId);
+                    //当天已签到
                     String[] args = StringUtils.split(DateUtils.convert2String(userSignInRestEntity.getSignInDate()), "-");
                     Period period = Period.between(LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf(args[2])), LocalDate.now());
                     int days = period.getDays();
+                    if (count > 0) {
+                        ++days;
+                    }
                     // TODO days大于58情况下存在误差
                     days = (days) % 29;
                     map.put("signInDays", days);
                     map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
                 }
+            }else{
+                //昨日未签到
+                //计算签到日期间隔 获取当天签到状态
+                count = userSignInRestDao.checkSignInForCurrentDay(userInfoId);
+                //当天已签到
+                int days = 0;
+                if (count > 0) {
+                    ++days;
+                }
+                // TODO days大于58情况下存在误差
+                days = (days) % 29;
+                map.put("signInDays", days);
+                map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
             }
             //cache
             redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map);
@@ -253,29 +271,6 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         }
         jsonObject.put("signInDays", map.get("signInDays") == null ? 0 : map.get("signInDays"));
         jsonObject.put("signInWeek", result);
-        //测试 返回连续打卡奖励
-        /*JSONObject jsonObject1 = new JSONObject();
-        jsonObject1.put("cycle", 7);
-        jsonObject1.put("behaviorTicketValue", 5);
-
-        JSONObject jsonObject2 = new JSONObject();
-        jsonObject2.put("cycle", 14);
-        jsonObject2.put("behaviorTicketValue", 12);
-
-        JSONObject jsonObject3 = new JSONObject();
-        jsonObject3.put("cycle", 21);
-        jsonObject3.put("behaviorTicketValue", 18);
-
-
-        JSONObject jsonObject4 = new JSONObject();
-        jsonObject4.put("cycle", 28);
-        jsonObject4.put("behaviorTicketValue", 26);
-
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.add(jsonObject1);
-        jsonArray.add(jsonObject2);
-        jsonArray.add(jsonObject3);
-        jsonArray.add(jsonObject4);*/
         //读取签到奖励规则
         Map<String, Integer> map3 = redisTemplateUtils.getForHash(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
         if (map3.size() < 1) {
@@ -295,30 +290,75 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         }
         //TODO   上述获取系统 若获取不到系统数据   --->自有数据要更新？？？？？
         //获取自己的签到领取情况
-        Map<String, Integer> map4 = redisTemplateUtils.getForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE+shareCode);
+        Map<String, Integer> map4 = redisTemplateUtils.getForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode);
         JSONArray jsonArray = new JSONArray();
         JSONObject cacheJson = new JSONObject();
-        if(map4.size()<1){
+        //未领取1  领取2  不可领3
+        int status = Integer.valueOf(map.get("signInDays") + "") / 7;
+        if (map4.size() < 1) {
             //TODO 置为未领取状态吧
             //返给前端数据
-            for (Map.Entry<String,Integer> entry : map3.entrySet()) {
+            for (Map.Entry<String, Integer> entry : map3.entrySet()) {
                 JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("cycle",StringUtils.substringAfterLast(entry.getKey(),"_"));
-                jsonObject1.put("cycleAware",entry.getValue());
-                //未领取1  领取2
-                jsonObject1.put("cycleAwareStatus",1);
-                cacheJson.put(entry.getKey(),1);
+                jsonObject1.put("cycle", StringUtils.substringAfterLast(entry.getKey(), "_"));
+                jsonObject1.put("cycleAware", entry.getValue());
+                int cycle = Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_"))/7;
+                //status小于7情况下  都不可领取
+                if (status < 1) {
+                    jsonObject1.put("cycleAwareStatus", 3);
+                    cacheJson.put(entry.getKey(), 3);
+                } else if(status>=1&&status<2){
+                    //大于7情况下  cycle为7情况下
+                    if(cycle==1){
+                        jsonObject1.put("cycleAwareStatus", 1);
+                        cacheJson.put(entry.getKey(), 1);
+                    }else{
+                        jsonObject1.put("cycleAwareStatus", 3);
+                        cacheJson.put(entry.getKey(), 3);
+                    }
+                }else if(status>=2&&status<3){
+                    //大于14情况下  cycle为7情况下
+                    if(cycle==1){
+                        jsonObject1.put("cycleAwareStatus", 1);
+                        cacheJson.put(entry.getKey(), 1);
+                    }else if(cycle==2){
+                        jsonObject1.put("cycleAwareStatus", 1);
+                        cacheJson.put(entry.getKey(), 1);
+                    }else{
+                        jsonObject1.put("cycleAwareStatus", 3);
+                        cacheJson.put(entry.getKey(), 3);
+                    }
+                }else if(status>=3&&status<4){
+                    //大于21情况下  cycle为7情况下
+                    if(cycle==1){
+                        jsonObject1.put("cycleAwareStatus", 1);
+                        cacheJson.put(entry.getKey(), 1);
+                    }else if(cycle==2){
+                        jsonObject1.put("cycleAwareStatus", 1);
+                        cacheJson.put(entry.getKey(), 1);
+                    }else if(cycle==3){
+                        jsonObject1.put("cycleAwareStatus", 1);
+                        cacheJson.put(entry.getKey(), 1);
+                    }else{
+                        jsonObject1.put("cycleAwareStatus", 3);
+                        cacheJson.put(entry.getKey(), 3);
+                    }
+                }else if(status==4){
+                    //等于28情况下  cycle为7情况下
+                    jsonObject1.put("cycleAwareStatus", 1);
+                    cacheJson.put(entry.getKey(), 1);
+                }
                 jsonArray.add(jsonObject1);
             }
-            redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE+shareCode, cacheJson);
-        }else{
-            for (Map.Entry<String,Integer> entry : map3.entrySet()) {
+            redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, cacheJson);
+        } else {
+            for (Map.Entry<String, Integer> entry : map3.entrySet()) {
                 JSONObject jsonObject1 = new JSONObject();
-                for (Map.Entry<String,Integer> entry2 : map4.entrySet()) {
-                    if(StringUtils.equals(entry.getKey(),entry2.getKey())){
-                        jsonObject1.put("cycle",StringUtils.substringAfterLast(entry.getKey(),"_"));
-                        jsonObject1.put("cycleAware",entry.getValue());
-                        jsonObject1.put("cycleAwareStatus",entry2.getValue());
+                for (Map.Entry<String, Integer> entry2 : map4.entrySet()) {
+                    if (StringUtils.equals(entry.getKey(), entry2.getKey())) {
+                        jsonObject1.put("cycle", StringUtils.substringAfterLast(entry.getKey(), "_"));
+                        jsonObject1.put("cycleAware", entry.getValue());
+                        jsonObject1.put("cycleAwareStatus", entry2.getValue());
                     }
                 }
                 jsonArray.add(jsonObject1);
@@ -327,7 +367,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         //排序
         jsonArray.sort(Comparator.comparing(obj -> ((JSONObject) obj).getInteger("cycle")));
         jsonObject.put("signInAward", jsonArray);
-        //T总积分数统计
+        //总积分数统计
         int total = userIntegralRestDao.getTotalIntegral(userInfoId);
         jsonObject.put("totalIntegral", total);
         return jsonObject;
@@ -348,5 +388,4 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         json.put("time", time);
         return json;
     }
-
 }

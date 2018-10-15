@@ -43,7 +43,7 @@ public interface UserSignInRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("select * from `hbird_account`.`hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and status=1 order by sign_in_date limit 0,1;")
+    @Sql("select * from `hbird_account`.`hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and status=1 order by sign_in_date DESC limit 0,1;")
     UserSignInRestEntity getSignInForFisrtDesc(@Param("userInfoId") String userInfoId);
 
     /**
