@@ -1,7 +1,10 @@
 package com.fnjz.front.dao;
 
+import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestDTO;
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestEntity;
+import com.fnjz.front.enums.AcquisitionModeEnum;
+import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import org.jeecgframework.minidao.annotation.MiniDao;
 import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.ResultType;
@@ -52,4 +55,15 @@ public interface UserIntegralRestDao {
     @ResultType(UserIntegralRestEntity.class)
     @Sql("SELECT * from hbird_user_integral where user_info_id=:userInfoId and create_date >=:date and type in(:index,:index1,:index2,:index3) order by create_date desc limit 0,4;")
     List<UserIntegralRestEntity> getCurrentCycleIntegralForRecover(@Param("userInfoId") String userInfoId, @Param("date")Date date, @Param("index") int index, @Param("index1") int index1, @Param("index2") int index2, @Param("index3") int index3);
+
+    /**
+     * 根据行为类别/获取方式  判断是否已领取
+     * @param categoryOfBehaviorEnum
+     * @param acquisitionModeEnum
+     * @param userInfoId
+     * @return
+     */
+    @ResultType(FengFengTicketRestEntity.class)
+    @Sql("select * from hbird_user_integral where user_info_id=:userInfoId and if(:categoryOfBehaviorEnum=1,:acquisitionModeEnum)")
+    FengFengTicketRestEntity checkTaskComplete(CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum, String userInfoId);
 }

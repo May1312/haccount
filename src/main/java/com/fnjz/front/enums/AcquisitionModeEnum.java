@@ -18,20 +18,20 @@ public enum AcquisitionModeEnum {
     SignIn("SignIn","签到"),
     Record_keeping_mood("Record_keeping_mood","记录记账心情");
 
-    private String enlish;
+    private String name;
     private String description;
 
 
-    AcquisitionModeEnum(String enlish, String description){
+    AcquisitionModeEnum(String name, String description){
         this.description = description;
-        this.enlish = enlish;
+        this.name = name;
     }
-    public String getIndex() {
-        return enlish;
+    public String getName() {
+        return name;
     }
 
-    public void setIndex(String enlish) {
-        this.enlish = enlish;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {

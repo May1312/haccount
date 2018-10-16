@@ -4,13 +4,18 @@ import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.dao.UserIntegralRestDao;
+import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
+import com.fnjz.front.enums.AcquisitionModeEnum;
+import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.jeecgframework.jwt.def.JwtConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +29,9 @@ public class CreateTokenUtils {
 
     @Autowired
     private  RedisTemplateUtils redisTemplateUtils;
+
+    @Autowired
+    private UserIntegralRestDao userIntegralRestDao;
 
     public String createToken(String code) {
         //使用sharcode作为源token
@@ -73,5 +81,16 @@ public class CreateTokenUtils {
         Map<String,String> map = new HashMap();
         map.put("key",sessionKeyPrefix);
         return new ResultBean(ApiResultType.UNIONID_IS_NULL,map);
+    }
+
+    /**
+     * 根据行为类别/获取方式  判断是否已领取
+     * @param acquisitionModeEnum
+     * @param userInfoId
+     * @return
+     */
+    public FengFengTicketRestEntity checkTaskComplete(CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum, String userInfoId){
+        FengFengTicketRestEntity fengFengTicketRestEntity = userIntegralRestDao.checkTaskComplete(categoryOfBehaviorEnum,acquisitionModeEnum,userInfoId);
+        return fengFengTicketRestEntity;
     }
 }

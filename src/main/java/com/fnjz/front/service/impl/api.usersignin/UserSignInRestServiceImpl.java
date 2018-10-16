@@ -292,7 +292,11 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             //读取积分流水表恢复最近一个周期历史数据  分情况 1.恢复  2.首次调用
             //获取签到表中开始周期标记时间
             UserSignInRestEntity userSignInRestEntity = userSignInRestDao.getSignInForFisrtDesc(userInfoId);
-            List<UserIntegralRestEntity> currentCycleIntegralForRecover = userIntegralRestDao.getCurrentCycleIntegralForRecover(userInfoId, userSignInRestEntity.getSignInDate(), IntegralEnum.SIGNIN_7.getIndex(), IntegralEnum.SIGNIN_14.getIndex(), IntegralEnum.SIGNIN_21.getIndex(), IntegralEnum.SIGNIN_28.getIndex());
+            List<UserIntegralRestEntity> currentCycleIntegralForRecover = new ArrayList<>();
+            if(userSignInRestEntity!=null){
+                currentCycleIntegralForRecover = userIntegralRestDao.getCurrentCycleIntegralForRecover(userInfoId, userSignInRestEntity.getSignInDate(), IntegralEnum.SIGNIN_7.getIndex(), IntegralEnum.SIGNIN_14.getIndex(), IntegralEnum.SIGNIN_21.getIndex(), IntegralEnum.SIGNIN_28.getIndex());
+
+            }
             //定义 可能存在的连签历史接收参数
             Integer signIn7 = 0, signIn14 = 0, signIn21 = 0, signIn28 = 0;
             if (currentCycleIntegralForRecover.size() > 0) {
@@ -475,7 +479,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         //总积分数统计
         int total = userIntegralRestDao.getTotalIntegral(userInfoId);
         //获取补签消耗积分数
-        FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), AcquisitionModeEnum.Check_in.getIndex(), null);
+        FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), AcquisitionModeEnum.Check_in.getName(), null);
         jsonObject.put("reSignInAware", fengFengTicket.getBehaviorTicketValue());
         jsonObject.put("totalIntegral", total);
         return jsonObject;
@@ -508,7 +512,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         //总积分数统计
         int total = userIntegralRestDao.getTotalIntegral(userInfoId);
         //获取补签消耗积分数
-        FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), AcquisitionModeEnum.Check_in.getIndex(), null);
+        FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), AcquisitionModeEnum.Check_in.getName(), null);
         if (fengFengTicket.getBehaviorTicketValue() != null) {
             if (total + fengFengTicket.getBehaviorTicketValue() >= 0) {
                 //Map map1 = signInForCache(shareCode);
