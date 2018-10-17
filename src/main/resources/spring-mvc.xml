@@ -221,7 +221,6 @@
                         <value>/rest/api/v1/appCheck</value>
                         <value>/rest/api/wxActivity/sum</value>
                         <value>/rest/api/wxActivity/statisticsNewVisitor</value>
-                        <value>/rest/api/v1/signIn</value>
                     </list>
                 </property>
                 <property name="excludeContainUrls">
@@ -242,7 +241,6 @@
                         <value>/rest/api/v1/appCheck</value>
                         <value>/rest/api/wxActivity/sum</value>
                         <value>/rest/api/wxActivity/statisticsNewVisitor</value>
-                        <value>/rest/api/v1/signIn</value>
                     </list>
                 </property>
             </bean>

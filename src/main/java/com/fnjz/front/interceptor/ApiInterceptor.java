@@ -59,6 +59,11 @@ public class ApiInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
+        if(requestPath.indexOf("/signIn")!=-1){
+            if(StringUtils.isEmpty(authHeader)){
+                return true;
+            }
+        }
         ResultBean rb = new ResultBean();
         if (authHeader == null) {
             rb.setFailMsg(ApiResultType.USER_IS_NOT_LOGIN);
