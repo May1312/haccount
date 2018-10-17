@@ -7,7 +7,6 @@ import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.ResultType;
 import org.jeecgframework.minidao.annotation.Sql;
 
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -28,7 +27,7 @@ public interface UserSignInRestDao {
      * @param userInfoId
      */
     @Sql("INSERT INTO `hbird_account`.`hbird_user_sign_in`(`user_info_id`, `sign_in_date`, `status`, `create_date`) VALUES (:userInfoId, :signInDate, :status, NOW());")
-    void reSignIn(@Param("userInfoId") String userInfoId,@Param("status") Integer status,@Param("signInDate") LocalDate signInDate);
+    void reSignIn(@Param("userInfoId") String userInfoId,@Param("status") Integer status,@Param("signInDate") String signInDate);
 
     /**
      * 查看当天是否已签到
@@ -81,13 +80,13 @@ public interface UserSignInRestDao {
      * @return
      */
     @Sql("SELECT count(id) FROM `hbird_account`.`hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and `sign_in_date`=:signInDate;")
-    int checkSignInForSignInDay(@Param("userInfoId") String userInfoId, @Param("signInDate") LocalDate signInDate);
+    int checkSignInForSignInDay(@Param("userInfoId") String userInfoId, @Param("signInDate") String signInDate);
 
     /**
      * 修改签到记录中status状态
      * @param userInfoId
      * @param localDate
      */
-    @Sql("UPDATE `hbird_account`.`hbird_user_sign_in` `status` = :status WHERE `user_info_id` = :userInfoId and sign_in_date=:signInDate;")
-    void updateSignInStatusBySignInDate(@Param("userInfoId") String userInfoId,@Param("status") Integer status, @Param("signInDate") LocalDate localDate);
+    @Sql("UPDATE `hbird_account`.`hbird_user_sign_in` set `status` = if(:status is null,null,:status) WHERE `user_info_id` = :userInfoId and sign_in_date=:signInDate;")
+    void updateSignInStatusBySignInDate(@Param("userInfoId") String userInfoId,@Param("status") Integer status, @Param("signInDate") String localDate);
 }
