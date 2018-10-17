@@ -13,7 +13,7 @@ public class UserInviteRestDTO {
 
     private String avatarUrl;
 
-    private Date registerdate;
+    private Date registerDate;
     @Column(name ="NICK_NAME",length=32)
     public String getNickName() {
         return nickName;
@@ -31,11 +31,11 @@ public class UserInviteRestDTO {
         this.avatarUrl = avatarUrl;
     }
     @Column(name ="REGISTER_DATE")
-    public Date getRegisterdate() {
-        return registerdate;
+    public Date getRegisterDate() {
+        return registerDate;
     }
 
-    public void setRegisterdate(Date registerdate) {
-        this.registerdate = registerdate;
+    public void setRegisterDate(Date registerDate) {
+        this.registerDate = registerDate;
     }
 }
