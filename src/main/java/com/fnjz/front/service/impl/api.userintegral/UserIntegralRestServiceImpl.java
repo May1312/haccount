@@ -117,7 +117,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 }else if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Setting_up_budget.getIndex()){
                     newbieTask.put("budget",1);
                 }else if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Setting_up_savings_efficiency.getIndex()){
-                    newbieTask.put("savingefficiency",1);
+                    newbieTask.put("savingEfficiency",1);
                 }else if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Perfecting_personal_data.getIndex()){
                     newbieTask.put("userInfo",1);
                 }
