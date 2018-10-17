@@ -234,9 +234,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         commonDao.batchSave(list_common_income);
         //判断是否为受邀用户
         if(StringUtils.isNotEmpty(map.get("inviteCode"))){
-            userInviteRestDao.insert(ShareCodeUtil.sharecode2id(map.get("inviteCode")),insertId);
+            int userInfoId = ShareCodeUtil.sharecode2id(map.get("inviteCode"));
+            userInviteRestDao.insert(userInfoId,insertId);
             //引入当日任务
-            createTokenUtils.integralTask(insertId+"", CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
+            createTokenUtils.integralTask(userInfoId+"", CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
         }
         return insert3;
     }
