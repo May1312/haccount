@@ -4,6 +4,7 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
+import com.fnjz.front.service.api.api.userinvite.UserInviteRestServiceI;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
@@ -36,6 +37,8 @@ public class MyCountRestController extends BaseController {
     private WarterOrderRestServiceI warterOrderRestServiceI;
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+    @Autowired
+    private UserInviteRestServiceI userInviteRestServiceI;
 
     @ApiOperation(value = "获取我的页面数据统计")
     @RequestMapping(value = "/getMyCount/{type}", method = RequestMethod.GET)
@@ -65,6 +68,11 @@ public class MyCountRestController extends BaseController {
                     map.put("clockInDays", 1);
                     map.put("clockInTime", (System.currentTimeMillis() + ""));
                 }
+                //获取用户邀请好友数
+                if (!map.containsKey("inviteUsers")) {
+                    int inviteUsers = userInviteRestServiceI.getCountForInvitedUsers(userInfoId);
+                    map.put("inviteUsers", inviteUsers);
+                }
             } else {
                 chargeTotal = warterOrderRestServiceI.chargeTotal(userLoginRestEntity.getAccountBookId());
                 map.put("chargeTotal", chargeTotal);
@@ -72,6 +80,11 @@ public class MyCountRestController extends BaseController {
                 if (!map.containsKey("clockInDays")) {
                     map.put("clockInDays", 1);
                     map.put("clockInTime", (System.currentTimeMillis() + ""));
+                }
+                //获取用户邀请好友数
+                if (!map.containsKey("inviteUsers")) {
+                    int inviteUsers = userInviteRestServiceI.getCountForInvitedUsers(userInfoId);
+                    map.put("inviteUsers", inviteUsers);
                 }
                 //重新设置redis javabean转map
                 redisTemplateUtils.updateMyCount(shareCode, map);

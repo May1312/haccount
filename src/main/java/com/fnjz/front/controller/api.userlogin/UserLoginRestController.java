@@ -6,25 +6,22 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
+import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
+import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.*;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.common.controller.BaseController;
+import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.jeecgframework.core.common.controller.BaseController;
-import org.jeecgframework.core.util.StringUtil;
-import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
-import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -260,7 +257,7 @@ public class UserLoginRestController extends BaseController {
                     return createTokenUtils.wxappletLoginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                 }
                 //注册
-                int insert = userInfoRestServiceI.wechatinsert(user,new HashMap<String, String>(),null);
+                int insert = userInfoRestServiceI.wechatinsert(user,map,null);
                 if (insert > 0) {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
                     //统计从游戏渠道注册成功的人数

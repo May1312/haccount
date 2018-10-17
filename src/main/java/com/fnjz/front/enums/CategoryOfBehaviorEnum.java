@@ -6,14 +6,17 @@ package com.fnjz.front.enums;
  */
 public enum CategoryOfBehaviorEnum {
 
-    NewbieTask(1,"新手任务"),
-    TodayTask(2,"今日任务");
+    NewbieTask(1,"NewbieTask","新手任务"),
+    TodayTask(2,"TodayTask","今日任务"),
+    SignIn(3,"SignIn","签到");
 
     private int index;
+    private String name;
     private String description;
 
-    CategoryOfBehaviorEnum(int index, String description) {
+    CategoryOfBehaviorEnum(int index,String name, String description) {
         this.index = index;
+        this.name = name;
         this.description = description;
     }
 
@@ -31,5 +34,13 @@ public enum CategoryOfBehaviorEnum {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

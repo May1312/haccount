@@ -6,23 +6,25 @@ package com.fnjz.front.enums;
  */
 public enum AcquisitionModeEnum {
 
-    Inviting_friends("Inviting_friends","邀请好友"),
-    Write_down_an_account("Write_down_an_account","记一笔账"),
-    Get_a_new_Badge("Get_a_new_Badge","获得新徽章"),
-    binding_phone_or_wx("binding_phone_or_wx","绑定手机号或微信"),
-    Setting_up_budget("Setting_up_budget","设置预算"),
-    Setting_up_savings_efficiency("Setting_up_savings_efficiency","设置存钱效率"),
-    Perfecting_personal_data("Perfecting_personal_data","完善个人资料"),
-    Setup_account_reminder("Setup_account_reminder","设置记账提醒"),
-    Check_in("Check_in","补签到"),
-    SignIn("SignIn","签到"),
-    Record_keeping_mood("Record_keeping_mood","记录记账心情");
+    Inviting_friends(2,"Inviting_friends","邀请好友"),
+    Write_down_an_account(3,"Write_down_an_account","记一笔账"),
+    Get_a_new_Badge(4,"Get_a_new_Badge","获得新徽章"),
+    binding_phone_or_wx(5,"binding_phone_or_wx","绑定手机号或微信"),
+    Setting_up_budget(6,"Setting_up_budget","设置预算"),
+    Setting_up_savings_efficiency(8,"Setting_up_savings_efficiency","设置存钱效率"),
+    Perfecting_personal_data(9,"Perfecting_personal_data","完善个人资料"),
+    Setup_account_reminder(10,"Setup_account_reminder","设置记账提醒"),
+    Check_in(11,"Check_in","补签到"),
+    SignIn(12,"SignIn","签到"),
+    Record_keeping_mood(13,"Record_keeping_mood","记录记账心情");
 
+    private int index;
     private String name;
     private String description;
 
 
-    AcquisitionModeEnum(String name, String description){
+    AcquisitionModeEnum(int index,String name, String description){
+        this.index = index;
         this.description = description;
         this.name = name;
     }
@@ -40,5 +42,13 @@ public enum AcquisitionModeEnum {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 }

@@ -32,6 +32,6 @@ public interface FengFengTicketRestDao {
      * @param cycle
      * @return
      */
-    @Sql("SELECT * FROM `hbird_fengfeng_ticket` where category_of_behavior = :categoryOfBehavior and acquisition_mode=:acquisitionMode and if(:cycle is null,1=1,cycle=:cycle) and status=1;")
+    @Sql("SELECT * FROM `hbird_fengfeng_ticket` where if(:categoryOfBehavior is null,1=1,category_of_behavior=:categoryOfBehavior) and acquisition_mode=:acquisitionMode and if(:cycle is null,1=1,cycle=:cycle) and status=1;")
     FengFengTicketRestEntity getFengFengTicket(@Param("categoryOfBehavior")String categoryOfBehavior, @Param("acquisitionMode")String acquisitionMode, @Param("cycle")Integer cycle);
 }

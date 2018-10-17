@@ -1,19 +1,20 @@
 package com.fnjz.front.service.impl.api.userinfo;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fnjz.front.dao.AccountBookRestDao;
-import com.fnjz.front.dao.UserAccountBookRestDao;
-import com.fnjz.front.dao.UserInfoRestDao;
-import com.fnjz.front.dao.UserLoginRestDao;
+import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
+import com.fnjz.front.enums.AcquisitionModeEnum;
+import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
+import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.FilterCensorWordsUtils;
+import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.jeecgframework.core.util.StringUtil;
@@ -38,6 +39,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     private AccountBookRestDao accountBookRestDao;
     @Autowired
     private UserAccountBookRestDao userAccountBookRestDao;
+    @Autowired
+    private CreateTokenUtils createTokenUtils;
+    @Autowired
+    private UserInviteRestDao userInviteRestDao;
 
     @Override
     public int insert(UserInfoRestEntity userInfoRestEntity) {
@@ -45,14 +50,14 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         //获取主键,insert-->user login 表
         UserLoginRestEntity userLogin = new UserLoginRestEntity();
         //设置手机号
-        if(StringUtil.isNotEmpty(userInfoRestEntity.getMobile())){
+        if (StringUtil.isNotEmpty(userInfoRestEntity.getMobile())) {
             userLogin.setMobile(userInfoRestEntity.getMobile());
         }
         //设置密码
-        if(StringUtil.isNotEmpty(userInfoRestEntity.getPassword())) {
+        if (StringUtil.isNotEmpty(userInfoRestEntity.getPassword())) {
             userLogin.setPassword(userInfoRestEntity.getPassword());
         }
-        if(StringUtil.isNotEmpty(userInfoRestEntity.getWechatAuth())) {
+        if (StringUtil.isNotEmpty(userInfoRestEntity.getWechatAuth())) {
             userLogin.setWechatAuth(userInfoRestEntity.getWechatAuth());
         }
         //设置用户详情表id
@@ -60,12 +65,12 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         userLoginRestDao.insert(userLogin);
         //创建账本----->绑定用户id
         AccountBookRestEntity ab = new AccountBookRestEntity();
-        if(StringUtil.isNotEmpty(userLogin.getMobile())) {
+        if (StringUtil.isNotEmpty(userLogin.getMobile())) {
             ab.setAbName(userLogin.getMobile());
         }
         ab.setStatus(0);
         ab.setCreateBy(insertId);
-        if(StringUtil.isNotEmpty(userLogin.getMobile())) {
+        if (StringUtil.isNotEmpty(userLogin.getMobile())) {
             ab.setCreateName(userLogin.getMobile());
         }
         int insertId2 = accountBookRestDao.insert(ab);
@@ -74,7 +79,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         uabre.setUserInfoId(insertId);
         uabre.setAccountBookId(insertId2);
         uabre.setCreateBy(insertId);
-        if(StringUtil.isNotEmpty(userLogin.getMobile())){
+        if (StringUtil.isNotEmpty(userLogin.getMobile())) {
             uabre.setCreateName(userLogin.getMobile());
         }
         uabre.setUserType(0);
@@ -83,12 +88,12 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         String spend_sql = "select id,priority from hbird_spend_type where status = 1 AND mark = 1";
         List<Map> listbySql = commonDao.findListMapbySql(spend_sql);
         List<UserCommUseSpendRestEntity> list_common_spend = new ArrayList<>();
-        for (int i = 0;i<listbySql.size();i++) {
+        for (int i = 0; i < listbySql.size(); i++) {
             UserCommUseSpendRestEntity userCommUseSpendRestEntity = new UserCommUseSpendRestEntity();
             //设置三级类目id
-            userCommUseSpendRestEntity.setSpendTypeId(listbySql.get(i).get("id")+"");
+            userCommUseSpendRestEntity.setSpendTypeId(listbySql.get(i).get("id") + "");
             //设置优先级
-            userCommUseSpendRestEntity.setPriority(Integer.valueOf(listbySql.get(i).get("priority")+""));
+            userCommUseSpendRestEntity.setPriority(Integer.valueOf(listbySql.get(i).get("priority") + ""));
             userCommUseSpendRestEntity.setUserInfoId(insertId);
             list_common_spend.add(userCommUseSpendRestEntity);
         }
@@ -97,12 +102,12 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         String income_sql = "select id,priority from hbird_income_type where status = 1 AND mark = 1";
         List<Map> listbySql2 = commonDao.findListMapbySql(income_sql);
         List<UserCommUseIncomeRestEntity> list_common_income = new ArrayList<>();
-        for (int j = 0;j<listbySql2.size();j++) {
+        for (int j = 0; j < listbySql2.size(); j++) {
             UserCommUseIncomeRestEntity userCommUseIncomeRestEntity = new UserCommUseIncomeRestEntity();
             //设置三级类目id
-            userCommUseIncomeRestEntity.setIncomeTypeId(listbySql2.get(j).get("id")+"");
+            userCommUseIncomeRestEntity.setIncomeTypeId(listbySql2.get(j).get("id") + "");
             //设置优先级
-            userCommUseIncomeRestEntity.setPriority(Integer.valueOf(listbySql2.get(j).get("priority")+""));
+            userCommUseIncomeRestEntity.setPriority(Integer.valueOf(listbySql2.get(j).get("priority") + ""));
             userCommUseIncomeRestEntity.setUserInfoId(insertId);
             list_common_income.add(userCommUseIncomeRestEntity);
         }
@@ -112,24 +117,24 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
 
     //微信注册用户
     @Override
-    public int wechatinsert(JSONObject jsonObject,Map<String,String> map,String type) {
+    public int wechatinsert(JSONObject jsonObject, Map<String, String> map, String type) {
         UserInfoRestEntity userInfoRestEntity = new UserInfoRestEntity();
         //设置昵称
-        if(StringUtils.isNotEmpty(jsonObject.getString("nickname"))){
+        if (StringUtils.isNotEmpty(jsonObject.getString("nickname"))) {
             String nickName = jsonObject.getString("nickname");
             nickName = FilterCensorWordsUtils.checkWechatNickName(nickName);
             userInfoRestEntity.setNickName(nickName);
         }
-        if(StringUtils.isNotEmpty(jsonObject.getString("nickName"))){
+        if (StringUtils.isNotEmpty(jsonObject.getString("nickName"))) {
             String nickName = jsonObject.getString("nickName");
             nickName = FilterCensorWordsUtils.checkWechatNickName(nickName);
             userInfoRestEntity.setNickName(nickName);
         }
         //设置性别
-        if(StringUtils.isNotEmpty(jsonObject.getString("sex"))){
+        if (StringUtils.isNotEmpty(jsonObject.getString("sex"))) {
             userInfoRestEntity.setSex(jsonObject.getString("sex"));
         }
-        if(StringUtils.isNotEmpty(jsonObject.getString("gender"))){
+        if (StringUtils.isNotEmpty(jsonObject.getString("gender"))) {
             userInfoRestEntity.setSex(jsonObject.getString("gender"));
         }
         /*//设置省
@@ -141,33 +146,33 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             userInfoRestEntity.setCityName(jsonObject.getString("city"));
         }*/
         //设置头像
-        if(StringUtils.isNotEmpty(jsonObject.getString("headimgurl"))){
+        if (StringUtils.isNotEmpty(jsonObject.getString("headimgurl"))) {
             userInfoRestEntity.setAvatarUrl(jsonObject.getString("headimgurl"));
         }
-        if(StringUtils.isNotEmpty(jsonObject.getString("avatarUrl"))){
+        if (StringUtils.isNotEmpty(jsonObject.getString("avatarUrl"))) {
             userInfoRestEntity.setAvatarUrl(jsonObject.getString("avatarUrl"));
         }
 
-        if(StringUtils.isNotEmpty(jsonObject.getString("unionid"))){
+        if (StringUtils.isNotEmpty(jsonObject.getString("unionid"))) {
             userInfoRestEntity.setWechatAuth(jsonObject.getString("unionid"));
         }
-        if(StringUtils.isNotEmpty(jsonObject.getString("unionId"))){
+        if (StringUtils.isNotEmpty(jsonObject.getString("unionId"))) {
             userInfoRestEntity.setWechatAuth(jsonObject.getString("unionId"));
         }
         //设置设备号
-        if(StringUtils.isNotEmpty(map.get("mobileDevice"))){
+        if (StringUtils.isNotEmpty(map.get("mobileDevice"))) {
             userInfoRestEntity.setMobileDevice(map.get("mobileDevice"));
         }
         //设置终端厂商
-        if(StringUtils.isNotEmpty(map.get("mobileManufacturer"))){
+        if (StringUtils.isNotEmpty(map.get("mobileManufacturer"))) {
             userInfoRestEntity.setMobileManufacturer(map.get("mobileManufacturer"));
         }
         //设置系统标识
-        if(StringUtils.isNotEmpty(type)){
+        if (StringUtils.isNotEmpty(type)) {
             userInfoRestEntity.setMobileSystem(type);
         }
         //设置安卓应用商店渠道标识
-        if(StringUtils.isNotEmpty(map.get("androidChannel"))){
+        if (StringUtils.isNotEmpty(map.get("androidChannel"))) {
             userInfoRestEntity.setAndroidChannel(map.get("androidChannel"));
         }
         //insert user info表
@@ -180,12 +185,12 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         userLoginRestDao.insert(userLogin);
         //创建账本----->绑定用户id
         AccountBookRestEntity ab = new AccountBookRestEntity();
-        if(StringUtil.isNotEmpty(userLogin.getMobile())) {
+        if (StringUtil.isNotEmpty(userLogin.getMobile())) {
             ab.setAbName(userLogin.getMobile());
         }
         ab.setStatus(0);
         ab.setCreateBy(insertId);
-        if(StringUtil.isNotEmpty(userLogin.getMobile())) {
+        if (StringUtil.isNotEmpty(userLogin.getMobile())) {
             ab.setCreateName(userLogin.getMobile());
         }
         int insertId2 = accountBookRestDao.insert(ab);
@@ -194,7 +199,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         uabre.setUserInfoId(insertId);
         uabre.setAccountBookId(insertId2);
         uabre.setCreateBy(insertId);
-        if(StringUtil.isNotEmpty(userLogin.getMobile())){
+        if (StringUtil.isNotEmpty(userLogin.getMobile())) {
             uabre.setCreateName(userLogin.getMobile());
         }
         uabre.setUserType(0);
@@ -203,12 +208,12 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         String spend_sql = "select id,priority from hbird_spend_type where status = 1 AND mark = 1";
         List<Map> listbySql = commonDao.findListMapbySql(spend_sql);
         List<UserCommUseSpendRestEntity> list_common_spend = new ArrayList<>();
-        for (int i = 0;i<listbySql.size();i++) {
+        for (int i = 0; i < listbySql.size(); i++) {
             UserCommUseSpendRestEntity userCommUseSpendRestEntity = new UserCommUseSpendRestEntity();
             //设置三级类目id
-            userCommUseSpendRestEntity.setSpendTypeId(listbySql.get(i).get("id")+"");
+            userCommUseSpendRestEntity.setSpendTypeId(listbySql.get(i).get("id") + "");
             //设置优先级
-            userCommUseSpendRestEntity.setPriority(Integer.valueOf(listbySql.get(i).get("priority")+""));
+            userCommUseSpendRestEntity.setPriority(Integer.valueOf(listbySql.get(i).get("priority") + ""));
             userCommUseSpendRestEntity.setUserInfoId(insertId);
             list_common_spend.add(userCommUseSpendRestEntity);
         }
@@ -217,36 +222,42 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         String income_sql = "select id,priority from hbird_income_type where status = 1 AND mark = 1";
         List<Map> listbySql2 = commonDao.findListMapbySql(income_sql);
         List<UserCommUseIncomeRestEntity> list_common_income = new ArrayList<>();
-        for (int j = 0;j<listbySql2.size();j++) {
+        for (int j = 0; j < listbySql2.size(); j++) {
             UserCommUseIncomeRestEntity userCommUseIncomeRestEntity = new UserCommUseIncomeRestEntity();
             //设置三级类目id
-            userCommUseIncomeRestEntity.setIncomeTypeId(listbySql2.get(j).get("id")+"");
+            userCommUseIncomeRestEntity.setIncomeTypeId(listbySql2.get(j).get("id") + "");
             //设置优先级
-            userCommUseIncomeRestEntity.setPriority(Integer.valueOf(listbySql2.get(j).get("priority")+""));
+            userCommUseIncomeRestEntity.setPriority(Integer.valueOf(listbySql2.get(j).get("priority") + ""));
             userCommUseIncomeRestEntity.setUserInfoId(insertId);
             list_common_income.add(userCommUseIncomeRestEntity);
         }
         commonDao.batchSave(list_common_income);
+        //判断是否为受邀用户
+        if(StringUtils.isNotEmpty(map.get("inviteCode"))){
+            userInviteRestDao.insert(ShareCodeUtil.sharecode2id(map.get("inviteCode")),insertId);
+        }
         return insert3;
     }
 
     /**
      * 根据userInfoId更新密码
+     *
      * @return
      */
     @Override
-    public int updatePWD(int userInfoId,String password) {
-       int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
-       if(i>0){
-           //更新info表
-           int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
+    public int updatePWD(int userInfoId, String password) {
+        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
+        if (i > 0) {
+            //更新info表
+            int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
             return j;
-       }
+        }
         return i;
     }
 
     /**
      * 根据手机号更改密码
+     *
      * @param mobile
      * @param password
      * @return
@@ -254,7 +265,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     @Override
     public int updatePWDByMobile(String mobile, String password) {
         int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `mobile` = " + mobile + ";");
-        if(i>0){
+        if (i > 0) {
             //更新info表
             int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `password` = '" + password + "' , `update_date` = NOW() WHERE `mobile` = " + mobile + ";");
             return j;
@@ -264,6 +275,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
 
     /**
      * 更新手势密码开关状态
+     *
      * @param userInfoId
      * @param gesturePwType
      * @return
@@ -271,7 +283,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     @Override
     public int updateGestureType(String userInfoId, String gesturePwType) {
         int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `gesture_pw_type` = '" + gesturePwType + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
-        if(i>0){
+        if (i > 0) {
             //更新info表
             int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `gesture_pw_type` = '" + gesturePwType + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
             return j;
@@ -281,23 +293,24 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
 
     /**
      * 更新手势密码
+     *
      * @param userInfoId
      * @param gesturePw
      * @return
      */
     @Override
     public int updateGesture(String userInfoId, String gesturePw) {
-        if(gesturePw.length()<1){
+        if (gesturePw.length() < 1) {
             int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `gesture_pw` = NULL , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
-            if(i>0){
+            if (i > 0) {
                 //更新info表
                 int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `gesture_pw` = NULL , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
                 return j;
             }
             return i;
-        }else{
+        } else {
             int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `gesture_pw` = '" + gesturePw + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
-            if(i>0){
+            if (i > 0) {
                 //更新info表
                 int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `gesture_pw` = '" + gesturePw + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
                 return j;
@@ -308,8 +321,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
 
     @Override
     public int updateMobile(String userInfoId, String mobile) {
+        //引入新手任务
+        createTokenUtils.integralTask(userInfoId, CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
         int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `mobile` = '" + mobile + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
-        if(i>0){
+        if (i > 0) {
             //更新info表
             int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `mobile` = '" + mobile + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
             return j;
@@ -320,7 +335,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     @Override
     public int updateMobileAndPWD(String userInfoId, String mobile, String password) {
         int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `mobile` = '" + mobile + "' ,`password` = '" + password + "', `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
-        if(i>0){
+        if (i > 0) {
             //更新info表
             int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `mobile` = '" + mobile + "' ,`password` = '" + password + "' , `update_date` = NOW() WHERE `id` = " + userInfoId + ";");
             return j;
@@ -329,18 +344,20 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     }
 
     @Override
-    public int updateWeChat(String code, String unionid) {
-        if(StringUtils.isNotEmpty(unionid)){
+    public int updateWeChat(String userInfoId, String code, String unionid) {
+        //引入新手任务
+        createTokenUtils.integralTask(userInfoId, CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
+        if (StringUtils.isNotEmpty(unionid)) {
             int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `wechat_auth` = '" + unionid + "', `update_date` = NOW() WHERE `mobile` = '" + code + "';");
-            if(i>0){
+            if (i > 0) {
                 //更新info表
                 int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `wechat_auth` = '" + unionid + "' , `update_date` = NOW() WHERE `mobile` = '" + code + "';");
                 return j;
             }
             return i;
-        }else{
+        } else {
             int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `wechat_auth` = NULL , `update_date` = NOW() WHERE `mobile` = '" + code + "';");
-            if(i>0){
+            if (i > 0) {
                 //更新info表
                 int j = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_info` SET `wechat_auth` = NULL , `update_date` = NOW() WHERE `mobile` = '" + code + "';");
                 return j;
@@ -351,16 +368,20 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
 
     @Override
     public void updateUserInfo(UserInfoRestEntity userInfoRestEntity) {
-        if(userInfoRestEntity.getBirthday()!=null){
+        if (userInfoRestEntity.getBirthday() != null) {
             //计算年龄+星座
             int ageByBirth = DateUtils.getAgeByBirth(userInfoRestEntity.getBirthday());
-            userInfoRestEntity.setAge(ageByBirth+"");
+            userInfoRestEntity.setAge(ageByBirth + "");
             Calendar cal = Calendar.getInstance();
             cal.setTime(userInfoRestEntity.getBirthday());
-            int month = cal.get(Calendar.MONTH)+1;
+            int month = cal.get(Calendar.MONTH) + 1;
             int day = cal.get(Calendar.DAY_OF_MONTH);
-            String constellation = getConstellation(month,day);
+            String constellation = getConstellation(month, day);
             userInfoRestEntity.setConstellation(constellation);
+        }
+        if (StringUtils.isNotEmpty(userInfoRestEntity.getSex()) && userInfoRestEntity.getBirthday() != null && StringUtils.isNotEmpty(userInfoRestEntity.getProvinceName()) && StringUtils.isNotEmpty(userInfoRestEntity.getProfession()) && StringUtils.isNotEmpty(userInfoRestEntity.getPosition())) {
+            //引入新手任务
+            createTokenUtils.integralTask(userInfoRestEntity.getId() + "", CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
         }
         userInfoRestDao.update(userInfoRestEntity);
     }
@@ -368,8 +389,9 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     /**
      * 获取星座
      */
-    private final static int[] dayArr = new int[] { 20, 19, 21, 20, 21, 22, 23, 23, 23, 24, 23, 22 };
-    private final static String[] constellationArr = new String[] { "摩羯座", "水瓶座", "双鱼座", "白羊座", "金牛座", "双子座", "巨蟹座", "狮子座", "处女座", "天秤座", "天蝎座", "射手座", "摩羯座" };
+    private final static int[] dayArr = new int[]{20, 19, 21, 20, 21, 22, 23, 23, 23, 24, 23, 22};
+    private final static String[] constellationArr = new String[]{"摩羯座", "水瓶座", "双鱼座", "白羊座", "金牛座", "双子座", "巨蟹座", "狮子座", "处女座", "天秤座", "天蝎座", "射手座", "摩羯座"};
+
     public static String getConstellation(int month, int day) {
         return day < dayArr[month - 1] ? constellationArr[month - 1] : constellationArr[month];
     }

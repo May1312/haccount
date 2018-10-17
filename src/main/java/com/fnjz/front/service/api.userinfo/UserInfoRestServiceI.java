@@ -72,7 +72,7 @@ public interface UserInfoRestServiceI extends CommonService{
      * @param unionid
      * @return
      */
-    int updateWeChat(String code, String unionid);
+    int updateWeChat(String userInfoId,String code, String unionid);
 
     /**
      * 更新用户详情

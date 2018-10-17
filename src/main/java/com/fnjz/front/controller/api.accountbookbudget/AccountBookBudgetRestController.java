@@ -121,6 +121,7 @@ public class AccountBookBudgetRestController extends BaseController {
                 //执行更新流程
                 budget.setUpdateBy(userAccountBookRestEntityCache.getUserInfoId());
                 budget.setId(budgetResult.getId());
+                budget.setCreateBy(userAccountBookRestEntityCache.getUserInfoId());
                 int i = accountBookBudgetRestService.saveOrUpdate(budget, true);
                 if (i < 0) {
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);

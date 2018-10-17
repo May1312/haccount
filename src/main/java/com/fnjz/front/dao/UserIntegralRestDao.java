@@ -1,10 +1,7 @@
 package com.fnjz.front.dao;
 
-import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestDTO;
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestEntity;
-import com.fnjz.front.enums.AcquisitionModeEnum;
-import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import org.jeecgframework.minidao.annotation.MiniDao;
 import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.ResultType;
@@ -25,8 +22,8 @@ public interface UserIntegralRestDao {
      * @param id
      * @param behaviorTicketValue
      */
-    @Sql("INSERT INTO `hbird_user_integral` (`user_info_id`,`integral_num`,`fengfeng_ticket_id`,`create_date`,`description`,`type`) VALUES (:userInfoId,:behaviorTicketValue,:id,NOW(),:description,:type);")
-    void insertSignInIntegral(@Param("userInfoId") String userInfoId,@Param("id") String id,@Param("behaviorTicketValue") Integer behaviorTicketValue,@Param("type")String acquisitionMode,@Param("description")String description,@Param("type")Integer type);
+    @Sql("INSERT INTO `hbird_user_integral` (`user_info_id`,`integral_num`,`fengfeng_ticket_id`,`create_date`,`description`,`type`,`category_of_behavior`) VALUES (:userInfoId,:behaviorTicketValue,:id,NOW(),:description,:type,:categoryOfBehavior);")
+    void insertSignInIntegral(@Param("userInfoId") String userInfoId,@Param("id") String id,@Param("behaviorTicketValue") Integer behaviorTicketValue,@Param("description")String description,@Param("type")Integer type,@Param("categoryOfBehavior")Integer categoryOfBehavior);
 
     @Sql("SELECT COALESCE(SUM(integral_num),0) from `hbird_user_integral` where `user_info_id`=:userInfoId;")
     int getTotalIntegral(@Param("userInfoId") String userInfoId);
@@ -63,7 +60,6 @@ public interface UserIntegralRestDao {
      * @param userInfoId
      * @return
      */
-    @ResultType(FengFengTicketRestEntity.class)
-    @Sql("select * from hbird_user_integral where user_info_id=:userInfoId and if(:categoryOfBehaviorEnum=1,:acquisitionModeEnum)")
-    FengFengTicketRestEntity checkTaskComplete(CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum, String userInfoId);
+    @Sql("select count(id) from hbird_user_integral where user_info_id=:userInfoId and if(:categoryOfBehaviorEnum=1,type=:acquisitionModeEnum,type=:acquisitionModeEnum and create_date like concat(CURRENT_DATE,'%'));")
+    int checkTaskComplete(@Param("categoryOfBehaviorEnum") int categoryOfBehaviorEnum,@Param("acquisitionModeEnum") int acquisitionModeEnum,@Param("userInfoId") String userInfoId);
 }

@@ -155,7 +155,8 @@ public class UserInfoRestController extends BaseController {
                     return new ResultBean(ApiResultType.WECHAT_IS_BINDED, null);
                 }
                 //更新绑定unionid
-                int i = userInfoRestServiceI.updateWeChat(userLoginRestEntity.getMobile(), user.getString("unionid"));
+                String userInfoId = (String) request.getAttribute("userInfoId");
+                int i = userInfoRestServiceI.updateWeChat(userInfoId,userLoginRestEntity.getMobile(), user.getString("unionid"));
                 if (i < 1) {
                     return new ResultBean(ApiResultType.WECHAT_BIND_ERROR, null);
                 }
@@ -187,7 +188,8 @@ public class UserInfoRestController extends BaseController {
             if (StringUtils.isEmpty(userLoginRestEntity.getMobile())) {
                 return new ResultBean(ApiResultType.NOT_ALLOW_UNBIND_WECHAT, null);
             }
-            int i = userInfoRestServiceI.updateWeChat(userLoginRestEntity.getMobile(), null);
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            int i = userInfoRestServiceI.updateWeChat(userInfoId,userLoginRestEntity.getMobile(), null);
             if (i < 1) {
                 return new ResultBean(ApiResultType.WECHAT_UNBIND_ERROR, null);
             }
@@ -220,6 +222,24 @@ public class UserInfoRestController extends BaseController {
                 if (StringUtils.isNotEmpty(task.getWechatAuth())) {
                     task.setWechatAuth("wechatAuth");
                 }
+                //设置资料完整度
+                int i =0;
+                if(StringUtils.isNotEmpty(task.getSex())){
+                    ++i;
+                }
+                if(task.getBirthday() != null){
+                    ++i;
+                }
+                if(StringUtils.isNotEmpty(task.getProvinceName())){
+                    ++i;
+                }
+                if(StringUtils.isNotEmpty(task.getProfession())){
+                    ++i;
+                }
+                if(StringUtils.isNotEmpty(task.getPosition())){
+                    ++i;
+                }
+                 task.setIntegrity((double)i/5);
                 return new ResultBean(ApiResultType.OK, task);
             } else {
                 return new ResultBean(ApiResultType.USER_NOT_EXIST, null);

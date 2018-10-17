@@ -11,6 +11,7 @@ import com.fnjz.front.entity.api.userintegral.UserIntegralRestEntity;
 import com.fnjz.front.entity.api.usersignin.UserSignInRestDTO;
 import com.fnjz.front.entity.api.usersignin.UserSignInRestEntity;
 import com.fnjz.front.enums.AcquisitionModeEnum;
+import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.IntegralEnum;
 import com.fnjz.front.enums.SignInEnum;
 import com.fnjz.front.service.api.usersignin.UserSignInRestServiceI;
@@ -64,7 +65,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 }
                 //签到积分记录
                 if (ff.getBehaviorTicketValue() != null) {
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), ff.getAcquisitionMode(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex(),CategoryOfBehaviorEnum.SignIn.getIndex());
                 }
             }
         } else {
@@ -80,7 +81,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     userSignInRestDao.signIn(userInfoId, 1);
                     //签到积分记录
                     if (ff.getBehaviorTicketValue() != null) {
-                        userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), ff.getAcquisitionMode(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex());
+                        userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex(),CategoryOfBehaviorEnum.SignIn.getIndex());
                     }
                 }
             } else {
@@ -98,7 +99,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                         userSignInRestDao.signIn(userInfoId, 1);
                         //签到积分记录
                         if (ff.getBehaviorTicketValue() != null) {
-                            userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), ff.getAcquisitionMode(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex());
+                            userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex(),CategoryOfBehaviorEnum.SignIn.getIndex());
                         }
                     }
                 }
@@ -534,7 +535,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
                     //补签积分记录
                     if (fengFengTicket.getBehaviorTicketValue() != null) {
-                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId(), fengFengTicket.getBehaviorTicketValue(), fengFengTicket.getAcquisitionMode(), AcquisitionModeEnum.Check_in.getDescription(), null);
+                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId(), fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null,CategoryOfBehaviorEnum.SignIn.getIndex());
                     }
                 } else if (after > 0 && before < 1) {
                     //需要追加下次连签记录
@@ -543,7 +544,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, signInDate.plusDays(1).toLocalDate().toString());
                     //补签积分记录
                     if (fengFengTicket.getBehaviorTicketValue() != null) {
-                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId(), fengFengTicket.getBehaviorTicketValue(), fengFengTicket.getAcquisitionMode(), AcquisitionModeEnum.Check_in.getDescription(), null);
+                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId(), fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null,CategoryOfBehaviorEnum.SignIn.getIndex());
                     }
                     //更新redis中连续签到天数
                     redisTemplateUtils.incrementForHashKey(RedisPrefix.PREFIX_SIGN_IN + shareCode, "signInDays", 1);
@@ -565,7 +566,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
                     //补签积分记录
                     if (fengFengTicket.getBehaviorTicketValue() != null) {
-                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId(), fengFengTicket.getBehaviorTicketValue(), fengFengTicket.getAcquisitionMode(), AcquisitionModeEnum.Check_in.getDescription(), null);
+                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId(), fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null,CategoryOfBehaviorEnum.SignIn.getIndex());
                     }
                     //调整status
                     userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, LocalDateTime.ofInstant(signInForSecondDesc.get(0).getSignInDate().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
@@ -577,7 +578,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     userSignInRestDao.reSignIn(userInfoId, 1, signInDate.toLocalDate().toString());
                     //补签积分记录
                     if (fengFengTicket.getBehaviorTicketValue() != null) {
-                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId(), fengFengTicket.getBehaviorTicketValue(), fengFengTicket.getAcquisitionMode(), AcquisitionModeEnum.Check_in.getDescription(), null);
+                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId(), fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null,CategoryOfBehaviorEnum.SignIn.getIndex());
                     }
                 }
             }
