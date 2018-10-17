@@ -1,5 +1,6 @@
 package com.fnjz.front.entity.api;
 
+import javax.persistence.Column;
 import java.util.Date;
 
 /**
@@ -13,7 +14,7 @@ public class UserInviteRestDTO {
     private String avatarUrl;
 
     private Date registerdate;
-
+    @Column(name ="NICK_NAME",length=32)
     public String getNickName() {
         return nickName;
     }
@@ -21,7 +22,7 @@ public class UserInviteRestDTO {
     public void setNickName(String nickName) {
         this.nickName = nickName;
     }
-
+    @Column(name ="AVATAR_URL",nullable=true,length=255)
     public String getAvatarUrl() {
         return avatarUrl;
     }
@@ -29,7 +30,7 @@ public class UserInviteRestDTO {
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
     }
-
+    @Column(name ="REGISTER_DATE")
     public Date getRegisterdate() {
         return registerdate;
     }
