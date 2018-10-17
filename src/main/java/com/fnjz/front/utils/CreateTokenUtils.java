@@ -97,6 +97,10 @@ public class CreateTokenUtils {
      * @return
      */
     public boolean checkTaskComplete(CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum, String userInfoId) {
+        //邀请好友可以多次触发
+        if(acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)){
+            return false;
+        }
         int count = userIntegralRestDao.checkTaskComplete(categoryOfBehaviorEnum.getIndex(), acquisitionModeEnum.getIndex(), userInfoId);
         if (count > 0) {
             return true;
@@ -137,6 +141,12 @@ public class CreateTokenUtils {
             FengFengTicketRestEntity fengFengTicketRestEntity = this.getFengFengTicket(acquisitionModeEnum);
             if (fengFengTicketRestEntity != null) {
                 this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum,categoryOfBehaviorEnum);
+                //删除缓存
+                if(categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.NewbieTask)){
+                    redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_NEWBIE_TASK + userInfoId);
+                }else if(categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.TodayTask)){
+                    redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_TODAY_TASK + userInfoId);
+                }
             }
         }
     }

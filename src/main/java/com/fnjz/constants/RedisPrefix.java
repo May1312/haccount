@@ -46,6 +46,14 @@ public class RedisPrefix {
      */
     public static final String PREFIX_SIGN_IN = "user_sign_in:";
     /**
+     * 新手任务前缀
+     */
+    public static final String PREFIX_NEWBIE_TASK = "user_integral_task:newbie_task:";
+    /**
+     * 今日任务前缀
+     */
+    public static final String PREFIX_TODAY_TASK = "user_integral_task:today_task:";
+    /**
      * 验证码缓存有效时间 默认三分钟
      */
     public static final long VERIFYCODE_VALID_TIME = 3L;

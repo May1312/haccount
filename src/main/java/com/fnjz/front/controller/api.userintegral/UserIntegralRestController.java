@@ -1,5 +1,6 @@
 package com.fnjz.front.controller.api.userintegral;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -68,6 +69,24 @@ public class UserIntegralRestController extends BaseController {
         try {
             PageRest page = userIntegralRestServiceI.listForPage(userInfoId, curPage, pageSize);
             return new ResultBean(ApiResultType.OK,page);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 获取今日任务/新手任务完成情况
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/integralTask", "/integralTask/{type}"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean integralTask(HttpServletRequest request) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            JSONObject jsonObject = userIntegralRestServiceI.integralTask(userInfoId);
+            return new ResultBean(ApiResultType.OK,jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);

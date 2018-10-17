@@ -1,11 +1,13 @@
 package com.fnjz.front.service.impl.api.userintegral;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.FengFengTicketRestDao;
 import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestDTO;
+import com.fnjz.front.entity.api.userintegral.UserIntegralRestEntity;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.IntegralEnum;
@@ -94,5 +96,50 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
         //设置返回结果
         pageRest.setContent(listForPage);
         return pageRest;
+    }
+
+    /**
+     * 获取今日任务/新手任务完成情况
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public JSONObject integralTask(String userInfoId) {
+        Map newbieTask = redisTemplateUtils.getForHash(RedisPrefix.PREFIX_NEWBIE_TASK + userInfoId);
+        Map todayTask = redisTemplateUtils.getForHash(RedisPrefix.PREFIX_TODAY_TASK + userInfoId);
+        if(newbieTask.size()==0){
+            //未获取到新手任务
+            List<UserIntegralRestEntity> taskComplete = userIntegralRestDao.getTaskComplete(CategoryOfBehaviorEnum.NewbieTask.getIndex(),userInfoId);
+            for(UserIntegralRestEntity userIntegralRestEntity:taskComplete){
+                if(userIntegralRestEntity.getType()==AcquisitionModeEnum.binding_phone_or_wx.getIndex()){
+                    //绑定手机号
+                    newbieTask.put("bindPhoneOrWX",1);
+                }else if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Setting_up_budget.getIndex()){
+                    newbieTask.put("budget",1);
+                }else if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Setting_up_savings_efficiency.getIndex()){
+                    newbieTask.put("savingefficiency",1);
+                }else if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Perfecting_personal_data.getIndex()){
+                    newbieTask.put("userInfo",1);
+                }
+            }
+            //缓存
+            redisTemplateUtils.updateForHash(RedisPrefix.PREFIX_NEWBIE_TASK + userInfoId,newbieTask);
+        }
+        if(todayTask.size()==0){
+            //未获取到今日任务
+            List<UserIntegralRestEntity> taskComplete = userIntegralRestDao.getTaskComplete(CategoryOfBehaviorEnum.TodayTask.getIndex(),userInfoId);
+            for(UserIntegralRestEntity userIntegralRestEntity:taskComplete){
+                if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Write_down_an_account.getIndex()){
+                    //记一笔
+                    todayTask.put("toCharge",1);
+                }
+            }
+            //缓存
+            redisTemplateUtils.updateForHash(RedisPrefix.PREFIX_TODAY_TASK + userInfoId,todayTask);
+        }
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("newbieTask",newbieTask);
+        jsonObject.put("todayTask",todayTask);
+        return jsonObject;
     }
 }

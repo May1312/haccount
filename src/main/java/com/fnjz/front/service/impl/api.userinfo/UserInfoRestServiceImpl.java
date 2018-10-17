@@ -235,6 +235,8 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         //判断是否为受邀用户
         if(StringUtils.isNotEmpty(map.get("inviteCode"))){
             userInviteRestDao.insert(ShareCodeUtil.sharecode2id(map.get("inviteCode")),insertId);
+            //引入当日任务
+            createTokenUtils.integralTask(insertId+"", CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
         }
         return insert3;
     }
@@ -381,7 +383,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
         if (StringUtils.isNotEmpty(userInfoRestEntity.getSex()) && userInfoRestEntity.getBirthday() != null && StringUtils.isNotEmpty(userInfoRestEntity.getProvinceName()) && StringUtils.isNotEmpty(userInfoRestEntity.getProfession()) && StringUtils.isNotEmpty(userInfoRestEntity.getPosition())) {
             //引入新手任务
-            createTokenUtils.integralTask(userInfoRestEntity.getId() + "", CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
+            createTokenUtils.integralTask(userInfoRestEntity.getId() + "", CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
         }
         userInfoRestDao.update(userInfoRestEntity);
     }

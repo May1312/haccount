@@ -71,7 +71,7 @@ public class UserSignInRestController extends BaseController {
         LocalDateTime monday = LocalDate.now().with(DayOfWeek.MONDAY).atTime(0, 0, 0);
         //昨天
         LocalDateTime yesterday = LocalDate.now().atTime(0, 0, 0);
-        LocalDateTime signInDate = LocalDateTime.ofInstant( map.get("signInDate").toInstant(), ZoneId.systemDefault());
+        LocalDateTime signInDate = LocalDateTime.ofInstant(map.get("signInDate").toInstant(), ZoneId.systemDefault());
         //校验日期是否在本周
         if (signInDate.isAfter(monday) && signInDate.isBefore(yesterday)) {
             try {

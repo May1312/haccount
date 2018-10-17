@@ -62,4 +62,8 @@ public interface UserIntegralRestDao {
      */
     @Sql("select count(id) from hbird_user_integral where user_info_id=:userInfoId and if(:categoryOfBehaviorEnum=1,type=:acquisitionModeEnum,type=:acquisitionModeEnum and create_date like concat(CURRENT_DATE,'%'));")
     int checkTaskComplete(@Param("categoryOfBehaviorEnum") int categoryOfBehaviorEnum,@Param("acquisitionModeEnum") int acquisitionModeEnum,@Param("userInfoId") String userInfoId);
+
+    @ResultType(UserIntegralRestEntity.class)
+    @Sql("select * from hbird_user_integral where user_info_id=:userInfoId and if(:categoryOfBehaviorEnum=1,1=1,create_date like concat(CURRENT_DATE,'%'));")
+    List<UserIntegralRestEntity> getTaskComplete(@Param("categoryOfBehaviorEnum") int categoryOfBehaviorEnum,@Param("userInfoId") String userInfoId);
 }
