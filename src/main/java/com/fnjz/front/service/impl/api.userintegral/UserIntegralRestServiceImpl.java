@@ -17,7 +17,6 @@ import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -266,7 +265,6 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                         jsonObject.put("inviteFriendsAware", Integer.valueOf(map.get("integraltaskaware") + ""));
                         jsonObjectForUser.put("integralAware", Integer.valueOf(map.get("integraltaskaware") + ""));
                         jsonObjectForUser = patchDate(taskComplete, jsonObjectForUser, AcquisitionModeEnum.Inviting_friends);
-                        BeanUtils.copyProperties(cacheJsonObjectForUser, jsonObjectForUser, new String[]{"integralAware"});
                         cacheJsonObjectForUser = (JSONObject) jsonObjectForUser.clone();
                         cacheJsonObjectForUser.remove("integralAware");
                     } else if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Write_down_an_account.getName())) {
@@ -299,7 +297,6 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                         //设置设置积分数
                         jsonObject.put("integralAware", entry.getValue());
                         jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Inviting_friends);
-                        BeanUtils.copyProperties(cacheJsonObject, jsonObject, new String[]{"integralAware"});
                         cacheJsonObject = (JSONObject) jsonObject.clone();
                         cacheJsonObject.remove("integralAware");
                     } else if (StringUtils.equals(entry.getKey() + "", "toCharge")) {
@@ -366,32 +363,38 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
         for (UserIntegralRestEntity userIntegralRestEntity : taskComplete) {
             if (userIntegralRestEntity.getType() == AcquisitionModeEnum.binding_phone_or_wx.getIndex()) {
                 if (AcquisitionModeEnum.binding_phone_or_wx == acquisitionModeEnum) {
-                    jsonObject.put("name", "bindPhoneOrWX");
+                    jsonObject.put("name", AcquisitionModeEnum.binding_phone_or_wx.getForUser());
+                    jsonObject.put("description", AcquisitionModeEnum.binding_phone_or_wx.getDescription());
                     jsonObject.put("status", 2);
                 }
             } else if (userIntegralRestEntity.getType() == AcquisitionModeEnum.Setting_up_budget.getIndex()) {
                 if (AcquisitionModeEnum.Setting_up_budget == acquisitionModeEnum) {
-                    jsonObject.put("name", "budget");
+                    jsonObject.put("name", AcquisitionModeEnum.Setting_up_budget.getForUser());
+                    jsonObject.put("description", AcquisitionModeEnum.Setting_up_budget.getDescription());
                     jsonObject.put("status", 2);
                 }
             } else if (userIntegralRestEntity.getType() == AcquisitionModeEnum.Setting_up_savings_efficiency.getIndex()) {
                 if (AcquisitionModeEnum.Setting_up_savings_efficiency == acquisitionModeEnum) {
-                    jsonObject.put("name", "savingEfficiency");
+                    jsonObject.put("name", AcquisitionModeEnum.Setting_up_savings_efficiency.getForUser());
+                    jsonObject.put("description", AcquisitionModeEnum.Setting_up_savings_efficiency.getDescription());
                     jsonObject.put("status", 2);
                 }
             } else if (userIntegralRestEntity.getType() == AcquisitionModeEnum.Perfecting_personal_data.getIndex()) {
                 if (AcquisitionModeEnum.Perfecting_personal_data == acquisitionModeEnum) {
-                    jsonObject.put("name", "userInfo");
+                    jsonObject.put("name", AcquisitionModeEnum.Perfecting_personal_data.getForUser());
+                    jsonObject.put("description", AcquisitionModeEnum.Perfecting_personal_data.getDescription());
                     jsonObject.put("status", 2);
                 }
             } else if (userIntegralRestEntity.getType() == AcquisitionModeEnum.Write_down_an_account.getIndex()) {
                 if (AcquisitionModeEnum.Write_down_an_account == acquisitionModeEnum) {
-                    jsonObject.put("name", "toCharge");
+                    jsonObject.put("name", AcquisitionModeEnum.Write_down_an_account.getForUser());
+                    jsonObject.put("description", AcquisitionModeEnum.Write_down_an_account.getDescription());
                     jsonObject.put("status", 2);
                 }
             } else if (userIntegralRestEntity.getType() == AcquisitionModeEnum.Inviting_friends.getIndex()) {
                 if (AcquisitionModeEnum.Inviting_friends == acquisitionModeEnum) {
-                    jsonObject.put("name", "inviteFriends");
+                    jsonObject.put("name", AcquisitionModeEnum.Inviting_friends.getForUser());
+                    jsonObject.put("description", AcquisitionModeEnum.Inviting_friends.getDescription());
                     jsonObject.put("status", 2);
                 }
             }
@@ -399,22 +402,28 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
         //当只存在 积分数时 ---->追加当前类型
         if (jsonObject.size() == 1) {
             if (AcquisitionModeEnum.binding_phone_or_wx == acquisitionModeEnum) {
-                jsonObject.put("name", "bindPhoneOrWX");
+                jsonObject.put("name", AcquisitionModeEnum.binding_phone_or_wx.getForUser());
+                jsonObject.put("description", AcquisitionModeEnum.binding_phone_or_wx.getDescription());
                 jsonObject.put("status", 1);
             } else if (AcquisitionModeEnum.Setting_up_budget == acquisitionModeEnum) {
-                jsonObject.put("name", "budget");
+                jsonObject.put("name", AcquisitionModeEnum.Setting_up_budget.getForUser());
+                jsonObject.put("description", AcquisitionModeEnum.Setting_up_budget.getDescription());
                 jsonObject.put("status", 1);
             } else if (AcquisitionModeEnum.Setting_up_savings_efficiency == acquisitionModeEnum) {
-                jsonObject.put("name", "savingEfficiency");
+                jsonObject.put("name", AcquisitionModeEnum.Setting_up_savings_efficiency.getForUser());
+                jsonObject.put("description", AcquisitionModeEnum.Setting_up_savings_efficiency.getDescription());
                 jsonObject.put("status", 1);
             } else if (AcquisitionModeEnum.Perfecting_personal_data == acquisitionModeEnum) {
-                jsonObject.put("name", "userInfo");
+                jsonObject.put("name", AcquisitionModeEnum.Perfecting_personal_data.getForUser());
+                jsonObject.put("description", AcquisitionModeEnum.Perfecting_personal_data.getDescription());
                 jsonObject.put("status", 1);
             } else if (AcquisitionModeEnum.Write_down_an_account == acquisitionModeEnum) {
-                jsonObject.put("name", "toCharge");
+                jsonObject.put("name", AcquisitionModeEnum.Write_down_an_account.getForUser());
+                jsonObject.put("description", AcquisitionModeEnum.Write_down_an_account.getDescription());
                 jsonObject.put("status", 1);
             } else if (AcquisitionModeEnum.Inviting_friends == acquisitionModeEnum) {
-                jsonObject.put("name", "inviteFriends");
+                jsonObject.put("name", AcquisitionModeEnum.Inviting_friends.getForUser());
+                jsonObject.put("description", AcquisitionModeEnum.Inviting_friends.getDescription());
                 jsonObject.put("status", 1);
             }
         }
