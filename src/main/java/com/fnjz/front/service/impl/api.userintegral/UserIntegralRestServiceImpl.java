@@ -1,5 +1,7 @@
 package com.fnjz.front.service.impl.api.userintegral;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.FengFengTicketRestDao;
@@ -15,6 +17,7 @@ import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +50,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 int signIn_7 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_7");
                 if (signIn_7 != 2 && signInDays >= IntegralEnum.SIGNIN_7.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_7.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue(),AcquisitionModeEnum.SignIn.getDescription(),IntegralEnum.SIGNIN_7.getIndex(),CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_7.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_7", 2);
                 }
@@ -55,7 +58,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 int signIn_14 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_14");
                 if (signIn_14 != 2 && signInDays >= IntegralEnum.SIGNIN_14.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_14.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue(),AcquisitionModeEnum.SignIn.getDescription(),IntegralEnum.SIGNIN_14.getIndex(),CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_14.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_14", 2);
                 }
@@ -63,7 +66,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 int signIn_21 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_21");
                 if (signIn_21 != 2 && signInDays >= IntegralEnum.SIGNIN_21.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_21.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue(),AcquisitionModeEnum.SignIn.getDescription(),IntegralEnum.SIGNIN_21.getIndex(),CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_21.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_21", 2);
                 }
@@ -71,7 +74,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 int signIn_28 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_28");
                 if (signIn_28 != 2 && signInDays >= IntegralEnum.SIGNIN_28.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_28.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId,ff.getId(),ff.getBehaviorTicketValue(),AcquisitionModeEnum.SignIn.getDescription(),IntegralEnum.SIGNIN_28.getIndex(),CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId(), ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_28.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_28", 2);
                 }
@@ -82,13 +85,13 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
     @Override
     public PageRest listForPage(String userInfoId, Integer curPage, Integer pageSize) {
         PageRest pageRest = new PageRest();
-        if(curPage!=null){
+        if (curPage != null) {
             pageRest.setCurPage(curPage);
         }
-        if(pageSize!=null){
+        if (pageSize != null) {
             pageRest.setPageSize(pageSize);
         }
-        List<UserIntegralRestDTO> listForPage = userIntegralRestDao.listForPage(userInfoId,pageRest.getStartIndex(),pageRest.getPageSize());
+        List<UserIntegralRestDTO> listForPage = userIntegralRestDao.listForPage(userInfoId, pageRest.getStartIndex(), pageRest.getPageSize());
         //获取总条数
         Integer count = userIntegralRestDao.getCount(userInfoId);
         //设置总记录数
@@ -100,46 +103,360 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
 
     /**
      * 获取今日任务/新手任务完成情况
+     *
      * @param userInfoId
      * @return
      */
     @Override
-    public JSONObject integralTask(String userInfoId) {
-        Map newbieTask = redisTemplateUtils.getForHash(RedisPrefix.PREFIX_NEWBIE_TASK + userInfoId);
-        Map todayTask = redisTemplateUtils.getForHash(RedisPrefix.PREFIX_TODAY_TASK + userInfoId);
-        if(newbieTask.size()==0){
-            //未获取到新手任务
-            List<UserIntegralRestEntity> taskComplete = userIntegralRestDao.getTaskComplete(CategoryOfBehaviorEnum.NewbieTask.getIndex(),userInfoId);
-            for(UserIntegralRestEntity userIntegralRestEntity:taskComplete){
-                if(userIntegralRestEntity.getType()==AcquisitionModeEnum.binding_phone_or_wx.getIndex()){
-                    //绑定手机号
-                    newbieTask.put("bindPhoneOrWX",1);
-                }else if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Setting_up_budget.getIndex()){
-                    newbieTask.put("budget",1);
-                }else if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Setting_up_savings_efficiency.getIndex()){
-                    newbieTask.put("savingEfficiency",1);
-                }else if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Perfecting_personal_data.getIndex()){
-                    newbieTask.put("userInfo",1);
+    public JSONObject integralTask(String userInfoId, String shareCode) {
+        String cacheNewbieTask = redisTemplateUtils.getForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode);
+        JSONArray newbieTask = JSONArray.parseArray(cacheNewbieTask);
+        String cacheTodayTask = redisTemplateUtils.getForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
+        JSONArray todayTask = JSONArray.parseArray(cacheTodayTask);
+        //查询任务对应积分数---->系统缓存数据
+        Map<?, ?> cacheSysNewbieTask = redisTemplateUtils.getForHash(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK);
+        Map<?, ?> cacheSysTodayTask = redisTemplateUtils.getForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK);
+        if (cacheNewbieTask == null) {
+            //未获取到新手任务 获取用户已完成的新手任务
+            List<UserIntegralRestEntity> taskComplete = userIntegralRestDao.getTaskComplete(CategoryOfBehaviorEnum.NewbieTask.getIndex(), userInfoId);
+            JSONArray jsonArrayForUser = new JSONArray();
+            JSONArray cacheJsonArrayForUser = new JSONArray();
+            if (cacheSysNewbieTask.size() == 0) {
+                //未缓存新手任务缓存---->重查
+                List<Map<String, Object>> newBieTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.NewbieTask.getName());
+                JSONObject jsonObject = new JSONObject();
+                for (Map<String, Object> map : newBieTaskAware) {
+                    JSONObject jsonObjectForUser = new JSONObject();
+                    JSONObject cacheJsonObjectForUser = new JSONObject();
+                    if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.binding_phone_or_wx.getName())) {
+                        //绑定手机号/微信
+                        jsonObject.put("bindPhoneOrWXAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        //TODO jsonObject缓存系统   jsonObjectForUser缓存个人---->去掉系统属性  每次拼装数据
+                        jsonObjectForUser.put("integralAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser = patchDate(taskComplete, jsonObjectForUser, AcquisitionModeEnum.binding_phone_or_wx);
+                        cacheJsonObjectForUser = (JSONObject) jsonObjectForUser.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    } else if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Setting_up_budget.getName())) {
+                        //设置预算
+                        jsonObject.put("budgetAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser.put("integralAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser = patchDate(taskComplete, jsonObjectForUser, AcquisitionModeEnum.Setting_up_budget);
+                        cacheJsonObjectForUser = (JSONObject) jsonObjectForUser.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    } else if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Setting_up_savings_efficiency.getName())) {
+                        //设置存钱效率
+                        jsonObject.put("savingEfficiencyAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser.put("integralAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser = patchDate(taskComplete, jsonObjectForUser, AcquisitionModeEnum.Setting_up_savings_efficiency);
+                        cacheJsonObjectForUser = (JSONObject) jsonObjectForUser.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    } else if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Perfecting_personal_data.getName())) {
+                        //完善个人资料
+                        jsonObject.put("userInfoAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser.put("integralAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser = patchDate(taskComplete, jsonObjectForUser, AcquisitionModeEnum.Perfecting_personal_data);
+                        cacheJsonObjectForUser = (JSONObject) jsonObjectForUser.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    }
+                    //返给user
+                    if (jsonObjectForUser.size() > 0) {
+                        jsonArrayForUser.add(jsonObjectForUser);
+                    }
+                    //cache
+                    if (cacheJsonObjectForUser.size() > 0) {
+                        cacheJsonArrayForUser.add(cacheJsonObjectForUser);
+                    }
+                }
+                //缓存系统
+                redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK, jsonObject);
+                //个人
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, cacheJsonArrayForUser.toJSONString());
+                newbieTask = jsonArrayForUser;
+            } else {
+                //拿到系统缓存---->整合数据
+                for (Map.Entry entry : cacheSysNewbieTask.entrySet()) {
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject cacheJsonObjectForUser = new JSONObject();
+                    if (StringUtils.equals(entry.getKey() + "", "bindPhoneOrWXAware")) {
+                        //设置积分数
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.binding_phone_or_wx);
+                        cacheJsonObjectForUser = (JSONObject) jsonObject.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    } else if (StringUtils.equals(entry.getKey() + "", "budgetAware")) {
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Setting_up_budget);
+                        cacheJsonObjectForUser = (JSONObject) jsonObject.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    } else if (StringUtils.equals(entry.getKey() + "", "savingEfficiencyAware")) {
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Setting_up_savings_efficiency);
+                        cacheJsonObjectForUser = (JSONObject) jsonObject.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    } else if (StringUtils.equals(entry.getKey() + "", "userInfoAware")) {
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Perfecting_personal_data);
+                        cacheJsonObjectForUser = (JSONObject) jsonObject.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    }
+                    if (jsonObject.size() > 0) {
+                        jsonArrayForUser.add(jsonObject);
+                    }
+                    if (cacheJsonObjectForUser.size() > 0) {
+                        cacheJsonArrayForUser.add(cacheJsonObjectForUser);
+                    }
                 }
             }
             //缓存
-            redisTemplateUtils.updateForHash(RedisPrefix.PREFIX_NEWBIE_TASK + userInfoId,newbieTask);
+            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, cacheJsonArrayForUser.toJSONString());
+            newbieTask = jsonArrayForUser;
+        } else {
+            //判断系统缓存---->整合数据
+            if (cacheSysNewbieTask.size() == 0) {
+                //未缓存新手任务缓存---->重查
+                List<Map<String, Object>> newBieTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.NewbieTask.getName());
+                JSONObject jsonObject = new JSONObject();
+                for (Map<String, Object> map : newBieTaskAware) {
+                    JSONObject cacheJsonObjectForUser = new JSONObject();
+                    if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.binding_phone_or_wx.getName())) {
+                        //绑定手机号/微信
+                        jsonObject.put("bindPhoneOrWXAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                    } else if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Setting_up_budget.getName())) {
+                        //设置预算
+                        jsonObject.put("budgetAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                    } else if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Setting_up_savings_efficiency.getName())) {
+                        //设置存钱效率
+                        jsonObject.put("savingEfficiencyAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                    } else if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Perfecting_personal_data.getName())) {
+                        //完善个人资料
+                        jsonObject.put("userInfoAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                    }
+                }
+                //缓存系统
+                redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK, jsonObject);
+                cacheSysNewbieTask = jsonObject;
+            }
+            for (Map.Entry entry : cacheSysNewbieTask.entrySet()) {
+                if (StringUtils.equals(entry.getKey() + "", "bindPhoneOrWXAware")) {
+                    //设置积分数
+                    newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.binding_phone_or_wx);
+                } else if (StringUtils.equals(entry.getKey() + "", "budgetAware")) {
+                    newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget);
+                } else if (StringUtils.equals(entry.getKey() + "", "savingEfficiencyAware")) {
+                    newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget);
+                } else if (StringUtils.equals(entry.getKey() + "", "userInfoAware")) {
+                    newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Perfecting_personal_data);
+                }
+            }
         }
-        if(todayTask.size()==0){
-            //未获取到今日任务
-            List<UserIntegralRestEntity> taskComplete = userIntegralRestDao.getTaskComplete(CategoryOfBehaviorEnum.TodayTask.getIndex(),userInfoId);
-            for(UserIntegralRestEntity userIntegralRestEntity:taskComplete){
-                if(userIntegralRestEntity.getType()==AcquisitionModeEnum.Write_down_an_account.getIndex()){
-                    //记一笔
-                    todayTask.put("toCharge",1);
+        if (cacheTodayTask == null) {
+            //查询任务对应积分数---->系统缓存数据
+            List<UserIntegralRestEntity> taskComplete = userIntegralRestDao.getTaskComplete(CategoryOfBehaviorEnum.TodayTask.getIndex(), userInfoId);
+            JSONArray jsonArrayForUser = new JSONArray();
+            JSONArray cacheJsonArrayForUser = new JSONArray();
+            if (cacheSysTodayTask.size() == 0) {
+                //未缓存今日任务缓存---->重查
+                List<Map<String, Object>> todayTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.TodayTask.getName());
+                JSONObject jsonObject = new JSONObject();
+                for (Map<String, Object> map : todayTaskAware) {
+                    JSONObject jsonObjectForUser = new JSONObject();
+                    JSONObject cacheJsonObjectForUser = new JSONObject();
+                    if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Inviting_friends.getName())) {
+                        //邀请好友
+                        jsonObject.put("inviteFriendsAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser.put("integralAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser = patchDate(taskComplete, jsonObjectForUser, AcquisitionModeEnum.Inviting_friends);
+                        BeanUtils.copyProperties(cacheJsonObjectForUser, jsonObjectForUser, new String[]{"integralAware"});
+                        cacheJsonObjectForUser = (JSONObject) jsonObjectForUser.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    } else if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Write_down_an_account.getName())) {
+                        //记一笔账
+                        jsonObject.put("toChargeAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser.put("integralAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                        jsonObjectForUser = patchDate(taskComplete, jsonObjectForUser, AcquisitionModeEnum.Write_down_an_account);
+                        cacheJsonObjectForUser = (JSONObject) jsonObjectForUser.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    }
+                    if (jsonObject.size() > 0) {
+                        jsonArrayForUser.add(jsonObjectForUser);
+                    }
+                    if (cacheJsonObjectForUser.size() > 0) {
+                        cacheJsonArrayForUser.add(cacheJsonObjectForUser);
+                    }
+                }
+                //缓存系统
+                redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, jsonObject);
+                //个人
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString());
+
+                todayTask = jsonArrayForUser;
+            } else {
+                //拿到系统缓存---->整合数据
+                for (Map.Entry entry : cacheSysTodayTask.entrySet()) {
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject cacheJsonObject = new JSONObject();
+                    if (StringUtils.equals(entry.getKey() + "", "inviteFriends")) {
+                        //设置设置积分数
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Inviting_friends);
+                        BeanUtils.copyProperties(cacheJsonObject, jsonObject, new String[]{"integralAware"});
+                        cacheJsonObject = (JSONObject) jsonObject.clone();
+                        cacheJsonObject.remove("integralAware");
+                    } else if (StringUtils.equals(entry.getKey() + "", "toCharge")) {
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Write_down_an_account);
+                        cacheJsonObject = (JSONObject) jsonObject.clone();
+                        cacheJsonObject.remove("integralAware");
+                    }
+                    if (jsonObject.size() > 0) {
+                        jsonArrayForUser.add(jsonObject);
+                    }
+                    if (cacheJsonObject.size() > 0) {
+                        cacheJsonArrayForUser.add(cacheJsonObject);
+                    }
                 }
             }
             //缓存
-            redisTemplateUtils.updateForHash(RedisPrefix.PREFIX_TODAY_TASK + userInfoId,todayTask);
+            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString());
+            todayTask = jsonArrayForUser;
+        } else {
+            //判断系统缓存---->整合数据
+            if (cacheSysTodayTask.size() == 0) {
+                //未缓存新手任务缓存---->重查
+                List<Map<String, Object>> todayTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.TodayTask.getName());
+                JSONObject jsonObject = new JSONObject();
+                for (Map<String, Object> map : todayTaskAware) {
+                    if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Inviting_friends.getName())) {
+                        //邀请好友
+                        jsonObject.put("inviteFriendsAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                    } else if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Write_down_an_account.getName())) {
+                        //记一笔账
+                        jsonObject.put("toChargeAware", Integer.valueOf(map.get("integraltaskaware") + ""));
+                    }
+                }
+                //缓存系统
+                redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, jsonObject);
+                cacheSysTodayTask = jsonObject;
+            }
+            for (Map.Entry entry : cacheSysTodayTask.entrySet()) {
+                if (StringUtils.equals(entry.getKey() + "", "inviteFriendsAware")) {
+                    //设置积分数
+                    todayTask = patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Inviting_friends);
+                } else if (StringUtils.equals(entry.getKey() + "", "toChargeAware")) {
+                    todayTask = patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Write_down_an_account);
+                }
+            }
         }
+
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("newbieTask",newbieTask);
-        jsonObject.put("todayTask",todayTask);
+        jsonObject.put("newbieTask", newbieTask);
+        jsonObject.put("todayTask", todayTask);
         return jsonObject;
+    }
+
+    /**
+     * taskComplete--->mysql中的任务完成情况  jsonObject-->传入的需要返回的对象 acquisitionModeEnum-->对应的行为
+     *
+     * @param taskComplete
+     * @param jsonObject
+     * @return
+     */
+    private JSONObject patchDate(List<UserIntegralRestEntity> taskComplete, JSONObject jsonObject, AcquisitionModeEnum acquisitionModeEnum) {
+        //遍历 ----> 追加奖励积分
+        for (UserIntegralRestEntity userIntegralRestEntity : taskComplete) {
+            if (userIntegralRestEntity.getType() == AcquisitionModeEnum.binding_phone_or_wx.getIndex()) {
+                if (AcquisitionModeEnum.binding_phone_or_wx == acquisitionModeEnum) {
+                    jsonObject.put("name", "bindPhoneOrWX");
+                    jsonObject.put("status", 2);
+                }
+            } else if (userIntegralRestEntity.getType() == AcquisitionModeEnum.Setting_up_budget.getIndex()) {
+                if (AcquisitionModeEnum.Setting_up_budget == acquisitionModeEnum) {
+                    jsonObject.put("name", "budget");
+                    jsonObject.put("status", 2);
+                }
+            } else if (userIntegralRestEntity.getType() == AcquisitionModeEnum.Setting_up_savings_efficiency.getIndex()) {
+                if (AcquisitionModeEnum.Setting_up_savings_efficiency == acquisitionModeEnum) {
+                    jsonObject.put("name", "savingEfficiency");
+                    jsonObject.put("status", 2);
+                }
+            } else if (userIntegralRestEntity.getType() == AcquisitionModeEnum.Perfecting_personal_data.getIndex()) {
+                if (AcquisitionModeEnum.Perfecting_personal_data == acquisitionModeEnum) {
+                    jsonObject.put("name", "userInfo");
+                    jsonObject.put("status", 2);
+                }
+            } else if (userIntegralRestEntity.getType() == AcquisitionModeEnum.Write_down_an_account.getIndex()) {
+                if (AcquisitionModeEnum.Write_down_an_account == acquisitionModeEnum) {
+                    jsonObject.put("name", "toCharge");
+                    jsonObject.put("status", 2);
+                }
+            } else if (userIntegralRestEntity.getType() == AcquisitionModeEnum.Inviting_friends.getIndex()) {
+                if (AcquisitionModeEnum.Inviting_friends == acquisitionModeEnum) {
+                    jsonObject.put("name", "inviteFriends");
+                    jsonObject.put("status", 2);
+                }
+            }
+        }
+        //当只存在 积分数时 ---->追加当前类型
+        if (jsonObject.size() == 1) {
+            if (AcquisitionModeEnum.binding_phone_or_wx == acquisitionModeEnum) {
+                jsonObject.put("name", "bindPhoneOrWX");
+                jsonObject.put("status", 1);
+            } else if (AcquisitionModeEnum.Setting_up_budget == acquisitionModeEnum) {
+                jsonObject.put("name", "budget");
+                jsonObject.put("status", 1);
+            } else if (AcquisitionModeEnum.Setting_up_savings_efficiency == acquisitionModeEnum) {
+                jsonObject.put("name", "savingEfficiency");
+                jsonObject.put("status", 1);
+            } else if (AcquisitionModeEnum.Perfecting_personal_data == acquisitionModeEnum) {
+                jsonObject.put("name", "userInfo");
+                jsonObject.put("status", 1);
+            } else if (AcquisitionModeEnum.Write_down_an_account == acquisitionModeEnum) {
+                jsonObject.put("name", "toCharge");
+                jsonObject.put("status", 1);
+            } else if (AcquisitionModeEnum.Inviting_friends == acquisitionModeEnum) {
+                jsonObject.put("name", "inviteFriends");
+                jsonObject.put("status", 1);
+            }
+        }
+        return jsonObject;
+    }
+
+    /**
+     * taskComplete--->cache中的任务完成情况  jsonObject-->传入的需要返回的对象 acquisitionModeEnum-->对应的行为
+     *
+     * @param taskComplete
+     * @return
+     */
+    private JSONArray patchDate2(JSONArray taskComplete, int integral, AcquisitionModeEnum acquisitionModeEnum) {
+        //遍历 ----> 追加奖励积分
+        List<JSONObject> jsonObjects = JSONArray.parseArray(taskComplete.toJSONString(), JSONObject.class);
+        for (JSONObject obj : jsonObjects) {
+            if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.binding_phone_or_wx.getForUser())) {
+                if (AcquisitionModeEnum.binding_phone_or_wx == acquisitionModeEnum) {
+                    obj.put("integralAware", integral);
+                }
+            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Setting_up_budget.getForUser())) {
+                if (AcquisitionModeEnum.Setting_up_budget == acquisitionModeEnum) {
+                    obj.put("integralAware", integral);
+                }
+            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Setting_up_savings_efficiency.getForUser())) {
+                if (AcquisitionModeEnum.Setting_up_savings_efficiency == acquisitionModeEnum) {
+                    obj.put("integralAware", integral);
+                }
+            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Perfecting_personal_data.getForUser())) {
+                if (AcquisitionModeEnum.Perfecting_personal_data == acquisitionModeEnum) {
+                    obj.put("integralAware", integral);
+                }
+            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Write_down_an_account.getForUser())) {
+                if (AcquisitionModeEnum.Write_down_an_account == acquisitionModeEnum) {
+                    obj.put("integralAware", integral);
+                }
+            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Inviting_friends.getForUser())) {
+                if (AcquisitionModeEnum.Inviting_friends == acquisitionModeEnum) {
+                    obj.put("integralAware", integral);
+                }
+            }
+        }
+        return JSONArray.parseArray(JSON.toJSONString(jsonObjects));
     }
 }

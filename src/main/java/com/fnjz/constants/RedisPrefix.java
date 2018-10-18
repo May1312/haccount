@@ -92,7 +92,14 @@ public class RedisPrefix {
      * 缓存系统连续签到领取积分
      */
     public static final String SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE = "sys_integral:sign_in_cycle_aware";
-
+    /**
+     * 缓存系统新手任务领取积分
+     */
+    public static final String SYS_INTEGRAL_NEWBIE_TASK = "sys_integral:newbie_task_aware";
+    /**
+     * 缓存系统今日任务领取积分
+     */
+    public static final String SYS_INTEGRAL_TODAY_TASK = "sys_integral:today_task_aware";
     /**
      * 缓存用户连续签到领取积分数据
      */

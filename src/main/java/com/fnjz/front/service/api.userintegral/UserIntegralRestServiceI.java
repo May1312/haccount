@@ -27,5 +27,5 @@ public interface UserIntegralRestServiceI extends CommonService{
      * @param userInfoId
      * @return
      */
-    JSONObject integralTask(String userInfoId);
+    JSONObject integralTask(String userInfoId,String shareCode);
 }

@@ -26,6 +26,15 @@ public interface FengFengTicketRestDao {
     List<Map<String,String>> getSignInCycle(@Param("categoryOfBehavior")String categoryOfBehavior, @Param("acquisitionMode")String acquisitionMode);
 
     /**
+     * 获取今日任务/新手任务 对应积分数
+     * @param categoryOfBehavior
+     * @return
+     */
+    @ResultType(Map.class)
+    @Sql("SELECT acquisition_mode as acquisitionMode, behavior_ticket_value as integralTaskAware FROM `hbird_fengfeng_ticket` where category_of_behavior = :categoryOfBehavior and status=1;")
+    List<Map<String,Object>> getIntegralTaskAware(@Param("categoryOfBehavior")String categoryOfBehavior);
+
+    /**
      * 根据周数获取所有参数
      * @param categoryOfBehavior
      * @param acquisitionMode

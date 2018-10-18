@@ -218,6 +218,14 @@ public class RedisTemplateUtils {
         return Integer.valueOf(redisTemplate.opsForHash().get(key,mapKey)+"");
     }
 
+    public void cacheForString(String key, String list) {
+        redisTemplate.opsForValue().set(key,list);
+    }
+
+    public String getForString(String key) {
+        return (String) redisTemplate.opsForValue().get(key);
+    }
+
     /**
      * 记账总笔数 1为递增  2 为递减
      *
