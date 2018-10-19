@@ -108,7 +108,17 @@ public class RedisPrefix {
     /**
      * 缓存用户首页公告读取次数
      */
-    public static final String USER_HOME_WINDOW_READ = "user_home_window_read:";
+    public static final String USER_HOME_WINDOW_READ = "home_window_read:user_read:";
+
+    /**
+     * 缓存系统首页公告读取次数
+     */
+    public static final String SYS_HOME_WINDOW_READ = "home_window_read:sys_read:";
+
+    /**
+     * 缓存系统首页公告读取次数
+     */
+    public static final String SYS_SLIDESHOW_READ = "sys_slideShow_read:";
 
     /**
      * 缓存用户邀请好友数

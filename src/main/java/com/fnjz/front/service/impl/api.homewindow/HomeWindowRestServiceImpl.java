@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.HomeWindowRestDao;
+import com.fnjz.front.entity.api.banner.BannerRestDTO;
 import com.fnjz.front.entity.api.homewindow.HomeWindowRestDTO;
 import com.fnjz.front.service.api.homewindow.HomeWindowRestServiceI;
 import com.fnjz.front.utils.RedisTemplateUtils;
@@ -120,5 +121,19 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
         result.put("inviteCount", jsonObject);
         result.put("activity", list);
         return result;
+    }
+
+    /**
+     * 获取轮播图
+     * @param userInfoId
+     * @param shareCode
+     * @return
+     */
+    @Override
+    public JSONObject listForSlideShow(String userInfoId, String shareCode) {
+        List<BannerRestDTO> list = homeWindowRestDao.listForSlideShow();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("slideShow",list);
+        return jsonObject;
     }
 }

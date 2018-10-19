@@ -61,6 +61,12 @@ public class HomeWindowRestController extends BaseController {
         }
     }
 
+    /**
+     * 用户读取活动
+     * @param request
+     * @param map
+     * @return
+     */
     @RequestMapping(value = {"/homeWindow/hasRead", "/homeWindow/hasRead/{type}"}, method = RequestMethod.PUT)
     @ResponseBody
     public ResultBean hasRead(HttpServletRequest request, @RequestBody Map<String,String> map) {
@@ -74,6 +80,8 @@ public class HomeWindowRestController extends BaseController {
                         JSONObject jsonObject = activity.getJSONObject(i);
                         if(StringUtils.equals(jsonObject.getString("activityId"),map.get("activityId"))){
                             jsonObject.put("hasRead",2);
+                            //统计点击人数
+                            statisticsHasRead(RedisPrefix.SYS_HOME_WINDOW_READ+map.get("activityId"));
                         }
                     }
                     //重置缓存
@@ -84,6 +92,44 @@ public class HomeWindowRestController extends BaseController {
                 logger.error(e.toString());
                 return new ResultBean(ApiResultType.SERVER_ERROR, null);
             }
+        }
+        return new ResultBean(ApiResultType.OK, null);
+    }
+
+    private void statisticsHasRead(String key){
+        redisTemplateUtils.incrementForHash(key,"hasRead",1);
+    }
+
+    /**
+     * 轮播图
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/slideShow", "/slideShow/{type}"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean slideShow(HttpServletRequest request) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        String shareCode = (String) request.getAttribute("shareCode");
+        try {
+            JSONObject jsonObject = homeWindowRestServiceI.listForSlideShow(userInfoId, shareCode);
+            return new ResultBean(ApiResultType.OK, jsonObject);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 轮播图已读
+     * @param map
+     * @return
+     */
+    @RequestMapping(value = {"/slideShow/hasRead", "/slideShow/hasRead/{type}"}, method = RequestMethod.PUT)
+    @ResponseBody
+    public ResultBean slideShow(@RequestBody Map<String,String> map) {
+        if(map.get("slideShowId")!=null){
+            //统计点击人数
+            statisticsHasRead(RedisPrefix.SYS_SLIDESHOW_READ+map.get("slideShowId"));
         }
         return new ResultBean(ApiResultType.OK, null);
     }
