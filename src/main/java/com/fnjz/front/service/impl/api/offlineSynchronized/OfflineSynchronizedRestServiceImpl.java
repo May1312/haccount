@@ -8,6 +8,7 @@ import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
 import com.fnjz.front.utils.CreateTokenUtils;
+import com.fnjz.front.utils.ShareCodeUtil;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +90,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 list.sort(Comparator.naturalOrder());
                 if(LocalDateTime.ofInstant( list.get(list.size()-1).getCreateDate().toInstant(), ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now())){
                     //引入当日任务 判断当前时间是否为
-                    createTokenUtils.integralTask(userInfoId, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+                    createTokenUtils.integralTask(userInfoId,ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
                 }
                 for(WarterOrderRestEntity warter:list){
                     //同步数据

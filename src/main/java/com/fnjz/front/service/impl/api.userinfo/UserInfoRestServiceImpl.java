@@ -237,7 +237,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             int userInfoId = ShareCodeUtil.sharecode2id(map.get("inviteCode"));
             userInviteRestDao.insert(userInfoId,insertId);
             //引入当日任务
-            createTokenUtils.integralTask(userInfoId+"", CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
+            createTokenUtils.integralTask(userInfoId+"",ShareCodeUtil.id2sharecode(userInfoId), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
         }
         return insert3;
     }
@@ -325,7 +325,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     @Override
     public int updateMobile(String userInfoId, String mobile) {
         //引入新手任务
-        createTokenUtils.integralTask(userInfoId, CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
+        createTokenUtils.integralTask(userInfoId,ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
         int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `mobile` = '" + mobile + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
         if (i > 0) {
             //更新info表
@@ -349,7 +349,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     @Override
     public int updateWeChat(String userInfoId, String code, String unionid) {
         //引入新手任务
-        createTokenUtils.integralTask(userInfoId, CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
+        createTokenUtils.integralTask(userInfoId, ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)),CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
         if (StringUtils.isNotEmpty(unionid)) {
             int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_user_login` SET `wechat_auth` = '" + unionid + "', `update_date` = NOW() WHERE `mobile` = '" + code + "';");
             if (i > 0) {
@@ -384,7 +384,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
         if (StringUtils.isNotEmpty(userInfoRestEntity.getSex()) && userInfoRestEntity.getBirthday() != null && StringUtils.isNotEmpty(userInfoRestEntity.getProvinceName()) && StringUtils.isNotEmpty(userInfoRestEntity.getProfession()) && StringUtils.isNotEmpty(userInfoRestEntity.getPosition())) {
             //引入新手任务
-            createTokenUtils.integralTask(userInfoRestEntity.getId() + "", CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
+            createTokenUtils.integralTask(userInfoRestEntity.getId() + "",ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
         }
         userInfoRestDao.update(userInfoRestEntity);
     }

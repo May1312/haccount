@@ -105,6 +105,11 @@ public class RedisPrefix {
      */
     public static final String USER_INTEGRAL_SIGN_IN_CYCLE_AWARE = "user_sign_in_cycle_aware_status:";
 
+    /**
+     * 缓存用户首页公告读取次数
+     */
+    public static final String USER_HOME_WINDOW_READ = "user_home_window_read:";
+
     public static final String SPEND = "SPEND";
 
     public static final String INCOME = "INCOME";

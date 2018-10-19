@@ -134,7 +134,7 @@ public class CreateTokenUtils {
      * @param categoryOfBehaviorEnum
      * @param acquisitionModeEnum
      */
-    public void integralTask(String userInfoId,CategoryOfBehaviorEnum categoryOfBehaviorEnum,AcquisitionModeEnum acquisitionModeEnum) {
+    public void integralTask(String userInfoId,String shareCode,CategoryOfBehaviorEnum categoryOfBehaviorEnum,AcquisitionModeEnum acquisitionModeEnum) {
         boolean flag = this.checkTaskComplete(categoryOfBehaviorEnum, acquisitionModeEnum, userInfoId);
         if (!flag) {
             //获取需要绑定的积分数
@@ -143,9 +143,9 @@ public class CreateTokenUtils {
                 this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum,categoryOfBehaviorEnum);
                 //删除缓存
                 if(categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.NewbieTask)){
-                    redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_NEWBIE_TASK + userInfoId);
+                    redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode);
                 }else if(categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.TodayTask)){
-                    redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_TODAY_TASK + userInfoId);
+                    redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
                 }
             }
         }

@@ -217,7 +217,6 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 List<Map<String, Object>> newBieTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.NewbieTask.getName());
                 JSONObject jsonObject = new JSONObject();
                 for (Map<String, Object> map : newBieTaskAware) {
-                    JSONObject cacheJsonObjectForUser = new JSONObject();
                     if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.binding_phone_or_wx.getName())) {
                         //绑定手机号/微信
                         jsonObject.put("bindPhoneOrWXAware", Integer.valueOf(map.get("integraltaskaware") + ""));
@@ -294,13 +293,13 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 for (Map.Entry entry : cacheSysTodayTask.entrySet()) {
                     JSONObject jsonObject = new JSONObject();
                     JSONObject cacheJsonObject = new JSONObject();
-                    if (StringUtils.equals(entry.getKey() + "", "inviteFriends")) {
+                    if (StringUtils.equals(entry.getKey() + "", "inviteFriendsAware")) {
                         //设置设置积分数
                         jsonObject.put("integralAware", entry.getValue());
                         jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Inviting_friends);
                         cacheJsonObject = (JSONObject) jsonObject.clone();
                         cacheJsonObject.remove("integralAware");
-                    } else if (StringUtils.equals(entry.getKey() + "", "toCharge")) {
+                    } else if (StringUtils.equals(entry.getKey() + "", "toChargeAware")) {
                         jsonObject.put("integralAware", entry.getValue());
                         jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Write_down_an_account);
                         cacheJsonObject = (JSONObject) jsonObject.clone();
