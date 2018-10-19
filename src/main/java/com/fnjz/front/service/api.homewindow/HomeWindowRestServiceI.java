@@ -1,6 +1,6 @@
 package com.fnjz.front.service.api.homewindow;
 
-import com.google.gson.JsonObject;
+import com.alibaba.fastjson.JSONObject;
 import org.jeecgframework.core.common.service.CommonService;
 
 public interface HomeWindowRestServiceI extends CommonService{
@@ -11,5 +11,5 @@ public interface HomeWindowRestServiceI extends CommonService{
      * @param shareCode
      * @return
      */
-    JsonObject listForWindow(String userInfoId, String shareCode);
+    JSONObject listForWindow(String userInfoId, String shareCode);
 }

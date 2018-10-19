@@ -218,6 +218,10 @@ public class RedisTemplateUtils {
         return Integer.valueOf(redisTemplate.opsForHash().get(key,mapKey)+"");
     }
 
+    public Object getForHashKeyObject(String key,String mapKey) {
+        return redisTemplate.opsForHash().get(key,mapKey);
+    }
+
     public void cacheForString(String key, String list) {
         redisTemplate.opsForValue().set(key,list);
     }
@@ -239,6 +243,10 @@ public class RedisTemplateUtils {
         } else {
             redisTemplate.opsForHash().increment(RedisPrefix.PREFIX_MY_COUNT + shareCode, file, -1);
         }
+    }
+
+    public void incrementForHash(String key, String file,int num) {
+        redisTemplate.opsForHash().increment(key,file,num);
     }
 
     /**

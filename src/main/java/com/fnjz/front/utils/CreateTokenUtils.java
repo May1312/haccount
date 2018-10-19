@@ -96,9 +96,11 @@ public class CreateTokenUtils {
      * @param userInfoId
      * @return
      */
-    public boolean checkTaskComplete(CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum, String userInfoId) {
+    public boolean checkTaskComplete(CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum, String userInfoId,String shareCode) {
         //邀请好友可以多次触发
         if(acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)){
+            //缓存邀请好友人数
+            redisTemplateUtils.incrementForHash(RedisPrefix.USER_INVITE_COUNT + shareCode,"inviteCount",1);
             return false;
         }
         int count = userIntegralRestDao.checkTaskComplete(categoryOfBehaviorEnum.getIndex(), acquisitionModeEnum.getIndex(), userInfoId);
@@ -135,7 +137,7 @@ public class CreateTokenUtils {
      * @param acquisitionModeEnum
      */
     public void integralTask(String userInfoId,String shareCode,CategoryOfBehaviorEnum categoryOfBehaviorEnum,AcquisitionModeEnum acquisitionModeEnum) {
-        boolean flag = this.checkTaskComplete(categoryOfBehaviorEnum, acquisitionModeEnum, userInfoId);
+        boolean flag = this.checkTaskComplete(categoryOfBehaviorEnum, acquisitionModeEnum, userInfoId,shareCode);
         if (!flag) {
             //获取需要绑定的积分数
             FengFengTicketRestEntity fengFengTicketRestEntity = this.getFengFengTicket(acquisitionModeEnum);

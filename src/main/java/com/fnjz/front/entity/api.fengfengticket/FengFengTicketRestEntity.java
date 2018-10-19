@@ -1,19 +1,10 @@
 package com.fnjz.front.entity.api.fengfengticket;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
+
+import javax.persistence.*;
 
 /**   
  * @Title: Entity
@@ -29,7 +20,7 @@ import javax.persistence.SequenceGenerator;
 @SuppressWarnings("serial")
 public class FengFengTicketRestEntity implements java.io.Serializable {
 	/**id*/
-	private java.lang.String id;
+	private java.lang.Integer id;
 	/**行为类别  ,TodayTask_今日任务, NewbieTask_新手任务, SignIn_签到 */
 	private java.lang.String categoryOfBehavior;
 	/**获取方式  ,Inviting_friends -邀请好友, Write_down_an_account-记一笔账, 
@@ -72,7 +63,7 @@ public class FengFengTicketRestEntity implements java.io.Serializable {
 	@GeneratedValue(generator = "paymentableGenerator")
 	@GenericGenerator(name = "paymentableGenerator", strategy = "uuid")
 	@Column(name ="ID",nullable=false,length=36)
-	public java.lang.String getId(){
+	public java.lang.Integer getId(){
 		return this.id;
 	}
 
@@ -80,7 +71,7 @@ public class FengFengTicketRestEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.String
 	 *@param: java.lang.String  id
 	 */
-	public void setId(java.lang.String id){
+	public void setId(java.lang.Integer id){
 		this.id = id;
 	}
 	/**

@@ -110,6 +110,11 @@ public class RedisPrefix {
      */
     public static final String USER_HOME_WINDOW_READ = "user_home_window_read:";
 
+    /**
+     * 缓存用户邀请好友数
+     */
+    public static final String USER_INVITE_COUNT = "user_invite_count:";
+
     public static final String SPEND = "SPEND";
 
     public static final String INCOME = "INCOME";
