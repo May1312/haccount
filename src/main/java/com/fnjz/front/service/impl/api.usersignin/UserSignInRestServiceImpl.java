@@ -481,7 +481,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         int total = userIntegralRestDao.getTotalIntegral(userInfoId);
         //获取补签消耗积分数
         FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), AcquisitionModeEnum.Check_in.getName(), null);
-        jsonObject.put("reSignInAware", fengFengTicket.getBehaviorTicketValue());
+        jsonObject.put("reSignInAware", fengFengTicket==null?null:fengFengTicket.getBehaviorTicketValue());
         jsonObject.put("totalIntegral", total);
         return jsonObject;
     }
