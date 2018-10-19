@@ -39,7 +39,7 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
         String cacheActivity = redisTemplateUtils.getForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode);
         JSONArray activity = JSONArray.parseArray(cacheActivity);
         boolean flag = false;
-        if (activity!= null) {
+        if (activity != null) {
             for (int i = 0; i < activity.size(); i++) {
                 JSONObject jsonObject = activity.getJSONObject(i);
                 //判断当前获取用户读取状态
@@ -52,14 +52,14 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
                     }
                 }
             }
-        }else{
+        } else {
             flag = true;
         }
         List<HomeWindowRestDTO> list = new ArrayList<>();
         if (flag) {
             list = homeWindowRestDao.listForWindow();
             //判断读取情况   id匹配
-            if (activity!=null) {
+            if (activity != null) {
                 boolean tag = true;
                 for (HomeWindowRestDTO homeWindowRestDTO : list) {
                     for (int i = 0; i < activity.size(); i++) {
@@ -70,7 +70,7 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
                                 //判断推送次数
                                 if (jsonObject.getInteger("pushToUser") < 2) {
                                     //定义推送两次
-                                    jsonObject.put("pushToUser",(jsonObject.getInteger("pushToUser") + 1));
+                                    jsonObject.put("pushToUser", (jsonObject.getInteger("pushToUser") + 1));
                                     tag = false;
                                     break;
                                 }
@@ -81,7 +81,7 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
                             break;
                         }
                     }
-                    if(tag){
+                    if (tag) {
                         //遍历完不匹配id  即首次读取
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("activityId", homeWindowRestDTO.getId());
@@ -90,7 +90,7 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
                         activity.add(jsonObject);
                     }
                 }
-            }else{
+            } else {
                 activity = new JSONArray();
                 for (HomeWindowRestDTO homeWindowRestDTO : list) {
                     //遍历完不匹配id  即首次读取
@@ -103,22 +103,22 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
             }
         }
         //cache
-        redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode,activity.toJSONString());
+        redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode, activity.toJSONString());
         //获取邀请用户成功人数
-        Object inviteCount = redisTemplateUtils.getForHashKeyObject(RedisPrefix.USER_INVITE_COUNT+shareCode, "inviteCount");
+        Object inviteCount = redisTemplateUtils.getForHashKeyObject(RedisPrefix.USER_INVITE_COUNT + shareCode, "inviteCount");
         JSONObject jsonObject = new JSONObject();
-        if(inviteCount!=null){
-            jsonObject.put("inviteCount",inviteCount);
+        if (inviteCount != null) {
+            jsonObject.put("inviteCount", inviteCount);
             //获取奖励积分数
             Object obj = redisTemplateUtils.getForHashKeyObject(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, "inviteFriendsAware");
-            if(obj!=null){
-                jsonObject.put("inviteFriendsAware",Integer.valueOf(obj+"")*Integer.valueOf(inviteCount+""));
+            if (obj != null) {
+                jsonObject.put("inviteFriendsAware", Integer.valueOf(obj + "") * Integer.valueOf(inviteCount + ""));
             }
         }
-        redisTemplateUtils.deleteKey(RedisPrefix.USER_INVITE_COUNT+shareCode);
+        redisTemplateUtils.deleteKey(RedisPrefix.USER_INVITE_COUNT + shareCode);
         JSONObject result = new JSONObject();
-        result.put("inviteCount",jsonObject);
-        result.put("activity",list);
+        result.put("inviteCount", jsonObject);
+        result.put("activity", list);
         return result;
     }
 }

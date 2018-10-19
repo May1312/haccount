@@ -1,19 +1,24 @@
 package com.fnjz.front.controller.api.homewindow;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.service.api.homewindow.HomeWindowRestServiceI;
+import com.fnjz.front.utils.RedisTemplateUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * @author zhangdaihao
@@ -33,6 +38,9 @@ public class HomeWindowRestController extends BaseController {
     @Autowired
     private HomeWindowRestServiceI homeWindowRestServiceI;
 
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
+
     /**
      * 获取首页弹框
      * @param request
@@ -51,5 +59,32 @@ public class HomeWindowRestController extends BaseController {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
+    }
+
+    @RequestMapping(value = {"/homeWindow/hasRead", "/homeWindow/hasRead/{type}"}, method = RequestMethod.PUT)
+    @ResponseBody
+    public ResultBean hasRead(HttpServletRequest request, @RequestBody Map<String,String> map) {
+        String shareCode = (String) request.getAttribute("shareCode");
+        if(map.get("activityId")!=null){
+            try {
+                String cacheActivity = redisTemplateUtils.getForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode);
+                JSONArray activity = JSONArray.parseArray(cacheActivity);
+                if(activity!=null){
+                    for (int i = 0; i < activity.size(); i++) {
+                        JSONObject jsonObject = activity.getJSONObject(i);
+                        if(StringUtils.equals(jsonObject.getString("activityId"),map.get("activityId"))){
+                            jsonObject.put("hasRead",2);
+                        }
+                    }
+                    //重置缓存
+                    redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode, activity.toJSONString());
+                }
+                return new ResultBean(ApiResultType.OK, null);
+            } catch (Exception e) {
+                logger.error(e.toString());
+                return new ResultBean(ApiResultType.SERVER_ERROR, null);
+            }
+        }
+        return new ResultBean(ApiResultType.OK, null);
     }
 }
