@@ -28,4 +28,11 @@ public interface UserIntegralRestServiceI extends CommonService{
      * @return
      */
     JSONObject integralTask(String userInfoId,String shareCode);
+
+    /**
+     * 获取积分排行榜
+     * @param userInfoId
+     * @return
+     */
+    JSONObject integralTop(String userInfoId);
 }

@@ -2,6 +2,7 @@ package com.fnjz.front.dao;
 
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestDTO;
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestEntity;
+import com.fnjz.front.entity.api.userintegral.UserIntegralTopRestDTO;
 import org.jeecgframework.minidao.annotation.MiniDao;
 import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.ResultType;
@@ -72,4 +73,19 @@ public interface UserIntegralRestDao {
     @ResultType(UserIntegralRestEntity.class)
     @Sql("select * from hbird_user_integral where user_info_id=:userInfoId and if(:categoryOfBehaviorEnum=1,category_of_behavior=:categoryOfBehaviorEnum,category_of_behavior=:categoryOfBehaviorEnum and create_date like concat(CURRENT_DATE,'%'));")
     List<UserIntegralRestEntity> getTaskComplete(@Param("categoryOfBehaviorEnum") int categoryOfBehaviorEnum,@Param("userInfoId") String userInfoId);
+
+    /**
+     * 获取积分排行榜
+     * @return
+     */
+    @Sql("SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num, @rank := @rank + 1 as rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id, sum( integral_num ) AS integral_num FROM hbird_user_integral GROUP BY user_info_id ORDER BY integral_num DESC LIMIT 0, :top ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id;")
+    List<UserIntegralTopRestDTO> integralTop(@Param("top") int top);
+
+    /**
+     * 查询自有积分数
+     * @param userInfoId
+     * @return
+     */
+    @Sql("SELECT result.nick_name, result.avatar_url, result.integral_num, result.rank FROM ( SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num, top.user_info_id, @rank := @rank + 1 AS rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id, sum( integral_num ) AS integral_num FROM hbird_user_integral GROUP BY user_info_id ORDER BY integral_num DESC ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id ) AS result WHERE result.user_info_id = :userInfoId;")
+    UserIntegralTopRestDTO integralForMySelf(@Param("userInfoId") String userInfoId);
 }

@@ -10,6 +10,7 @@ import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestDTO;
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestEntity;
+import com.fnjz.front.entity.api.userintegral.UserIntegralTopRestDTO;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.IntegralEnum;
@@ -467,5 +468,16 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             }
         }
         return JSONArray.parseArray(JSON.toJSONString(jsonObjects));
+    }
+
+    @Override
+    public JSONObject integralTop(String userInfoId) {
+        //获取top3
+        List<UserIntegralTopRestDTO> top = userIntegralRestDao.integralTop(3);
+        UserIntegralTopRestDTO mySelf= userIntegralRestDao.integralForMySelf(userInfoId);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("top3",top);
+        jsonObject.put("mySelf",mySelf);
+        return jsonObject;
     }
 }

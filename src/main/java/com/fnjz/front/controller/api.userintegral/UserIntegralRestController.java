@@ -93,4 +93,22 @@ public class UserIntegralRestController extends BaseController {
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
+
+    /**
+     * 获取积分排行榜
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/integralTop", "/integralTop/{type}"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean integralTop(HttpServletRequest request) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            JSONObject jsonObject = userIntegralRestServiceI.integralTop(userInfoId);
+            return new ResultBean(ApiResultType.OK,jsonObject);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
 }
