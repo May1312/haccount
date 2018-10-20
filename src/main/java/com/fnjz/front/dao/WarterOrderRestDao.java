@@ -262,6 +262,6 @@ public interface WarterOrderRestDao {
      * @param initDate
      * @return
      */
-    @Sql("SELECT (income.income - spend.spend) FROM ( SELECT SUM(money) AS spend FROM hbird_water_order WHERE create_by = :userInfoId AND delflag = 0 AND order_type = 1 AND create_date >= :initDate ) spend, ( SELECT SUM(money) AS income FROM hbird_water_order WHERE create_by = :userInfoId AND delflag = 0 AND order_type = 2 AND create_date >= :initDate ) income")
+    @Sql("SELECT a.income - a.spend FROM ( SELECT ( CASE WHEN income.income IS NULL THEN 0 ELSE income.income END ) AS income, ( CASE WHEN spend.spend IS NULL THEN 0 ELSE spend.spend END ) AS spend FROM ( SELECT SUM( money ) AS spend FROM hbird_water_order WHERE create_by = :userInfoId AND delflag = 0 AND order_type = 1 AND create_date >= :initDate ) spend, ( SELECT SUM( money ) AS income FROM hbird_water_order WHERE create_by = :userInfoId AND delflag = 0 AND order_type = 2 AND create_date >= :initDate ) income ) AS a;")
     String getTotalByDate(@Param("initDate") Date initDate,@Param("userInfoId") String userInfoId);
 }
