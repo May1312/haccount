@@ -47,6 +47,11 @@ public class ShoppingMallRestController {
         }
     }
 
+    /**
+     * 获取商品详情
+     * @param id
+     * @return
+     */
     @RequestMapping(value = {"/goodsInfo/{id}"}, method = RequestMethod.GET)
     @ResponseBody
     public ResultBean goodsInfo(@PathVariable("id") Integer id) {
