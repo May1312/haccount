@@ -118,7 +118,7 @@ public class RedisPrefix {
     /**
      * 缓存系统首页公告读取次数
      */
-    public static final String SYS_SLIDESHOW_READ = "sys_slideShow_read:";
+    public static final String SYS_SLIDESHOW_READ = "sys_slideshow_read:";
 
     /**
      * 缓存用户邀请好友数
