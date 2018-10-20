@@ -62,7 +62,7 @@ public class UserAssetsRestController extends BaseController {
      * @param map
      * @return
      */
-    @RequestMapping(value = {"/saveOrUpdateAssets", "/assets/{type}"}, method = RequestMethod.POST)
+    @RequestMapping(value = {"/saveOrUpdateAssets", "/saveOrUpdateAssets/{type}"}, method = RequestMethod.POST)
     @ResponseBody
     public ResultBean saveOrUpdateAssets(HttpServletRequest request, @RequestBody Map<String,Object> map) {
         String userInfoId = (String) request.getAttribute("userInfoId");
@@ -85,7 +85,7 @@ public class UserAssetsRestController extends BaseController {
      * @param map
      * @return
      */
-    @RequestMapping(value = {"/initDate", "/assets/{type}"}, method = RequestMethod.PUT)
+    @RequestMapping(value = {"/initDate", "/initDate/{type}"}, method = RequestMethod.PUT)
     @ResponseBody
     public ResultBean updateInitDate(HttpServletRequest request, @RequestBody Map<String,Object> map) {
         String userInfoId = (String) request.getAttribute("userInfoId");

@@ -116,7 +116,7 @@ public class RedisPrefix {
     public static final String SYS_HOME_WINDOW_READ = "home_window_read:sys_read:";
 
     /**
-     * 缓存系统首页公告读取次数
+     * 缓存系统轮播图读取次数
      */
     public static final String SYS_SLIDESHOW_READ = "sys_slideshow_read:";
 
