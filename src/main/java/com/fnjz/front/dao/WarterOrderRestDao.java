@@ -263,5 +263,5 @@ public interface WarterOrderRestDao {
      * @return
      */
     @Sql("select sum(money) from hbird_water_order where create_by = :userInfoId and delflag =0 and create_date>=:initDate;")
-    Double getTotalByDate(@Param("initDate") Date initDate,@Param("userInfoId") String userInfoId);
+    String getTotalByDate(@Param("initDate") Date initDate,@Param("userInfoId") String userInfoId);
 }

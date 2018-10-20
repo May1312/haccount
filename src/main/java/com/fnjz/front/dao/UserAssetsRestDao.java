@@ -37,7 +37,7 @@ public interface UserAssetsRestDao {
      * @return
      */
     @Sql("SELECT SUM(money) from hbird_user_assets where user_info_id=:userInfoId and type=1")
-    Double getAssetsTotal(@Param("userInfoId") String userInfoId);
+    String getAssetsTotal(@Param("userInfoId") String userInfoId);
 
     @Sql("insert into hbird_user_assets (`user_info_id`,`init_date`,`type`,`create_date`) values(:userInfoId,:initDate,2,NOW())")
     void insertInitDate(@Param("initDate") Date registerDate,@Param("userInfoId") String userInfoId);

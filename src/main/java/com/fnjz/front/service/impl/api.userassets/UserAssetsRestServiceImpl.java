@@ -60,13 +60,13 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
         }
 
         //统计记账收支 余额
-        Double chargeTotal = warterOrderRestDao.getTotalByDate(userAssetsRestEntity.getInitDate(),userInfoId);
+        String chargeTotal = warterOrderRestDao.getTotalByDate(userAssetsRestEntity.getInitDate(),userInfoId);
         //统计资产 总额
-        Double assetsTotal = userAssetsRestDao.getAssetsTotal(userInfoId);
+        String assetsTotal = userAssetsRestDao.getAssetsTotal(userInfoId);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("assets",assets);
-        BigDecimal charge = new BigDecimal (chargeTotal==null?0:chargeTotal);
-        BigDecimal asset = new BigDecimal (assetsTotal==null?0:assetsTotal);
+        BigDecimal charge = new BigDecimal (chargeTotal==null?"0":chargeTotal);
+        BigDecimal asset = new BigDecimal (assetsTotal==null?"0":assetsTotal);
         jsonObject.put("netAssets",charge.add(asset));
         jsonObject.put("initDate",userAssetsRestEntity.getInitDate());
         return jsonObject;
