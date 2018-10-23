@@ -391,6 +391,9 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                         shoppingMallRestDao.update(list.get(0).getId() + "", 3);
                         list.get(0).setStatus(3);
                     }
+                }else{
+                    shoppingMallRestDao.update(list.get(0).getId() + "", 3);
+                    list.get(0).setStatus(3);
                 }
             }
         }
