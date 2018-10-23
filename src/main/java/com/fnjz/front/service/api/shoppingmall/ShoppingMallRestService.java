@@ -36,5 +36,5 @@ public interface ShoppingMallRestService {
      * 商品兑换接口
      * @return
      */
-    JSONObject toExchange(GoodsRestEntity goodsInfoRestDTO,String userInfoId) throws Exception;
+    JSONObject toExchange(String exchangeMobile,GoodsRestEntity goodsInfoRestDTO,String userInfoId) throws Exception;
 }

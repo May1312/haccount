@@ -88,7 +88,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
      * @return
      */
     @Override
-    public JSONObject toExchange(GoodsRestEntity goodsRestEntity, String userInfoId) throws Exception {
+    public JSONObject toExchange(String exchangeMobile,GoodsRestEntity goodsRestEntity, String userInfoId) throws Exception {
         JSONObject result2 = new JSONObject();
         HttpHeaders headers = new HttpHeaders();
         MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
@@ -112,14 +112,14 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             //充值面值
             jsonObject.put("chargeparvalue", "1");
             //充值手机号
-            jsonObject.put("chargephone", "15501233770");
+            jsonObject.put("chargephone",exchangeMobile);
         } else if (ShoppingMallExchangeEnum.NETFLOW.getIndex() == goodsRestEntity.getType()) {
             //流量兑换类型
             jsonObject.put("method", "kamenwang.trafficgoods.add");
             //流量大小(注：单位为MB，1GB=1024MB)
             jsonObject.put("chargeparvalue", "100");
             //充值手机号
-            jsonObject.put("chargephone", "15501233770");
+            jsonObject.put("chargephone", exchangeMobile);
             //流量类型(注：1.全国  0.省内)
             jsonObject.put("areatype", "1");
         } else if (ShoppingMallExchangeEnum.VIDEO_MEMBERSHIP.getIndex() == goodsRestEntity.getType()) {
@@ -148,9 +148,10 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         ShoppingMallIntegralExchangeRestEntity shoppingMall = new ShoppingMallIntegralExchangeRestEntity();
         //设置订单号
         shoppingMall.setId(Long.valueOf(shoppingMallId));
-
         //设置商品id
         shoppingMall.setGoodsId(Integer.valueOf(goodsRestEntity.getSoouuGoodsId()));
+        //设置兑换手机号
+        shoppingMall.setExchangeMobile(exchangeMobile);
         if (jsonObject1.get("MessageCode") == null) {
             //兑换中
 

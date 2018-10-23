@@ -87,7 +87,7 @@ public class ShoppingMallRestController {
             if(integralTotal<goodsRestEntity.getFengfengTicketValue()){
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW,null);
             }
-            JSONObject jsonObject = shoppingMallRestService.toExchange(goodsRestEntity,userInfoId);
+            JSONObject jsonObject = shoppingMallRestService.toExchange(map.get("exchangeMobile"),goodsRestEntity,userInfoId);
             return new ResultBean(ApiResultType.OK,jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());
