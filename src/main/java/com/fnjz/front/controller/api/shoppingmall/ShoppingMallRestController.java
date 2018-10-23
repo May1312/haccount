@@ -107,7 +107,7 @@ public class ShoppingMallRestController {
     @RequestMapping(value = {"/soouucallback"}, method = RequestMethod.POST)
     @ResponseBody
     public ResultBean soouucallback(HttpServletRequest request) {
-        logger.info("树鱼回调触发----------");
+        logger.info("----------树鱼回调触发----------");
         try {
             //获取到回调地址传回的参数
             String OrderNo = request.getParameter("OrderNo"); // 福禄订单号
@@ -115,6 +115,7 @@ public class ShoppingMallRestController {
             String CustomerOrderNo = request.getParameter("CustomerOrderNo"); // 合作商家订单号
             String Status = request.getParameter("Status"); // 订单状态(成功,失败)
             String ReMark = request.getParameter("ReMark");
+            logger.info("----------树鱼回调触发---------- 订单号:"+CustomerOrderNo+"  状态:"+Status);
             shoppingMallRestService.updateExchange(OrderNo,CustomerOrderNo,Status,ReMark);
             return new ResultBean(ApiResultType.OK,null);
         } catch (Exception e) {

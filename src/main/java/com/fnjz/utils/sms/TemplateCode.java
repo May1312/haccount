@@ -15,6 +15,8 @@ public enum TemplateCode {
     CL_RESETPWD("CL_LOGIN","【蜂鸟记账】验证码为：{s}，您本次找回密码所使用的验证码，若非本人操作，请勿泄露，3分钟内有效。"),
     CL_BIND_MOBILE("CL_LOGIN","【蜂鸟记账】验证码为：{s}，您正在绑定/解绑手机号，若非本人操作，请勿泄露，3分钟内有效。"),
     CL_ADMIN_CERTAIN("CL_LOGIN","【蜂鸟记账】验证码为：{s}，您好，管理员，此验证码仅用于创建/删除测试用户，若非本人操作，请勿泄露，3分钟内有效。"),
+    DOWN_GOODS("DOWN_GOODS","【蜂鸟记账】您好，管理员，由于{s},系统执行下架商品，请登录web查看。"),
+    SEND_EXCHANGE_GOODS("DOWN_GOODS","【蜂鸟记账】您已成功兑换“{s1}”，兑换码：{s2}。兑换截止日期：{s3}。"),
     ;
     TemplateCode(String templateCode, String templateContent) {
         TemplateCode = templateCode;

@@ -76,4 +76,65 @@ public class ChuangLanSmsUtil {
         return null;
     }
 
+    /**
+     *
+     * @param s1 商品名称
+     * @param s2 兑换码
+     * @param s3  截止日期
+     * @param msg
+     * @param phone
+     * @param report
+     * @return
+     */
+    public static SmsSendResponse sendSmsByPost(String s1,String s2,String s3, String msg, String phone, boolean report) {
+        //赋值验证码进msg
+        msg = StringUtils.replace(msg,"{s1}",s1);
+        msg = StringUtils.replace(msg,"{s2}",s2);
+        msg = StringUtils.replace(msg,"{s3}",s3);
+        SmsSendRequest smsSingleRequest = new SmsSendRequest(account, password, msg, phone,report+"");
+        String requestJson = JSON.toJSONString(smsSingleRequest);
+        URL url = null;
+        try {
+            url = new URL(URL);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("POST");// 提交模式
+            httpURLConnection.setConnectTimeout(10000);//连接超时 单位毫秒
+            httpURLConnection.setReadTimeout(10000);//读取超时 单位毫秒
+            // 发送POST请求必须设置如下两行
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.setRequestProperty("Charset", "UTF-8");
+            httpURLConnection.setRequestProperty("Content-Type", "application/json");
+
+//			PrintWriter printWriter = new PrintWriter(httpURLConnection.getOutputStream());
+//			printWriter.write(postContent);
+//			printWriter.flush();
+
+            httpURLConnection.connect();
+            OutputStream os=httpURLConnection.getOutputStream();
+            os.write(requestJson.getBytes("UTF-8"));
+            os.flush();
+
+            StringBuilder sb = new StringBuilder();
+            int httpRspCode = httpURLConnection.getResponseCode();
+            if (httpRspCode == HttpURLConnection.HTTP_OK) {
+                // 开始获取数据
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(httpURLConnection.getInputStream(), "utf-8"));
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                br.close();
+                String response = sb.toString();
+                return JSON.parseObject(response, SmsSendResponse.class);
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
