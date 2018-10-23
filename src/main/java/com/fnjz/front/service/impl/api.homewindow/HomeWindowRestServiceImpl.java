@@ -104,7 +104,7 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
             }
         }
         //cache
-        redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode, activity.toJSONString());
+        //redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode, activity.toJSONString());
         //获取邀请用户成功人数
         Object inviteCount = redisTemplateUtils.getForHashKeyObject(RedisPrefix.USER_INVITE_COUNT + shareCode, "inviteCount");
         JSONObject jsonObject = new JSONObject();
@@ -116,7 +116,7 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
                 jsonObject.put("inviteFriendsAware", Integer.valueOf(obj + "") * Integer.valueOf(inviteCount + ""));
             }
         }
-        redisTemplateUtils.deleteKey(RedisPrefix.USER_INVITE_COUNT + shareCode);
+        //redisTemplateUtils.deleteKey(RedisPrefix.USER_INVITE_COUNT + shareCode);
         JSONObject result = new JSONObject();
         result.put("inviteCount", jsonObject);
         result.put("activity", list);
