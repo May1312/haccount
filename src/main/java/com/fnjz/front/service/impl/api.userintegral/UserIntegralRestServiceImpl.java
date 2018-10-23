@@ -238,13 +238,45 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             for (Map.Entry entry : cacheSysNewbieTask.entrySet()) {
                 if (StringUtils.equals(entry.getKey() + "", "bindPhoneOrWXAware")) {
                     //设置积分数
-                    newbieTask = patchDate2(newbieTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.binding_phone_or_wx);
+                    if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.binding_phone_or_wx)==null){
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("name",entry.getKey() + "");
+                        jsonObject.put("description",AcquisitionModeEnum.binding_phone_or_wx.getDescription());
+                        jsonObject.put("status",1);
+                        newbieTask.add(jsonObject);
+                    }else{
+                        newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.binding_phone_or_wx);
+                    }
                 } else if (StringUtils.equals(entry.getKey() + "", "budgetAware")) {
-                    newbieTask = patchDate2(newbieTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget);
+                    if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget)==null){
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("name",entry.getKey() + "");
+                        jsonObject.put("description",AcquisitionModeEnum.Setting_up_budget.getDescription());
+                        jsonObject.put("status",1);
+                        newbieTask.add(jsonObject);
+                    }else{
+                        newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget);
+                    }
                 } else if (StringUtils.equals(entry.getKey() + "", "savingEfficiencyAware")) {
-                    newbieTask = patchDate2(newbieTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_savings_efficiency);
+                    if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_savings_efficiency)==null){
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("name",entry.getKey() + "");
+                        jsonObject.put("description",AcquisitionModeEnum.Setting_up_savings_efficiency.getDescription());
+                        jsonObject.put("status",1);
+                        newbieTask.add(jsonObject);
+                    }else{
+                        newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_savings_efficiency);
+                    }
                 } else if (StringUtils.equals(entry.getKey() + "", "userInfoAware")) {
-                    newbieTask = patchDate2(newbieTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Perfecting_personal_data);
+                    if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Perfecting_personal_data)==null){
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("name",entry.getKey() + "");
+                        jsonObject.put("description",AcquisitionModeEnum.Perfecting_personal_data.getDescription());
+                        jsonObject.put("status",1);
+                        newbieTask.add(jsonObject);
+                    }else{
+                        newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Perfecting_personal_data);
+                    }
                 }
             }
         }
@@ -338,9 +370,25 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             for (Map.Entry entry : cacheSysTodayTask.entrySet()) {
                 if (StringUtils.equals(entry.getKey() + "", "inviteFriendsAware")) {
                     //设置积分数
-                    todayTask = patchDate2(todayTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Inviting_friends);
+                    if(patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Inviting_friends)==null){
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("name",entry.getKey() + "");
+                        jsonObject.put("description",AcquisitionModeEnum.Inviting_friends.getDescription());
+                        jsonObject.put("status",1);
+                        todayTask.add(jsonObject);
+                    }else{
+                        todayTask = patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Inviting_friends);
+                    }
                 } else if (StringUtils.equals(entry.getKey() + "", "toChargeAware")) {
-                    todayTask = patchDate2(todayTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Write_down_an_account);
+                    if(patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Write_down_an_account)==null){
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("name",entry.getKey() + "");
+                        jsonObject.put("description",AcquisitionModeEnum.Write_down_an_account.getDescription());
+                        jsonObject.put("status",1);
+                        todayTask.add(jsonObject);
+                    }else{
+                        todayTask = patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Write_down_an_account);
+                    }
                 }
             }
         }
@@ -436,49 +484,51 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
      * @param taskComplete
      * @return
      */
-    private JSONArray patchDate2(JSONArray taskComplete,Map.Entry entry, int integral, AcquisitionModeEnum acquisitionModeEnum) {
+    private JSONArray patchDate2(JSONArray taskComplete, int integral, AcquisitionModeEnum acquisitionModeEnum) {
+        boolean flag = false;
         //遍历 ----> 追加奖励积分
         List<JSONObject> jsonObjects = JSONArray.parseArray(taskComplete.toJSONString(), JSONObject.class);
         for (JSONObject obj : jsonObjects) {
-            if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.binding_phone_or_wx.getForUser())) {
-                if (AcquisitionModeEnum.binding_phone_or_wx == acquisitionModeEnum) {
-                    obj.put("integralAware", integral);
-                    break;
-                }
-            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Setting_up_budget.getForUser())) {
-                if (AcquisitionModeEnum.Setting_up_budget == acquisitionModeEnum) {
-                    obj.put("integralAware", integral);
-                    break;
-                }
-            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Setting_up_savings_efficiency.getForUser())) {
-                if (AcquisitionModeEnum.Setting_up_savings_efficiency == acquisitionModeEnum) {
-                    obj.put("integralAware", integral);
-                    break;
-                }
-            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Perfecting_personal_data.getForUser())) {
-                if (AcquisitionModeEnum.Perfecting_personal_data == acquisitionModeEnum) {
-                    obj.put("integralAware", integral);
-                    break;
-                }
-            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Write_down_an_account.getForUser())) {
-                if (AcquisitionModeEnum.Write_down_an_account == acquisitionModeEnum) {
-                    obj.put("integralAware", integral);
-                    break;
-                }
-            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Inviting_friends.getForUser())) {
-                if (AcquisitionModeEnum.Inviting_friends == acquisitionModeEnum) {
-                    obj.put("integralAware", integral);
-                    break;
-                }
-            }
-            //不相等 todo 有问题  已缓存个人信息！！！
-            obj.put("integralAware", entry.getValue());
-            obj.put("name", acquisitionModeEnum.getForUser());
-            obj.put("description", acquisitionModeEnum.getDescription());
-            obj.put("status", 1);
+            if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.binding_phone_or_wx.getForUser()) && AcquisitionModeEnum.binding_phone_or_wx == acquisitionModeEnum) {
+                obj.put("integralAware", integral);
+                flag = true;
+                break;
+            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Setting_up_budget.getForUser()) && AcquisitionModeEnum.Setting_up_budget == acquisitionModeEnum) {
+                obj.put("integralAware", integral);
+                flag = true;
+                break;
+            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Setting_up_savings_efficiency.getForUser()) && AcquisitionModeEnum.Setting_up_savings_efficiency == acquisitionModeEnum) {
+                obj.put("integralAware", integral);
+                flag = true;
+                break;
+            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Perfecting_personal_data.getForUser()) && AcquisitionModeEnum.Perfecting_personal_data == acquisitionModeEnum) {
+                obj.put("integralAware", integral);
+                flag = true;
+                break;
+            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Write_down_an_account.getForUser()) && AcquisitionModeEnum.Write_down_an_account == acquisitionModeEnum) {
+                obj.put("integralAware", integral);
+                flag = true;
+                break;
+            } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Inviting_friends.getForUser()) && AcquisitionModeEnum.Inviting_friends == acquisitionModeEnum) {
+                obj.put("integralAware", integral);
+                flag = true;
+                break;
+            } /*else {
+                //不相等 todo 有问题  已缓存个人信息！！！
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("integralAware", entry.getValue());
+                jsonObject.put("name", acquisitionModeEnum.getForUser());
+                jsonObject.put("description", acquisitionModeEnum.getDescription());
+                jsonObject.put("status", 1);
+                jsonObjects.add(jsonObject);
+                break;
+            }*/
 
         }
-        return JSONArray.parseArray(JSON.toJSONString(jsonObjects));
+        if(flag){
+            return JSONArray.parseArray(JSON.toJSONString(jsonObjects));
+        }
+        return null;
     }
 
     @Override
