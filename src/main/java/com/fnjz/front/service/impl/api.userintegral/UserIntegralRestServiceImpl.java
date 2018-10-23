@@ -50,7 +50,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 int signIn_7 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_7");
                 if (signIn_7 != 2 && signInDays >= IntegralEnum.SIGNIN_7.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_7.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId()+"", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_7.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_7.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_7", 2);
                 }
@@ -58,7 +58,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 int signIn_14 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_14");
                 if (signIn_14 != 2 && signInDays >= IntegralEnum.SIGNIN_14.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_14.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId()+"", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_14.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_14.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_14", 2);
                 }
@@ -66,7 +66,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 int signIn_21 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_21");
                 if (signIn_21 != 2 && signInDays >= IntegralEnum.SIGNIN_21.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_21.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId()+"", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_21.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_21.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_21", 2);
                 }
@@ -74,7 +74,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 int signIn_28 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_28");
                 if (signIn_28 != 2 && signInDays >= IntegralEnum.SIGNIN_28.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_28.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId()+"", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_28.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_28.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_28", 2);
                 }
@@ -238,13 +238,13 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             for (Map.Entry entry : cacheSysNewbieTask.entrySet()) {
                 if (StringUtils.equals(entry.getKey() + "", "bindPhoneOrWXAware")) {
                     //设置积分数
-                    newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.binding_phone_or_wx);
+                    newbieTask = patchDate2(newbieTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.binding_phone_or_wx);
                 } else if (StringUtils.equals(entry.getKey() + "", "budgetAware")) {
-                    newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget);
+                    newbieTask = patchDate2(newbieTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget);
                 } else if (StringUtils.equals(entry.getKey() + "", "savingEfficiencyAware")) {
-                    newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget);
+                    newbieTask = patchDate2(newbieTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_savings_efficiency);
                 } else if (StringUtils.equals(entry.getKey() + "", "userInfoAware")) {
-                    newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Perfecting_personal_data);
+                    newbieTask = patchDate2(newbieTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Perfecting_personal_data);
                 }
             }
         }
@@ -338,9 +338,9 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             for (Map.Entry entry : cacheSysTodayTask.entrySet()) {
                 if (StringUtils.equals(entry.getKey() + "", "inviteFriendsAware")) {
                     //设置积分数
-                    todayTask = patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Inviting_friends);
+                    todayTask = patchDate2(todayTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Inviting_friends);
                 } else if (StringUtils.equals(entry.getKey() + "", "toChargeAware")) {
-                    todayTask = patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Write_down_an_account);
+                    todayTask = patchDate2(todayTask,entry, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Write_down_an_account);
                 }
             }
         }
@@ -436,35 +436,47 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
      * @param taskComplete
      * @return
      */
-    private JSONArray patchDate2(JSONArray taskComplete, int integral, AcquisitionModeEnum acquisitionModeEnum) {
+    private JSONArray patchDate2(JSONArray taskComplete,Map.Entry entry, int integral, AcquisitionModeEnum acquisitionModeEnum) {
         //遍历 ----> 追加奖励积分
         List<JSONObject> jsonObjects = JSONArray.parseArray(taskComplete.toJSONString(), JSONObject.class);
         for (JSONObject obj : jsonObjects) {
             if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.binding_phone_or_wx.getForUser())) {
                 if (AcquisitionModeEnum.binding_phone_or_wx == acquisitionModeEnum) {
                     obj.put("integralAware", integral);
+                    break;
                 }
             } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Setting_up_budget.getForUser())) {
                 if (AcquisitionModeEnum.Setting_up_budget == acquisitionModeEnum) {
                     obj.put("integralAware", integral);
+                    break;
                 }
             } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Setting_up_savings_efficiency.getForUser())) {
                 if (AcquisitionModeEnum.Setting_up_savings_efficiency == acquisitionModeEnum) {
                     obj.put("integralAware", integral);
+                    break;
                 }
             } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Perfecting_personal_data.getForUser())) {
                 if (AcquisitionModeEnum.Perfecting_personal_data == acquisitionModeEnum) {
                     obj.put("integralAware", integral);
+                    break;
                 }
             } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Write_down_an_account.getForUser())) {
                 if (AcquisitionModeEnum.Write_down_an_account == acquisitionModeEnum) {
                     obj.put("integralAware", integral);
+                    break;
                 }
             } else if (StringUtils.equals(obj.get("name") + "", AcquisitionModeEnum.Inviting_friends.getForUser())) {
                 if (AcquisitionModeEnum.Inviting_friends == acquisitionModeEnum) {
                     obj.put("integralAware", integral);
+                    break;
                 }
             }
+            //不相等 todo 有问题  已缓存个人信息！！！
+            obj.put("integralAware", entry.getValue());
+            obj.put("name", acquisitionModeEnum.getForUser());
+            obj.put("description", acquisitionModeEnum.getDescription());
+            obj.put("status", 1);
+
         }
         return JSONArray.parseArray(JSON.toJSONString(jsonObjects));
     }
@@ -473,10 +485,10 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
     public JSONObject integralTop(String userInfoId) {
         //获取top3
         List<UserIntegralTopRestDTO> top = userIntegralRestDao.integralTop(3);
-        UserIntegralTopRestDTO mySelf= userIntegralRestDao.integralForMySelf(userInfoId);
+        UserIntegralTopRestDTO mySelf = userIntegralRestDao.integralForMySelf(userInfoId);
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("top3",top);
-        jsonObject.put("mySelf",mySelf);
+        jsonObject.put("top3", top);
+        jsonObject.put("mySelf", mySelf);
         return jsonObject;
     }
 }

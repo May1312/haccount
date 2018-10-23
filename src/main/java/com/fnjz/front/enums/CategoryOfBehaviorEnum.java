@@ -8,7 +8,8 @@ public enum CategoryOfBehaviorEnum {
 
     NewbieTask(1,"NewbieTask","新手任务"),
     TodayTask(2,"TodayTask","今日任务"),
-    SignIn(3,"SignIn","签到");
+    SignIn(3,"SignIn","签到"),
+    SHOPPING_MALL_EXCHANGE(4,"ShoppingMallExchange","商城积分兑换");
 
     private int index;
     private String name;

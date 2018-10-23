@@ -1,19 +1,9 @@
 package com.fnjz.front.entity.api.goods;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
+
+import javax.persistence.*;
 
 /**   
  * @Title: Entity
@@ -32,6 +22,10 @@ public class GoodsRestEntity implements java.io.Serializable {
 	private java.lang.Integer id;
 	/**商品名称*/
 	private java.lang.String goodsName;
+	/**树鱼商品id*/
+	private java.lang.String soouuGoodsId;
+	/**商品类型  1话费  2流量  3视频会员*/
+	private java.lang.Integer type;
 	/**丰丰票值*/
 	private java.lang.Integer fengfengTicketValue;
 	/**面值*/
@@ -319,5 +313,21 @@ public class GoodsRestEntity implements java.io.Serializable {
 	 */
 	public void setDelDate(java.util.Date delDate){
 		this.delDate = delDate;
+	}
+	@Column(name ="SOOUU_GOODS_ID",nullable=true)
+	public String getSoouuGoodsId() {
+		return soouuGoodsId;
+	}
+
+	public void setSoouuGoodsId(String soouuGoodsId) {
+		this.soouuGoodsId = soouuGoodsId;
+	}
+	@Column(name ="TYPE",nullable=true)
+	public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
 	}
 }

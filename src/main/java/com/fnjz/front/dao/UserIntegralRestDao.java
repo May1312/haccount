@@ -88,4 +88,13 @@ public interface UserIntegralRestDao {
      */
     @Sql("SELECT result.nick_name, result.avatar_url, result.integral_num, result.rank FROM ( SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num, top.user_info_id, @rank := @rank + 1 AS rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id, sum( integral_num ) AS integral_num FROM hbird_user_integral GROUP BY user_info_id ORDER BY integral_num DESC ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id ) AS result WHERE result.user_info_id = :userInfoId;")
     UserIntegralTopRestDTO integralForMySelf(@Param("userInfoId") String userInfoId);
+
+    /**
+     * 添加商城兑换积分消耗记录
+     * @param userInfoId
+     * @param id
+     * @param behaviorTicketValue
+     */
+    @Sql("INSERT INTO `hbird_user_integral` (`user_info_id`,`integral_num`,`shopping_mall_integral_exchange_id`,`create_date`,`description`,`category_of_behavior`) VALUES (:userInfoId,:behaviorTicketValue,:id,NOW(),:description,:categoryOfBehavior);")
+    void insertShoppingMallIntegral(@Param("userInfoId") String userInfoId,@Param("shoppingMallIntegralExchangeId") String id,@Param("behaviorTicketValue") String behaviorTicketValue,@Param("description")String description,@Param("categoryOfBehavior")Integer categoryOfBehavior);
 }

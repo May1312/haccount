@@ -1,7 +1,9 @@
 package com.fnjz.front.service.api.shoppingmall;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
+import com.fnjz.front.entity.api.goods.GoodsRestEntity;
 
 import java.util.List;
 
@@ -22,4 +24,17 @@ public interface ShoppingMallRestService {
      * @return
      */
     GoodsInfoRestDTO getGoodsInfoById(Integer id);
+
+    /**
+     * 根据id获取 商品详情
+     * @param id
+     * @return
+     */
+    GoodsRestEntity getGoodsById(Integer id);
+
+    /**
+     * 商品兑换接口
+     * @return
+     */
+    JSONObject toExchange(GoodsRestEntity goodsInfoRestDTO,String userInfoId) throws Exception;
 }

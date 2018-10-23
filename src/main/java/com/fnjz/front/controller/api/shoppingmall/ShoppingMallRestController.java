@@ -1,21 +1,22 @@
 package com.fnjz.front.controller.api.shoppingmall;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
+import com.fnjz.front.entity.api.goods.GoodsRestEntity;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 商城相关
@@ -30,8 +31,13 @@ public class ShoppingMallRestController {
     @Autowired
     private ShoppingMallRestService shoppingMallRestService;
 
+    //TODO 总积分数  统计不合理  待修改！！！！！！
+    @Autowired
+    private UserIntegralRestDao userIntegralRestDao;
+
     /**
      * 获取所有商品
+     *
      * @param request
      * @return
      */
@@ -40,7 +46,7 @@ public class ShoppingMallRestController {
     public ResultBean goods(HttpServletRequest request) {
         try {
             List<GoodsRestDTO> list = shoppingMallRestService.getGoods();
-            return new ResultBean(ApiResultType.OK,list);
+            return new ResultBean(ApiResultType.OK, list);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -49,6 +55,7 @@ public class ShoppingMallRestController {
 
     /**
      * 获取商品详情
+     *
      * @param id
      * @return
      */
@@ -57,7 +64,31 @@ public class ShoppingMallRestController {
     public ResultBean goodsInfo(@PathVariable("id") Integer id) {
         try {
             GoodsInfoRestDTO goodsInfoRestDTO = shoppingMallRestService.getGoodsInfoById(id);
-            return new ResultBean(ApiResultType.OK,goodsInfoRestDTO);
+            return new ResultBean(ApiResultType.OK, goodsInfoRestDTO);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+
+
+
+    @RequestMapping(value = {"/toExchange"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean toExchange(@RequestBody Map<String,String> map,HttpServletRequest request) {
+        try {
+            String userInfoId = (String)request.getAttribute("userInfoId");
+            //根据商品id或消耗积分数+用户拥有总积分数
+            GoodsRestEntity goodsRestEntity = shoppingMallRestService.getGoodsById(Integer.valueOf(map.get("goodsId")));
+            //总积分数统计
+            int integralTotal = userIntegralRestDao.getTotalIntegral(userInfoId);
+            //判断用户积分数
+            if(integralTotal<goodsRestEntity.getFengfengTicketValue()){
+                return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW,null);
+            }
+            JSONObject jsonObject = shoppingMallRestService.toExchange(goodsRestEntity,userInfoId);
+            return new ResultBean(ApiResultType.OK,jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);

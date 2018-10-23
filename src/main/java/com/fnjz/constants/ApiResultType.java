@@ -104,7 +104,10 @@ public enum ApiResultType {
     SYN_DATE_IS_ERROR("08001","同步时间校验不通过，请检查!"),
 
     //签到积分相关
-    HAS_SIGNED("08002","已签到，请勿重复！");
+    HAS_SIGNED("08002","已签到，请勿重复！"),
+
+    //积分校验相关
+    INTEGRAL_EXCHANGE_NOT_ALLOW("09002","当前用户积分数不允许兑换！");
 
     ApiResultType(String status, String str) {
         setCode(status);
