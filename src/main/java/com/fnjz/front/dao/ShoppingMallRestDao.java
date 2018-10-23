@@ -26,7 +26,7 @@ public interface ShoppingMallRestDao {
     List<GoodsRestDTO> getGoods();
 
     @ResultType(GoodsRestDTO.class)
-    @Sql("UPDATE `hbird_account`.`hbird_goods` SET `status` = 1 WHERE `id` = :id;")
+    @Sql("UPDATE `hbird_account`.`hbird_goods` SET `status` = 0 WHERE `id` = :id;")
     void downGoods(@Param("id") Integer id);
 
     @ResultType(GoodsInfoRestDTO.class)

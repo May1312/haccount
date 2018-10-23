@@ -217,7 +217,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             //下架操作
             if (jsonObject1.getInteger("MessageCode") == 2100 || jsonObject1.getInteger("MessageCode") == 2101 || jsonObject1.getInteger("MessageCode") == 2103 || jsonObject1.getInteger("MessageCode") == 2104 || jsonObject1.getInteger("MessageCode") == 2106 || jsonObject1.getInteger("MessageCode") == 2108) {
                 shoppingMallRestDao.downGoods(Integer.valueOf(goodsRestEntity.getId()));
-                ChuangLanSmsUtil.sendSmsByPost("id为:"+goodsRestEntity.getId()+","+jsonObject1.getString("MessageInfo"),TemplateCode.CL_ADMIN_CERTAIN.getTemplateContent(),"13552570975",true);
+                ChuangLanSmsUtil.sendSmsByPost(jsonObject1.getString("MessageInfo"),TemplateCode.DOWN_GOODS.getTemplateContent(),"13552570975",true);
             }
             //兑换失败
             shoppingMall.setStatus(3);
