@@ -201,7 +201,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                             result2.put("cardDeadline", Date.from(instant));
                             result2.put("cardCode", decryCardPwd);
                             result2.put("status", 2);
-                            ChuangLanSmsUtil.sendSmsByPost(goodsRestEntity.getGoodsName(),decryCardPwd,ldt.toLocalDate().toString(),TemplateCode.CL_ADMIN_CERTAIN.getTemplateContent(),exchangeMobile,true);
+                            ChuangLanSmsUtil.sendSmsByPost(goodsRestEntity.getGoodsName(),decryCardPwd,ldt.toLocalDate().toString(),TemplateCode.SEND_EXCHANGE_GOODS.getTemplateContent(),exchangeMobile,true);
                             return result2;
                         }
                     }
@@ -220,11 +220,11 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                 ChuangLanSmsUtil.sendSmsByPost("id为:"+goodsRestEntity.getId()+","+jsonObject1.getString("MessageInfo"),TemplateCode.CL_ADMIN_CERTAIN.getTemplateContent(),"13552570975",true);
             }
             //兑换失败
-            shoppingMall.setStatus(1);
+            shoppingMall.setStatus(3);
             //录入错误原因
             shoppingMall.setDescription(jsonObject1.getString("MessageInfo"));
             shoppingMallRestDao.insert(shoppingMall, userInfoId);
-            result2.put("status", 1);
+            result2.put("status", 3);
             return result2;
         }
         return null;
