@@ -3,6 +3,7 @@ package com.fnjz.front.dao;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestEntity;
 import org.jeecgframework.minidao.annotation.MiniDao;
 import org.jeecgframework.minidao.annotation.Param;
@@ -34,4 +35,14 @@ public interface ShoppingMallRestDao {
 
     @Sql("insert into hbird_shopping_mall_integral_exchange (`id`,`user_info_id`,`goods_id`,`exchange_mobile`,`status`,`count`,`soouu_order_id`,`purchase_price`,`card_code`,`card_deadline`,`description`,`create_date`) values (:shoppingMall.id,:userInfoId,:shoppingMall.goodsId,:shoppingMall.exchangeMobile,:shoppingMall.status,:shoppingMall.count,:shoppingMall.soouuOrderId,:shoppingMall.purchasePrice,:shoppingMall.cardCode,:shoppingMall.cardDeadline,:shoppingMall.description,now());")
     void insert(@Param("shoppingMall") ShoppingMallIntegralExchangeRestEntity shoppingMall,@Param("userInfoId")String userInfoId);
+
+    @ResultType(ShoppingMallIntegralExchangeRestEntity.class)
+    @Sql("select * from hbird_shopping_mall_integral_exchange where id = :id")
+    ShoppingMallIntegralExchangeRestEntity checkStatusById(@Param("id") String customerOrderNo);
+
+    @Sql("UPDATE `hbird_account`.`hbird_shopping_mall_integral_exchange` SET `status` = :status WHERE `id` = :id;")
+    void update(@Param("id") String customerOrderNo,@Param("status")int status);
+
+    @Sql("select shop.id,shop.exchange_mobile,shop.status,shop.card_code,shop.card_deadline,shop.create_date,goods.goods_name,goods.fengfeng_ticket_value,goods.list_picture,goods.type from hbird_shopping_mall_integral_exchange shop LEFT JOIN hbird_goods goods on shop.goods_id=goods.id where shop.user_info_id=:userInfoId order by create_date desc;")
+    List<ShoppingMallIntegralExchangeRestDTO> historyIntegralExchange(@Param("userInfoId") String userInfoId);
 }

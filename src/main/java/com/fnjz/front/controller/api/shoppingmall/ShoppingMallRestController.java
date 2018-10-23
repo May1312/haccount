@@ -8,6 +8,7 @@ import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestDTO;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,9 +72,12 @@ public class ShoppingMallRestController {
         }
     }
 
-
-
-
+    /**
+     * 积分兑换
+     * @param map
+     * @param request
+     * @return
+     */
     @RequestMapping(value = {"/toExchange"}, method = RequestMethod.POST)
     @ResponseBody
     public ResultBean toExchange(@RequestBody Map<String,String> map,HttpServletRequest request) {
@@ -89,6 +93,48 @@ public class ShoppingMallRestController {
             }
             JSONObject jsonObject = shoppingMallRestService.toExchange(map.get("exchangeMobile"),goodsRestEntity,userInfoId);
             return new ResultBean(ApiResultType.OK,jsonObject);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 积分兑换---->树鱼回调接口
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/soouucallback"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean soouucallback(HttpServletRequest request) {
+        logger.info("树鱼回调触发----------");
+        try {
+            //获取到回调地址传回的参数
+            String OrderNo = request.getParameter("OrderNo"); // 福禄订单号
+            String ChargeTime = request.getParameter("ChargeTime"); // 交易完成时间
+            String CustomerOrderNo = request.getParameter("CustomerOrderNo"); // 合作商家订单号
+            String Status = request.getParameter("Status"); // 订单状态(成功,失败)
+            String ReMark = request.getParameter("ReMark");
+            shoppingMallRestService.updateExchange(OrderNo,CustomerOrderNo,Status,ReMark);
+            return new ResultBean(ApiResultType.OK,null);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 积分兑换---->历史兑换列表
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/historyIntegralExchange"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean historyIntegralExchange(HttpServletRequest request) {
+        String userInfoId = (String)request.getAttribute("userInfoId");
+        try {
+            List<ShoppingMallIntegralExchangeRestDTO> list = shoppingMallRestService.historyIntegralExchange(userInfoId);
+            return new ResultBean(ApiResultType.OK,list);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);

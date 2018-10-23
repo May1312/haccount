@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestDTO;
 
 import java.util.List;
 
@@ -37,4 +38,20 @@ public interface ShoppingMallRestService {
      * @return
      */
     JSONObject toExchange(String exchangeMobile,GoodsRestEntity goodsInfoRestDTO,String userInfoId) throws Exception;
+
+    /**
+     * 树鱼回调接口
+     * @param orderNo
+     * @param customerOrderNo
+     * @param status
+     * @param reMark
+     */
+    void updateExchange(String orderNo, String customerOrderNo, String status, String reMark);
+
+    /**
+     * 积分兑换---->历史兑换列表
+     * @param userInfoId
+     * @return
+     */
+    List<ShoppingMallIntegralExchangeRestDTO> historyIntegralExchange(String userInfoId);
 }

@@ -6,10 +6,12 @@ import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestEntity;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.ShoppingMallExchangeEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
+import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.util.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -82,13 +84,16 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
     //private static String secret = "1F8254C8821FF2B5B9DEB8CDB4E06F9C";
     private static String secret = "CC11F561EBF14204089A5C64DE61C8DF";
 
+    //回调接口
+    private static String callback = "https://api.galaxyhouse.cn/rest/api/v1/soouucallback";
+
     /**
      * 商品兑换
      *
      * @return
      */
     @Override
-    public JSONObject toExchange(String exchangeMobile,GoodsRestEntity goodsRestEntity, String userInfoId) throws Exception {
+    public JSONObject toExchange(String exchangeMobile, GoodsRestEntity goodsRestEntity, String userInfoId) throws Exception {
         JSONObject result2 = new JSONObject();
         HttpHeaders headers = new HttpHeaders();
         MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
@@ -112,7 +117,9 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             //充值面值
             jsonObject.put("chargeparvalue", "1");
             //充值手机号
-            jsonObject.put("chargephone",exchangeMobile);
+            jsonObject.put("chargephone", exchangeMobile);
+            //回调地址
+            jsonObject.put("notifyurl", callback);
         } else if (ShoppingMallExchangeEnum.NETFLOW.getIndex() == goodsRestEntity.getType()) {
             //流量兑换类型
             jsonObject.put("method", "kamenwang.trafficgoods.add");
@@ -122,6 +129,8 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             jsonObject.put("chargephone", exchangeMobile);
             //流量类型(注：1.全国  0.省内)
             jsonObject.put("areatype", "1");
+            //回调地址
+            jsonObject.put("notifyurl", callback);
         } else if (ShoppingMallExchangeEnum.VIDEO_MEMBERSHIP.getIndex() == goodsRestEntity.getType()) {
             jsonObject.put("method", "kamenwang.order.cardorder.add");
             //商品编号
@@ -148,10 +157,12 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         ShoppingMallIntegralExchangeRestEntity shoppingMall = new ShoppingMallIntegralExchangeRestEntity();
         //设置订单号
         shoppingMall.setId(Long.valueOf(shoppingMallId));
-        //设置商品id
-        shoppingMall.setGoodsId(Integer.valueOf(goodsRestEntity.getSoouuGoodsId()));
+        //设置id
+        shoppingMall.setGoodsId(Integer.valueOf(goodsRestEntity.getId()));
         //设置兑换手机号
         shoppingMall.setExchangeMobile(exchangeMobile);
+        //设置数量
+        shoppingMall.setCount(1);
         if (jsonObject1.get("MessageCode") == null) {
             //兑换中
 
@@ -180,26 +191,26 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                             //兑换码
                             shoppingMall.setCardCode(decryCardPwd);
                             //有效期
-                            LocalDateTime ldt = LocalDateTime.parse(jsonObject1.getJSONArray("Cards").getJSONObject(0).getString("CardDeadline"),formatter);
+                            LocalDateTime ldt = LocalDateTime.parse(jsonObject1.getJSONArray("Cards").getJSONObject(0).getString("CardDeadline"), formatter);
                             ZoneId zone = ZoneId.systemDefault();
                             Instant instant = ldt.atZone(zone).toInstant();
                             shoppingMall.setCardDeadline(Date.from(instant));
-                            shoppingMallRestDao.insert(shoppingMall,userInfoId);
+                            shoppingMallRestDao.insert(shoppingMall, userInfoId);
                             //记录积分消耗表
                             userIntegralRestDao.insertShoppingMallIntegral(userInfoId, shoppingMallId, "-" + goodsRestEntity.getFengfengTicketValue(), goodsRestEntity.getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex());
                             //result.put
-                            result2.put("cardDeadline",Date.from(instant));
-                            result2.put("cardCode",decryCardPwd);
-                            result2.put("status",2);
+                            result2.put("cardDeadline", Date.from(instant));
+                            result2.put("cardCode", decryCardPwd);
+                            result2.put("status", 2);
                             return result2;
                         }
                     }
                 }
-            }else{
+            } else {
                 //话费和流量兑换类型
                 //设置兑换状态
                 shoppingMall.setStatus(2);
-                result2.put("status",1);
+                result2.put("status", 1);
                 return result2;
             }
         } else {
@@ -207,8 +218,8 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             shoppingMall.setStatus(3);
             //录入错误原因
             shoppingMall.setDescription(jsonObject1.getString("MessageInfo"));
-            shoppingMallRestDao.insert(shoppingMall,userInfoId);
-            result2.put("status",3);
+            shoppingMallRestDao.insert(shoppingMall, userInfoId);
+            result2.put("status", 3);
             return result2;
         }
         return null;
@@ -300,5 +311,84 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         BASE64Decoder base64Decoder = new BASE64Decoder();
         byte[] pasByte = deCipher.doFinal(base64Decoder.decodeBuffer(data));
         return new String(pasByte, "UTF-8");
+    }
+
+    /**
+     * 树鱼回调接口
+     *
+     * @param orderNo
+     * @param customerOrderNo
+     * @param status
+     * @param reMark
+     */
+    @Override
+    public void updateExchange(String orderNo, String customerOrderNo, String status, String reMark) {
+        if (Boolean.valueOf(status)) {
+            //获取订单状态
+            ShoppingMallIntegralExchangeRestEntity shopping = shoppingMallRestDao.checkStatusById(customerOrderNo);
+            if (shopping.getStatus() != 2) {
+                //根据goodsid--->获取
+                GoodsRestEntity goodsById = shoppingMallRestDao.getGoodsById(shopping.getGoodsId());
+                //成功
+                shoppingMallRestDao.update(customerOrderNo, 2);
+                //记录积分消耗表
+                userIntegralRestDao.insertShoppingMallIntegral(shopping.getUserInfoId() + "", customerOrderNo, "-" + goodsById.getFengfengTicketValue(), goodsById.getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex());
+            }
+        } else {
+            //兑换失败
+            shoppingMallRestDao.update(customerOrderNo, 3);
+        }
+    }
+
+    /**
+     * 积分兑换---->历史兑换列表
+     *
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public List<ShoppingMallIntegralExchangeRestDTO> historyIntegralExchange(String userInfoId) {
+        List<ShoppingMallIntegralExchangeRestDTO> list = shoppingMallRestDao.historyIntegralExchange(userInfoId);
+        if (list.size() > 0) {
+            if (list.get(0).getStatus() == 1) {
+                //兑换中状态----->rpc查询树鱼
+                HttpHeaders headers = new HttpHeaders();
+                MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+                headers.setContentType(type);
+                Map<String, String> jsonObject = new HashMap<String, String>();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                //树鱼云接口编号
+                jsonObject.put("customerid", customerid);
+                //公共参数
+                jsonObject.put("format", "json");
+                //时间戳
+                jsonObject.put("timestamp", LocalDateTime.now().format(formatter));
+                jsonObject.put("v", "1.0");
+                jsonObject.put("method", "kamenwang.order.get");
+                String param = MaptoString(jsonObject);
+                // 将秘钥拼接到URL参数对后
+                String postData = param + secret;
+                // 将请求参数进行MD5加密得到签名
+                String sign = MD5(postData);
+                // 将签名添加到URL参数后
+                param = param + "&sign=" + sign.toUpperCase();
+                // 向福禄api接口地址发起http post请求，并传递url参数
+                String result = HttpRequest.sendPost(URL, param);
+                JSONObject jsonObject1 = JSONObject.parseObject(result);
+                if (jsonObject1.get("MessageCode") == null) {
+                    if(StringUtils.equals(jsonObject1.getString("Status"),"成功")){
+                        //成功
+                        shoppingMallRestDao.update(list.get(0).getId()+"", 2);
+                        //记录积分消耗表
+                        userIntegralRestDao.insertShoppingMallIntegral(userInfoId, list.get(0).getId()+"", "-" + list.get(0).getFengfengTicketValue(), list.get(0).getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex());
+                        list.get(0).setStatus(2);
+                    }else if(StringUtils.equals(jsonObject1.getString("Status"),"失败")){
+                        shoppingMallRestDao.update(list.get(0).getId()+"", 3);
+                        list.get(0).setStatus(3);
+                    }
+                }
+            }
+        }
+        return list;
     }
 }
