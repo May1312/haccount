@@ -24,15 +24,15 @@ unzip jeecg.war
 rm -rf jeecg.war
 
 echo "检查docker tomcat_hbird是否运行"
-docker ps -a | grep tomcat_hbird
+docker ps -a | grep hbird
 if [ $? -ne 0 ]
 then
 echo "不存在此容器，待创建"
-docker run --name tomcat_hbird -d  -p 8201:8080 -v  /usr/mydocker/tomcat_hbird/webapps/:/usr/local/tomcat/webapps/ROOT/   -e TZ="Asia/Shanghai" -v /etc/localtime:/etc/localtime:ro --privileged=true tomcat:7-jre8
+docker run --name hbird -d  -p 8201:8080 -v  /usr/mydocker/tomcat_hbird/webapps/:/usr/local/tomcat/webapps/ROOT/   -e TZ="Asia/Shanghai" -v /etc/localtime:/etc/localtime:ro --privileged=true tomcat:7-jre8
 echo "创建完成 占用外部8080端口"
 else
-echo "重启tomcat_hbird"
+echo "重启hbird"
 fi
-docker restart tomcat_hbird
+docker restart hbird
 echo "部署完成，开启日志"
 #docker logs -f tomcat_hbird
