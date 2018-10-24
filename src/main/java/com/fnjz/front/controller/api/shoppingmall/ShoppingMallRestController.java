@@ -4,12 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestDTO;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
+import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,9 +32,8 @@ public class ShoppingMallRestController {
     @Autowired
     private ShoppingMallRestService shoppingMallRestService;
 
-    //TODO 总积分数  统计不合理  待修改！！！！！！
     @Autowired
-    private UserIntegralRestDao userIntegralRestDao;
+    private UserIntegralRestServiceI userIntegralRestServiceI;
 
     /**
      * 获取所有商品
@@ -86,7 +85,7 @@ public class ShoppingMallRestController {
             //根据商品id或消耗积分数+用户拥有总积分数
             GoodsRestEntity goodsRestEntity = shoppingMallRestService.getGoodsById(Integer.valueOf(map.get("goodsId")));
             //总积分数统计
-            int integralTotal = userIntegralRestDao.getTotalIntegral(userInfoId);
+            int integralTotal = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
             //判断用户积分数
             if(integralTotal<goodsRestEntity.getFengfengTicketValue()){
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW,null);

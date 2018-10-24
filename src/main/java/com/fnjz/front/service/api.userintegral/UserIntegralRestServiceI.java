@@ -35,4 +35,11 @@ public interface UserIntegralRestServiceI extends CommonService{
      * @return
      */
     JSONObject integralTop(String userInfoId);
+
+    /**
+     * 获取总积分数
+     * @param userInfoId
+     * @return
+     */
+    Integer getUserTotalIntegral(String userInfoId);
 }

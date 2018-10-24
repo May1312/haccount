@@ -27,7 +27,14 @@ public interface UserIntegralRestDao {
     void insertSignInIntegral(@Param("userInfoId") String userInfoId,@Param("id") String id,@Param("behaviorTicketValue") Integer behaviorTicketValue,@Param("description")String description,@Param("type")Integer type,@Param("categoryOfBehavior")Integer categoryOfBehavior);
 
     @Sql("SELECT COALESCE(SUM(integral_num),0) from `hbird_user_integral` where `user_info_id`=:userInfoId;")
-    int getTotalIntegral(@Param("userInfoId") String userInfoId);
+    int getTotalIntegralBySum(@Param("userInfoId") String userInfoId);
+
+    /**
+     * 从用户对应总积分表中获取积分数
+     * @param userInfoId
+     */
+    @Sql("SELECT integral_num from `hbird_user_total_integrals` where `user_info_id`=:userInfoId;")
+    Integer getTotalIntegral(String userInfoId);
 
     @ResultType(UserIntegralRestDTO.class)
     @Sql("SELECT integral_num,description,create_date FROM hbird_user_integral where user_info_id=:userInfoId ORDER BY create_date LIMIT :curpage,:itemPerPage")
@@ -97,4 +104,16 @@ public interface UserIntegralRestDao {
      */
     @Sql("INSERT INTO `hbird_user_integral` (`user_info_id`,`integral_num`,`shopping_mall_integral_exchange_id`,`create_date`,`description`,`category_of_behavior`) VALUES (:userInfoId,:behaviorTicketValue,:id,NOW(),:description,:categoryOfBehavior);")
     void insertShoppingMallIntegral(@Param("userInfoId") String userInfoId,@Param("shoppingMallIntegralExchangeId") String id,@Param("behaviorTicketValue") String behaviorTicketValue,@Param("description")String description,@Param("categoryOfBehavior")Integer categoryOfBehavior);
+
+    /**
+     * 赋值总积分表
+     * @param userInfoId
+     * @param sum
+     * @param i
+     */
+    @Sql("insert into hbird_user_total_integrals (`user_info_id`,`integral_num`,`type`,`create_date`) values (:userInfoId,:integralNum,:type,now())")
+    void insertForTotalIntegral(@Param("userInfoId") String userInfoId,@Param("integralNum") int sum,@Param("type") int i);
+
+    @Sql("update hbird_user_total_integrals set integral_num = integral_num+:integralNum,update_date=now() where user_info_id=:userInfoId;")
+    void updateForTotalIntegral(@Param("userInfoId") String userInfoId,@Param("integralNum") Integer integer);
 }

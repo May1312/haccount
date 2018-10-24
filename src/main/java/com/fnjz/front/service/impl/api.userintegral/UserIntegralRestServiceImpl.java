@@ -617,4 +617,22 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
         jsonObject.put("mySelf", mySelf);
         return jsonObject;
     }
+
+    /**
+     * 获取用户总积分数
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public Integer getUserTotalIntegral(String userInfoId){
+        Integer totalIntegral = userIntegralRestDao.getTotalIntegral(userInfoId);
+        if(totalIntegral==null){
+            int sum = userIntegralRestDao.getTotalIntegralBySum(userInfoId);
+            //赋值总积分表
+            userIntegralRestDao.insertForTotalIntegral(userInfoId,sum,1);
+            return sum;
+        }else{
+            return totalIntegral;
+        }
+    }
 }

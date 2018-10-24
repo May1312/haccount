@@ -129,6 +129,8 @@ public class CreateTokenUtils {
      */
     public void insertInIntegral(String userInfoId, FengFengTicketRestEntity ff, AcquisitionModeEnum acquisitionModeEnum,CategoryOfBehaviorEnum categoryOfBehaviorEnum) {
         userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId()+"", ff.getBehaviorTicketValue(), acquisitionModeEnum.getDescription(), acquisitionModeEnum.getIndex(),categoryOfBehaviorEnum.getIndex());
+        userIntegralRestDao.updateForTotalIntegral(userInfoId,ff.getBehaviorTicketValue());
+
     }
 
     /**
