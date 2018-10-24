@@ -34,7 +34,7 @@ public interface UserIntegralRestDao {
      * @param userInfoId
      */
     @Sql("SELECT integral_num from `hbird_user_total_integrals` where `user_info_id`=:userInfoId;")
-    Integer getTotalIntegral(String userInfoId);
+    Integer getTotalIntegral(@Param("userInfoId") String userInfoId);
 
     @ResultType(UserIntegralRestDTO.class)
     @Sql("SELECT integral_num,description,create_date FROM hbird_user_integral where user_info_id=:userInfoId ORDER BY create_date LIMIT :curpage,:itemPerPage")
@@ -85,7 +85,7 @@ public interface UserIntegralRestDao {
      * 获取积分排行榜
      * @return
      */
-    @Sql("SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num, @rank := @rank + 1 as rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id, sum( integral_num ) AS integral_num FROM hbird_user_integral GROUP BY user_info_id ORDER BY integral_num DESC LIMIT 0, :top ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id;")
+    @Sql("SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num, @rank := @rank + 1 as rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id,integral_num FROM hbird_user_total_integrals ORDER BY integral_num DESC LIMIT 0, :top ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id;")
     List<UserIntegralTopRestDTO> integralTop(@Param("top") int top);
 
     /**

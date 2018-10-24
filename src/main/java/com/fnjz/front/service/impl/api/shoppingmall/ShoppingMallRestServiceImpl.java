@@ -77,14 +77,14 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
     }
 
     //福禄积分兑换 url
-    //private static String URL = "http://ccapi.soouu.cn/Interface/Method";
-    private static String URL = "http://test.ccapi.soouu.cn/Interface/Method";
+    private static String URL = "http://ccapi.soouu.cn/Interface/Method";
+    //private static String URL = "http://test.ccapi.soouu.cn/Interface/Method";
     //云接口编号
-    //private static String customerid = "804484";
-    private static String customerid = "803683";
+    private static String customerid = "804484";
+    //private static String customerid = "803683";
     //树鱼秘钥
-    //private static String secret = "1F8254C8821FF2B5B9DEB8CDB4E06F9C";
-    private static String secret = "CC11F561EBF14204089A5C64DE61C8DF";
+    private static String secret = "1F8254C8821FF2B5B9DEB8CDB4E06F9C";
+    //private static String secret = "CC11F561EBF14204089A5C64DE61C8DF";
 
     //回调接口
     private static String callback = "https://api.galaxyhouse.cn/rest/api/v1/soouucallback";
