@@ -176,7 +176,7 @@ public class RedisTemplateUtils {
      * @return
      */
     public Long getExpireForSeconds(String key) {
-        return redisTemplate.getExpire(key,TimeUnit.MILLISECONDS);
+        return redisTemplate.getExpire(key);
     }
 
     /**

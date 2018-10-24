@@ -232,7 +232,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             //获取系统缓存有效期
             Long expire = redisTemplateUtils.getExpireForSeconds(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK);
             //缓存
-            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),expire,TimeUnit.MILLISECONDS);
+            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),expire,TimeUnit.SECONDS);
             newbieTask = jsonArrayForUser;
         } else {
             //判断系统缓存---->整合数据
@@ -408,7 +408,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             //获取系统缓存有效期
             Long expire = redisTemplateUtils.getExpireForSeconds(RedisPrefix.SYS_INTEGRAL_TODAY_TASK);
             //缓存
-            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),expire,TimeUnit.MILLISECONDS);
+            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),expire,TimeUnit.SECONDS);
             todayTask = jsonArrayForUser;
         } else {
             //判断系统缓存---->整合数据
