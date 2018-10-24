@@ -132,7 +132,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 List<Map<String, Object>> newBieTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.NewbieTask.getName());
                 if(newBieTaskAware.size()>0){
                     //获取下线时间
-                    if(StringUtils.isNotEmpty(newBieTaskAware.get(0).get("downtime")+"")){
+                    if(StringUtils.isNotEmpty((String)newBieTaskAware.get(0).get("downtime"))){
                         LocalDateTime ldt = LocalDateTime.parse(newBieTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         if(ldt.toLocalDate().isAfter(LocalDate.now())){
                             period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
@@ -242,7 +242,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 List<Map<String, Object>> newBieTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.NewbieTask.getName());
                 if(newBieTaskAware.size()>0){
                     //获取下线时间
-                    if(StringUtils.isNotEmpty(newBieTaskAware.get(0).get("downtime")+"")){
+                    if(StringUtils.isNotEmpty((String)newBieTaskAware.get(0).get("downtime"))){
                         LocalDateTime ldt = LocalDateTime.parse(newBieTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         if(ldt.toLocalDate().isAfter(LocalDate.now())){
                             period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
@@ -330,7 +330,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 List<Map<String, Object>> todayTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.TodayTask.getName());
                 if(todayTaskAware.size()>0){
                     //获取下线时间
-                    if(StringUtils.isNotEmpty(todayTaskAware.get(0).get("downtime")+"")){
+                    if(StringUtils.isNotEmpty((String)todayTaskAware.get(0).get("downtime"))){
                         LocalDateTime ldt = LocalDateTime.parse(todayTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         if(ldt.toLocalDate().isAfter(LocalDate.now())){
                             period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
@@ -414,7 +414,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 List<Map<String, Object>> todayTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.TodayTask.getName());
                 if(todayTaskAware.size()>0){
                     //获取下线时间
-                    if(StringUtils.isNotEmpty(todayTaskAware.get(0).get("downtime")+"")){
+                    if(StringUtils.isNotEmpty((String)todayTaskAware.get(0).get("downtime"))){
                         LocalDateTime ldt = LocalDateTime.parse(todayTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         if(ldt.toLocalDate().isAfter(LocalDate.now())){
                             period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
