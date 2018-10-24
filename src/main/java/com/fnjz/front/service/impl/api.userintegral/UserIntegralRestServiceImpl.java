@@ -22,9 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -132,8 +130,10 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 List<Map<String, Object>> newBieTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.NewbieTask.getName());
                 if(newBieTaskAware.size()>0){
                     //获取下线时间
-                    if(StringUtils.isNotEmpty((String)newBieTaskAware.get(0).get("downtime"))){
-                        LocalDateTime ldt = LocalDateTime.parse(newBieTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    if(newBieTaskAware.get(0).get("downtime")!=null){
+                        Instant instant = Instant.ofEpochMilli(Long.valueOf(newBieTaskAware.get(0).get("downtime")+""));
+                        ZoneId zone = ZoneId.systemDefault();
+                        LocalDateTime ldt = LocalDateTime.ofInstant(instant, zone);
                         if(ldt.toLocalDate().isAfter(LocalDate.now())){
                             period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
                         }
@@ -242,8 +242,10 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 List<Map<String, Object>> newBieTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.NewbieTask.getName());
                 if(newBieTaskAware.size()>0){
                     //获取下线时间
-                    if(StringUtils.isNotEmpty((String)newBieTaskAware.get(0).get("downtime"))){
-                        LocalDateTime ldt = LocalDateTime.parse(newBieTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    if(newBieTaskAware.get(0).get("downtime")!=null){
+                        Instant instant = Instant.ofEpochMilli(Long.valueOf(newBieTaskAware.get(0).get("downtime")+""));
+                        ZoneId zone = ZoneId.systemDefault();
+                        LocalDateTime ldt = LocalDateTime.ofInstant(instant, zone);
                         if(ldt.toLocalDate().isAfter(LocalDate.now())){
                             period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
                         }
@@ -330,8 +332,10 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 List<Map<String, Object>> todayTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.TodayTask.getName());
                 if(todayTaskAware.size()>0){
                     //获取下线时间
-                    if(StringUtils.isNotEmpty((String)todayTaskAware.get(0).get("downtime"))){
-                        LocalDateTime ldt = LocalDateTime.parse(todayTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    if(todayTaskAware.get(0).get("downtime")!=null){
+                        Instant instant = Instant.ofEpochMilli(Long.valueOf(todayTaskAware.get(0).get("downtime")+""));
+                        ZoneId zone = ZoneId.systemDefault();
+                        LocalDateTime ldt = LocalDateTime.ofInstant(instant, zone);
                         if(ldt.toLocalDate().isAfter(LocalDate.now())){
                             period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
                         }
@@ -414,8 +418,8 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 List<Map<String, Object>> todayTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.TodayTask.getName());
                 if(todayTaskAware.size()>0){
                     //获取下线时间
-                    if(StringUtils.isNotEmpty((String)todayTaskAware.get(0).get("downtime"))){
-                        LocalDateTime ldt = LocalDateTime.parse(todayTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    if(todayTaskAware.get(0).get("downtime")!=null){
+                        LocalDateTime ldt = LocalDateTime.parse(todayTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                         if(ldt.toLocalDate().isAfter(LocalDate.now())){
                             period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
                         }
