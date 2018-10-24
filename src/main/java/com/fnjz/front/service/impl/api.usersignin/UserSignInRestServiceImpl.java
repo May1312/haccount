@@ -277,8 +277,10 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             List<Map<String, String>> list2 = fengFengTicketRestDao.getSignInCycle(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription());
             if(list2.size()>0){
                 //获取下线时间
-                if(StringUtils.isNotEmpty((String)list2.get(0).get("downtime"))){
-                    LocalDateTime ldt = LocalDateTime.parse(list2.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                if(list2.get(0).get("downtime")!=null){
+                    Instant instant = Instant.ofEpochMilli(Long.valueOf(list2.get(0).get("downtime")+""));
+                    ZoneId zone = ZoneId.systemDefault();
+                    LocalDateTime ldt = LocalDateTime.ofInstant(instant, zone);
                     if(ldt.toLocalDate().isAfter(LocalDate.now())){
                         period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
                     }
