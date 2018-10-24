@@ -89,7 +89,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 //list排序  正序
                 list.sort(Comparator.naturalOrder());
                 if(LocalDateTime.ofInstant( list.get(list.size()-1).getCreateDate().toInstant(), ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now())){
-                    //引入当日任务 判断当前时间是否为
+                    //引入当日任务
                     createTokenUtils.integralTask(userInfoId,ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
                 }
                 for(WarterOrderRestEntity warter:list){

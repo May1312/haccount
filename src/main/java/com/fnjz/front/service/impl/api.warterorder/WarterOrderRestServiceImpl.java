@@ -8,8 +8,12 @@ import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.statistics.*;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.enums.AcquisitionModeEnum;
+import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
+import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.DateUtils;
+import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +30,9 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Autowired
     private WarterOrderRestDao warterOrderRestDao;
+
+    @Autowired
+    private CreateTokenUtils createTokenUtils;
 
     @Override
     public Map<String, Object> findListForPage(String time, String accountBookId) {
@@ -151,6 +158,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Override
     public void insert(WarterOrderRestEntity charge, String code, Integer accountBookId) {
+        //引入当日任务 判断当前时间是否为
+        createTokenUtils.integralTask(charge.getCreateBy()+"",ShareCodeUtil.id2sharecode(Integer.valueOf(charge.getCreateBy())), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
         commonDao.save(charge);
         //String insertId = warterOrderRestDao.insert(charge);
         //return insertId;
