@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,8 +58,21 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
             flag = true;
         }
         List<HomeWindowRestDTO> list = new ArrayList<>();
+        Period period = null;
         if (flag) {
             list = homeWindowRestDao.listForWindow();
+            if(list.size()>0){
+                //获取下线时间
+                if(list.get(0).getDowntime()!=null){
+                    Instant instant = list.get(0).getDowntime().toInstant();
+                    ZoneId zone = ZoneId.systemDefault();
+                    LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zone);
+                    LocalDate localDate = localDateTime.toLocalDate();
+                    if(localDate.isAfter(LocalDate.now())){
+                        period = Period.between(LocalDate.now(),localDate);
+                    }
+                }
+            }
             //判断读取情况   id匹配
             if (activity != null) {
                 boolean tag = true;
@@ -104,7 +118,12 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
             }
         }
         //cache
-        //redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode, activity.toJSONString());
+        /*if(period!=null){
+            redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode, activity.toJSONString(),Long.valueOf(period.getDays()+1));
+        }else{
+            //没有设置下线时间 持久存储吧
+            redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode, activity.toJSONString());
+        }*/
         //获取邀请用户成功人数
         Object inviteCount = redisTemplateUtils.getForHashKeyObject(RedisPrefix.USER_INVITE_COUNT + shareCode, "inviteCount");
         JSONObject jsonObject = new JSONObject();

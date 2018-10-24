@@ -175,6 +175,15 @@ public class RedisTemplateUtils {
      * @param key
      * @return
      */
+    public Long getExpireForSeconds(String key) {
+        return redisTemplate.getExpire(key,TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 获取key的过期时间
+     * @param key
+     * @return
+     */
     public Map getForHash(String key) {
         return redisTemplate.opsForHash().entries(key);
     }
@@ -201,6 +210,19 @@ public class RedisTemplateUtils {
     }
 
     /**
+     * 更新hash类型 数据 并设置缓存时间
+     * @param key
+     * @param map
+     */
+    public void updateForHash(String key, Map map,Long days) {
+        redisTemplate.opsForHash().putAll(key, map);
+        if(days!=null){
+            //设置缓存时间
+            redisTemplate.expire(key, days, TimeUnit.DAYS);
+        }
+    }
+
+    /**
      * 更新map中的指定key
      * @param key
      * @param mapKey
@@ -224,6 +246,14 @@ public class RedisTemplateUtils {
 
     public void cacheForString(String key, String list) {
         redisTemplate.opsForValue().set(key,list);
+    }
+
+    public void cacheForString(String key, String list,Long days) {
+        redisTemplate.opsForValue().set(key,list,days,TimeUnit.DAYS);
+    }
+
+    public void cacheForString(String key, String list,Long seconds,TimeUnit timeUnit) {
+        redisTemplate.opsForValue().set(key,list,seconds,timeUnit);
     }
 
     public String getForString(String key) {

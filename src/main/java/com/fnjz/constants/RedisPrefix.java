@@ -62,6 +62,8 @@ public class RedisPrefix {
      */
     public static final long USER_VALID_TIME = 30L;
 
+    public static final long VALID_TIME_28 = 28L;
+
     /**
      * 用户信息缓存有效时间 默认三十天  单位秒
      */

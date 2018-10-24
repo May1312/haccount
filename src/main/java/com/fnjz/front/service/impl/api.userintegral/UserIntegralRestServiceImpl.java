@@ -22,8 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service("userIntegralRestService")
 @Transactional
@@ -121,9 +126,19 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             List<UserIntegralRestEntity> taskComplete = userIntegralRestDao.getTaskComplete(CategoryOfBehaviorEnum.NewbieTask.getIndex(), userInfoId);
             JSONArray jsonArrayForUser = new JSONArray();
             JSONArray cacheJsonArrayForUser = new JSONArray();
+            Period period1 = null;
             if (cacheSysNewbieTask.size() == 0) {
                 //未缓存新手任务缓存---->重查
                 List<Map<String, Object>> newBieTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.NewbieTask.getName());
+                if(newBieTaskAware.size()>0){
+                    //获取下线时间
+                    if(StringUtils.isNotEmpty(newBieTaskAware.get(0).get("downtime")+"")){
+                        LocalDateTime ldt = LocalDateTime.parse(newBieTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        if(ldt.toLocalDate().isAfter(LocalDate.now())){
+                            period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
+                        }
+                    }
+                }
                 JSONObject jsonObject = new JSONObject();
                 for (Map<String, Object> map : newBieTaskAware) {
                     JSONObject jsonObjectForUser = new JSONObject();
@@ -168,9 +183,16 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     }
                 }
                 //缓存系统
-                redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK, jsonObject);
-                //个人
-                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, cacheJsonArrayForUser.toJSONString());
+                if(period1!=null){
+                    //设置缓存时间
+                    redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK, jsonObject,Long.valueOf(period1.getDays()+1));
+                    //个人
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),Long.valueOf(period1.getDays()+1));
+                }else{
+                    redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK, jsonObject,RedisPrefix.USER_VALID_TIME);
+                    //个人
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),RedisPrefix.USER_VALID_TIME);
+                }
                 newbieTask = jsonArrayForUser;
             } else {
                 //拿到系统缓存---->整合数据
@@ -207,14 +229,26 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     }
                 }
             }
+            //获取系统缓存有效期
+            Long expire = redisTemplateUtils.getExpireForSeconds(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK);
             //缓存
-            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, cacheJsonArrayForUser.toJSONString());
+            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),expire,TimeUnit.MILLISECONDS);
             newbieTask = jsonArrayForUser;
         } else {
             //判断系统缓存---->整合数据
+            Period period1 = null;
             if (cacheSysNewbieTask.size() == 0) {
                 //未缓存新手任务缓存---->重查
                 List<Map<String, Object>> newBieTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.NewbieTask.getName());
+                if(newBieTaskAware.size()>0){
+                    //获取下线时间
+                    if(StringUtils.isNotEmpty(newBieTaskAware.get(0).get("downtime")+"")){
+                        LocalDateTime ldt = LocalDateTime.parse(newBieTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        if(ldt.toLocalDate().isAfter(LocalDate.now())){
+                            period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
+                        }
+                    }
+                }
                 JSONObject jsonObject = new JSONObject();
                 for (Map<String, Object> map : newBieTaskAware) {
                     if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.binding_phone_or_wx.getName())) {
@@ -232,7 +266,12 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     }
                 }
                 //缓存系统
-                redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK, jsonObject);
+                if(period1!=null){
+                    //设置缓存时间
+                    redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK, jsonObject,Long.valueOf(period1.getDays()+1));
+                }else{
+                    redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK, jsonObject,RedisPrefix.USER_VALID_TIME);
+                }
                 cacheSysNewbieTask = jsonObject;
             }
             for (Map.Entry entry : cacheSysNewbieTask.entrySet()) {
@@ -285,9 +324,19 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             List<UserIntegralRestEntity> taskComplete = userIntegralRestDao.getTaskComplete(CategoryOfBehaviorEnum.TodayTask.getIndex(), userInfoId);
             JSONArray jsonArrayForUser = new JSONArray();
             JSONArray cacheJsonArrayForUser = new JSONArray();
+            Period period1 = null;
             if (cacheSysTodayTask.size() == 0) {
                 //未缓存今日任务缓存---->重查
                 List<Map<String, Object>> todayTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.TodayTask.getName());
+                if(todayTaskAware.size()>0){
+                    //获取下线时间
+                    if(StringUtils.isNotEmpty(todayTaskAware.get(0).get("downtime")+"")){
+                        LocalDateTime ldt = LocalDateTime.parse(todayTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        if(ldt.toLocalDate().isAfter(LocalDate.now())){
+                            period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
+                        }
+                    }
+                }
                 JSONObject jsonObject = new JSONObject();
                 for (Map<String, Object> map : todayTaskAware) {
                     JSONObject jsonObjectForUser = new JSONObject();
@@ -315,10 +364,17 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     }
                 }
                 //缓存系统
-                redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, jsonObject);
-                //个人
-                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString());
-
+                if(period1!=null){
+                    //设置缓存时间
+                    redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, jsonObject,Long.valueOf(period1.getDays()+1));
+                    //个人
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),Long.valueOf(period1.getDays()+1));
+                }else{
+                    //缓存系统
+                    redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, jsonObject,RedisPrefix.USER_VALID_TIME);
+                    //个人
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),RedisPrefix.USER_VALID_TIME);
+                }
                 todayTask = jsonArrayForUser;
             } else {
                 //拿到系统缓存---->整合数据
@@ -345,14 +401,26 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     }
                 }
             }
+            //获取系统缓存有效期
+            Long expire = redisTemplateUtils.getExpireForSeconds(RedisPrefix.SYS_INTEGRAL_TODAY_TASK);
             //缓存
-            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString());
+            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),expire,TimeUnit.MILLISECONDS);
             todayTask = jsonArrayForUser;
         } else {
             //判断系统缓存---->整合数据
             if (cacheSysTodayTask.size() == 0) {
+                Period period1 =null;
                 //未缓存新手任务缓存---->重查
                 List<Map<String, Object>> todayTaskAware = fengFengTicketRestDao.getIntegralTaskAware(CategoryOfBehaviorEnum.TodayTask.getName());
+                if(todayTaskAware.size()>0){
+                    //获取下线时间
+                    if(StringUtils.isNotEmpty(todayTaskAware.get(0).get("downtime")+"")){
+                        LocalDateTime ldt = LocalDateTime.parse(todayTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        if(ldt.toLocalDate().isAfter(LocalDate.now())){
+                            period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
+                        }
+                    }
+                }
                 JSONObject jsonObject = new JSONObject();
                 for (Map<String, Object> map : todayTaskAware) {
                     if (StringUtils.equals(map.get("acquisitionmode") + "", AcquisitionModeEnum.Inviting_friends.getName())) {
@@ -363,8 +431,12 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                         jsonObject.put("toChargeAware", Integer.valueOf(map.get("integraltaskaware") + ""));
                     }
                 }
-                //缓存系统
-                redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, jsonObject);
+                if(period1!=null){
+                    //缓存系统
+                    redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, jsonObject,Long.valueOf(period1.getDays()+1));
+                }else{
+                    redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, jsonObject,RedisPrefix.USER_VALID_TIME);
+                }
                 cacheSysTodayTask = jsonObject;
             }
             for (Map.Entry entry : cacheSysTodayTask.entrySet()) {

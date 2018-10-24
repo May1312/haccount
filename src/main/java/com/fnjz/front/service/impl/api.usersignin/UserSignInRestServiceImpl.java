@@ -203,7 +203,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
             }
             //cache
-            redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map);
+            redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map,RedisPrefix.USER_VALID_TIME);
         }
         //获取到连续签到天数---->获取当前周签到情况
         List<UserSignInRestEntity> list = userSignInRestDao.getSignInForCurrentWeek(userInfoId);
@@ -212,6 +212,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         Date monday = DateUtils.getMonday();
         String format = DateUtils.convert2String(monday);
         String[] args = StringUtils.split(format, "-");
+        //获取补签消耗积分数
+        FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), AcquisitionModeEnum.Check_in.getName(), null);
         //计算两个日期间间隔天数
         Period period = Period.between(LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf(args[2])), LocalDate.now());
         for (int i = 0; i <= period.getDays(); i++) {
@@ -241,7 +243,11 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 }
             } else {
                 if (!flag) {
-                    result[i] = SignInEnum.COMPLEMENT_SIGNED.getIndex();
+                    if(fengFengTicket!=null){
+                        result[i] = SignInEnum.COMPLEMENT_SIGNED.getIndex();
+                    }else{
+                        result[i] = SignInEnum.NOT_SIGN.getIndex();
+                    }
                 }
             }
             monday = DateUtils.getNextDay(monday);
@@ -265,9 +271,19 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         jsonObject.put("signInDays", map.get("signInDays") == null ? 0 : map.get("signInDays"));
         jsonObject.put("signInWeek", result);
         //读取签到奖励规则
+        Period period1 = null;
         Map<String, Integer> map3 = redisTemplateUtils.getForHash(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
         if (map3.size() < 1) {
             List<Map<String, String>> list2 = fengFengTicketRestDao.getSignInCycle(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription());
+            if(list2.size()>0){
+                //获取下线时间
+                if(StringUtils.isNotEmpty(list2.get(0).get("downtime")+"")){
+                    LocalDateTime ldt = LocalDateTime.parse(list2.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    if(ldt.toLocalDate().isAfter(LocalDate.now())){
+                        period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
+                    }
+                }
+            }
             for (Map map2 : list2) {
                 if (StringUtils.equals(map2.get("cycle") + "", IntegralEnum.SIGNIN_7.getIndex() + "")) {
                     map3.put("signIn_" + IntegralEnum.SIGNIN_7.getIndex(), Integer.valueOf(map2.get("cycleaware") + ""));
@@ -279,9 +295,13 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     map3.put("signIn_" + IntegralEnum.SIGNIN_28.getIndex(), Integer.valueOf(map2.get("cycleaware") + ""));
                 }
             }
-            redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE, map3);
+            //设置缓存时间
+            if(period1!=null){
+                redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE, map3,Long.valueOf(period1.getDays()+1));
+            }else{
+                redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE, map3,RedisPrefix.USER_VALID_TIME);
+            }
         }
-        //TODO   上述获取系统 若获取不到系统数据   --->自有数据要更新？？？？？
         //获取自己的签到领取情况
         Map<String, Integer> map4 = redisTemplateUtils.getForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode);
         JSONArray jsonArray = new JSONArray();
@@ -296,7 +316,6 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             List<UserIntegralRestEntity> currentCycleIntegralForRecover = new ArrayList<>();
             if(userSignInRestEntity!=null){
                 currentCycleIntegralForRecover = userIntegralRestDao.getCurrentCycleIntegralForRecover(userInfoId, userSignInRestEntity.getSignInDate(), IntegralEnum.SIGNIN_7.getIndex(), IntegralEnum.SIGNIN_14.getIndex(), IntegralEnum.SIGNIN_21.getIndex(), IntegralEnum.SIGNIN_28.getIndex());
-
             }
             //定义 可能存在的连签历史接收参数
             Integer signIn7 = 0, signIn14 = 0, signIn21 = 0, signIn28 = 0;
@@ -460,7 +479,12 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     jsonArray.add(jsonObject1);
                 }
             }
-            redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, cacheJson);
+            //设置缓存时间
+            if(period1!=null){
+                redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, cacheJson,Long.valueOf(period1.getDays()+1));
+            }else{
+                redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, cacheJson,RedisPrefix.VALID_TIME_28);
+            }
         } else {
             for (Map.Entry<String, Integer> entry : map3.entrySet()) {
                 JSONObject jsonObject1 = new JSONObject();
@@ -479,8 +503,6 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         jsonObject.put("signInAward", jsonArray);
         //总积分数统计
         int total = userIntegralRestDao.getTotalIntegral(userInfoId);
-        //获取补签消耗积分数
-        FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), AcquisitionModeEnum.Check_in.getName(), null);
         jsonObject.put("reSignInAware", fengFengTicket==null?null:fengFengTicket.getBehaviorTicketValue());
         jsonObject.put("totalIntegral", total);
         return jsonObject;
