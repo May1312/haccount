@@ -274,11 +274,12 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         Period period1 = null;
         Map<String, Integer> map3 = redisTemplateUtils.getForHash(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
         if (map3.size() < 1) {
-            List<Map<String, String>> list2 = fengFengTicketRestDao.getSignInCycle(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription());
+            List<Map<String, Object>> list2 = fengFengTicketRestDao.getSignInCycle(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription());
             if(list2.size()>0){
                 //获取下线时间
                 if(list2.get(0).get("downtime")!=null){
-                    Instant instant = Instant.ofEpochMilli(Long.valueOf(list2.get(0).get("downtime")+""));
+                    String downtime = list2.get(0).get("downtime")+"";
+                    Instant instant = Instant.ofEpochMilli(Long.valueOf(downtime));
                     ZoneId zone = ZoneId.systemDefault();
                     LocalDateTime ldt = LocalDateTime.ofInstant(instant, zone);
                     if(ldt.toLocalDate().isAfter(LocalDate.now())){
