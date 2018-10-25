@@ -8,6 +8,7 @@ import com.fnjz.front.service.api.usersignin.UserSignInRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -122,5 +123,11 @@ public class UserSignInRestController extends BaseController {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
+    }
+
+    @Test
+    public void run(){
+        LocalDateTime yesterday = LocalDate.now().atTime(23, 59, 59);
+        System.out.println(yesterday.toEpochSecond(ZoneOffset.of("+8"))-LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
     }
 }

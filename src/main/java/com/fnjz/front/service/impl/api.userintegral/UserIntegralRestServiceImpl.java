@@ -372,12 +372,18 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     //设置缓存时间
                     redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, jsonObject,Long.valueOf(period1.getDays()+1));
                     //个人
-                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),Long.valueOf(period1.getDays()+1));
+                    LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
+                    //凌晨时间戳-当前时间戳
+                    long cacheTime = time.toEpochSecond(ZoneOffset.of("+8"))-LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),cacheTime,TimeUnit.SECONDS);
                 }else{
                     //缓存系统
                     redisTemplateUtils.updateForHash(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, jsonObject,RedisPrefix.USER_VALID_TIME);
                     //个人
-                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),RedisPrefix.USER_VALID_TIME);
+                    LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
+                    //凌晨时间戳-当前时间戳
+                    long cacheTime = time.toEpochSecond(ZoneOffset.of("+8"))-LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),cacheTime,TimeUnit.SECONDS);
                 }
                 todayTask = jsonArrayForUser;
             } else {
@@ -405,10 +411,11 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     }
                 }
             }
-            //获取系统缓存有效期
-            Long expire = redisTemplateUtils.getExpireForSeconds(RedisPrefix.SYS_INTEGRAL_TODAY_TASK);
+            LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
+            //凌晨时间戳-当前时间戳
+            long cacheTime = time.toEpochSecond(ZoneOffset.of("+8"))-LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
             //缓存
-            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),expire,TimeUnit.SECONDS);
+            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),cacheTime,TimeUnit.SECONDS);
             todayTask = jsonArrayForUser;
         } else {
             //判断系统缓存---->整合数据

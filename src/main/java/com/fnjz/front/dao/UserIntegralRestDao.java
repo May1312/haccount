@@ -37,7 +37,7 @@ public interface UserIntegralRestDao {
     Integer getTotalIntegral(@Param("userInfoId") String userInfoId);
 
     @ResultType(UserIntegralRestDTO.class)
-    @Sql("SELECT integral_num,description,create_date FROM hbird_user_integral where user_info_id=:userInfoId ORDER BY create_date LIMIT :curpage,:itemPerPage")
+    @Sql("SELECT integral_num,description,create_date FROM hbird_user_integral where user_info_id=:userInfoId ORDER BY create_date desc LIMIT :curpage,:itemPerPage")
     List<UserIntegralRestDTO> listForPage(@Param("userInfoId")String userInfoId, @Param("curpage") Integer curpage, @Param("itemPerPage") Integer itemPerPage);
 
     /**
