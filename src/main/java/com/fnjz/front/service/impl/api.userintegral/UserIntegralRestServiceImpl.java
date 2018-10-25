@@ -276,47 +276,93 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 }
                 cacheSysNewbieTask = jsonObject;
             }
-            for (Map.Entry entry : cacheSysNewbieTask.entrySet()) {
-                if (StringUtils.equals(entry.getKey() + "", "bindPhoneOrWXAware")) {
-                    //设置积分数
-                    if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.binding_phone_or_wx)==null){
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("name",entry.getKey() + "");
-                        jsonObject.put("description",AcquisitionModeEnum.binding_phone_or_wx.getDescription());
-                        jsonObject.put("status",1);
-                        newbieTask.add(jsonObject);
-                    }else{
-                        newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.binding_phone_or_wx);
+            //判断个人缓存不为null  系统缓存不为null 但是size不匹配情况
+            if(newbieTask.size()!=cacheSysNewbieTask.size()){
+                redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_NEWBIE_TASK+shareCode);
+                //未获取到新手任务 获取用户已完成的新手任务
+                List<UserIntegralRestEntity> taskComplete = userIntegralRestDao.getTaskComplete(CategoryOfBehaviorEnum.NewbieTask.getIndex(), userInfoId);
+                JSONArray cacheJsonArrayForUser = new JSONArray();
+                //拿到系统缓存---->整合数据
+                for (Map.Entry entry : cacheSysNewbieTask.entrySet()) {
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject cacheJsonObjectForUser = new JSONObject();
+                    if (StringUtils.equals(entry.getKey() + "", "bindPhoneOrWXAware")) {
+                        //设置积分数
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.binding_phone_or_wx);
+                        cacheJsonObjectForUser = (JSONObject) jsonObject.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    } else if (StringUtils.equals(entry.getKey() + "", "budgetAware")) {
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Setting_up_budget);
+                        cacheJsonObjectForUser = (JSONObject) jsonObject.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    } else if (StringUtils.equals(entry.getKey() + "", "savingEfficiencyAware")) {
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Setting_up_savings_efficiency);
+                        cacheJsonObjectForUser = (JSONObject) jsonObject.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
+                    } else if (StringUtils.equals(entry.getKey() + "", "userInfoAware")) {
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Perfecting_personal_data);
+                        cacheJsonObjectForUser = (JSONObject) jsonObject.clone();
+                        cacheJsonObjectForUser.remove("integralAware");
                     }
-                } else if (StringUtils.equals(entry.getKey() + "", "budgetAware")) {
-                    if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget)==null){
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("name",entry.getKey() + "");
-                        jsonObject.put("description",AcquisitionModeEnum.Setting_up_budget.getDescription());
-                        jsonObject.put("status",1);
+                    if (jsonObject.size() > 0) {
                         newbieTask.add(jsonObject);
-                    }else{
-                        newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget);
                     }
-                } else if (StringUtils.equals(entry.getKey() + "", "savingEfficiencyAware")) {
-                    if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_savings_efficiency)==null){
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("name",entry.getKey() + "");
-                        jsonObject.put("description",AcquisitionModeEnum.Setting_up_savings_efficiency.getDescription());
-                        jsonObject.put("status",1);
-                        newbieTask.add(jsonObject);
-                    }else{
-                        newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_savings_efficiency);
+                    if (cacheJsonObjectForUser.size() > 0) {
+                        cacheJsonArrayForUser.add(cacheJsonObjectForUser);
                     }
-                } else if (StringUtils.equals(entry.getKey() + "", "userInfoAware")) {
-                    if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Perfecting_personal_data)==null){
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("name",entry.getKey() + "");
-                        jsonObject.put("description",AcquisitionModeEnum.Perfecting_personal_data.getDescription());
-                        jsonObject.put("status",1);
-                        newbieTask.add(jsonObject);
-                    }else{
-                        newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Perfecting_personal_data);
+                }
+                //获取系统缓存有效期
+                Long expire = redisTemplateUtils.getExpireForSeconds(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK);
+                //缓存
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),expire,TimeUnit.SECONDS);
+                newbieTask = cacheJsonArrayForUser;
+            }else{
+                for (Map.Entry entry : cacheSysNewbieTask.entrySet()) {
+                    if (StringUtils.equals(entry.getKey() + "", "bindPhoneOrWXAware")) {
+                        //设置积分数
+                        if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.binding_phone_or_wx)==null){
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("name",entry.getKey() + "");
+                            jsonObject.put("description",AcquisitionModeEnum.binding_phone_or_wx.getDescription());
+                            jsonObject.put("status",1);
+                            newbieTask.add(jsonObject);
+                        }else{
+                            newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.binding_phone_or_wx);
+                        }
+                    } else if (StringUtils.equals(entry.getKey() + "", "budgetAware")) {
+                        if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget)==null){
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("name",entry.getKey() + "");
+                            jsonObject.put("description",AcquisitionModeEnum.Setting_up_budget.getDescription());
+                            jsonObject.put("status",1);
+                            newbieTask.add(jsonObject);
+                        }else{
+                            newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_budget);
+                        }
+                    } else if (StringUtils.equals(entry.getKey() + "", "savingEfficiencyAware")) {
+                        if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_savings_efficiency)==null){
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("name",entry.getKey() + "");
+                            jsonObject.put("description",AcquisitionModeEnum.Setting_up_savings_efficiency.getDescription());
+                            jsonObject.put("status",1);
+                            newbieTask.add(jsonObject);
+                        }else{
+                            newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Setting_up_savings_efficiency);
+                        }
+                    } else if (StringUtils.equals(entry.getKey() + "", "userInfoAware")) {
+                        if(patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Perfecting_personal_data)==null){
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("name",entry.getKey() + "");
+                            jsonObject.put("description",AcquisitionModeEnum.Perfecting_personal_data.getDescription());
+                            jsonObject.put("status",1);
+                            newbieTask.add(jsonObject);
+                        }else{
+                            newbieTask = patchDate2(newbieTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Perfecting_personal_data);
+                        }
                     }
                 }
             }
@@ -450,27 +496,65 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 }
                 cacheSysTodayTask = jsonObject;
             }
-            for (Map.Entry entry : cacheSysTodayTask.entrySet()) {
-                if (StringUtils.equals(entry.getKey() + "", "inviteFriendsAware")) {
-                    //设置积分数
-                    if(patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Inviting_friends)==null){
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("name",entry.getKey() + "");
-                        jsonObject.put("description",AcquisitionModeEnum.Inviting_friends.getDescription());
-                        jsonObject.put("status",1);
-                        todayTask.add(jsonObject);
-                    }else{
-                        todayTask = patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Inviting_friends);
+            //用户信息缓存与系统不一致时
+            if(cacheSysTodayTask.size()!=todayTask.size()){
+                redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_TODAY_TASK+shareCode);
+                //查询任务对应积分数---->系统缓存数据
+                List<UserIntegralRestEntity> taskComplete = userIntegralRestDao.getTaskComplete(CategoryOfBehaviorEnum.TodayTask.getIndex(), userInfoId);
+                JSONArray jsonArrayForUser = new JSONArray();
+                JSONArray cacheJsonArrayForUser = new JSONArray();
+                //拿到系统缓存---->整合数据
+                for (Map.Entry entry : cacheSysTodayTask.entrySet()) {
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject cacheJsonObject = new JSONObject();
+                    if (StringUtils.equals(entry.getKey() + "", "inviteFriendsAware")) {
+                        //设置设置积分数
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Inviting_friends);
+                        cacheJsonObject = (JSONObject) jsonObject.clone();
+                        cacheJsonObject.remove("integralAware");
+                    } else if (StringUtils.equals(entry.getKey() + "", "toChargeAware")) {
+                        jsonObject.put("integralAware", entry.getValue());
+                        jsonObject = patchDate(taskComplete, jsonObject, AcquisitionModeEnum.Write_down_an_account);
+                        cacheJsonObject = (JSONObject) jsonObject.clone();
+                        cacheJsonObject.remove("integralAware");
                     }
-                } else if (StringUtils.equals(entry.getKey() + "", "toChargeAware")) {
-                    if(patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Write_down_an_account)==null){
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("name",entry.getKey() + "");
-                        jsonObject.put("description",AcquisitionModeEnum.Write_down_an_account.getDescription());
-                        jsonObject.put("status",1);
-                        todayTask.add(jsonObject);
-                    }else{
-                        todayTask = patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Write_down_an_account);
+                    if (jsonObject.size() > 0) {
+                        jsonArrayForUser.add(jsonObject);
+                    }
+                    if (cacheJsonObject.size() > 0) {
+                        cacheJsonArrayForUser.add(cacheJsonObject);
+                    }
+                }
+                LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
+                //凌晨时间戳-当前时间戳
+                long cacheTime = time.toEpochSecond(ZoneOffset.of("+8"))-LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+                //缓存
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, cacheJsonArrayForUser.toJSONString(),cacheTime,TimeUnit.SECONDS);
+                todayTask = jsonArrayForUser;
+            }else{
+                for (Map.Entry entry : cacheSysTodayTask.entrySet()) {
+                    if (StringUtils.equals(entry.getKey() + "", "inviteFriendsAware")) {
+                        //设置积分数
+                        if(patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Inviting_friends)==null){
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("name",entry.getKey() + "");
+                            jsonObject.put("description",AcquisitionModeEnum.Inviting_friends.getDescription());
+                            jsonObject.put("status",1);
+                            todayTask.add(jsonObject);
+                        }else{
+                            todayTask = patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Inviting_friends);
+                        }
+                    } else if (StringUtils.equals(entry.getKey() + "", "toChargeAware")) {
+                        if(patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Write_down_an_account)==null){
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("name",entry.getKey() + "");
+                            jsonObject.put("description",AcquisitionModeEnum.Write_down_an_account.getDescription());
+                            jsonObject.put("status",1);
+                            todayTask.add(jsonObject);
+                        }else{
+                            todayTask = patchDate2(todayTask, Integer.valueOf(entry.getValue() + ""), AcquisitionModeEnum.Write_down_an_account);
+                        }
                     }
                 }
             }

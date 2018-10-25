@@ -496,16 +496,199 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, cacheJson, RedisPrefix.VALID_TIME_28);
             }
         } else {
-            for (Map.Entry<String, Integer> entry : map3.entrySet()) {
-                JSONObject jsonObject1 = new JSONObject();
-                for (Map.Entry<String, Integer> entry2 : map4.entrySet()) {
-                    if (StringUtils.equals(entry.getKey(), entry2.getKey())) {
+            if(map3.size()!=map4.size()){
+                //删除缓存
+                redisTemplateUtils.deleteKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode);
+                //读取积分流水表恢复最近一个周期历史数据  分情况 1.恢复  2.首次调用
+                //获取签到表中开始周期标记时间
+                UserSignInRestEntity userSignInRestEntity = userSignInRestDao.getSignInForFisrtDesc(userInfoId);
+                List<UserIntegralRestEntity> currentCycleIntegralForRecover = new ArrayList<>();
+                if (userSignInRestEntity != null) {
+                    currentCycleIntegralForRecover = userIntegralRestDao.getCurrentCycleIntegralForRecover(userInfoId, userSignInRestEntity.getSignInDate(), IntegralEnum.SIGNIN_7.getIndex(), IntegralEnum.SIGNIN_14.getIndex(), IntegralEnum.SIGNIN_21.getIndex(), IntegralEnum.SIGNIN_28.getIndex());
+                }
+                //定义 可能存在的连签历史接收参数
+                Integer signIn7 = 0, signIn14 = 0, signIn21 = 0, signIn28 = 0;
+                if (currentCycleIntegralForRecover.size() > 0) {
+                    for (UserIntegralRestEntity userIntegralRestEntity : currentCycleIntegralForRecover) {
+                        if (userIntegralRestEntity.getType() == IntegralEnum.SIGNIN_7.getIndex()) {
+                            signIn7 = IntegralEnum.SIGNIN_7.getIndex();
+                        } else if (userIntegralRestEntity.getType() == IntegralEnum.SIGNIN_14.getIndex()) {
+                            signIn14 = IntegralEnum.SIGNIN_14.getIndex();
+                        } else if (userIntegralRestEntity.getType() == IntegralEnum.SIGNIN_21.getIndex()) {
+                            signIn21 = IntegralEnum.SIGNIN_21.getIndex();
+                        } else if (userIntegralRestEntity.getType() == IntegralEnum.SIGNIN_28.getIndex()) {
+                            signIn28 = IntegralEnum.SIGNIN_28.getIndex();
+                        }
+                    }
+                    //
+                    //返给前端数据
+                    for (Map.Entry<String, Integer> entry : map3.entrySet()) {
+                        JSONObject jsonObject1 = new JSONObject();
                         jsonObject1.put("cycle", StringUtils.substringAfterLast(entry.getKey(), "_"));
                         jsonObject1.put("cycleAware", entry.getValue());
-                        jsonObject1.put("cycleAwareStatus", entry2.getValue());
+                        int cycle = Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")) / 7;
+                        //status小于7情况下  都不可领取
+                        if (status < 1) {
+                            jsonObject1.put("cycleAwareStatus", 3);
+                            cacheJson.put(entry.getKey(), 3);
+                        } else if (status >= 1 && status < 2) {
+                            //大于7情况下  cycle为7情况下
+                            if (cycle == 1) {
+                                if (signIn7.equals(Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")))) {
+                                    jsonObject1.put("cycleAwareStatus", 2);
+                                    cacheJson.put(entry.getKey(), 2);
+                                } else {
+                                    jsonObject1.put("cycleAwareStatus", 1);
+                                    cacheJson.put(entry.getKey(), 1);
+                                }
+                            } else {
+                                jsonObject1.put("cycleAwareStatus", 3);
+                                cacheJson.put(entry.getKey(), 3);
+                            }
+                        } else if (status >= 2 && status < 3) {
+                            //大于14情况下  cycle为7情况下
+                            if (cycle == 1) {
+                                if (signIn7.equals(Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")))) {
+                                    jsonObject1.put("cycleAwareStatus", 2);
+                                    cacheJson.put(entry.getKey(), 2);
+                                } else {
+                                    jsonObject1.put("cycleAwareStatus", 1);
+                                    cacheJson.put(entry.getKey(), 1);
+                                }
+                            } else if (cycle == 2) {
+                                if (signIn14.equals(Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")))) {
+                                    jsonObject1.put("cycleAwareStatus", 2);
+                                    cacheJson.put(entry.getKey(), 2);
+                                } else {
+                                    jsonObject1.put("cycleAwareStatus", 1);
+                                    cacheJson.put(entry.getKey(), 1);
+                                }
+
+                            } else {
+                                jsonObject1.put("cycleAwareStatus", 3);
+                                cacheJson.put(entry.getKey(), 3);
+                            }
+                        } else if (status >= 3 && status < 4) {
+                            //大于21情况下  cycle为7情况下
+                            if (cycle == 1) {
+                                if (signIn7.equals(Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")))) {
+                                    jsonObject1.put("cycleAwareStatus", 2);
+                                    cacheJson.put(entry.getKey(), 2);
+                                } else {
+                                    jsonObject1.put("cycleAwareStatus", 1);
+                                    cacheJson.put(entry.getKey(), 1);
+                                }
+
+                            } else if (cycle == 2) {
+                                if (signIn14.equals(Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")))) {
+                                    jsonObject1.put("cycleAwareStatus", 2);
+                                    cacheJson.put(entry.getKey(), 2);
+                                } else {
+                                    jsonObject1.put("cycleAwareStatus", 1);
+                                    cacheJson.put(entry.getKey(), 1);
+                                }
+
+                            } else if (cycle == 3) {
+                                if (signIn21.equals(Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")))) {
+                                    jsonObject1.put("cycleAwareStatus", 2);
+                                    cacheJson.put(entry.getKey(), 2);
+                                } else {
+                                    jsonObject1.put("cycleAwareStatus", 1);
+                                    cacheJson.put(entry.getKey(), 1);
+                                }
+                            } else {
+                                jsonObject1.put("cycleAwareStatus", 3);
+                                cacheJson.put(entry.getKey(), 3);
+                            }
+                        } else if (status == 4) {
+                            if (signIn28.equals(Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")))) {
+                                jsonObject1.put("cycleAwareStatus", 2);
+                                cacheJson.put(entry.getKey(), 2);
+                            } else {
+                                //等于28情况下  cycle为7情况下
+                                jsonObject1.put("cycleAwareStatus", 1);
+                                cacheJson.put(entry.getKey(), 1);
+                            }
+                        }
+                        jsonArray.add(jsonObject1);
+                    }
+                } else {
+                    //首次调用
+                    //返给前端数据
+                    for (Map.Entry<String, Integer> entry : map3.entrySet()) {
+                        JSONObject jsonObject1 = new JSONObject();
+                        jsonObject1.put("cycle", StringUtils.substringAfterLast(entry.getKey(), "_"));
+                        jsonObject1.put("cycleAware", entry.getValue());
+                        int cycle = Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")) / 7;
+                        //status小于7情况下  都不可领取
+                        if (status < 1) {
+                            jsonObject1.put("cycleAwareStatus", 3);
+                            cacheJson.put(entry.getKey(), 3);
+                        } else if (status >= 1 && status < 2) {
+                            //大于7情况下  cycle为7情况下
+                            if (cycle == 1) {
+                                jsonObject1.put("cycleAwareStatus", 1);
+                                cacheJson.put(entry.getKey(), 1);
+                            } else {
+                                jsonObject1.put("cycleAwareStatus", 3);
+                                cacheJson.put(entry.getKey(), 3);
+                            }
+                        } else if (status >= 2 && status < 3) {
+                            //大于14情况下  cycle为7情况下
+                            if (cycle == 1) {
+                                jsonObject1.put("cycleAwareStatus", 1);
+                                cacheJson.put(entry.getKey(), 1);
+                            } else if (cycle == 2) {
+                                jsonObject1.put("cycleAwareStatus", 1);
+                                cacheJson.put(entry.getKey(), 1);
+                            } else {
+                                jsonObject1.put("cycleAwareStatus", 3);
+                                cacheJson.put(entry.getKey(), 3);
+                            }
+                        } else if (status >= 3 && status < 4) {
+                            //大于21情况下  cycle为7情况下
+                            if (cycle == 1) {
+                                jsonObject1.put("cycleAwareStatus", 1);
+                                cacheJson.put(entry.getKey(), 1);
+                            } else if (cycle == 2) {
+                                jsonObject1.put("cycleAwareStatus", 1);
+                                cacheJson.put(entry.getKey(), 1);
+                            } else if (cycle == 3) {
+                                jsonObject1.put("cycleAwareStatus", 1);
+                                cacheJson.put(entry.getKey(), 1);
+                            } else {
+                                jsonObject1.put("cycleAwareStatus", 3);
+                                cacheJson.put(entry.getKey(), 3);
+                            }
+                        } else if (status == 4) {
+                            //等于28情况下  cycle为7情况下
+                            jsonObject1.put("cycleAwareStatus", 1);
+                            cacheJson.put(entry.getKey(), 1);
+                        }
+                        jsonArray.add(jsonObject1);
                     }
                 }
-                jsonArray.add(jsonObject1);
+                //设置缓存时间
+                if (period1 != null) {
+                    redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, cacheJson, Long.valueOf(period1.getDays() + 1));
+                } else {
+                    redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, cacheJson, RedisPrefix.VALID_TIME_28);
+                }
+            }else{
+                for (Map.Entry<String, Integer> entry : map3.entrySet()) {
+                    JSONObject jsonObject1 = new JSONObject();
+                    for (Map.Entry<String, Integer> entry2 : map4.entrySet()) {
+                        if (StringUtils.equals(entry.getKey(), entry2.getKey())) {
+                            jsonObject1.put("cycle", StringUtils.substringAfterLast(entry.getKey(), "_"));
+                            jsonObject1.put("cycleAware", entry.getValue());
+                            jsonObject1.put("cycleAwareStatus", entry2.getValue());
+                        }
+                    }
+                    //遍历完  用户个人缓存中不存在 系统新上线积分
+                    if(jsonObject1.size()>0){
+                        jsonArray.add(jsonObject1);
+                    }
+                }
             }
         }
         //排序
