@@ -189,11 +189,13 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     int days = period.getDays();
                     if (count > 0) {
                         ++days;
+                        map.put("signInDate", System.currentTimeMillis());
+                    }else{
+                        map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
                     }
                     // TODO days大于58情况下存在误差
                     days = (days) % 29;
                     map.put("signInDays", days);
-                    map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
                 }
             } else {
                 //昨日未签到
@@ -203,11 +205,13 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 int days = 0;
                 if (count > 0) {
                     ++days;
+                    map.put("signInDate", System.currentTimeMillis());
+                }else{
+                    map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
                 }
                 // TODO days大于58情况下存在误差
                 days = (days) % 29;
                 map.put("signInDays", days);
-                map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
             }
             //cache
             redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map, RedisPrefix.USER_VALID_TIME);
