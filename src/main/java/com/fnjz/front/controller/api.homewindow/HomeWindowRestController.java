@@ -12,10 +12,7 @@ import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -48,12 +45,12 @@ public class HomeWindowRestController extends BaseController {
      */
     @RequestMapping(value = {"/homeWindow", "/homeWindow/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean signInIntegral(HttpServletRequest request) {
+    public ResultBean signInIntegral(@PathVariable("type") String type, HttpServletRequest request,@RequestParam(required = false) String version) {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         //类型不为null情况下
         try {
-            JSONObject jsonObject = homeWindowRestServiceI.listForWindow(userInfoId, shareCode);
+            JSONObject jsonObject = homeWindowRestServiceI.listForWindow(userInfoId, shareCode,type,version);
             return new ResultBean(ApiResultType.OK, jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());

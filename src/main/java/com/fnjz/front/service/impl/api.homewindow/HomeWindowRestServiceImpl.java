@@ -36,7 +36,7 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
      * @return
      */
     @Override
-    public JSONObject listForWindow(String userInfoId, String shareCode) {
+    public JSONObject listForWindow(String userInfoId, String shareCode,String type,String version) {
         //获取用户弹框读取情况
         String cacheActivity = redisTemplateUtils.getForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode);
         JSONArray activity = JSONArray.parseArray(cacheActivity);
@@ -60,7 +60,7 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
         List<HomeWindowRestDTO> list = new ArrayList<>();
         Period period = null;
         if (flag) {
-            list = homeWindowRestDao.listForWindow();
+            list = homeWindowRestDao.listForWindow(type,version);
             if(list.size()>0){
                 //获取下线时间
                 if(list.get(0).getDowntime()!=null){

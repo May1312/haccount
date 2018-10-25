@@ -3,6 +3,7 @@ package com.fnjz.front.dao;
 import com.fnjz.front.entity.api.banner.BannerRestDTO;
 import com.fnjz.front.entity.api.homewindow.HomeWindowRestDTO;
 import org.jeecgframework.minidao.annotation.MiniDao;
+import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.ResultType;
 import org.jeecgframework.minidao.annotation.Sql;
 
@@ -18,8 +19,8 @@ public interface HomeWindowRestDao {
      * @return
      */
     @ResultType(HomeWindowRestDTO.class)
-    @Sql("select * from hbird_home_window where status=1 and if(uptime is null,1=1,uptime<=CURRENT_TIMESTAMP) and if(uptime is null,1=1,downtime>=CURRENT_TIMESTAMP) order by priority;")
-    List<HomeWindowRestDTO> listForWindow();
+    @Sql("SELECT * FROM hbird_home_window WHERE STATUS = 1 AND IF ( uptime IS NULL, 1 = 1, uptime <= CURRENT_TIMESTAMP ) AND IF ( uptime IS NULL, 1 = 1, downtime >= CURRENT_TIMESTAMP ) AND IF ( :type = 'android' and :version is not null, android_show_version <=:version, 1 = 1 ) AND IF ( :type = 'ios' and :version is not null, ios_show_version <=:version, 1 = 1 ) ORDER BY priority;")
+    List<HomeWindowRestDTO> listForWindow(@Param("type") String type,@Param("version") String version);
 
     @ResultType(BannerRestDTO.class)
     @Sql("select * from hbird_banner where status=1 and if(uptime is null,1=1,uptime<=CURRENT_TIMESTAMP) and if(uptime is null,1=1,downtime>=CURRENT_TIMESTAMP) order by priority;")

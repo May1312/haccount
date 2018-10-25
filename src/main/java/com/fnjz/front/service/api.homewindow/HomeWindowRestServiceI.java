@@ -11,7 +11,7 @@ public interface HomeWindowRestServiceI extends CommonService{
      * @param shareCode
      * @return
      */
-    JSONObject listForWindow(String userInfoId, String shareCode);
+    JSONObject listForWindow(String userInfoId, String shareCode,String type,String version);
 
     /**
      * 获取轮播图list
