@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -472,7 +471,9 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 if(todayTaskAware.size()>0){
                     //获取下线时间
                     if(todayTaskAware.get(0).get("downtime")!=null){
-                        LocalDateTime ldt = LocalDateTime.parse(todayTaskAware.get(0).get("downtime")+"", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                        Instant instant = Instant.ofEpochMilli(Long.valueOf(todayTaskAware.get(0).get("downtime")+""));
+                        ZoneId zone = ZoneId.systemDefault();
+                        LocalDateTime ldt = LocalDateTime.ofInstant(instant, zone);
                         if(ldt.toLocalDate().isAfter(LocalDate.now())){
                             period1 = Period.between(LocalDate.now(),ldt.toLocalDate());
                         }
