@@ -383,8 +383,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             userInfoRestEntity.setConstellation(constellation);
         }
         if (StringUtils.isNotEmpty(userInfoRestEntity.getSex()) && userInfoRestEntity.getBirthday() != null && StringUtils.isNotEmpty(userInfoRestEntity.getProvinceName()) && StringUtils.isNotEmpty(userInfoRestEntity.getProfession()) && StringUtils.isNotEmpty(userInfoRestEntity.getPosition())) {
-            //引入新手任务
-            createTokenUtils.integralTask(userInfoRestEntity.getId() + "",ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
+            if(!StringUtils.equals(userInfoRestEntity.getSex(),"0")){
+                //引入新手任务
+                createTokenUtils.integralTask(userInfoRestEntity.getId() + "",ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
+            }
         }
         userInfoRestDao.update(userInfoRestEntity);
     }
