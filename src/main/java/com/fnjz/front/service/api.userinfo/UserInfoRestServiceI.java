@@ -1,6 +1,7 @@
 package com.fnjz.front.service.api.userinfo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fnjz.front.entity.api.userinfo.UserInfoRestDTO;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import org.jeecgframework.core.common.service.CommonService;
 
@@ -78,5 +79,5 @@ public interface UserInfoRestServiceI extends CommonService{
      * 更新用户详情
      * @param userInfoRestEntity
      */
-    void updateUserInfo(UserInfoRestEntity userInfoRestEntity);
+    void updateUserInfo(UserInfoRestEntity userInfoRestEntity,UserInfoRestDTO task);
 }

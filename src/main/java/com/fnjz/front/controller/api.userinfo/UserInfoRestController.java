@@ -319,7 +319,12 @@ public class UserInfoRestController extends BaseController {
                     }
                 }
             }
-            userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
+            UserInfoRestDTO task = null;
+            if(StringUtils.isEmpty(type)){
+                //小程序渠道  默认只传修改字段
+                task = userInfoRestServiceI.findUniqueByProperty(UserInfoRestDTO.class, "id", Integer.valueOf(userInfoId));
+            }
+            userInfoRestServiceI.updateUserInfo(userInfoRestEntity,task);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());

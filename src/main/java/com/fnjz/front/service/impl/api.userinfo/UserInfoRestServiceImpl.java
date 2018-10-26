@@ -6,6 +6,7 @@ import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
+import com.fnjz.front.entity.api.userinfo.UserInfoRestDTO;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.enums.AcquisitionModeEnum;
@@ -370,7 +371,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     }
 
     @Override
-    public void updateUserInfo(UserInfoRestEntity userInfoRestEntity) {
+    public void updateUserInfo(UserInfoRestEntity userInfoRestEntity,UserInfoRestDTO task) {
         if (userInfoRestEntity.getBirthday() != null) {
             //计算年龄+星座
             int ageByBirth = DateUtils.getAgeByBirth(userInfoRestEntity.getBirthday());
@@ -382,10 +383,20 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             String constellation = getConstellation(month, day);
             userInfoRestEntity.setConstellation(constellation);
         }
-        if (StringUtils.isNotEmpty(userInfoRestEntity.getSex()) && userInfoRestEntity.getBirthday() != null && StringUtils.isNotEmpty(userInfoRestEntity.getProvinceName()) && StringUtils.isNotEmpty(userInfoRestEntity.getProfession()) && StringUtils.isNotEmpty(userInfoRestEntity.getPosition())) {
-            if(!StringUtils.equals(userInfoRestEntity.getSex(),"0")){
-                //引入新手任务
-                createTokenUtils.integralTask(userInfoRestEntity.getId() + "",ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
+        if(task!=null){
+            //小程序用户
+            if (StringUtils.isNotEmpty(task.getSex()) && task.getBirthday() != null && StringUtils.isNotEmpty(task.getProvinceName()) && StringUtils.isNotEmpty(task.getProfession()) && StringUtils.isNotEmpty(task.getPosition())) {
+                if(!StringUtils.equals(task.getSex(),"0")){
+                    //引入新手任务
+                    createTokenUtils.integralTask(userInfoRestEntity.getId() + "",ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
+                }
+            }
+        }else{
+            if (StringUtils.isNotEmpty(userInfoRestEntity.getSex()) && userInfoRestEntity.getBirthday() != null && StringUtils.isNotEmpty(userInfoRestEntity.getProvinceName()) && StringUtils.isNotEmpty(userInfoRestEntity.getProfession()) && StringUtils.isNotEmpty(userInfoRestEntity.getPosition())) {
+                if(!StringUtils.equals(userInfoRestEntity.getSex(),"0")){
+                    //引入新手任务
+                    createTokenUtils.integralTask(userInfoRestEntity.getId() + "",ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
+                }
             }
         }
         userInfoRestDao.update(userInfoRestEntity);

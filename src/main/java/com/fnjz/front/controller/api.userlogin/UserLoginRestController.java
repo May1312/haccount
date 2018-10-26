@@ -180,12 +180,12 @@ public class UserLoginRestController extends BaseController {
                             if (StringUtils.isNotEmpty(user.getString("headimgurl"))) {
                                 task.setAvatarUrl(user.getString("headimgurl"));
                             }
-                            userInfoRestServiceI.updateUserInfo(task);
+                            userInfoRestServiceI.updateUserInfo(task,null);
                         }else{
                             if (StringUtils.isNotEmpty(user.getString("headimgurl"))) {
                                 task.setAvatarUrl(user.getString("headimgurl"));
                             }
-                            userInfoRestServiceI.updateUserInfo(task);
+                            userInfoRestServiceI.updateUserInfo(task,null);
                         }
                     }
                 }
@@ -288,12 +288,12 @@ public class UserLoginRestController extends BaseController {
                                 if (StringUtils.isNotEmpty(user.getString("avatarUrl"))) {
                                     task.setAvatarUrl(user.getString("avatarUrl"));
                                 }
-                                userInfoRestServiceI.updateUserInfo(task);
+                                userInfoRestServiceI.updateUserInfo(task,null);
                             }else{
                                 if (StringUtils.isNotEmpty(user.getString("avatarUrl"))) {
                                     task.setAvatarUrl(user.getString("avatarUrl"));
                                 }
-                                userInfoRestServiceI.updateUserInfo(task);
+                                userInfoRestServiceI.updateUserInfo(task,null);
                             }
                         }
                     }
