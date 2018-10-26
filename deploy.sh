@@ -23,7 +23,7 @@ echo "解压jeecg.war"
 unzip jeecg.war
 rm -rf jeecg.war
 
-echo "检查docker tomcat_hbird是否运行"
+echo "检查docker hbird是否运行"
 docker ps -a | grep hbird
 if [ $? -ne 0 ]
 then
