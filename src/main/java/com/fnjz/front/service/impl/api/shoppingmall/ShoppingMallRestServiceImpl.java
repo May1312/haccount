@@ -89,6 +89,8 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
     //回调接口
     private static String callback = "https://api.galaxyhouse.cn/rest/api/v1/soouucallback";
 
+    //@Value("${redis.host}")
+    //private String a;
     /**
      * 商品兑换
      *

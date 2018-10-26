@@ -225,7 +225,9 @@ public class UserInfoRestController extends BaseController {
                 //设置资料完整度
                 int i =0;
                 if(StringUtils.isNotEmpty(task.getSex())){
-                    ++i;
+                    if(!StringUtils.equals(task.getSex(),"0")){
+                        ++i;
+                    }
                 }
                 if(task.getBirthday() != null){
                     ++i;
