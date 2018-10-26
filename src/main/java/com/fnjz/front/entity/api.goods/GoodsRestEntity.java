@@ -4,6 +4,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 /**   
  * @Title: Entity
@@ -29,7 +30,7 @@ public class GoodsRestEntity implements java.io.Serializable {
 	/**丰丰票值*/
 	private java.lang.Integer fengfengTicketValue;
 	/**面值*/
-	private java.lang.Integer faceValue;
+	private BigDecimal faceValue;
 	/**折扣价*/
 	private java.lang.Integer discountPrice;
 	/**列表图片（453*327）*/
@@ -111,7 +112,7 @@ public class GoodsRestEntity implements java.io.Serializable {
 	 *@return: java.lang.Integer  面值
 	 */
 	@Column(name ="FACE_VALUE",nullable=true,precision=10,scale=0)
-	public java.lang.Integer getFaceValue(){
+	public BigDecimal getFaceValue(){
 		return this.faceValue;
 	}
 
@@ -119,7 +120,7 @@ public class GoodsRestEntity implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  面值
 	 */
-	public void setFaceValue(java.lang.Integer faceValue){
+	public void setFaceValue(BigDecimal faceValue){
 		this.faceValue = faceValue;
 	}
 	/**
