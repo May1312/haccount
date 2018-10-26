@@ -218,6 +218,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                 //设置兑换状态
                 shoppingMall.setStatus(1);
                 result2.put("status", 1);
+                shoppingMallRestDao.insert(shoppingMall, userInfoId);
                 return result2;
             }
         } else {
