@@ -122,7 +122,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         if (ShoppingMallExchangeEnum.TELEPHONE_CHARGE.getIndex() == goodsRestEntity.getType()) {
             jsonObject.put("method", "kamenwang.phoneorder.add");
             //充值面值
-            jsonObject.put("chargeparvalue", "1");
+            jsonObject.put("chargeparvalue", goodsRestEntity.getFaceValue()+"");
             //充值手机号
             jsonObject.put("chargephone", exchangeMobile);
             //回调地址
@@ -131,7 +131,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             //流量兑换类型
             jsonObject.put("method", "kamenwang.trafficgoods.add");
             //流量大小(注：单位为MB，1GB=1024MB)
-            jsonObject.put("chargeparvalue", "100");
+            jsonObject.put("chargeparvalue", goodsRestEntity.getFaceValue()+"");
             //充值手机号
             jsonObject.put("chargephone", exchangeMobile);
             //流量类型(注：1.全国  0.省内)
@@ -380,6 +380,8 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                 jsonObject.put("timestamp", LocalDateTime.now().format(formatter));
                 jsonObject.put("v", "1.0");
                 jsonObject.put("method", "kamenwang.order.get");
+                //订单号
+                jsonObject.put("customerorderno", list.get(0).getId()+"");
                 String param = MaptoString(jsonObject);
                 // 将秘钥拼接到URL参数对后
                 String postData = param + secret;
