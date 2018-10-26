@@ -16,6 +16,7 @@ import com.fnjz.utils.sms.chuanglan.sms.util.ChuangLanSmsUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.util.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -89,8 +90,8 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
     //回调接口
     private static String callback = "https://api.galaxyhouse.cn/rest/api/v1/soouucallback";
 
-    //@Value("${redis.host}")
-    //private String a;
+    @Value("${redis.host}")
+    private String a;
     /**
      * 商品兑换
      *
