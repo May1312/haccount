@@ -38,7 +38,6 @@ public class ShoppingMallRestController {
     /**
      * 获取所有商品
      *
-     * @param request
      * @return
      */
     @RequestMapping(value = {"/goods", "/goods/{type}"}, method = RequestMethod.GET)
@@ -101,6 +100,10 @@ public class ShoppingMallRestController {
     public ResultBean toExchange(@RequestBody Map<String,String> map,HttpServletRequest request) {
         try {
             String userInfoId = (String)request.getAttribute("userInfoId");
+            boolean flag = shoppingMallRestService.checkExchangeStatus(userInfoId);
+            if(flag){
+                return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW2,null);
+            }
             //根据商品id或消耗积分数+用户拥有总积分数
             GoodsRestEntity goodsRestEntity = shoppingMallRestService.getGoodsById(Integer.valueOf(map.get("goodsId")));
             //总积分数统计
