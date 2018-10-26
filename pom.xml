@@ -1119,6 +1119,15 @@
                     <exclude>graylevel/*</exclude>
                 </excludes>
             </resource>
+
+            <resource>
+                <filtering>true</filtering>  <!-- 加上filter会过滤该资源路径中的文件 -->
+                <directory>${project.basedir}/src/main/resources</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+
         </resources>
 
         <testResources>
@@ -1142,10 +1151,14 @@
             <id>develop</id>
             <properties>
                 <env>develop</env>
-                <soouu_url>http://test.ccapi.soouu.cn/Interface/Method</soouu_url>
-                <soouu_customerid>803683</soouu_customerid>
-                <soouu_secret>CC11F561EBF14204089A5C64DE61C8DF</soouu_secret>
-                <soouu_callback>https://api.galaxyhouse.cn/rest/api/v1/soouucallback</soouu_callback>
+                <!--福禄积分兑换 url-->
+                <soouu.url>http://ccapi.soouu.cn/Interface/Method</soouu.url>
+                <!--云接口编号-->
+                <soouu.customerid>804484</soouu.customerid>
+                <!--树鱼秘钥-->
+                <soouu.secret>1F8254C8821FF2B5B9DEB8CDB4E06F9C</soouu.secret>
+                <!--回调接口-->
+                <soouu.callback>https://api.galaxyhouse.cn/rest/api/v1/soouucallback</soouu.callback>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -1165,6 +1178,10 @@
             <id>graylevel</id>
             <properties>
                 <env>graylevel</env>
+                <soouu_url>http://ccapi.soouu.cn/Interface/Method</soouu_url>
+                <soouu_customerid>804484</soouu_customerid>
+                <soouu_secret>1F8254C8821FF2B5B9DEB8CDB4E06F9C</soouu_secret>
+                <soouu_callback>https://api.fengniaojizhang.cn/rest/api/v1/soouucallback</soouu_callback>
             </properties>
         </profile>
     </profiles>

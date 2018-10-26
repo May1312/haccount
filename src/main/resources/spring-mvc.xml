@@ -256,7 +256,9 @@
 
     <import resource="classpath:redis.xml"/>
     <import resource="classpath:rabbit.xml"/>
-
+    <!--加载树鱼配置文件-->
+    <context:property-placeholder location="classpath:soouu.properties"
+                                  ignore-unresolvable="true" />
     <!-- 启用aop -->
     <aop:aspectj-autoproxy proxy-target-class="true"/>
 

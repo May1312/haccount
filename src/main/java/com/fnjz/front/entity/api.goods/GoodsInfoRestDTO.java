@@ -5,7 +5,6 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 
 /**   
  * @Title: Entity
@@ -15,7 +14,6 @@ import javax.persistence.Table;
  *
  */
 @Entity
-@Table(name = "hbird_goods", schema = "")
 @DynamicUpdate(true)
 @DynamicInsert(true)
 @SuppressWarnings("serial")
