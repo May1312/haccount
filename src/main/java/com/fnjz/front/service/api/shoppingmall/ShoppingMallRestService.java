@@ -54,4 +54,11 @@ public interface ShoppingMallRestService {
      * @return
      */
     List<ShoppingMallIntegralExchangeRestDTO> historyIntegralExchange(String userInfoId);
+
+    /**
+     * 查看用户当前是否存在兑换中商品
+     * @param userInfoId
+     * @return
+     */
+    boolean checkExchangeStatus(String userInfoId);
 }

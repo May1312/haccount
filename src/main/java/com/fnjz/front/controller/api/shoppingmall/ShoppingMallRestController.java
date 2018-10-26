@@ -43,10 +43,29 @@ public class ShoppingMallRestController {
      */
     @RequestMapping(value = {"/goods", "/goods/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean goods(HttpServletRequest request) {
+    public ResultBean goods() {
         try {
             List<GoodsRestDTO> list = shoppingMallRestService.getGoods();
             return new ResultBean(ApiResultType.OK, list);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 查看用户当前是否存在兑换中商品
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/checkExchangeStatus", "/checkExchangeStatus/{type}"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean checkExchangeStatus(HttpServletRequest request) {
+        String userInfoId = (String)request.getAttribute("userInfoId");
+        try {
+            boolean flag = shoppingMallRestService.checkExchangeStatus(userInfoId);
+            return new ResultBean(ApiResultType.OK, flag);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);

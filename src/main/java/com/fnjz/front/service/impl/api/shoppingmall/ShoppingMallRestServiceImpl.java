@@ -413,4 +413,14 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         }
         return list;
     }
+
+    @Override
+    public boolean checkExchangeStatus(String userInfoId) {
+        int count = shoppingMallRestDao.checkExchangeStatus(userInfoId);
+        if(count>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

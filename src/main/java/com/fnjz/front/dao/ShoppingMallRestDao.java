@@ -49,4 +49,7 @@ public interface ShoppingMallRestDao {
 
     @Sql("select shop.id,shop.exchange_mobile,shop.status,shop.card_code,shop.card_deadline,shop.create_date,goods.goods_name,goods.fengfeng_ticket_value,goods.list_picture,goods.type from hbird_shopping_mall_integral_exchange shop LEFT JOIN hbird_goods goods on shop.goods_id=goods.id where shop.user_info_id=:userInfoId order by create_date desc;")
     List<ShoppingMallIntegralExchangeRestDTO> historyIntegralExchange(@Param("userInfoId") String userInfoId);
+
+    @Sql("select count(id) from hbird_shopping_mall_integral_exchange where user_info_id:userInfoId and status=1;")
+    int checkExchangeStatus(String userInfoId);
 }
