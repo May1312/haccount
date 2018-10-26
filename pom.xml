@@ -1116,6 +1116,7 @@
                 <excludes>
                     <exclude>develop/*</exclude>
                     <exclude>product/*</exclude>
+                    <exclude>graylevel/*</exclude>
                 </excludes>
             </resource>
         </resources>
@@ -1158,6 +1159,12 @@
                 <soouu_customerid>804484</soouu_customerid>
                 <soouu_secret>1F8254C8821FF2B5B9DEB8CDB4E06F9C</soouu_secret>
                 <soouu_callback>https://api.galaxyhouse.cn/rest/api/v1/soouucallback</soouu_callback>
+            </properties>
+        </profile>
+        <profile>
+            <id>graylevel</id>
+            <properties>
+                <env>graylevel</env>
             </properties>
         </profile>
     </profiles>
