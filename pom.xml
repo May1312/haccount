@@ -1116,6 +1116,7 @@
                 <excludes>
                     <exclude>develop/*</exclude>
                     <exclude>product/*</exclude>
+                    <exclude>graylevel/*</exclude>
                 </excludes>
             </resource>
         </resources>
@@ -1150,6 +1151,12 @@
             <id>product</id>
             <properties>
                 <env>product</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>graylevel</id>
+            <properties>
+                <env>graylevel</env>
             </properties>
         </profile>
     </profiles>
