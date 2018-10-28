@@ -220,9 +220,10 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         List<UserSignInRestEntity> list = userSignInRestDao.getSignInForCurrentWeek(userInfoId);
         int[] result = new int[7];
         //统计周签到情况
-        Date monday = DateUtils.getMonday();
-        String format = DateUtils.convert2String(monday);
-        String[] args = StringUtils.split(format, "-");
+        /*Date monday = DateUtils.getMonday();
+        String format = DateUtils.convert2String(monday);*/
+        LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
+        String[] args = StringUtils.split(monday.toString(), "-");
         //获取补签消耗积分数
         FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), AcquisitionModeEnum.Check_in.getName(), null);
         //计算两个日期间间隔天数
@@ -231,15 +232,15 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             boolean flag = false;
             //从周一遍历到当前日期
             for (UserSignInRestEntity userSignInRestEntity : list) {
-                if (StringUtils.equals(DateUtils.convert2String(monday), LocalDate.now().toString())) {
-                    if (StringUtils.equals(DateUtils.convert2String(monday), DateUtils.convert2String(userSignInRestEntity.getSignInDate()))) {
+                if (StringUtils.equals(monday.toString(), LocalDate.now().toString())) {
+                    if (StringUtils.equals(monday.toString(), DateUtils.convert2String(userSignInRestEntity.getSignInDate()))) {
                         //签到状态
                         result[i] = SignInEnum.HAS_SIGNED.getIndex();
                         flag = true;
                         break;
                     }
                 } else {
-                    if (StringUtils.equals(DateUtils.convert2String(monday), DateUtils.convert2String(userSignInRestEntity.getSignInDate()))) {
+                    if (StringUtils.equals(monday.toString(), DateUtils.convert2String(userSignInRestEntity.getSignInDate()))) {
                         //签到状态
                         result[i] = SignInEnum.HAS_SIGNED.getIndex();
                         flag = true;
@@ -248,7 +249,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 }
             }
             //跳出第一层循环  未签到  判断当天情况
-            if (StringUtils.equals(DateUtils.convert2String(monday), LocalDate.now().toString())) {
+            if (StringUtils.equals(monday.toString(), LocalDate.now().toString())) {
                 if (!flag) {
                     result[i] = SignInEnum.NOT_SIGN.getIndex();
                 }
@@ -261,7 +262,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     }
                 }
             }
-            monday = DateUtils.getNextDay(monday);
+            monday = monday.plusDays(1);
         }
         for (int j = 6; j > period.getDays(); j--) {
             //后几天置为未签到状态

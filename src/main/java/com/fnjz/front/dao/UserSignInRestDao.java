@@ -67,7 +67,7 @@ public interface UserSignInRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT * FROM hbird_user_sign_in WHERE user_info_id = :userInfoId AND sign_in_date BETWEEN(SUBDATE(CURRENT_DATE(),DATE_FORMAT(CURRENT_DATE(),'%w')-1)) and CURRENT_DATE ORDER BY sign_in_date ASC;")
+    @Sql("SELECT * FROM hbird_user_sign_in WHERE user_info_id = :userInfoId AND sign_in_date BETWEEN(SELECT date_sub( curdate( ), INTERVAL WEEKDAY( curdate( ) ) DAY)) and CURRENT_DATE ORDER BY sign_in_date ASC;")
     List<UserSignInRestEntity> getSignInForCurrentWeek(@Param("userInfoId") String userInfoId);
 
     @Sql("SELECT sign_in_date FROM hbird_user_sign_in WHERE user_info_id = :userInfoId AND sign_in_date like concat(:time,'%');")
