@@ -686,7 +686,12 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                         if (StringUtils.equals(entry.getKey(), entry2.getKey())) {
                             jsonObject1.put("cycle", StringUtils.substringAfterLast(entry.getKey(), "_"));
                             jsonObject1.put("cycleAware", entry.getValue());
-                            jsonObject1.put("cycleAwareStatus", entry2.getValue());
+                            //判断是不是7的整数倍
+                            if(StringUtils.equals(map.get("signInDays") + "",StringUtils.substringAfterLast(entry.getKey(), "_"))&&(Integer.valueOf(map.get("signInDays") + "")%7)==0&&entry2.getValue()==SignInEnum.COMPLEMENT_SIGNED.getIndex()){
+                                jsonObject1.put("cycleAwareStatus", SignInEnum.NOT_SIGN.getIndex());
+                            }else{
+                                jsonObject1.put("cycleAwareStatus", entry2.getValue());
+                            }
                         }
                     }
                     //遍历完  用户个人缓存中不存在 系统新上线积分
