@@ -36,11 +36,11 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
      * @return
      */
     @Override
-    public JSONObject listForWindow(String userInfoId, String shareCode,String type,String version) {
+    public JSONObject listForWindow(String userInfoId, String shareCode, String type, String version) {
         //获取用户弹框读取情况
         String cacheActivity = redisTemplateUtils.getForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode);
         JSONArray activity = JSONArray.parseArray(cacheActivity);
-        boolean flag = false;
+        /*boolean flag = false;
         if (activity != null) {
             for (int i = 0; i < activity.size(); i++) {
                 JSONObject jsonObject = activity.getJSONObject(i);
@@ -56,71 +56,75 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
             }
         } else {
             flag = true;
-        }
-        List<HomeWindowRestDTO> list = new ArrayList<>();
+        }*/
+
         Period period = null;
-        if (flag) {
-            list = homeWindowRestDao.listForWindow(type,version);
-            if(list.size()>0){
-                //获取下线时间
-                if(list.get(0).getDowntime()!=null){
-                    Instant instant = list.get(0).getDowntime().toInstant();
-                    ZoneId zone = ZoneId.systemDefault();
-                    LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zone);
-                    LocalDate localDate = localDateTime.toLocalDate();
-                    if(localDate.isAfter(LocalDate.now())){
-                        period = Period.between(LocalDate.now(),localDate);
-                    }
+        //if (flag) {
+        List<HomeWindowRestDTO> list = homeWindowRestDao.listForWindow(type, version);
+        JSONArray jsonArray = new JSONArray();
+        if (list.size() > 0) {
+            //获取下线时间
+            if (list.get(0).getDowntime() != null) {
+                Instant instant = list.get(0).getDowntime().toInstant();
+                ZoneId zone = ZoneId.systemDefault();
+                LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zone);
+                LocalDate localDate = localDateTime.toLocalDate();
+                if (localDate.isAfter(LocalDate.now())) {
+                    period = Period.between(LocalDate.now(), localDate);
                 }
             }
-            //判断读取情况   id匹配
-            if (activity != null) {
-                boolean tag = true;
-                for (HomeWindowRestDTO homeWindowRestDTO : list) {
-                    for (int i = 0; i < activity.size(); i++) {
-                        JSONObject jsonObject = activity.getJSONObject(i);
-                        //遍历cache中id  匹配mysql中id
-                        if (StringUtils.equals(jsonObject.getString("activityId"), homeWindowRestDTO.getId())) {
-                            if (jsonObject.getInteger("hasRead") != 2) {
-                                //判断推送次数
-                                if (jsonObject.getInteger("pushToUser") < 2) {
-                                    //定义推送两次
-                                    jsonObject.put("pushToUser", (jsonObject.getInteger("pushToUser") + 1));
-                                    tag = false;
-                                    break;
-                                }
+        }
+        //判断读取情况   id匹配
+        if (activity != null) {
+            boolean tag = true;
+            for (HomeWindowRestDTO homeWindowRestDTO : list) {
+                for (int i = 0; i < activity.size(); i++) {
+                    JSONObject jsonObject = activity.getJSONObject(i);
+                    //遍历cache中id  匹配mysql中id
+                    if (StringUtils.equals(jsonObject.getString("activityId"), homeWindowRestDTO.getId())) {
+                        if (jsonObject.getInteger("hasRead") != 2) {
+                            //判断推送次数
+                            if (jsonObject.getInteger("pushToUser") < 2) {
+                                //定义推送两次
+                                jsonObject.put("pushToUser", (jsonObject.getInteger("pushToUser") + 1));
+                                tag = false;
+                                jsonArray.add(homeWindowRestDTO);
+                                break;
                             }
-                            //id相等 次数累计
-                            jsonObject.put("pushToUser", jsonObject.getInteger("pushToUser") == null ? 1 : (jsonObject.getInteger("pushToUser") + 1));
-                            tag = false;
-                            break;
                         }
-                    }
-                    if (tag) {
-                        //遍历完不匹配id  即首次读取
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("activityId", homeWindowRestDTO.getId());
-                        jsonObject.put("pushToUser", 1);
-                        jsonObject.put("hasRead", 1);
-                        activity.add(jsonObject);
+                        //id相等 次数累计
+                        //jsonObject.put("pushToUser", jsonObject.getInteger("pushToUser") == null ? 1 : (jsonObject.getInteger("pushToUser") + 1));
+                        tag = false;
+                        break;
                     }
                 }
-            } else {
-                activity = new JSONArray();
-                for (HomeWindowRestDTO homeWindowRestDTO : list) {
+                if (tag) {
                     //遍历完不匹配id  即首次读取
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("activityId", homeWindowRestDTO.getId());
                     jsonObject.put("pushToUser", 1);
                     jsonObject.put("hasRead", 1);
                     activity.add(jsonObject);
+                    jsonArray.add(homeWindowRestDTO);
                 }
             }
+        } else {
+            activity = new JSONArray();
+            for (HomeWindowRestDTO homeWindowRestDTO : list) {
+                //遍历完不匹配id  即首次读取
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("activityId", homeWindowRestDTO.getId());
+                jsonObject.put("pushToUser", 1);
+                jsonObject.put("hasRead", 1);
+                activity.add(jsonObject);
+                jsonArray.add(homeWindowRestDTO);
+            }
         }
+        //}
         //cache
-        if(period!=null){
-            redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode, activity.toJSONString(),Long.valueOf(period.getDays()+1));
-        }else{
+        if (period != null) {
+            redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode, activity.toJSONString(), Long.valueOf(period.getDays() + 1));
+        } else {
             //没有设置下线时间 持久存储吧
             redisTemplateUtils.cacheForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode, activity.toJSONString());
         }
@@ -138,12 +142,13 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
         redisTemplateUtils.deleteKey(RedisPrefix.USER_INVITE_COUNT + shareCode);
         JSONObject result = new JSONObject();
         result.put("inviteCount", jsonObject);
-        result.put("activity", list);
+        result.put("activity", jsonArray);
         return result;
     }
 
     /**
      * 获取轮播图
+     *
      * @param userInfoId
      * @param shareCode
      * @return
@@ -152,7 +157,7 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
     public JSONObject listForSlideShow(String userInfoId, String shareCode) {
         List<BannerRestDTO> list = homeWindowRestDao.listForSlideShow();
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("slideShow",list);
+        jsonObject.put("slideShow", list);
         return jsonObject;
     }
 }
