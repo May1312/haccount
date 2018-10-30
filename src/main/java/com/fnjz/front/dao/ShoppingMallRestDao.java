@@ -22,7 +22,7 @@ public interface ShoppingMallRestDao {
      * @return
      */
     @ResultType(GoodsRestDTO.class)
-    @Sql("select * from hbird_goods where status=1")
+    @Sql("select * from hbird_goods where status=1 order by priority,create_date")
     List<GoodsRestDTO> getGoods();
 
     @ResultType(GoodsRestDTO.class)

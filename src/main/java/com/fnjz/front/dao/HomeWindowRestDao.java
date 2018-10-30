@@ -23,6 +23,6 @@ public interface HomeWindowRestDao {
     List<HomeWindowRestDTO> listForWindow(@Param("type") String type,@Param("version") String version);
 
     @ResultType(BannerRestDTO.class)
-    @Sql("select * from hbird_banner where status=1 and if(uptime is null,1=1,uptime<=CURRENT_TIMESTAMP) and if(uptime is null,1=1,downtime>=CURRENT_TIMESTAMP) order by priority;")
+    @Sql("select * from hbird_banner where status=1 and if(uptime is null,1=1,uptime<=CURRENT_TIMESTAMP) and if(uptime is null,1=1,downtime>=CURRENT_TIMESTAMP) order by priority,create_date;")
     List<BannerRestDTO> listForSlideShow();
 }
