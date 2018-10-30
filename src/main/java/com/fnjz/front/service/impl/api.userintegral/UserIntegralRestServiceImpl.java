@@ -611,7 +611,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 if (AcquisitionModeEnum.Inviting_friends == acquisitionModeEnum) {
                     jsonObject.put("name", AcquisitionModeEnum.Inviting_friends.getForUser());
                     jsonObject.put("description", AcquisitionModeEnum.Inviting_friends.getDescription());
-                    jsonObject.put("status", 2);
+                    jsonObject.put("status", 1);
                 }
             }
         }

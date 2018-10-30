@@ -216,7 +216,7 @@ public class ShareCodeUtil {
         System.out.println(str2);
         int str3 = sharecode2id("99997648");
         System.out.println(str3);
-        int str4 = sharecode2id("99993748");
+        int str4 = sharecode2id("99999326");
         System.out.println(str4);
     }
 
