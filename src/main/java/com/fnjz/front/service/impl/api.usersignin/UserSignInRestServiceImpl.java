@@ -58,6 +58,10 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
     public Integer signIn(String userInfoId, String shareCode) {
         Map map = signInForCache(shareCode);
         FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_1.getIndex());
+        //未录入或该记录不可用
+        if (ff == null) {
+            return -1;
+        }
         if (map != null) {
             //map为空情况下--->即当天未签到
             if (map.get("hasSigned") == null) {
@@ -70,7 +74,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 //签到积分记录
                 if (ff.getBehaviorTicketValue() != null) {
                     userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
-                    userIntegralRestDao.updateForTotalIntegral(userInfoId,  ff.getBehaviorTicketValue());
+                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
                 }
             }
         } else {
@@ -87,7 +91,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     //签到积分记录
                     if (ff.getBehaviorTicketValue() != null) {
                         userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
-                        userIntegralRestDao.updateForTotalIntegral(userInfoId,  ff.getBehaviorTicketValue());
+                        userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
                     }
                 }
             } else {
@@ -106,7 +110,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                         //签到积分记录
                         if (ff.getBehaviorTicketValue() != null) {
                             userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
-                            userIntegralRestDao.updateForTotalIntegral(userInfoId,  ff.getBehaviorTicketValue());
+                            userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
                         }
                     }
                 }
@@ -190,7 +194,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     if (count > 0) {
                         ++days;
                         map.put("signInDate", System.currentTimeMillis());
-                    }else{
+                    } else {
                         map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
                     }
                     // TODO days大于58情况下存在误差
@@ -206,7 +210,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 if (count > 0) {
                     ++days;
                     map.put("signInDate", System.currentTimeMillis());
-                }else{
+                } else {
                     map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
                 }
                 // TODO days大于58情况下存在误差
@@ -501,7 +505,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, cacheJson, RedisPrefix.VALID_TIME_28);
             }
         } else {
-            if(map3.size()!=map4.size()){
+            if (map3.size() != map4.size()) {
                 //删除缓存
                 redisTemplateUtils.deleteKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode);
                 //读取积分流水表恢复最近一个周期历史数据  分情况 1.恢复  2.首次调用
@@ -679,7 +683,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 } else {
                     redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, cacheJson, RedisPrefix.VALID_TIME_28);
                 }
-            }else{
+            } else {
                 for (Map.Entry<String, Integer> entry : map3.entrySet()) {
                     JSONObject jsonObject1 = new JSONObject();
                     for (Map.Entry<String, Integer> entry2 : map4.entrySet()) {
@@ -687,15 +691,15 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             jsonObject1.put("cycle", StringUtils.substringAfterLast(entry.getKey(), "_"));
                             jsonObject1.put("cycleAware", entry.getValue());
                             //判断是不是7的整数倍
-                            if(StringUtils.equals(map.get("signInDays") + "",StringUtils.substringAfterLast(entry.getKey(), "_"))&&(Integer.valueOf(map.get("signInDays") + "")%7)==0&&entry2.getValue()==SignInEnum.COMPLEMENT_SIGNED.getIndex()){
+                            if (StringUtils.equals(map.get("signInDays") + "", StringUtils.substringAfterLast(entry.getKey(), "_")) && (Integer.valueOf(map.get("signInDays") + "") % 7) == 0 && entry2.getValue() == SignInEnum.COMPLEMENT_SIGNED.getIndex()) {
                                 jsonObject1.put("cycleAwareStatus", SignInEnum.NOT_SIGN.getIndex());
-                            }else{
+                            } else {
                                 jsonObject1.put("cycleAwareStatus", entry2.getValue());
                             }
                         }
                     }
                     //遍历完  用户个人缓存中不存在 系统新上线积分
-                    if(jsonObject1.size()>0){
+                    if (jsonObject1.size() > 0) {
                         jsonArray.add(jsonObject1);
                     }
                 }
@@ -739,75 +743,77 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         int total = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
         //获取补签消耗积分数
         FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), AcquisitionModeEnum.Check_in.getName(), null);
-        if (fengFengTicket.getBehaviorTicketValue() != null) {
-            if (total + fengFengTicket.getBehaviorTicketValue() >= 0) {
-                //Map map1 = signInForCache(shareCode);
-                //修改缓存中的连续签到天数  判断补齐日期 前一天连续打卡记录
-                //获取最新 周期内开始时间
-                List<UserSignInRestEntity> signInForSecondDesc = userSignInRestDao.getSignInForSecondDesc(userInfoId);
-                //判断补签日期前一天 是否存在签到记录
-                int before = userSignInRestDao.checkSignInForSignInDay(userInfoId, signInDate.minusDays(1).toLocalDate().toString());
-                //判断补签日期后一天 是否存在签到记录
-                int after = userSignInRestDao.checkSignInForSignInDay(userInfoId, signInDate.plusDays(1).toLocalDate().toString());
-                if (before > 0 && after < 1) {
-                    //分两种情况处理 1.不存在后续签到记录
-                    LocalDateTime list1SignInDate = LocalDateTime.ofInstant(signInForSecondDesc.get(0).getSignInDate().toInstant(), ZoneId.systemDefault());
-                    if (list1SignInDate.isBefore(signInDate)) {
-                        //删掉cache
+        if (fengFengTicket != null) {
+            if (fengFengTicket.getBehaviorTicketValue() != null) {
+                if (total + fengFengTicket.getBehaviorTicketValue() >= 0) {
+                    //Map map1 = signInForCache(shareCode);
+                    //修改缓存中的连续签到天数  判断补齐日期 前一天连续打卡记录
+                    //获取最新 周期内开始时间
+                    List<UserSignInRestEntity> signInForSecondDesc = userSignInRestDao.getSignInForSecondDesc(userInfoId);
+                    //判断补签日期前一天 是否存在签到记录
+                    int before = userSignInRestDao.checkSignInForSignInDay(userInfoId, signInDate.minusDays(1).toLocalDate().toString());
+                    //判断补签日期后一天 是否存在签到记录
+                    int after = userSignInRestDao.checkSignInForSignInDay(userInfoId, signInDate.plusDays(1).toLocalDate().toString());
+                    if (before > 0 && after < 1) {
+                        //分两种情况处理 1.不存在后续签到记录
+                        LocalDateTime list1SignInDate = LocalDateTime.ofInstant(signInForSecondDesc.get(0).getSignInDate().toInstant(), ZoneId.systemDefault());
+                        if (list1SignInDate.isBefore(signInDate)) {
+                            //删掉cache
+                            redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_SIGN_IN + shareCode);
+                        }
+                        //需要追加上次连签记录 ---->直接追加签到记录
+                        userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
+                        //补签积分记录
+                        if (fengFengTicket.getBehaviorTicketValue() != null) {
+                            userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
+                            userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                        }
+                    } else if (after > 0 && before < 1) {
+                        //需要追加下次连签记录
+                        userSignInRestDao.reSignIn(userInfoId, 1, signInDate.toLocalDate().toString());
+                        //将下一连续签到标识置null
+                        userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, signInDate.plusDays(1).toLocalDate().toString());
+                        //补签积分记录
+                        if (fengFengTicket.getBehaviorTicketValue() != null) {
+                            userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
+                            userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                        }
+                        //更新redis中连续签到天数
+                        redisTemplateUtils.incrementForHashKey(RedisPrefix.PREFIX_SIGN_IN + shareCode, "signInDays", 1);
+                    } else if (before > 0 && after > 0) {
+                        //中间情况  关联上下
+                        //判断上次连签天数
+                        LocalDateTime list1SignInDate = LocalDateTime.ofInstant(signInForSecondDesc.get(1).getSignInDate().toInstant(), ZoneId.systemDefault());
+                        Period period = Period.between(list1SignInDate.toLocalDate(), signInDate.toLocalDate());
+                        int days = period.getDays();
+                        //判断后续天数
+                        LocalDateTime list1SignInDate2 = LocalDateTime.ofInstant(signInForSecondDesc.get(0).getSignInDate().toInstant(), ZoneId.systemDefault());
+                        Period period2 = Period.between(signInDate.toLocalDate(), list1SignInDate2.toLocalDate());
+                        int days2 = period2.getDays();
+                        int interval;
+                        if ((days + days2 + 1) / 29 > 0) {
+                            interval = 29 - (days + 1);
+                            userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, 1, signInDate.plusDays(interval).toLocalDate().toString());
+                        }
+                        userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
+                        //补签积分记录
+                        if (fengFengTicket.getBehaviorTicketValue() != null) {
+                            userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
+                            userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                        }
+                        //调整status
+                        userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, LocalDateTime.ofInstant(signInForSecondDesc.get(0).getSignInDate().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
+                        //TODO 删除连签天数  领取记录 cache
                         redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_SIGN_IN + shareCode);
-                    }
-                    //需要追加上次连签记录 ---->直接追加签到记录
-                    userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
-                    //补签积分记录
-                    if (fengFengTicket.getBehaviorTicketValue() != null) {
-                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                        userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
-                    }
-                } else if (after > 0 && before < 1) {
-                    //需要追加下次连签记录
-                    userSignInRestDao.reSignIn(userInfoId, 1, signInDate.toLocalDate().toString());
-                    //将下一连续签到标识置null
-                    userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, signInDate.plusDays(1).toLocalDate().toString());
-                    //补签积分记录
-                    if (fengFengTicket.getBehaviorTicketValue() != null) {
-                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                        userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
-                    }
-                    //更新redis中连续签到天数
-                    redisTemplateUtils.incrementForHashKey(RedisPrefix.PREFIX_SIGN_IN + shareCode, "signInDays", 1);
-                } else if (before > 0 && after > 0) {
-                    //中间情况  关联上下
-                    //判断上次连签天数
-                    LocalDateTime list1SignInDate = LocalDateTime.ofInstant(signInForSecondDesc.get(1).getSignInDate().toInstant(), ZoneId.systemDefault());
-                    Period period = Period.between(list1SignInDate.toLocalDate(), signInDate.toLocalDate());
-                    int days = period.getDays();
-                    //判断后续天数
-                    LocalDateTime list1SignInDate2 = LocalDateTime.ofInstant(signInForSecondDesc.get(0).getSignInDate().toInstant(), ZoneId.systemDefault());
-                    Period period2 = Period.between(signInDate.toLocalDate(), list1SignInDate2.toLocalDate());
-                    int days2 = period2.getDays();
-                    int interval;
-                    if ((days + days2 + 1) / 29 > 0) {
-                        interval = 29 - (days + 1);
-                        userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, 1, signInDate.plusDays(interval).toLocalDate().toString());
-                    }
-                    userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
-                    //补签积分记录
-                    if (fengFengTicket.getBehaviorTicketValue() != null) {
-                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                        userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
-                    }
-                    //调整status
-                    userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, LocalDateTime.ofInstant(signInForSecondDesc.get(0).getSignInDate().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
-                    //TODO 删除连签天数  领取记录 cache
-                    redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_SIGN_IN + shareCode);
-                    redisTemplateUtils.deleteKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode);
-                } else {
-                    //不存在连续签到
-                    userSignInRestDao.reSignIn(userInfoId, 1, signInDate.toLocalDate().toString());
-                    //补签积分记录
-                    if (fengFengTicket.getBehaviorTicketValue() != null) {
-                        userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                        userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                        redisTemplateUtils.deleteKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode);
+                    } else {
+                        //不存在连续签到
+                        userSignInRestDao.reSignIn(userInfoId, 1, signInDate.toLocalDate().toString());
+                        //补签积分记录
+                        if (fengFengTicket.getBehaviorTicketValue() != null) {
+                            userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
+                            userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                        }
                     }
                 }
             }
