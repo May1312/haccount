@@ -552,8 +552,13 @@ public class WarterOrderRestEntity implements java.io.Serializable, Comparable<W
     //离线同步  根据创建时间排序  倒叙
     @Override
     public int compareTo(WarterOrderRestEntity o) {
-        if (LocalDateTime.ofInstant( this.createDate.toInstant(), ZoneId.systemDefault()).isAfter(LocalDateTime.ofInstant( o.getCreateDate().toInstant(), ZoneId.systemDefault()))) {
-            return 1;
+        if(o.getCreateDate()!=null){
+            if(this.createDate!=null){
+                if (LocalDateTime.ofInstant( this.createDate.toInstant(), ZoneId.systemDefault()).isAfter(LocalDateTime.ofInstant( o.getCreateDate().toInstant(), ZoneId.systemDefault()))) {
+                    return 1;
+                }
+            }
+            return -1;
         }
         return -1;
     }
