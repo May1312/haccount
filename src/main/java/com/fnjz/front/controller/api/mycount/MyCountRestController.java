@@ -68,11 +68,6 @@ public class MyCountRestController extends BaseController {
                     map.put("clockInDays", 1);
                     map.put("clockInTime", (System.currentTimeMillis() + ""));
                 }
-                //获取用户邀请好友数
-                if (!map.containsKey("inviteUsers")) {
-                    int inviteUsers = userInviteRestServiceI.getCountForInvitedUsers(userInfoId);
-                    map.put("inviteUsers", inviteUsers);
-                }
             } else {
                 chargeTotal = warterOrderRestServiceI.chargeTotal(userLoginRestEntity.getAccountBookId());
                 map.put("chargeTotal", chargeTotal);
@@ -81,14 +76,12 @@ public class MyCountRestController extends BaseController {
                     map.put("clockInDays", 1);
                     map.put("clockInTime", (System.currentTimeMillis() + ""));
                 }
-                //获取用户邀请好友数
-                if (!map.containsKey("inviteUsers")) {
-                    int inviteUsers = userInviteRestServiceI.getCountForInvitedUsers(userInfoId);
-                    map.put("inviteUsers", inviteUsers);
-                }
                 //重新设置redis javabean转map
                 redisTemplateUtils.updateMyCount(shareCode, map);
             }
+            //获取用户邀请好友数
+            int inviteUsers = userInviteRestServiceI.getCountForInvitedUsers(userInfoId);
+            map.put("inviteUsers", inviteUsers);
             map.put("daysCount", daysCount + "/" + DateUtils.getCurrentDay());
             return new ResultBean(ApiResultType.OK, map);
         } catch (Exception e) {
