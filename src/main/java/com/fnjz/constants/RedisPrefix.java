@@ -42,6 +42,18 @@ public class RedisPrefix {
      */
     public static final String PREFIX_MY_COUNT = "my_info_count:";
     /**
+     * 签到前缀
+     */
+    public static final String PREFIX_SIGN_IN = "user_sign_in:";
+    /**
+     * 新手任务前缀
+     */
+    public static final String PREFIX_NEWBIE_TASK = "user_integral_task:newbie_task:";
+    /**
+     * 今日任务前缀
+     */
+    public static final String PREFIX_TODAY_TASK = "user_integral_task:today_task:";
+    /**
      * 验证码缓存有效时间 默认三分钟
      */
     public static final long VERIFYCODE_VALID_TIME = 3L;
@@ -49,6 +61,8 @@ public class RedisPrefix {
      * 用户信息缓存有效时间 默认三十天
      */
     public static final long USER_VALID_TIME = 30L;
+
+    public static final long VALID_TIME_28 = 28L;
 
     /**
      * 用户信息缓存有效时间 默认三十天  单位秒
@@ -76,6 +90,42 @@ public class RedisPrefix {
      * 缓存系统类目支出前缀
      */
     public static final String SYS_SPEND_LABEL_TYPE = "sys_label_type:spend";
+    /**
+     * 缓存系统连续签到领取积分
+     */
+    public static final String SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE = "sys_integral:sign_in_cycle_aware";
+    /**
+     * 缓存系统新手任务领取积分
+     */
+    public static final String SYS_INTEGRAL_NEWBIE_TASK = "sys_integral:newbie_task_aware";
+    /**
+     * 缓存系统今日任务领取积分
+     */
+    public static final String SYS_INTEGRAL_TODAY_TASK = "sys_integral:today_task_aware";
+    /**
+     * 缓存用户连续签到领取积分数据
+     */
+    public static final String USER_INTEGRAL_SIGN_IN_CYCLE_AWARE = "user_sign_in_cycle_aware_status:";
+
+    /**
+     * 缓存用户首页公告读取次数
+     */
+    public static final String USER_HOME_WINDOW_READ = "home_window_read:user_read:";
+
+    /**
+     * 缓存系统首页公告读取次数
+     */
+    public static final String SYS_HOME_WINDOW_READ = "home_window_read:sys_read:";
+
+    /**
+     * 缓存系统轮播图读取次数
+     */
+    public static final String SYS_SLIDESHOW_READ = "sys_slideshow_read:";
+
+    /**
+     * 缓存用户邀请好友数
+     */
+    public static final String USER_INVITE_COUNT = "user_invite_count:";
 
     public static final String SPEND = "SPEND";
 

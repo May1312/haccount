@@ -4,6 +4,7 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
+import com.fnjz.front.service.api.api.userinvite.UserInviteRestServiceI;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
@@ -36,6 +37,8 @@ public class MyCountRestController extends BaseController {
     private WarterOrderRestServiceI warterOrderRestServiceI;
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+    @Autowired
+    private UserInviteRestServiceI userInviteRestServiceI;
 
     @ApiOperation(value = "获取我的页面数据统计")
     @RequestMapping(value = "/getMyCount/{type}", method = RequestMethod.GET)
@@ -76,6 +79,9 @@ public class MyCountRestController extends BaseController {
                 //重新设置redis javabean转map
                 redisTemplateUtils.updateMyCount(shareCode, map);
             }
+            //获取用户邀请好友数
+            int inviteUsers = userInviteRestServiceI.getCountForInvitedUsers(userInfoId);
+            map.put("inviteUsers", inviteUsers);
             map.put("daysCount", daysCount + "/" + DateUtils.getCurrentDay());
             return new ResultBean(ApiResultType.OK, map);
         } catch (Exception e) {

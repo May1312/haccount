@@ -24,7 +24,7 @@ public interface AccountBookBudgetRestDao {
      * @return
      */
     @ResultType(AccountBookBudgetRestEntity.class)
-    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId and time = :time;")
+    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId and time = :time limit 0,1;")
     AccountBookBudgetRestEntity getCurrentBudget(@Param("time") String time,@Param("accountBookId") Integer accountBookId);
 
     /**

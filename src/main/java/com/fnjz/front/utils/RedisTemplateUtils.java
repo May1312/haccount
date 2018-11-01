@@ -171,6 +171,24 @@ public class RedisTemplateUtils {
     }
 
     /**
+     * 根据key获取hash类型value
+     * @param key
+     * @return
+     */
+    public Long getExpireForSeconds(String key) {
+        return redisTemplate.getExpire(key);
+    }
+
+    /**
+     * 获取key的过期时间
+     * @param key
+     * @return
+     */
+    public Map getForHash(String key) {
+        return redisTemplate.opsForHash().entries(key);
+    }
+
+    /**
      * 更新我的页面统计缓存
      * Map类型不能指定泛型 否则increment执行异常
      * @param shareCode
@@ -180,6 +198,66 @@ public class RedisTemplateUtils {
         redisTemplate.opsForHash().putAll(RedisPrefix.PREFIX_MY_COUNT + shareCode, myCount);
         //设置缓存时间
         redisTemplate.expire(RedisPrefix.PREFIX_MY_COUNT + shareCode, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+    }
+
+    /**
+     * 更新hash类型 数据
+     * @param key
+     * @param map
+     */
+    public void updateForHash(String key, Map map) {
+        redisTemplate.opsForHash().putAll(key, map);
+    }
+
+    /**
+     * 更新hash类型 数据 并设置缓存时间
+     * @param key
+     * @param map
+     */
+    public void updateForHash(String key, Map map,Long days) {
+        redisTemplate.opsForHash().putAll(key, map);
+        if(days!=null){
+            //设置缓存时间
+            redisTemplate.expire(key, days, TimeUnit.DAYS);
+        }
+    }
+
+    /**
+     * 更新map中的指定key
+     * @param key
+     * @param mapKey
+     */
+    public void updateForHashKey(String key,String mapKey, int value) {
+        redisTemplate.opsForHash().put(key,mapKey, value);
+    }
+
+    /**
+     * 获取map中的指定key的value
+     * @param key
+     * @param mapKey
+     */
+    public int getForHashKey(String key,String mapKey) {
+        return Integer.valueOf(redisTemplate.opsForHash().get(key,mapKey)+"");
+    }
+
+    public Object getForHashKeyObject(String key,String mapKey) {
+        return redisTemplate.opsForHash().get(key,mapKey);
+    }
+
+    public void cacheForString(String key, String list) {
+        redisTemplate.opsForValue().set(key,list);
+    }
+
+    public void cacheForString(String key, String list,Long days) {
+        redisTemplate.opsForValue().set(key,list,days,TimeUnit.DAYS);
+    }
+
+    public void cacheForString(String key, String list,Long seconds,TimeUnit timeUnit) {
+        redisTemplate.opsForValue().set(key,list,seconds,timeUnit);
+    }
+
+    public String getForString(String key) {
+        return (String) redisTemplate.opsForValue().get(key);
     }
 
     /**
@@ -194,6 +272,24 @@ public class RedisTemplateUtils {
             redisTemplate.opsForHash().increment(RedisPrefix.PREFIX_MY_COUNT + shareCode, file, 1);
         } else {
             redisTemplate.opsForHash().increment(RedisPrefix.PREFIX_MY_COUNT + shareCode, file, -1);
+        }
+    }
+
+    public void incrementForHash(String key, String file,int num) {
+        redisTemplate.opsForHash().increment(key,file,num);
+    }
+
+    /**
+     * 1为递增  2 为递减
+     * @param shareCode
+     * @param file
+     * @param flag
+     */
+    public void incrementForHashKey(String shareCode, String file, int flag) {
+        if (1 == flag) {
+            redisTemplate.opsForHash().increment(shareCode, file, 1);
+        } else {
+            redisTemplate.opsForHash().increment( shareCode, file, -1);
         }
     }
 

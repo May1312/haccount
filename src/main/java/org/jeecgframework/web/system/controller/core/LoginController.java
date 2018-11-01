@@ -65,7 +65,7 @@ import com.baomidou.kisso.common.util.HttpUtil;
 /**
  * 登陆初始化控制器
  * @author 张代浩
- * 
+ *
  */
 //@Scope("prototype")
 @Controller
@@ -77,7 +77,7 @@ public class LoginController extends BaseController{
 
 	@Autowired
 	private MutiLangServiceI mutiLangService;
-	
+
 	@Autowired
 	public void setSystemService(SystemService systemService) {
 		this.systemService = systemService;
@@ -99,7 +99,7 @@ public class LoginController extends BaseController{
 		return new ModelAndView("login/resetPwd")
 				.addObject("key", key);
 	}
-	
+
 	/**
 	 * 密码重置
 	 * @param key
@@ -123,10 +123,10 @@ public class LoginController extends BaseController{
 			ajaxJson.setSuccess(false);
 			ajaxJson.setMsg("无效重置密码KEY");
 		}
-		
+
 		return ajaxJson;
 	}
-	
+
 	/**
 	 * 跳转到密码重置填写邮箱界面
 	 * @return
@@ -135,7 +135,7 @@ public class LoginController extends BaseController{
 	public ModelAndView goResetPwdMail(){
 		return new ModelAndView("login/goResetPwdMail");
 	}
-	
+
 	/**
 	 * 发送重置密码邮件
 	 * @return
@@ -145,7 +145,7 @@ public class LoginController extends BaseController{
 	public AjaxJson sendResetPwdMail(String email,HttpServletRequest request){
 		AjaxJson ajaxJson = new AjaxJson();
 		try {
-			
+
 			if(StringUtils.isEmpty(email)){
 				ajaxJson.setSuccess(false);
 				ajaxJson.setMsg("邮件地址不能为空");
@@ -157,7 +157,7 @@ public class LoginController extends BaseController{
 				ajaxJson.setMsg("用户名对应的用户信息不存在");
 				return ajaxJson;
 			}
-			
+
 			//保存重置密码数据信息
 			String hql = "from TSPasswordResetkey bean where bean.username = '" + user.getUserName() + "' and bean.isReset = 0 order by bean.createDate desc limit 1";
 			List<TSPasswordResetkey> resetKeyList = systemService.findHql(hql);
@@ -168,18 +168,18 @@ public class LoginController extends BaseController{
 					ajaxJson.setSuccess(false);
 					ajaxJson.setMsg("已发送重置密码邮件，请稍候再次尝试发送");
 					return ajaxJson;
-					
+
 				}
 			}
-			
+
 			TSPasswordResetkey passwordResetKey = new TSPasswordResetkey();
 			passwordResetKey.setEmail(email);
 			passwordResetKey.setUsername(user.getUserName());
 			passwordResetKey.setCreateDate(new Date());
 			passwordResetKey.setIsReset(0);
 			userService.save(passwordResetKey);
-			
-			
+
+
 			PropertiesUtil util = new PropertiesUtil("sysConfig.properties");
 			StringBuffer contentBuffer = new StringBuffer();
 			contentBuffer.append("<div id=\"contentDiv\" onmouseover=\"getTop().stopPropagation(event);\" onclick=\"getTop().preSwapLink(event, 'spam', 'ZC4218-CzCkK82QMqgXIghRxZ93S79');\"");
@@ -209,12 +209,12 @@ public class LoginController extends BaseController{
 			contentBuffer.append("</td></tr></tbody></table>");
 			contentBuffer.append("<br><br><div style=\"width:1px;height:0px;overflow:hidden\"><img style=\"width:0;height:0\" src=\"javascript:;\"></div>");
 			contentBuffer.append("<style type=\"text/css\">.qmbox style, .qmbox script, .qmbox head, .qmbox link, .qmbox meta {display: none !important;}</style></div></div><!-- --><style>#mailContentContainer .txt {height:auto;}</style> ");
-			MailUtil.sendEmail(util.readProperty("mail.smtpHost"), email,"邮箱重置密码", 
-					contentBuffer.toString(), util.readProperty("mail.sender"), 
+			MailUtil.sendEmail(util.readProperty("mail.smtpHost"), email,"邮箱重置密码",
+					contentBuffer.toString(), util.readProperty("mail.sender"),
 					util.readProperty("mail.user"), util.readProperty("mail.pwd"));
 			ajaxJson.setMsg("成功发送密码重置邮件");
 
-			
+
 		} catch (Exception e) {
 			if("javax.mail.AuthenticationFailedException".equals(e.getClass().getName())){
 				ajaxJson.setSuccess(false);
@@ -225,7 +225,7 @@ public class LoginController extends BaseController{
 				ajaxJson.setMsg("发送邮件失败：" + e.getMessage());
 				log.error("发送邮件失败：" + e.getMessage(),e);
 			}
-				
+
 		}
 		return ajaxJson;
 	}
@@ -238,7 +238,7 @@ public class LoginController extends BaseController{
 
 	/**
 	 * 检查用户名称
-	 * 
+	 *
 	 * @param user
 	 * @param req
 	 * @return
@@ -259,7 +259,7 @@ public class LoginController extends BaseController{
 			req.getSession().setAttribute("ReturnURL", returnURL);
 		}
 
-		
+
 		//验证码
 		String randCode = req.getParameter("randCode");
 		if (StringUtils.isEmpty(randCode)) {
@@ -322,7 +322,7 @@ public class LoginController extends BaseController{
 
 	/**
 	 * 变更在线用户组织
-	 * 
+	 *
 	 * @param user
 	 * @param req
 	 * @return
@@ -389,8 +389,8 @@ public class LoginController extends BaseController{
 			checkuser(user,req);
 		}
 
-        
-        
+
+
         // 添加登陆日志
         systemService.addLog(message, Globals.Log_Type_LOGIN, Globals.Log_Leavel_INFO);
     }
@@ -398,7 +398,7 @@ public class LoginController extends BaseController{
 
     /**
 	 * 用户登录
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -415,14 +415,14 @@ public class LoginController extends BaseController{
 			if (roles.length() > 0) {
 				roles = roles.substring(0, roles.length() - 1);
 			}
-			
+
             modelMap.put("roleName", roles.length()>3?roles.substring(0,3)+"...":roles);
             modelMap.put("userName", user.getUserName().length()>5?user.getUserName().substring(0, 5)+"...":user.getUserName());
             modelMap.put("portrait", user.getPortrait());
 
             modelMap.put("currentOrgName", ClientManager.getInstance().getClient().getUser().getCurrentDepart().getDepartname());
 
-			
+
 			SysThemesEnum sysTheme = SysThemesUtil.getSysTheme(request);
 			if("fineui".equals(sysTheme.getStyle())|| "ace".equals(sysTheme.getStyle())||"diy".equals(sysTheme.getStyle())||"acele".equals(sysTheme.getStyle())||"hplus".equals(sysTheme.getStyle())){
 				request.setAttribute("menuMap", getFunctionMap(user));
@@ -438,7 +438,7 @@ public class LoginController extends BaseController{
 			response.addCookie(zIndexCookie);
 
 			/*
-			 * 单点登录 - 登录需要跳转登录前页面，自己处理 ReturnURL 使用 
+			 * 单点登录 - 登录需要跳转登录前页面，自己处理 ReturnURL 使用
 			 * HttpUtil.decodeURL(xx) 解码后重定向
 			 */
 			String returnURL = (String)request.getSession().getAttribute("ReturnURL");
@@ -480,7 +480,7 @@ public class LoginController extends BaseController{
 
 	/**
 	 * 退出系统
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -503,7 +503,7 @@ public class LoginController extends BaseController{
 
 	/**
 	 * 菜单跳转
-	 * 
+	 *
 	 * @return
 	 */
 	@RequestMapping(params = "left")
@@ -524,7 +524,7 @@ public class LoginController extends BaseController{
 
 	/**
 	 * 获取权限的map
-	 * 
+	 *
 	 * @param user
 	 * @return
 	 */
@@ -599,7 +599,7 @@ public class LoginController extends BaseController{
 					autoList.add(ts);
 				}
 			}
-		}		
+		}
 		try {
 			response.setContentType("application/json;charset=UTF-8");
 			response.setHeader("Pragma", "No-cache");
@@ -646,13 +646,13 @@ public class LoginController extends BaseController{
 			String name =autoList.get(0).getFunctionUrl();
 			return name;
 		}
-		
+
 	}
 
-	
+
 	/**
 	 * 获取用户菜单列表
-	 * 
+	 *
 	 * @param user
 	 * @return
 	 */
@@ -730,7 +730,7 @@ public class LoginController extends BaseController{
 
     /**
 	 * 首页跳转
-	 * 
+	 *
 	 * @return
 	 */
 	@RequestMapping(params = "home")
@@ -746,10 +746,10 @@ public class LoginController extends BaseController{
 
 		return new ModelAndView("main/home");
 	}
-	
+
 	  /**
 	 * ACE首页跳转
-	 * 
+	 *
 	 * @return
 	 */
 	@RequestMapping(params = "acehome")
@@ -796,7 +796,7 @@ public class LoginController extends BaseController{
 
 	/**
 	 * 无权限页面提示跳转
-	 * 
+	 *
 	 * @return
 	 */
 	@RequestMapping(params = "noAuth")
@@ -844,7 +844,7 @@ public class LoginController extends BaseController{
 		request.setAttribute("menuMap", getFunctionMap(user));
 		return new ModelAndView("main/shortcut_top");
 	}
-	
+
 	/**
 	 * @Title: top
 	 * @author:gaofeng
@@ -913,7 +913,7 @@ public class LoginController extends BaseController{
                     floor += " <li><img class='imag1' src='plug-in/login/images/cysl.png' /> "
                             + " <img class='imag2' src='plug-in/login/images/cysl_up.png' style='display: none;' />" + " </li> ";
                 }else if(lang_context.contains("消息推送")){
-                	
+
                 	String s = "<div style='width:67px;position: absolute;top:39px;text-align:center;color:#909090;font-size:13px;'>消息推送</div>";
                     floor += " <li style='position: relative;'>"+s+"<img class='imag1' src='plug-in/login/images/msg.png' /> "
                             + " <img class='imag2' src='plug-in/login/images/msg_up.png' style='display: none;' /></li> ";

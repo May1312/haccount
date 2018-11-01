@@ -155,7 +155,8 @@ public class UserInfoRestController extends BaseController {
                     return new ResultBean(ApiResultType.WECHAT_IS_BINDED, null);
                 }
                 //更新绑定unionid
-                int i = userInfoRestServiceI.updateWeChat(userLoginRestEntity.getMobile(), user.getString("unionid"));
+                String userInfoId = (String) request.getAttribute("userInfoId");
+                int i = userInfoRestServiceI.updateWeChat(userInfoId,userLoginRestEntity.getMobile(), user.getString("unionid"));
                 if (i < 1) {
                     return new ResultBean(ApiResultType.WECHAT_BIND_ERROR, null);
                 }
@@ -179,7 +180,6 @@ public class UserInfoRestController extends BaseController {
     @ResponseBody
     public ResultBean unbindWeChat(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
-        ResultBean rb = new ResultBean();
         try {
             String key = (String) request.getAttribute("key");
             //解绑用户
@@ -188,7 +188,8 @@ public class UserInfoRestController extends BaseController {
             if (StringUtils.isEmpty(userLoginRestEntity.getMobile())) {
                 return new ResultBean(ApiResultType.NOT_ALLOW_UNBIND_WECHAT, null);
             }
-            int i = userInfoRestServiceI.updateWeChat(userLoginRestEntity.getMobile(), null);
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            int i = userInfoRestServiceI.updateWeChat(userInfoId,userLoginRestEntity.getMobile(), null);
             if (i < 1) {
                 return new ResultBean(ApiResultType.WECHAT_UNBIND_ERROR, null);
             }
@@ -221,6 +222,26 @@ public class UserInfoRestController extends BaseController {
                 if (StringUtils.isNotEmpty(task.getWechatAuth())) {
                     task.setWechatAuth("wechatAuth");
                 }
+                //设置资料完整度
+                int i =0;
+                if(StringUtils.isNotEmpty(task.getSex())){
+                    if(!StringUtils.equals(task.getSex(),"0")){
+                        ++i;
+                    }
+                }
+                if(task.getBirthday() != null){
+                    ++i;
+                }
+                if(StringUtils.isNotEmpty(task.getProvinceName())){
+                    ++i;
+                }
+                if(StringUtils.isNotEmpty(task.getProfession())){
+                    ++i;
+                }
+                if(StringUtils.isNotEmpty(task.getPosition())){
+                    ++i;
+                }
+                 task.setIntegrity((double)i/5);
                 return new ResultBean(ApiResultType.OK, task);
             } else {
                 return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
@@ -298,7 +319,12 @@ public class UserInfoRestController extends BaseController {
                     }
                 }
             }
-            userInfoRestServiceI.updateUserInfo(userInfoRestEntity);
+            UserInfoRestDTO task = null;
+            if(StringUtils.isEmpty(type)){
+                //小程序渠道  默认只传修改字段
+                task = userInfoRestServiceI.findUniqueByProperty(UserInfoRestDTO.class, "id", Integer.valueOf(userInfoId));
+            }
+            userInfoRestServiceI.updateUserInfo(userInfoRestEntity,task);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -341,4 +367,5 @@ public class UserInfoRestController extends BaseController {
     public ResultBean userInfo(HttpServletRequest request) {
         return this.userInfo(null, request);
     }
+
 }

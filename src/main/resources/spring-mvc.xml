@@ -221,6 +221,7 @@
                         <value>/rest/api/v1/appCheck</value>
                         <value>/rest/api/wxActivity/sum</value>
                         <value>/rest/api/wxActivity/statisticsNewVisitor</value>
+                        <value>/rest/api/v1/soouucallback</value>
                     </list>
                 </property>
                 <property name="excludeContainUrls">
@@ -241,6 +242,7 @@
                         <value>/rest/api/v1/appCheck</value>
                         <value>/rest/api/wxActivity/sum</value>
                         <value>/rest/api/wxActivity/statisticsNewVisitor</value>
+                        <value>/rest/api/v1/soouucallback</value>
                     </list>
                 </property>
             </bean>
@@ -256,7 +258,9 @@
 
     <import resource="classpath:redis.xml"/>
     <import resource="classpath:rabbit.xml"/>
-
+    <!--加载树鱼配置文件-->
+    <context:property-placeholder location="classpath:soouu.properties"
+                                  ignore-unresolvable="true" />
     <!-- 启用aop -->
     <aop:aspectj-autoproxy proxy-target-class="true"/>
 

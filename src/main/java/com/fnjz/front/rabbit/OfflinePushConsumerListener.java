@@ -46,21 +46,15 @@ class OfflinePushConsumerListener implements ChannelAwareMessageListener {
                 if(StringUtils.equals(DateUtils.convert2StringAll(latelySynDate),DateUtils.convert2StringAll(Long.valueOf(synDate)))) {
                     List<WarterOrderRestEntity> list = JSONObject.parseArray(JSON.toJSONString(jsonObject.get("synData")),WarterOrderRestEntity.class);
                     offlineSynchronizedRestServiceI.offlinePush(list,mobileDevice,userInfoId);
-                    //确认
-                    channel.basicAck(deliveryTag, false);
-                }else{
-                    //丢掉消息---->确认消息
-                    channel.basicAck(deliveryTag, false);
                 }
             }
-        } catch (NumberFormatException number) {
-            //日期接收错误丢掉错误消息
-            logger.error(number.toString());
-            channel.basicAck(deliveryTag, false);
-        }catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e.toString());
             //否认   手动提交事务  channel.basicNack(deliveryTag, false, true);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }finally {
+            //无论是否正确消费 都确认
+            channel.basicAck(deliveryTag, false);
         }
     }
 }

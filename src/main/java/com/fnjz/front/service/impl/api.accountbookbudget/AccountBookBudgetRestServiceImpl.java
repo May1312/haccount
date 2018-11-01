@@ -7,8 +7,12 @@ import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.StatisticAnalysisDTO;
+import com.fnjz.front.enums.AcquisitionModeEnum;
+import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
+import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.DateUtils;
+import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,9 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     @Autowired
     private AccountBookBudgetRestDao accountBookBudgetRestDao;
 
+    @Autowired
+    private CreateTokenUtils createTokenUtils;
+
     /**
      * 设置或更新预算
      *
@@ -33,11 +40,16 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      */
     @Override
     public int saveOrUpdate(AccountBookBudgetRestEntity budget, boolean flag) {
+        //TODO 存在问题 预算/固定大额支出在同一条记录中  需要判断出  引入新手任务   判断是预算/存钱效率
+        if(budget.getBudgetMoney()!=null){
+            createTokenUtils.integralTask(budget.getCreateBy()+"",ShareCodeUtil.id2sharecode(budget.getCreateBy()),CategoryOfBehaviorEnum.NewbieTask,AcquisitionModeEnum.Setting_up_budget);
+        }else if(budget.getFixedLifeExpenditure()!=null || budget.getFixedLargeExpenditure()!=null){
+            createTokenUtils.integralTask(budget.getCreateBy()+"",ShareCodeUtil.id2sharecode(budget.getCreateBy()),CategoryOfBehaviorEnum.NewbieTask,AcquisitionModeEnum.Setting_up_savings_efficiency);
+        }
         if (flag) {
             //更新流程
             return accountBookBudgetRestDao.update(budget);
         } else {
-            //新增流程
             return accountBookBudgetRestDao.insert(budget);
         }
     }

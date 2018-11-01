@@ -4,27 +4,25 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.DomainEnum;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
+import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
+import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.*;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.common.controller.BaseController;
+import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.jeecgframework.core.common.controller.BaseController;
-import org.jeecgframework.core.util.StringUtil;
-import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
-import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -159,10 +157,10 @@ public class UserLoginRestController extends BaseController {
         }
         try {
             //查看unionid是否存在
-            UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
+            UserInfoRestEntity task = userLoginRestService.findUniqueByProperty(UserInfoRestEntity.class, "wechatAuth", user.getString("unionid"));
             if (task == null) {
                 //注册
-                int insert = userInfoRestServiceI.wechatinsert(user,map,type);
+                int insert = userInfoRestServiceI.wechatinsert(user, map, type);
                 if (insert > 0) {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
                     return createTokenUtils.loginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
@@ -170,7 +168,29 @@ public class UserLoginRestController extends BaseController {
                     return new ResultBean(ApiResultType.REGISTER_IS_ERROR, null);
                 }
             } else {
-                return createTokenUtils.loginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
+                if (StringUtils.isNotEmpty(task.getAvatarUrl())) {
+                    if (!StringUtils.contains(task.getAvatarUrl(), DomainEnum.HEAD_PICTURE_DOMAIN.getDomainUrl())) {
+                        if(StringUtils.isEmpty(task.getNickName())){
+                            //更新用户个人信息
+                            if (StringUtils.isNotEmpty(user.getString("nickname"))) {
+                                String nickName = user.getString("nickname");
+                                nickName = FilterCensorWordsUtils.checkWechatNickName(nickName);
+                                task.setNickName(nickName);
+                            }
+                            if (StringUtils.isNotEmpty(user.getString("headimgurl"))) {
+                                task.setAvatarUrl(user.getString("headimgurl"));
+                            }
+                            userInfoRestServiceI.updateUserInfo(task,null);
+                        }else{
+                            if (StringUtils.isNotEmpty(user.getString("headimgurl"))) {
+                                task.setAvatarUrl(user.getString("headimgurl"));
+                            }
+                            userInfoRestServiceI.updateUserInfo(task,null);
+                        }
+                    }
+                }
+                UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
+                return createTokenUtils.loginSuccess(task2, ShareCodeUtil.id2sharecode(task.getId()));
             }
         } catch (Exception e) {
             logger.error(e.toString());
@@ -206,23 +226,22 @@ public class UserLoginRestController extends BaseController {
                 String unionid = jsonObject.getString("unionid");
                 if (StringUtils.isNotEmpty(unionid)) {
                     //获取到unionid
-                    UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
-                    if (task == null) {
-                        //执行注册流程  TODO 需要移动端传递解密数据获取unionid，id可以从wx获取到--->说明移动端已经微信授权，即已经缓存用户信息
-                        // TODO 此种情况不应该出现，如果出现 先只保存unionid吧
-                        UserInfoRestEntity uire = new UserInfoRestEntity();
-                        uire.setWechatAuth(unionid);
-                        int insert = userInfoRestServiceI.insert(uire);
-                        if (insert > 0) {
-                            UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
-                            return createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
-                        } else {
-                            return new ResultBean(ApiResultType.REGISTER_IS_ERROR, null);
+                    UserInfoRestEntity task = userLoginRestService.findUniqueByProperty(UserInfoRestEntity.class, "wechatAuth", unionid);
+                    //用户已授权---->1未查询到用户信息 2.查询寻到 更新微信昵称头像
+                    if (task != null) {
+                        if (StringUtils.isNotEmpty(task.getAvatarUrl())) {
+                            if (!StringUtils.contains(task.getAvatarUrl(), DomainEnum.HEAD_PICTURE_DOMAIN.getDomainUrl())) {
+                                String sessionKey = jsonObject.getString("session_key");
+                                return createTokenUtils.returnKeyToWXApplet(sessionKey);
+                            } else {
+                                //登录流程
+                                UserLoginRestEntity task1 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
+                                return createTokenUtils.wxappletLoginSuccess(task1, ShareCodeUtil.id2sharecode(task.getId()));
+                            }
                         }
-                    } else {
-                        //登录流程
-                        return createTokenUtils.wxappletLoginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
                     }
+                    String sessionKey = jsonObject.getString("session_key");
+                    return createTokenUtils.returnKeyToWXApplet(sessionKey);
                 } else {
                     String sessionKey = jsonObject.getString("session_key");
                     return createTokenUtils.returnKeyToWXApplet(sessionKey);
@@ -255,17 +274,39 @@ public class UserLoginRestController extends BaseController {
                 return new ResultBean(ApiResultType.UNIONID_IS_NULL, null);
             } else {
                 //先查询unionId是否存在
-                UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
+                UserInfoRestEntity task = userLoginRestService.findUniqueByProperty(UserInfoRestEntity.class, "wechatAuth", user.getString("unionId"));
                 if (task != null) {
-                    return createTokenUtils.wxappletLoginSuccess(task, ShareCodeUtil.id2sharecode(task.getUserInfoId()));
+                    if (StringUtils.isNotEmpty(task.getAvatarUrl())) {
+                        if (!StringUtils.contains(task.getAvatarUrl(), DomainEnum.HEAD_PICTURE_DOMAIN.getDomainUrl())) {
+                            if(StringUtils.isEmpty(task.getNickName())){
+                                //更新用户个人信息
+                                if (StringUtils.isNotEmpty(user.getString("nickName"))) {
+                                    String nickName = user.getString("nickName");
+                                    nickName = FilterCensorWordsUtils.checkWechatNickName(nickName);
+                                    task.setNickName(nickName);
+                                }
+                                if (StringUtils.isNotEmpty(user.getString("avatarUrl"))) {
+                                    task.setAvatarUrl(user.getString("avatarUrl"));
+                                }
+                                userInfoRestServiceI.updateUserInfo(task,null);
+                            }else{
+                                if (StringUtils.isNotEmpty(user.getString("avatarUrl"))) {
+                                    task.setAvatarUrl(user.getString("avatarUrl"));
+                                }
+                                userInfoRestServiceI.updateUserInfo(task,null);
+                            }
+                        }
+                    }
+                    UserLoginRestEntity task1 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
+                    return createTokenUtils.wxappletLoginSuccess(task1, ShareCodeUtil.id2sharecode(task.getId()));
                 }
                 //注册
-                int insert = userInfoRestServiceI.wechatinsert(user,new HashMap<String, String>(),null);
+                int insert = userInfoRestServiceI.wechatinsert(user, map, null);
                 if (insert > 0) {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
                     //统计从游戏渠道注册成功的人数
-                    if(StringUtils.isNotEmpty(map.get("wxappletChannel"))){
-                        redisTemplateUtils.incrementNewRegister(map.get("wxappletChannel"),"sumNewRegister");
+                    if (StringUtils.isNotEmpty(map.get("wxappletChannel"))) {
+                        redisTemplateUtils.incrementNewRegister(map.get("wxappletChannel"), "sumNewRegister");
                     }
                     return createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
                 } else {

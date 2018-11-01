@@ -1116,8 +1116,18 @@
                 <excludes>
                     <exclude>develop/*</exclude>
                     <exclude>product/*</exclude>
+                    <exclude>graylevel/*</exclude>
                 </excludes>
             </resource>
+
+            <resource>
+                <filtering>true</filtering>  <!-- 加上filter会过滤该资源路径中的文件 -->
+                <directory>${project.basedir}/src/main/resources</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+
         </resources>
 
         <testResources>
@@ -1141,6 +1151,14 @@
             <id>develop</id>
             <properties>
                 <env>develop</env>
+                <!--福禄积分兑换 url-->
+                <soouu.url>http://ccapi.soouu.cn/Interface/Method</soouu.url>
+                <!--云接口编号-->
+                <soouu.customerid>804484</soouu.customerid>
+                <!--树鱼秘钥-->
+                <soouu.secret>1F8254C8821FF2B5B9DEB8CDB4E06F9C</soouu.secret>
+                <!--回调接口-->
+                <soouu.callback>https://api.galaxyhouse.cn/rest/api/v1/soouucallback</soouu.callback>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -1150,6 +1168,20 @@
             <id>product</id>
             <properties>
                 <env>product</env>
+                <soouu.url>http://ccapi.soouu.cn/Interface/Method</soouu.url>
+                <soouu.customerid>804484</soouu.customerid>
+                <soouu.secret>1F8254C8821FF2B5B9DEB8CDB4E06F9C</soouu.secret>
+                <soouu.callback>https://api.fengniaojizhang.com/rest/api/v1/soouucallback</soouu.callback>
+            </properties>
+        </profile>
+        <profile>
+            <id>graylevel</id>
+            <properties>
+                <env>graylevel</env>
+                <soouu.url>http://ccapi.soouu.cn/Interface/Method</soouu.url>
+                <soouu.customerid>804484</soouu.customerid>
+                <soouu.secret>1F8254C8821FF2B5B9DEB8CDB4E06F9C</soouu.secret>
+                <soouu.callback>https://api.fengniaojizhang.cn/rest/api/v1/soouucallback</soouu.callback>
             </properties>
         </profile>
     </profiles>

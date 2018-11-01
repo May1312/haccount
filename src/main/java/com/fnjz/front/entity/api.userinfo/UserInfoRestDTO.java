@@ -2,6 +2,7 @@ package com.fnjz.front.entity.api.userinfo;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
 import javax.persistence.*;
 
 /**   
@@ -51,6 +52,8 @@ public class UserInfoRestDTO implements java.io.Serializable {
 	private java.util.Date updateDate;
 	/**微信授权token*/
 	private java.lang.String wechatAuth;
+	/**资料完整度  根据性别/生日/省份/行业/职位**/
+	private double integrity;
 
 	/**
 	 *方法: 取得java.lang.Integer
@@ -328,5 +331,13 @@ public class UserInfoRestDTO implements java.io.Serializable {
 	 */
 	public void setWechatAuth(java.lang.String wechatAuth){
 		this.wechatAuth = wechatAuth;
+	}
+	@Transient
+	public double getIntegrity() {
+		return integrity;
+	}
+
+	public void setIntegrity(double integrity) {
+		this.integrity = integrity;
 	}
 }

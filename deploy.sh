@@ -10,38 +10,29 @@
 
 ### base 函数
 
-killTomcat()
-{
-    pid=`ps -ef|grep tomcat|grep java|awk '{print $2}'`
-    echo "tomcat Id list :$pid"
-    if [ "$pid" = "" ]
-    then
-      echo "no tomcat pid alive"
-    else
-      kill -9 $pid
-    fi
-}
-cd $PROJ_PATH
-/usr/local/maven/apache-maven-3.5.3/bin/mvn clean install
 
-# 停tomcat
-killTomcat
+echo "删除deploy目录"
 
-# 删除原有工程
-rm -rf $TOMCAT_APP_PATH/webapps/ROOT
-rm -rf $TOMCAT_APP_PATH/webapps/jeecg
-rm -f $TOMCAT_APP_PATH/webapps/ROOT.war
-rm -f $TOMCAT_APP_PATH/webapps/jeecg.war
+rm -rf /usr/mydocker/tomcat_hbird/webapps/*
 
+mv $PROJ_PATH/target/jeecg.war /usr/mydocker/tomcat_hbird/webapps/
 
-# 复制新的工程
-cp $PROJ_PATH/target/jeecg.war $TOMCAT_APP_PATH/webapps/
+cd /usr/mydocker/tomcat_hbird/webapps/
 
-cd $TOMCAT_APP_PATH/webapps/
-mv jeecg.war ROOT.war
+echo "解压jeecg.war"
+unzip jeecg.war
+rm -rf jeecg.war
 
-# 启动Tomcat
-cd $TOMCAT_APP_PATH/
-sh bin/startup.sh
-
-#tail -f logs/catalina.out
+echo "检查docker hbird是否运行"
+docker ps -a | grep hbird
+if [ $? -ne 0 ]
+then
+echo "不存在此容器，待创建"
+docker run --name hbird -d  -p 8201:8080 -v  /usr/mydocker/tomcat_hbird/webapps/:/usr/local/tomcat/webapps/ROOT/   -e TZ="Asia/Shanghai" -v /etc/localtime:/etc/localtime:ro --privileged=true tomcat:7-jre8
+echo "创建完成 占用外部8080端口"
+else
+echo "重启hbird"
+fi
+docker restart hbird
+echo "部署完成，开启日志"
+#docker logs -f tomcat_hbird
