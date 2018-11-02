@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fnjz.front.dao.WarterOrderRestDao;
+import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.statistics.*;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
@@ -16,11 +17,15 @@ import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 
@@ -34,19 +39,41 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     @Autowired
     private CreateTokenUtils createTokenUtils;
 
-    @Override
-    public Map<String, Object> findListForPage(String time, String accountBookId) {
+    @Test
+    public void run(){
+        String[] args = StringUtils.split("2018-10", "-");
+        LocalDate date = LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf("01"));
+        LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
+        System.out.println(first.atTime(0,0,0).toInstant(ZoneOffset.of("+8")).toEpochMilli());
+        System.out.println(end.atTime(23,59,59).toInstant(ZoneOffset.of("+8")).toEpochMilli());
+    }
 
-        List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(time, accountBookId);
+    @Override
+    public Map<String, Object> findListForPage(String time, String accountBookId,Integer curPage,Integer pageSize) {
+        //time  年-月格式 转化成时间戳
+        String[] args = StringUtils.split(time, "-");
+        LocalDate date = LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf("01"));
+        LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
+        //long firstOfDay = first.atTime(0,0,0).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+        //long endOdDay = end.atTime(23,59,59).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+        /*PageRest pageRest = new PageRest();
+        if (curPage != null) {
+            pageRest.setCurPage(curPage);
+        }
+        if (pageSize != null) {
+            pageRest.setPageSize(pageSize);
+        }*/
+        List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(first.toString(),end.toString(), accountBookId,null, null);
+        /*//获取总条数
+        Integer count = warterOrderRestDao.getCount(first.toString(),end.toString(), accountBookId);
+        //设置总记录数
+        pageRest.setTotalCount(count);*/
         //获取到当月所有记录
         Map<Date, Object> map = new HashMap<>();
         for (Iterator<WarterOrderRestDTO> it = listForPage.iterator(); it.hasNext(); ) {
             WarterOrderRestDTO warter = it.next();
-            //转义表情
-            if(StringUtils.isNotEmpty(warter.getRemark())){
-                //warter.setRemark(EmojiUtils.aliasToEmoji(warter.getRemark()));
-                warter.setRemark(warter.getRemark());
-            }
             //判断是否包含日期
             if (map.containsKey(warter.getChargeDate())) {
                 ((ArrayList) map.get(warter.getChargeDate())).add(warter);
@@ -102,6 +129,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             ja.put("monthIncome", account.get("income"));
             return ja;
         }
+        /*ja.put("totalPage",pageRest.getTotalPage());*/
         return ja;
     }
 

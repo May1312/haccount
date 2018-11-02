@@ -36,4 +36,20 @@ public interface UserCommUseIncomeRestDao {
      */
     @Sql("SELECT MAX(priority) FROM hbird_user_comm_use_income where user_info_id = :userInfoId;")
     Integer getMaxPriority(@Param("userInfoId")Integer userInfoId);
+
+    /**
+     * 判断用户自有标签是否已存在  ---收入
+     * @param userInfoId
+     * @return
+     */
+    @Sql("SELECT COALESCE(count(id),0) FROM hbird_user_comm_use_income where user_info_id = :userInfoId;")
+    int checkUserCommUserIncome(@Param("userInfoId")String userInfoId);
+
+    /**
+     * 判断用户自有标签是否已存在  ---支出
+     * @param userInfoId
+     * @return
+     */
+    @Sql("SELECT COALESCE(count(id),0) FROM hbird_user_comm_use_spend where user_info_id = :userInfoId;")
+    int checkUserCommUserSpend(@Param("userInfoId")String userInfoId);
 }

@@ -153,7 +153,7 @@ public class WarterOrderRestController extends BaseController {
     @RequestMapping(value = "/warterOrderList/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean warterOrderList(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,
-                                      HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
+                                      HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) Integer curPage, @RequestParam(value = "pageSize", required = false) Integer pageSize) {
         System.out.println("登录终端：" + type);
         logger.info("获取流水分页列表接口: year-->" + year + "  month-->" + month);
         String time = ParamValidateUtils.getTime(year, month);
@@ -164,7 +164,7 @@ public class WarterOrderRestController extends BaseController {
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             //连续打卡统计
             clockInDays.clockInDays(shareCode);
-            Map<String, Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "");
+            Map<String, Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "",curPage,pageSize);
             return new ResultBean(ApiResultType.OK, json);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -334,16 +334,16 @@ public class WarterOrderRestController extends BaseController {
         return this.toCharge(null, request, charge);
     }
 
-    @RequestMapping(value = "/warterOrderList", method = RequestMethod.GET)
-    @ResponseBody
-    public ResultBean warterOrderList(HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month) {
-        return this.warterOrderList(null, request, year, month);
-    }
-
     @RequestMapping(value = "/getOrderInfo", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean getOrderInfo(@RequestParam String id) {
         return this.getOrderInfo(null, id);
+    }
+
+    @RequestMapping(value = "/warterOrderList", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean warterOrderList(HttpServletRequest request,@RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) Integer curPage, @RequestParam(value = "pageSize", required = false) Integer pageSize) {
+        return this.warterOrderList(null, request,year,month,curPage,pageSize);
     }
 
     @RequestMapping(value = "/updateOrderInfo", method = RequestMethod.PUT)

@@ -19,7 +19,7 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @param accountBookId
      * @return
      */
-    Map<String,Object> findListForPage(String time, String accountBookId);
+    Map<String,Object> findListForPage(String time, String accountBookId,Integer curPage,Integer pageSize);
 
     /**
      * 更新
