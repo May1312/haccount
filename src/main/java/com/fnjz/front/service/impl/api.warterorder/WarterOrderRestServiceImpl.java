@@ -56,20 +56,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         LocalDate date = LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf("01"));
         LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
-        //long firstOfDay = first.atTime(0,0,0).toInstant(ZoneOffset.of("+8")).toEpochMilli();
-        //long endOdDay = end.atTime(23,59,59).toInstant(ZoneOffset.of("+8")).toEpochMilli();
-        /*PageRest pageRest = new PageRest();
-        if (curPage != null) {
-            pageRest.setCurPage(curPage);
-        }
-        if (pageSize != null) {
-            pageRest.setPageSize(pageSize);
-        }*/
         List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(first.toString(),end.toString(), accountBookId,null, null);
-        /*//获取总条数
-        Integer count = warterOrderRestDao.getCount(first.toString(),end.toString(), accountBookId);
-        //设置总记录数
-        pageRest.setTotalCount(count);*/
         //获取到当月所有记录
         Map<Date, Object> map = new HashMap<>();
         for (Iterator<WarterOrderRestDTO> it = listForPage.iterator(); it.hasNext(); ) {
@@ -129,7 +116,90 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             ja.put("monthIncome", account.get("income"));
             return ja;
         }
-        /*ja.put("totalPage",pageRest.getTotalPage());*/
+        return ja;
+    }
+
+    @Override
+    public Map<String, Object> findListForPagev2(String time, String accountBookId,Integer curPage,Integer pageSize) {
+        //time  年-月格式 转化成时间戳
+        String[] args = StringUtils.split(time, "-");
+        LocalDate date = LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf("01"));
+        LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
+        //long firstOfDay = first.atTime(0,0,0).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+        //long endOdDay = end.atTime(23,59,59).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+        PageRest pageRest = new PageRest();
+        if (curPage != null) {
+            pageRest.setCurPage(curPage);
+        }
+        if (pageSize != null) {
+            pageRest.setPageSize(pageSize);
+        }
+        List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPagev2(first.toString(),end.toString(), accountBookId, pageRest.getStartIndex(),pageRest.getPageSize());
+        //获取总条数
+        Integer count = warterOrderRestDao.getCount(first.toString(),end.toString(), accountBookId);
+        //设置总记录数
+        pageRest.setTotalCount(count);
+        //获取到当月所有记录
+        Map<Date, Object> map = new HashMap<>();
+        for (Iterator<WarterOrderRestDTO> it = listForPage.iterator(); it.hasNext(); ) {
+            WarterOrderRestDTO warter = it.next();
+            //判断是否包含日期
+            if (map.containsKey(warter.getChargeDate())) {
+                ((ArrayList) map.get(warter.getChargeDate())).add(warter);
+            } else {
+                List<WarterOrderRestDTO> list = new ArrayList<>();
+                list.add(warter);
+                map.put(warter.getChargeDate(), list);
+            }
+        }
+        Map<String, Object> ja = new HashMap();
+        if (map.size() > 0) {
+            Map<Date, Object> resultMap = sortMapByKey(map);
+            JSONArray array = new JSONArray();
+            JSONArray array2 = new JSONArray();
+            for (Map.Entry<Date, Object> entry : resultMap.entrySet()) {
+                //封装成key value格式
+                JSONObject obj = new JSONObject();
+                if (!StringUtils.equals(entry.getKey() + "", "dayTime")) {
+                    obj.put("dayTime", entry.getKey());
+                }
+                if (!StringUtils.equals(entry.getKey() + "", "dayTime")) {
+                    obj.put("dayArrays", entry.getValue());
+                }
+                array.add(JSONObject.toJSONString(obj, SerializerFeature.WriteMapNullValue));
+            }
+            //获取日统计
+            for (int i = 0; i < array.size(); i++) {
+                JSONObject jsonObject = JSON.parseObject((String) array.get(i));
+                if (StringUtils.isNotEmpty(jsonObject.getString("dayArrays"))) {
+                    BigDecimal dayIncome = new BigDecimal(0);
+                    BigDecimal daySpend = new BigDecimal(0);
+                    List list = JSONArray.parseArray(jsonObject.getString("dayArrays"));
+                    for (int j = 0; j < list.size(); j++) {
+                        //支出
+                        WarterOrderRestDTO warter = JSONObject.parseObject(JSONObject.toJSONString(list.get(j)), WarterOrderRestDTO.class);
+                        if (warter.getOrderType() == 1) {
+                            daySpend = daySpend.add(warter.getMoney());
+                        }
+                        if (warter.getOrderType() == 2) {
+                            dayIncome = dayIncome.add(warter.getMoney());
+                        }
+                    }
+                    jsonObject.put("dayIncome", dayIncome);
+                    jsonObject.put("daySpend", daySpend);
+                    array2.add(jsonObject);
+                    //jsonObject转json
+                }
+            }
+            //获取月份统计数据
+            Map<String, BigDecimal> account = getAccount(time, accountBookId);
+            ja.put("arrays", array2);
+            ja.put("monthSpend", account.get("spend"));
+            ja.put("monthIncome", account.get("income"));
+            return ja;
+        }
+        ja.put("totalPage",pageRest.getTotalPage());
         return ja;
     }
 

@@ -28,12 +28,19 @@ public interface WarterOrderRestDao {
     List<WarterOrderRestDTO> findListForPage(@Param("first") String first,@Param("end") String end, @Param("accountBookId") String accountBookId,@Param("curPage") Integer curPage,@Param("itemPerPage") Integer itemPerPage);
 
     /**
+     * 小程序分页
+     * @return
+     */
+    @ResultType(WarterOrderRestDTO.class)
+    @Sql("SELECT wo.id,wo.money,wo.account_book_id,wo.order_type,wo.is_staged,wo.spend_happiness,wo.use_degree,wo.type_pid,wo.type_pname,wo.type_id,wo.type_name,wo.picture_url,wo.create_date,wo.charge_date,wo.remark, ( CASE wo.order_type WHEN 1 THEN st.icon WHEN 2 THEN it.icon ELSE NULL END ) AS icon FROM hbird_water_order wo LEFT JOIN hbird_spend_type st ON wo.type_id = st.id LEFT JOIN hbird_income_type it ON wo.type_id = it.id where wo.account_book_id=:accountBookId AND wo.delflag = 0 AND wo.charge_date between :first and :end ORDER BY wo.charge_date,wo.create_date DESC LIMIT :startIndex,:pageSize")
+    List<WarterOrderRestDTO> findListForPagev2(@Param("first") String first,@Param("end") String end, @Param("accountBookId") String accountBookId,@Param("startIndex") Integer startIndex,@Param("pageSize") Integer pageSize);
+    /**
      * 查询总记录数
      *
      * @param accountBookId
      * @return
      */
-    @Sql("select COALESCE(count(id),0) from hbird_water_order where account_book_id=:accountBookId AND delflag = 0 AND wo.charge_date between :first and :end;")
+    @Sql("select COALESCE(count(id),0) from hbird_water_order where account_book_id=:accountBookId AND delflag = 0 AND charge_date between :first and :end;")
     Integer getCount(@Param("first") String first,@Param("end") String end, @Param("accountBookId") String accountBookId);
 
     /**
