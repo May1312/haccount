@@ -200,8 +200,13 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             ja.put("totalPage",pageRest.getTotalPage());
             return ja;
         }
-        ja.put("totalPage",pageRest.getTotalPage());
-        return ja;
+
+        if(pageRest.getTotalPage()==0){
+            return ja;
+        }else{
+            ja.put("totalPage",pageRest.getTotalPage());
+            return ja;
+        }
     }
 
     public static Map<Date, Object> sortMapByKey(Map<Date, Object> map) {
