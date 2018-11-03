@@ -53,6 +53,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 if (signIn_7 != 2 && signInDays >= IntegralEnum.SIGNIN_7.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_7.getIndex());
                     userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_7.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_7", 2);
                 }
@@ -61,6 +62,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 if (signIn_14 != 2 && signInDays >= IntegralEnum.SIGNIN_14.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_14.getIndex());
                     userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_14.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_14", 2);
                 }
@@ -69,6 +71,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 if (signIn_21 != 2 && signInDays >= IntegralEnum.SIGNIN_21.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_21.getIndex());
                     userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_21.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_21", 2);
                 }
@@ -77,6 +80,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 if (signIn_28 != 2 && signInDays >= IntegralEnum.SIGNIN_28.getIndex()) {
                     FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_28.getIndex());
                     userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_28.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
                     //标记本次领取状态
                     redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_28", 2);
                 }
