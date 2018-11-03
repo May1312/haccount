@@ -193,7 +193,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 }
             }
             //获取月份统计数据
-            Map<String, BigDecimal> account = getAccount(time, accountBookId);
+            Map<String, BigDecimal> account = warterOrderRestDao.getAccount(first.toString(),end.toString(), accountBookId);
             ja.put("arrays", array2);
             ja.put("monthSpend", account.get("spend"));
             ja.put("monthIncome", account.get("income"));

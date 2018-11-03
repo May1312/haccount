@@ -6,6 +6,7 @@ import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import org.jeecgframework.minidao.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -268,4 +269,12 @@ public interface WarterOrderRestDao {
      */
     @Sql("SELECT a.income - a.spend FROM ( SELECT ( CASE WHEN income.income IS NULL THEN 0 ELSE income.income END ) AS income, ( CASE WHEN spend.spend IS NULL THEN 0 ELSE spend.spend END ) AS spend FROM ( SELECT SUM( money ) AS spend FROM hbird_water_order WHERE create_by = :userInfoId AND delflag = 0 AND order_type = 1 AND create_date >= :initDate ) spend, ( SELECT SUM( money ) AS income FROM hbird_water_order WHERE create_by = :userInfoId AND delflag = 0 AND order_type = 2 AND create_date >= :initDate ) income ) AS a;")
     String getTotalByDate(@Param("initDate") Date initDate,@Param("userInfoId") String userInfoId);
+
+    /**
+     * 统计条数
+     * @param accountBookId
+     * @return
+     */
+    @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS spend, SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END ) AS income FROM `hbird_water_order` WHERE account_book_id = :accountBookId and charge_date BETWEEN :first AND :end AND delflag = 0;")
+    Map<String,BigDecimal> getAccount(@Param("first") String first,@Param("end") String end,@Param("accountBookId") String accountBookId);
 }
