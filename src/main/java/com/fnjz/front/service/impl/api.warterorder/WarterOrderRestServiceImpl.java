@@ -197,6 +197,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             ja.put("arrays", array2);
             ja.put("monthSpend", account.get("spend"));
             ja.put("monthIncome", account.get("income"));
+            ja.put("totalPage",pageRest.getTotalPage());
             return ja;
         }
         ja.put("totalPage",pageRest.getTotalPage());
