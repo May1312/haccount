@@ -582,7 +582,7 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
         if(StringUtils.equals(type,RedisPrefix.INCOME)){
             int count = userCommUseIncomeRestDao.checkUserCommUserIncome(userInfoId);
             if(count<1){
-                String income_sql = "select id,priority, from hbird_income_type where status = 1 AND mark = 1";
+                String income_sql = "select id,priority from hbird_income_type where status = 1 AND mark = 1";
                 List<Map> listbySql2 = commonDao.findListMapbySql(income_sql);
                 List<UserCommUseIncomeRestEntity> list_common_income = new ArrayList<>();
                 for (int j = 0; j < listbySql2.size(); j++) {
