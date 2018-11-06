@@ -188,6 +188,24 @@ public class UserLoginRestController extends BaseController {
                             userInfoRestServiceI.updateUserInfo(task,null);
                         }
                     }
+                }else{
+                    if(StringUtils.isEmpty(task.getNickName())){
+                        //更新用户个人信息
+                        if (StringUtils.isNotEmpty(user.getString("nickname"))) {
+                            String nickName = user.getString("nickname");
+                            nickName = FilterCensorWordsUtils.checkWechatNickName(nickName);
+                            task.setNickName(nickName);
+                        }
+                        if (StringUtils.isNotEmpty(user.getString("headimgurl"))) {
+                            task.setAvatarUrl(user.getString("headimgurl"));
+                        }
+                        userInfoRestServiceI.updateUserInfo(task,null);
+                    }else{
+                        if (StringUtils.isNotEmpty(user.getString("headimgurl"))) {
+                            task.setAvatarUrl(user.getString("headimgurl"));
+                        }
+                        userInfoRestServiceI.updateUserInfo(task,null);
+                    }
                 }
                 UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
                 return createTokenUtils.loginSuccess(task2, ShareCodeUtil.id2sharecode(task.getId()));
@@ -295,6 +313,24 @@ public class UserLoginRestController extends BaseController {
                                 }
                                 userInfoRestServiceI.updateUserInfo(task,null);
                             }
+                        }
+                    }else{
+                        if(StringUtils.isEmpty(task.getNickName())){
+                            //更新用户个人信息
+                            if (StringUtils.isNotEmpty(user.getString("nickName"))) {
+                                String nickName = user.getString("nickName");
+                                nickName = FilterCensorWordsUtils.checkWechatNickName(nickName);
+                                task.setNickName(nickName);
+                            }
+                            if (StringUtils.isNotEmpty(user.getString("avatarUrl"))) {
+                                task.setAvatarUrl(user.getString("avatarUrl"));
+                            }
+                            userInfoRestServiceI.updateUserInfo(task,null);
+                        }else{
+                            if (StringUtils.isNotEmpty(user.getString("avatarUrl"))) {
+                                task.setAvatarUrl(user.getString("avatarUrl"));
+                            }
+                            userInfoRestServiceI.updateUserInfo(task,null);
                         }
                     }
                     UserLoginRestEntity task1 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
