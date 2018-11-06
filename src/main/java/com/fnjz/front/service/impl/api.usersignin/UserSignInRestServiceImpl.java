@@ -19,7 +19,9 @@ import com.fnjz.front.service.api.usersignin.UserSignInRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,8 @@ import static com.fnjz.constants.RedisPrefix.PREFIX_SIGN_IN;
 @Service("userSignInRestService")
 @Transactional
 public class UserSignInRestServiceImpl extends CommonServiceImpl implements UserSignInRestServiceI {
+
+    private static final Logger logger = Logger.getLogger(UserSignInRestServiceImpl.class);
 
     @Autowired
     private UserSignInRestDao userSignInRestDao;
@@ -693,7 +697,9 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             //判断是不是7的整数倍
                             if (StringUtils.equals(map.get("signInDays") + "", StringUtils.substringAfterLast(entry.getKey(), "_")) && (Integer.valueOf(map.get("signInDays") + "") % 7) == 0 && entry2.getValue() == SignInEnum.COMPLEMENT_SIGNED.getIndex()) {
                                 jsonObject1.put("cycleAwareStatus", SignInEnum.NOT_SIGN.getIndex());
-                            } else {
+                            } else if(Integer.valueOf(map.get("signInDays") + "")-Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_"))<7&&Integer.valueOf(map.get("signInDays") + "")-Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_"))>0&& entry2.getValue() == SignInEnum.COMPLEMENT_SIGNED.getIndex()){
+                                jsonObject1.put("cycleAwareStatus", SignInEnum.NOT_SIGN.getIndex());
+                            }else {
                                 jsonObject1.put("cycleAwareStatus", entry2.getValue());
                             }
                         }
