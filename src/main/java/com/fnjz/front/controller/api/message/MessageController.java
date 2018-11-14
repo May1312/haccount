@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.jeecgframework.core.common.controller.BaseController;
 import com.fnjz.front.service.api.message.MessageServiceI;
 
+import java.util.ArrayList;
+
 /**
  * @author zhangdaihao
  * @version V1.0

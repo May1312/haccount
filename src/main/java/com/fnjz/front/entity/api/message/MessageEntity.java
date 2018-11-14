@@ -1,10 +1,6 @@
 package com.fnjz.front.entity.api.message;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -44,9 +40,8 @@ public class MessageEntity implements java.io.Serializable {
 	 */
 	
 	@Id
-	@GeneratedValue(generator = "paymentableGenerator")
-	@GenericGenerator(name = "paymentableGenerator", strategy = "uuid")
-	@Column(name ="ID",nullable=false,precision=10,scale=0)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "ID", unique = true,nullable=false)
 	public java.lang.Integer getId(){
 		return this.id;
 	}

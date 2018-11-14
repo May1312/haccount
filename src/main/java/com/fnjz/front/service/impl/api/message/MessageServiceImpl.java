@@ -11,6 +11,7 @@ import com.fnjz.front.service.api.message.MessageServiceI;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.util.Assert;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -21,27 +22,19 @@ public class MessageServiceImpl extends CommonServiceImpl implements MessageServ
     @Autowired
     private UserInfoRestServiceI userInfoRestService;
 
-    /**
-     * 测试环境
-     */
-    public static final String fnjzAppKey = "09ec5f2b4d173f59183d949b";
-    public static final String fnjzMasterSecret = "72fb5f9d56c10b8448d713f7";
-
-    /**
-     * 正式环境
-     */
-    public static final String sdzjAppKey = "c5de250e0420d5dc327bc691";
-    public static final String sdzjMasterSecret = "190f25c0272c577d5d3c6e1b";
 
     @Override
     public Boolean addUserMessage(String messageContent, Integer creatId, List<Integer> noticeUserIdList) {
 
         ArrayList<MessageEntity> messageEntities = new ArrayList<>();
+
         for (Integer userId : noticeUserIdList) {
             MessageEntity messageEntity = new MessageEntity();
             messageEntity.setUserInfoId(userId);
             messageEntity.setContent(messageContent);
             messageEntity.setCreateBy(creatId);
+            messageEntity.setStatus(2);
+            messageEntity.setCreateDate(new Date());
             messageEntities.add(messageEntity);
         }
         this.batchSave(messageEntities);
@@ -92,10 +85,10 @@ public class MessageServiceImpl extends CommonServiceImpl implements MessageServ
         String updateSql = "";
         if (messageUpdateType.equals("ALL")) {
             Assert.notNull(userinfoId, "userinfoId must not be null");
-            updateSql = "update hbird_message set status = 1 where user_info_id = " + userinfoId;
+            updateSql = "update hbird_message set status = 1 ,update_date = current_timestamp() where user_info_id = " + userinfoId;
         } else if (messageUpdateType.equals("ONE")) {
             Assert.notNull(messageId, "messageId must not be null");
-            updateSql = "update hbird_message set status = 1 where id  = " + userinfoId;
+            updateSql = "update hbird_message set status = 1,update_date = current_timestamp()  where id  = " + userinfoId;
         } else {
             throw new IllegalArgumentException("没有约定的更新类型");
         }
@@ -114,20 +107,18 @@ public class MessageServiceImpl extends CommonServiceImpl implements MessageServ
     public void sendPush(String messageContent, Integer creatId, List<Integer> noticeUserIdList) {
 
         /*String sql = "select IFNULL(u.nick_name,REPLACE(u.mobile, SUBSTR(mobile,4,4), '****')) name  from hbird_user_info u  where id = "+creatId;
-
         List<Map<String, Object>> forJdbc = userInfoRestService.findForJdbc(sql);*/
 
-        String noticeUserIds = "";
-        for (Integer noticeUserId : noticeUserIdList) {
-            noticeUserIds += String.valueOf(ShareCodeUtil.id2sharecode(noticeUserId)) + ",";
-        }
+        String jumpPage = "fftz";
         if (messageContent.length() > 20) {
             messageContent = messageContent.substring(0, 20);
         }
-        //蜂鸟记账主体下推送
-        String jumpPage = "fftz";
-        JgPushExampls.sendPushObject_android_and_ios(fnjzAppKey, fnjzMasterSecret,noticeUserIds.substring(0, noticeUserIds.length() - 1),messageContent,jumpPage);
-        //速贷之家主体下推送
-        //JgPushExampls.sendPushObject_android_and_ios(messageContent,noticeUserIds.substring(0,noticeUserIds.length() - 1),fnjzAppKey,fnjzMasterSecret,jumpPage);
+        for (Integer noticeUserId : noticeUserIdList) {
+            String sharecode = ShareCodeUtil.id2sharecode(noticeUserId);
+            //蜂鸟记账主体下推送
+            JgPushExampls.sendPushObject_android_and_ios(sharecode,messageContent,jumpPage);
+            //速贷之家主体下推送
+            //JgPushExampls.sendPushObject_android_and_ios(messageContent,noticeUserIds.substring(0,noticeUserIds.length() - 1),fnjzAppKey,fnjzMasterSecret,jumpPage);
+        }
     }
 }

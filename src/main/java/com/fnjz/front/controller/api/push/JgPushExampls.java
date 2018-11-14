@@ -14,9 +14,12 @@ import cn.jpush.api.push.model.notification.Notification;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
+import org.jeecgframework.core.util.PropertiesUtil;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -28,7 +31,6 @@ import java.util.Map;
 public class JgPushExampls {
 
     private static final Logger LOG = Logger.getLogger(JgPushExampls.class);
-
     /**
      * 功能描述: 构建推送所需的 pushPayLoad  类
      *
@@ -56,7 +58,7 @@ public class JgPushExampls {
     }
 
     /**
-     * 功能描述:
+     * 功能描述: 根据别名推送指定人
      *
      * @param: appkey_masterSecret  哪个环境的key和秘钥
      * alias : 根据别名推送   多个  逗号分隔
@@ -66,11 +68,19 @@ public class JgPushExampls {
      * @auther: yonghuizhao
      * @date: 2018/11/14 11:53
      */
-    public static void sendPushObject_android_and_ios(String appKey, String masterSecret, String alias, String alertContent, String jumpPage) {
+    public static void sendPushObject_android_and_ios(String alias, String alertContent, String jumpPage) {
+
+        //根据运行环境获取key和秘钥
+        PropertiesUtil propertiesUtil = new PropertiesUtil("jgpush.properties");
+        String jg_app_key =String.valueOf(propertiesUtil.getProperties().get("JG_APP_KEY")) ;
+        String JG_MASTER_SECRET =String.valueOf(propertiesUtil.getProperties().get("JG_MASTER_SECRET")) ;
+        //获取客户端实例
         ClientConfig clientConfig = ClientConfig.getInstance();
-        final JPushClient jpushClient = new JPushClient(masterSecret, appKey, null, clientConfig);
+        final JPushClient jpushClient = new JPushClient(JG_MASTER_SECRET, jg_app_key, null, clientConfig);
+        //获取发送模板方式及信息内容
         PushPayload payload = buildPushObject_android_and_ios(alertContent, alias, jumpPage);
         try {
+            //发送请求
             PushResult result = jpushClient.sendPush(payload);
             LOG.info("Got result - " + result);
             System.out.println(result);
@@ -86,14 +96,10 @@ public class JgPushExampls {
             LOG.info("Msg ID: " + e.getMsgId());
             LOG.error("Sendno: " + payload.getSendno());
         } finally {
+            //关闭客户端
             jpushClient.close();
         }
     }
 
-    public static String ObjectToJson(Object o) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(o);
-        return json;
-    }
 
 }
