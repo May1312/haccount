@@ -70,7 +70,7 @@ public class MessageServiceImpl extends CommonServiceImpl implements MessageServ
                 int start = content.indexOf("{");
                 int end = content.indexOf("}");
                 contentb.replace(start + 1, end, String.valueOf(stringObjectMap.get("name")));
-                stringObjectMap.put("name", contentb.toString());
+                stringObjectMap.put("content", contentb.toString());
             }
         }
         //返回结果集

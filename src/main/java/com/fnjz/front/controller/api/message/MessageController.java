@@ -40,7 +40,7 @@ public class MessageController extends BaseController {
     @RequestMapping(value = "/message/messageList", method = RequestMethod.GET)
     public ResultBean messageList(String userId, Integer page, Integer rows) {
         if (StringUtils.isEmpty(userId)) {
-            throw new IllegalArgumentException("userId must not be null");
+            return new ResultBean(ApiResultType.SERVER_ERROR, "userId must not be null");
         }
         if (page == null) {
             page = 1;
@@ -65,7 +65,9 @@ public class MessageController extends BaseController {
         String messageUpdateType = jsonObject.getString("messageUpdateType");
         String userinfoId = jsonObject.getString("userinfoId");
         String messageId = jsonObject.getString("messageId");
-        Assert.notNull(messageUpdateType, "messageUpdateType must not be null");
+        if (StringUtils.isEmpty(messageUpdateType)){
+            return new ResultBean(ApiResultType.SERVER_ERROR, "messageUpdateType must not be null");
+        }
         Integer i = messageService.updateMessageStatus(userinfoId, messageId, messageUpdateType);
         if (i > 0) {
             return new ResultBean(ApiResultType.OK, "更新成功");
