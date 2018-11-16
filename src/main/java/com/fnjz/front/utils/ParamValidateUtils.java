@@ -6,6 +6,7 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.statistics.StatisticsParamsRestDTO;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.enums.StatisticsEnum;
 import org.apache.commons.lang.StringUtils;
@@ -184,6 +185,35 @@ public class ParamValidateUtils {
         return null;
     }
 
+    public static ResultBean checkToCharge(WarterOrderRestNewLabel charge) {
+        //校验记账时间
+        if (charge.getChargeDate() == null) {
+            return new ResultBean(ApiResultType.ACCOUNT_SPENDDATE_ERROR, null);
+        }
+        //校验金额
+        if (charge.getMoney() == null) {
+            return new ResultBean(ApiResultType.ACCOUNT_MONEY_IS_NULL, null);
+        }
+        //判断支出收入类型
+        if (charge.getOrderType() == null) {
+            return new ResultBean(ApiResultType.ACCOUNT_TYPE_ERROR, null);
+        }
+        //校验二三级类目 id
+        if (charge.getUserPrivateLabelId()==null) {
+            return new ResultBean(ApiResultType.ACCOUNT_PARAMS_ERROR, null);
+        }
+        if (charge.getAccountBookId()==null) {
+            return new ResultBean(ApiResultType.ACCOUNT_PARAMS_ERROR, null);
+        }
+        if (charge.getOrderType() == 1) {
+            //支出类型判断即时和分期类型
+            if (charge.getIsStaged() == null) {
+                return new ResultBean(ApiResultType.ACCOUNT_TYPE_ERROR, null);
+            }
+        }
+        return null;
+    }
+
     /**
      * 手机号注册参数校验
      *
@@ -311,7 +341,7 @@ public class ParamValidateUtils {
      * @return
      */
     public static ResultBean checkUserTypePriority(Map<String, Object> map) {
-        if (StringUtils.isEmpty(map.get("type") + "")) {
+        if (StringUtils.isEmpty(map.get("type") + "") || StringUtils.isEmpty(map.get("abId") + "")) {
             return new ResultBean(ApiResultType.TYPE_IS_NULL, null);
         }
         if (map.get("relation") == null) {

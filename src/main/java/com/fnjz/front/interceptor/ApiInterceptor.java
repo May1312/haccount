@@ -12,6 +12,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.core.util.oConvertUtils;
 import org.jeecgframework.jwt.def.JwtConstants;
@@ -33,6 +34,8 @@ import java.util.List;
 @Component
 public class ApiInterceptor implements HandlerInterceptor {
 
+    private static final Logger logger = Logger.getLogger(ApiInterceptor.class);
+
     @Autowired
     private RedisTemplate redisTemplate;
 
@@ -52,6 +55,7 @@ public class ApiInterceptor implements HandlerInterceptor {
         }
         //从header中得到token
         String authHeader = request.getHeader("X-AUTH-TOKEN");
+        logger.info("toekn:"+authHeader);
         //校验系统参数接口 /checkSystemParam  包含token查询系统类目/个人类目  不包含token查询系统类目
         if(requestPath.indexOf("/checkSystemParam")!=-1){
             if(StringUtils.isEmpty(authHeader)){

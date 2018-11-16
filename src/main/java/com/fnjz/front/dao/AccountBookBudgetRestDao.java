@@ -58,7 +58,7 @@ public interface AccountBookBudgetRestDao {
      * @return
      */
     @ResultType(AccountBookBudgetRestEntity.class)
-    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId and time<= :time ORDER BY time DESC LIMIT 1")
+    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId and time<= :time ORDER BY time DESC LIMIT 0,1")
     AccountBookBudgetRestEntity getLatelyBudget(@Param("accountBookId") Integer accountBookId,@Param("time") String time);
 
     /**
@@ -116,4 +116,50 @@ public interface AccountBookBudgetRestDao {
     @Sql("SELECT SUM(money) AS monthSpend, DATE_FORMAT( charge_date, '%Y-%m' ) AS time, CASE budget.budget_money WHEN -1 THEN null ELSE budget.budget_money END AS budgetMoney FROM `hbird_water_order` AS wo, (SELECT time, budget_money FROM `hbird_accountbook_budget` WHERE account_book_id = :accountBookId AND time <= CONCAT( DATE_FORMAT( NOW( ), '%Y-' ), :month ) AND time >= :rangeMonth AND budget_money!=-1) AS budget WHERE DATE_FORMAT( charge_date, '%Y-%m' ) IN ( budget.time ) AND wo.account_book_id = :accountBookId  AND wo.delflag = 0 AND order_type = 1 GROUP BY time;")
     List<BudgetCompletionRateDTO> listBudgetCompletionRateStatisticsByMonths(@Param("rangeMonth") String rangeMonth, @Param("month") String month, @Param("accountBookId") Integer accountBookId);
 
+    @Sql("select * from hbird_accountbook_budget where create_by=:userInfoId and account_book_id is null order by create_date desc LIMIT 0,1;")
+    AccountBookBudgetRestEntity getFixedSpend(@Param("userInfoId") String userInfoId);
+
+    /**
+     * 获取场景账本预算
+     * @param accountBookId
+     * @return
+     */
+    @Sql("select * from hbird_accountbook_budget where account_book_id=:abId;")
+    AccountBookBudgetRestEntity getLatelyBudgetv2(@Param("abId") Integer accountBookId);
+
+    /**
+     * 按传入月份 统计月支出 收入
+     * @param userInfoId
+     * @return
+     */
+    @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS monthSpend, SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END ) AS monthIncome, DATE_FORMAT( charge_date, '%Y-%m' ) AS time FROM `hbird_water_order` WHERE update_by = :userInfoId and charge_date between :beginTime and :endTime AND delflag = 0 GROUP BY time;")
+    List<SavingEfficiencyDTO> listSavingEfficiencyStatisticsByMonthsv2(@Param("beginTime") String beginTime,@Param("endTime") String endTime,@Param("userInfoId") String userInfoId);
+
+    /**
+     * v2 获取消费结构比
+     * @param userInfoId
+     * @param consumptionStructureRatioFoodType
+     * @return
+     */
+    @Sql("SELECT SUM( money) AS monthSpend, SUM( CASE WHEN type_pid = :foodType THEN money ELSE NULL END ) AS foodSpend, DATE_FORMAT( charge_date, '%Y-%m' ) AS time FROM `hbird_water_order` WHERE update_by = :userInfoId AND charge_date between :monthBegin and :monthEnd or charge_date between :lastMonthBegin and :lastMonthEnd or charge_date between :lastYearBegin and :lastYearEnd and order_type = 1 AND delflag = 0 GROUP BY time DESC;")
+    List<ConsumptionStructureRatioDTO> getConsumptionStructureRatiov2(@Param("userInfoId") Integer userInfoId,@Param("monthBegin") String s,@Param("monthEnd") String s1,@Param("lastMonthBegin") String s2,@Param("lastMonthEnd") String s3,@Param("lastYearBegin") String s4,@Param("lastYearEnd") String s5,@Param("foodType") String consumptionStructureRatioFoodType);
+
+    /**
+     * v2 日常账本 预算完成率
+     * @param s
+     * @param s1
+     * @param userInfoId
+     * @return
+     */
+    List<BudgetCompletionRateDTO> listBudgetCompletionRateStatisticsByMonthsv2(@Param("begin") String s,@Param("end") String s1,@Param("userInfoId") String userInfoId);
+
+    /**
+     * 获取范围预算
+     * @param s
+     * @param s1
+     * @param abId
+     * @return
+     */
+    @Sql("SELECT time, budget_money FROM `hbird_accountbook_budget` WHERE account_book_id = :abId AND time between :begin and :end AND budget_money !=- 1 ")
+    List<AccountBookBudgetRestEntity> getBudgetByTimeRange(@Param("begin") String s,@Param("end") String s1, Integer abId);
 }

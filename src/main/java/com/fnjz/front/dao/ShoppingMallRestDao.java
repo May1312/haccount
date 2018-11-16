@@ -26,7 +26,7 @@ public interface ShoppingMallRestDao {
     List<GoodsRestDTO> getGoods();
 
     @ResultType(GoodsRestDTO.class)
-    @Sql("UPDATE `hbird_account`.`hbird_goods` SET `status` = 0 WHERE `id` = :id;")
+    @Sql("UPDATE `hbird_goods` SET `status` = 0 WHERE `id` = :id;")
     void downGoods(@Param("id") Integer id);
 
     @ResultType(GoodsInfoRestDTO.class)
@@ -44,7 +44,7 @@ public interface ShoppingMallRestDao {
     @Sql("select * from hbird_shopping_mall_integral_exchange where id = :id")
     ShoppingMallIntegralExchangeRestEntity checkStatusById(@Param("id") String customerOrderNo);
 
-    @Sql("UPDATE `hbird_account`.`hbird_shopping_mall_integral_exchange` SET `status` = :status WHERE `id` = :id;")
+    @Sql("UPDATE `hbird_shopping_mall_integral_exchange` SET `status` = :status WHERE `id` = :id;")
     void update(@Param("id") String customerOrderNo,@Param("status")int status);
 
     @Sql("select shop.id,shop.exchange_mobile,shop.status,shop.card_code,shop.card_deadline,shop.create_date,goods.goods_name,goods.fengfeng_ticket_value,goods.list_picture,goods.type from hbird_shopping_mall_integral_exchange shop LEFT JOIN hbird_goods goods on shop.goods_id=goods.id where shop.user_info_id=:userInfoId order by create_date desc;")

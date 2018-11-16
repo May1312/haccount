@@ -2,7 +2,7 @@ package com.fnjz.front.rabbit;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
 import com.fnjz.front.utils.DateUtils;
 import com.rabbitmq.client.Channel;
@@ -43,9 +43,11 @@ class OfflinePushConsumerListener implements ChannelAwareMessageListener {
                 String mobileDevice =jsonObject.get("mobileDevice")+"";
                 String userInfoId =jsonObject.get("userInfoId")+"";
                 Date latelySynDate = offlineSynchronizedRestServiceI.getLatelySynDate(mobileDevice, userInfoId);
-                if(StringUtils.equals(DateUtils.convert2StringAll(latelySynDate),DateUtils.convert2StringAll(Long.valueOf(synDate)))) {
-                    List<WarterOrderRestEntity> list = JSONObject.parseArray(JSON.toJSONString(jsonObject.get("synData")),WarterOrderRestEntity.class);
-                    offlineSynchronizedRestServiceI.offlinePush(list,mobileDevice,userInfoId);
+                if(latelySynDate!=null&&synDate!=null){
+                    if(StringUtils.equals(DateUtils.convert2StringAll(latelySynDate),DateUtils.convert2StringAll(Long.valueOf(synDate)))) {
+                        List<WarterOrderRestNewLabel> list = JSONObject.parseArray(JSON.toJSONString(jsonObject.get("synData")),WarterOrderRestNewLabel.class);
+                        offlineSynchronizedRestServiceI.offlinePush(list,mobileDevice,userInfoId);
+                    }
                 }
             }
         } catch (Exception e) {

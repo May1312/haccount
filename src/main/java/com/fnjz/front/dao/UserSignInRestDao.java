@@ -19,14 +19,14 @@ public interface UserSignInRestDao {
      * 签到
      * @param userInfoId
      */
-    @Sql("INSERT INTO `hbird_account`.`hbird_user_sign_in`(`user_info_id`, `sign_in_date`, `status`, `create_date`) VALUES (:userInfoId, NOW(), :status, NOW());")
+    @Sql("INSERT INTO `hbird_user_sign_in`(`user_info_id`, `sign_in_date`, `status`, `create_date`) VALUES (:userInfoId, NOW(), :status, NOW());")
     void signIn(@Param("userInfoId") String userInfoId,@Param("status") Integer status);
 
     /**
      * 补签
      * @param userInfoId
      */
-    @Sql("INSERT INTO `hbird_account`.`hbird_user_sign_in`(`user_info_id`, `sign_in_date`, `status`, `create_date`) VALUES (:userInfoId, :signInDate, :status, NOW());")
+    @Sql("INSERT INTO `hbird_user_sign_in`(`user_info_id`, `sign_in_date`, `status`, `create_date`) VALUES (:userInfoId, :signInDate, :status, NOW());")
     void reSignIn(@Param("userInfoId") String userInfoId,@Param("status") Integer status,@Param("signInDate") String signInDate);
 
     /**
@@ -34,7 +34,7 @@ public interface UserSignInRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT count(id) FROM `hbird_account`.`hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and `sign_in_date`=CURDATE();")
+    @Sql("SELECT count(id) FROM `hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and `sign_in_date`=CURDATE();")
     int checkSignInForCurrentDay(@Param("userInfoId") String userInfoId);
 
     /**
@@ -42,7 +42,7 @@ public interface UserSignInRestDao {
      * @return
      */
     @ResultType(Integer.class)
-    @Sql("SELECT count(id) FROM `hbird_account`.`hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and `sign_in_date`=DATE_SUB(CURDATE(),INTERVAL 1 DAY);")
+    @Sql("SELECT count(id) FROM `hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and `sign_in_date`=DATE_SUB(CURDATE(),INTERVAL 1 DAY);")
     int checkSignInForBeforeCurrentDay(@Param("userInfoId") String userInfoId);
 
     /**
@@ -50,7 +50,7 @@ public interface UserSignInRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("select * from `hbird_account`.`hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and status=1 order by sign_in_date DESC limit 0,1;")
+    @Sql("select * from `hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and status=1 order by sign_in_date DESC limit 0,1;")
     UserSignInRestEntity getSignInForFisrtDesc(@Param("userInfoId") String userInfoId);
 
     /**
@@ -59,7 +59,7 @@ public interface UserSignInRestDao {
      * @return
      */
     @ResultType(UserSignInRestEntity.class)
-    @Sql("select * from `hbird_account`.`hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and status=1 order by sign_in_date DESC limit 0,2;")
+    @Sql("select * from `hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and status=1 order by sign_in_date DESC limit 0,2;")
     List<UserSignInRestEntity> getSignInForSecondDesc(@Param("userInfoId") String userInfoId);
 
     /**
@@ -79,7 +79,7 @@ public interface UserSignInRestDao {
      * @param signInDate
      * @return
      */
-    @Sql("SELECT count(id) FROM `hbird_account`.`hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and `sign_in_date`=:signInDate;")
+    @Sql("SELECT count(id) FROM `hbird_user_sign_in` WHERE `user_info_id` = :userInfoId and `sign_in_date`=:signInDate;")
     int checkSignInForSignInDay(@Param("userInfoId") String userInfoId, @Param("signInDate") String signInDate);
 
     /**
@@ -87,6 +87,6 @@ public interface UserSignInRestDao {
      * @param userInfoId
      * @param localDate
      */
-    @Sql("UPDATE `hbird_account`.`hbird_user_sign_in` set `status` = if(:status is null,null,:status) WHERE `user_info_id` = :userInfoId and sign_in_date=:signInDate;")
+    @Sql("UPDATE `hbird_user_sign_in` set `status` = if(:status is null,null,:status) WHERE `user_info_id` = :userInfoId and sign_in_date=:signInDate;")
     void updateSignInStatusBySignInDate(@Param("userInfoId") String userInfoId,@Param("status") Integer status, @Param("signInDate") String localDate);
 }

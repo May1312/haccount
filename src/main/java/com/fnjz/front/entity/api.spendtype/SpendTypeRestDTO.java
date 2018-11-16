@@ -28,17 +28,10 @@ public class SpendTypeRestDTO implements java.io.Serializable {
 	private String id;
 	/**支出类目名称*/
 	private String spendName;
-	/**父级类目id*/
-	private String parentId;
-	/**父级类目名称*/
-	@Transient
-	private String parentName;
 	/**图标*/
 	private String icon;
 	/**优先级*/
 	private Integer priority;
-	/**常用字段,0:非常用,1:常用*/
-	private java.lang.Integer mark;
 	@JsonIgnore
 	private List<SpendTypeRestDTO> SpendTypeSons;
 	/**
@@ -77,22 +70,7 @@ public class SpendTypeRestDTO implements java.io.Serializable {
 	public void setSpendName(String spendName){
 		this.spendName = spendName;
 	}
-	/**
-	 *方法: 取得java.lang.String
-	 *@return: java.lang.String  父级类目
-	 */
-	@Column(name ="PARENT_ID",nullable=true,length=36)
-	public String getParentId(){
-		return this.parentId;
-	}
 
-	/**
-	 *方法: 设置java.lang.String
-	 *@param: java.lang.String  父级类目
-	 */
-	public void setParentId(String parentId){
-		this.parentId = parentId;
-	}
 	/**
 	 *方法: 取得java.lang.String
 	 *@return: java.lang.String  图标
@@ -134,30 +112,5 @@ public class SpendTypeRestDTO implements java.io.Serializable {
 
 	public void setSpendTypeSons(List<SpendTypeRestDTO> spendTypeSons) {
 		SpendTypeSons = new ArrayList<>();
-	}
-	@Transient
-	public String getParentName() {
-		return parentName;
-	}
-
-	public void setParentName(String parentName) {
-		this.parentName = parentName;
-	}
-
-	/**
-	 *方法: 取得java.lang.Integer
-	 *@return: java.lang.Integer  常用字段,0:非常用,1:常用
-	 */
-	@Column(name ="MARK",nullable=true,precision=10,scale=0)
-	public java.lang.Integer getMark(){
-		return this.mark;
-	}
-
-	/**
-	 *方法: 设置java.lang.Integer
-	 *@param: java.lang.Integer  常用字段,0:非常用,1:常用
-	 */
-	public void setMark(java.lang.Integer mark){
-		this.mark = mark;
 	}
 }

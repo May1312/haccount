@@ -1,4 +1,4 @@
-UPDATE `hbird_account`.`hbird_accountbook_budget`
+UPDATE `hbird_accountbook_budget`
 SET
 	   <#if budget.budgetMoney ?exists>
 		   budget_money = :budget.budgetMoney,
@@ -12,5 +12,11 @@ SET
 		<#if budget.updateBy ?exists>
 		   update_by = :budget.updateBy,
 		</#if>
-		   update_date = NOW()
+		   update_date = NOW(),
+		<#if budget.beginTime ?exists>
+		   begin_time = :budget.beginTime,
+		</#if>
+		<#if budget.endTime ?exists>
+		   end_time = :budget.endTime
+		</#if>
 WHERE id = :budget.id

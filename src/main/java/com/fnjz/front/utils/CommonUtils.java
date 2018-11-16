@@ -80,9 +80,9 @@ public class CommonUtils {
      * @return
      */
     public static ResultBean returnCharge(String id){
-        Map<String, String> map = new HashMap<>();
-        map.put("id",id);
-        return new ResultBean(ApiResultType.OK,map);
+        //Map<String, String> map = new HashMap<>();
+        //map.put("id",id);
+        return new ResultBean(ApiResultType.OK,null);
     }
 
     /**
@@ -90,6 +90,13 @@ public class CommonUtils {
      * @return
      */
     public static ResultBean returnIndex(AccountBookBudgetRestDTO dto, JSONObject jo){
+        Map<String, Object> map = new HashMap<>();
+        map.put("budget",dto);
+        map.put("count",jo);
+        return new ResultBean(ApiResultType.OK,map);
+    }
+
+    public static ResultBean returnIndex(JSONObject dto, JSONObject jo){
         Map<String, Object> map = new HashMap<>();
         map.put("budget",dto);
         map.put("count",jo);

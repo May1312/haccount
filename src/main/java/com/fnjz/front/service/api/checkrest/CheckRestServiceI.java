@@ -1,5 +1,6 @@
 package com.fnjz.front.service.api.checkrest;
 
+import com.fnjz.front.entity.api.check.LabelVersionRestDTO;
 import com.fnjz.front.entity.api.check.SystemParamCheckRestDTO;
 
 import java.util.Map;
@@ -24,4 +25,12 @@ public interface CheckRestServiceI {
     Map<String,Object> checkParamVersion2(String shareCode,SystemParamCheckRestDTO systemParamCheckRestDTO,String accountBookId,String userInfoId);
 
     Map<String,Object> getSysAndUserSpendAndSynInterval2(String shareCode,String userInfoId,String accountBookId);
+
+    /**
+     * 多账本接口  返回多账本对应用户自有标签
+     * @param shareCode
+     * @param userInfoId
+     * @return
+     */
+    Map<String,Object> getUserPrivateLabelAndSynInterval(String shareCode, String userInfoId, String accountBookId, LabelVersionRestDTO labelVersion);
 }

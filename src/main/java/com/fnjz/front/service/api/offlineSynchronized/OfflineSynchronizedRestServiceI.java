@@ -1,6 +1,8 @@
 package com.fnjz.front.service.api.offlineSynchronized;
 
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.util.Date;
@@ -30,5 +32,14 @@ public interface OfflineSynchronizedRestServiceI extends CommonService{
      * @param mobileDevice
      * @param userInfoId
      */
-    void offlinePush(List<WarterOrderRestEntity> list, String mobileDevice, String userInfoId);
+    void offlinePush(List<WarterOrderRestNewLabel> list, String mobileDevice, String userInfoId);
+
+    /**
+     * 多账本接口
+     * @param mobileDevice
+     * @param isFirst
+     * @param userInfoId
+     * @return
+     */
+    Map<String,Object> offlinePullV2(String mobileDevice, String isFirst, String userInfoId);
 }

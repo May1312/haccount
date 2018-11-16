@@ -39,12 +39,6 @@ public class OfflineSynchronizedRestController extends BaseController {
 	private OfflineSynchronizedRestServiceI offlineSynchronizedRestServiceI;
 
 	@Autowired
-	private ThreadPoolTaskExecutor taskExecutor;
-
-	@Autowired
-	private RedisTemplateUtils redisTemplateUtils;
-
-	@Autowired
 	private RabbitmqUtils rabbitmqUtils;
 
 	/**
@@ -86,7 +80,6 @@ public class OfflineSynchronizedRestController extends BaseController {
 		}
 		try {
 			final String userInfoId = (String) request.getAttribute("userInfoId");
-			final String shareCode = (String) request.getAttribute("shareCode");
 			//追加userinfoid 消费校验
 			map.put("userInfoId",userInfoId);
 			//if(map.get("synData")!=null){
@@ -97,28 +90,33 @@ public class OfflineSynchronizedRestController extends BaseController {
 						return new ResultBean(ApiResultType.SYN_DATE_IS_ERROR,null);
 					}
 				}
-				//校验数组长度
-				//JSONArray jsonarray = JSONArray.fromObject(map.get("synData"));
-				//if(jsonarray.size()>0){
-				//}
-				//转json对象
-				//final List<WarterOrderRestEntity> list = JSONObject.parseArray(JSON.toJSONString(map.get("synData")),WarterOrderRestEntity.class);
-				//异步处理插入
-				//taskExecutor.execute(new Runnable() {
-				//	@Override
-				//	public void run() {
-						//插入数据
-				//		offlineSynchronizedRestServiceI.offlinePush(list,mobileDevice,userInfoId);
-						//重置redis 记账总笔数 记账天数
-				//		redisTemplateUtils.deleteHashKey(RedisPrefix.PREFIX_MY_COUNT + shareCode,"chargeTotal");
-				//	}
-				//});
-
-			//}
 			//发送消息队列
 			logger.info("离线同步校验通过,发送消息");
 			rabbitmqUtils.publish(map);
 			return new ResultBean(ApiResultType.OK,null);
+		} catch (Exception e) {
+			logger.error(e.toString());
+			return new ResultBean(ApiResultType.SERVER_ERROR,null);
+		}
+	}
+
+	/**
+	 * 移动端pull同步---多账本接口
+	 * @param type
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/offlinePullv2/{type}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultBean offlinePullV2(@PathVariable("type") String type,HttpServletRequest request,@RequestBody Map<String,String> map) {
+		System.out.println("登录终端：" + type);
+		if(StringUtils.isEmpty(map.get("mobileDevice"))){
+			return new ResultBean(ApiResultType.MY_PARAMS_ERROR,null);
+		}
+		try {
+			String userInfoId = (String) request.getAttribute("userInfoId");
+			Map<String,Object> pullData = offlineSynchronizedRestServiceI.offlinePullV2(map.get("mobileDevice"),map.get("isFirst"),userInfoId);
+			return new ResultBean(ApiResultType.OK,pullData);
 		} catch (Exception e) {
 			logger.error(e.toString());
 			return new ResultBean(ApiResultType.SERVER_ERROR,null);

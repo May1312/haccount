@@ -36,7 +36,7 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
     public Map<String, Object> getListById(String userInfoId) {
         //所有类目获取
         String hql = "FROM SpendTypeRestDTO where status = 1 ORDER BY priority ASC";
-        List<SpendTypeRestDTO> list2 = commonDao.findByQueryString(hql);
+        List<SpendTypeRestEntity> list2 = commonDao.findByQueryString(hql);
         List<SpendTypeRestDTO> allList = new ArrayList();
         Map<String, Object> map = new HashMap();
         if (!list2.isEmpty()) {
@@ -54,7 +54,6 @@ public class UserCommUseSpendRestServiceImpl extends CommonServiceImpl implement
                             //封装三级类目
                             SpendTypeRestDTO spend2 = new SpendTypeRestDTO();
                             BeanUtils.copyProperties(list2.get(j), spend2);
-                            spend2.setParentName(spend1.getSpendName());
                             allList.get(index).getSpendTypeSons().add(spend2);
                         }
                     }

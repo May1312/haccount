@@ -12,7 +12,7 @@ public interface UserInfoRestServiceI extends CommonService{
     /**
      * 小程序注册用户
      */
-    int insert(UserInfoRestEntity userInfoRestEntity);
+    int insert(UserInfoRestEntity userInfoRestEntity,String type);
     /**
      * 微信注册用户
      */

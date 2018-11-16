@@ -1,4 +1,4 @@
-UPDATE `hbird_account`.`hbird_user_info`
+UPDATE `hbird_user_info`
 SET 
 	   <#if userInfoRestEntity.nickName ?exists>
 		   nick_name = :userInfoRestEntity.nickName,

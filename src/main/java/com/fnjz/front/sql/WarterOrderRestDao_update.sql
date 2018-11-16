@@ -1,4 +1,4 @@
-UPDATE `hbird_account`.`hbird_water_order`
+UPDATE `hbird_water_order`
 SET
 	   <#if warterOrderRestEntity.money ?exists>
 		   money = :warterOrderRestEntity.money,

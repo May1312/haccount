@@ -107,7 +107,7 @@ public class AdminManageRobot {
                         userInfo.setPassword(pwd);
                         userInfo.setUserType("9");
                         //定义用户类型为9的为测试用户
-                        int j = userInfoRestService.insert(userInfo);
+                        int j = userInfoRestService.insert(userInfo,null);
                         if (j < 0) {
                             return new ResultBean(ApiResultType.REGISTER_IS_ERROR, null);
                         }

@@ -15,7 +15,7 @@ public interface UserWXQrCodeRestDao {
      * @param userInfoId
      * @param url
      */
-    @Sql("INSERT INTO `hbird_account`.`hbird_user_wx_qr_code` (`user_info_id`,`url`,`status`,`create_date`) VALUES(:userInfoId,:url,1,NOW());")
+    @Sql("INSERT INTO `hbird_user_wx_qr_code` (`user_info_id`,`url`,`status`,`create_date`) VALUES(:userInfoId,:url,1,NOW());")
     void insert(@Param("userInfoId") String userInfoId,@Param("url") String url);
 
     /**
@@ -23,6 +23,6 @@ public interface UserWXQrCodeRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT url from `hbird_account`.`hbird_user_wx_qr_code` where user_info_id=:userInfoId;")
+    @Sql("SELECT url from `hbird_user_wx_qr_code` where user_info_id=:userInfoId;")
     String getInviteQrCode(@Param("userInfoId")String userInfoId);
 }

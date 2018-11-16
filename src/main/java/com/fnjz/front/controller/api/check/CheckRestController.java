@@ -4,6 +4,7 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.controller.api.common.ClockInDays;
+import com.fnjz.front.entity.api.check.LabelVersionRestDTO;
 import com.fnjz.front.entity.api.check.SystemParamCheckRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.checkrest.CheckRestServiceI;
@@ -104,9 +105,42 @@ public class CheckRestController extends BaseController {
         }
     }
 
+    /**
+     * 多账本唤起检查
+     * @param type
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/checkSystemParamv2/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean checkSystemParamv2(@PathVariable("type") String type, HttpServletRequest request, @RequestBody LabelVersionRestDTO labelVersion) {
+        System.out.println("登录终端：" + type);
+        Map<String, Object> map;
+        //正常流程执行
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        String shareCode = (String) request.getAttribute("shareCode");
+        UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
+        //连续打卡统计
+        clockInDays.clockInDays(shareCode);
+            //返回所有
+            try {
+                map = checkRestServiceI.getUserPrivateLabelAndSynInterval(shareCode, userInfoId, userAccountBookRestEntityCache.getAccountBookId() + "",labelVersion);
+            } catch (Exception e) {
+                logger.error(e.toString());
+                return new ResultBean(ApiResultType.SERVER_ERROR, null);
+            }
+            return new ResultBean(ApiResultType.OK, map);
+    }
+
     @RequestMapping(value = "/checkSystemParam", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean checkSystemParam(HttpServletRequest request, @RequestBody SystemParamCheckRestDTO systemParamCheckRestDTO) {
         return this.checkSystemParam(null, request, systemParamCheckRestDTO);
+    }
+
+    @RequestMapping(value = "/checkSystemParamv2", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean checkSystemParamv2(HttpServletRequest request, @RequestBody LabelVersionRestDTO labelVersion) {
+        return this.checkSystemParamv2(null, request, labelVersion);
     }
 }

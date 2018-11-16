@@ -1,9 +1,9 @@
 package com.fnjz.front.dao;
 
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
-import org.jeecgframework.minidao.annotation.IdAutoGenerator;
-import org.jeecgframework.minidao.annotation.MiniDao;
-import org.jeecgframework.minidao.annotation.Param;
+import org.jeecgframework.minidao.annotation.*;
+
+import java.util.List;
 
 /**
  * Created by yhang on 2018/6/1.
@@ -17,4 +17,25 @@ public interface UserAccountBookRestDao {
      */
     @IdAutoGenerator(generator = "native")
     int insert(@Param("userAccountBookRestEntity") UserAccountBookRestEntity userAccountBookRestEntity);
+
+    @Sql("select account_book_id from hbird_user_account_book where user_info_id=:userInfoId;")
+    List<String> listForABIdSByUserInfoId(@Param("userInfoId") String userInfoId);
+
+    /**
+     * 获取用户默认账本
+     * @param userInfoId
+     * @return
+     */
+    @ResultType(UserAccountBookRestEntity.class)
+    @Sql("select * from hbird_user_account_book where user_info_id=:userInfoId and default_flag=1;")
+    UserAccountBookRestEntity getUserAccountBookByUserInfoId(int userInfoId);
+
+    /**
+     * 获取用户类型
+     * @param userInfoId
+     * @param abId
+     * @return
+     */
+    @Sql("select user_type from hbird_user_account_book where user_info_id=:userInfoId and account_book_id=:abId and delflag=0;")
+    Integer getUserTypeByUserInfoIdAndABId(@Param("userInfoId") String userInfoId,@Param("abId") String abId);
 }

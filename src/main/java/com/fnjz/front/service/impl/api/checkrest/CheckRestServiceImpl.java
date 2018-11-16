@@ -1,10 +1,13 @@
 package com.fnjz.front.service.impl.api.checkrest;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.SystemParamRestDao;
 import com.fnjz.front.dao.SystemTypeRestDao;
 import com.fnjz.front.dao.UserCommUseTypeOfflineCheckRestDao;
+import com.fnjz.front.entity.api.check.LabelVersionRestDTO;
 import com.fnjz.front.entity.api.check.SystemParamCheckRestDTO;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
@@ -14,7 +17,10 @@ import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import com.fnjz.front.entity.api.usercommusetypeofflinecheck.UserCommUseTypeOfflineCheckRestEntity;
 import com.fnjz.front.service.api.checkrest.CheckRestServiceI;
+import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestServiceI;
+import com.fnjz.front.service.api.userprivatelabel.UserPrivateLabelRestService;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +49,13 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
     private UserCommUseTypeOfflineCheckRestDao userCommUseTypeOfflineCheckRestDao;
     @Autowired
     private UserCommUseIncomeRestServiceI userCommUseIncomeRestService;
+    @Autowired
+    private UserPrivateLabelRestService userPrivateLabelRestService;
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
+
+    @Autowired
+    private UserAccountBookRestServiceI userAccountBookRestServiceI;
 
     private static final String SPEND_TYPE = "spend_type";
     private static final String INCOME_TYPE = "income_type";
@@ -355,6 +368,76 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
         return map;
     }
 
+    @Override
+    public Map<String, Object> getUserPrivateLabelAndSynInterval(String shareCode, String userInfoId, String accountBookId, LabelVersionRestDTO labelVersion) {
+        //获取离线-用户常用类目/排序关系检查表数据
+        String userCommUseTypeOfflineCheckV2 = userCommUseTypeOfflineCheckRestDao.getUserCommUseTypeOfflineCheckV2(userInfoId);
+        //第一次调用追加用户个 人常用版本
+        JSONObject base1 = new JSONObject();
+        JSONObject base2 = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        if (StringUtils.isEmpty(userCommUseTypeOfflineCheckV2)) {
+            userCommUseTypeOfflineCheckRestDao.insertV2(userInfoId);
+            base2.put("version", "v1");
+        }else{
+            if(labelVersion!=null){
+                if(labelVersion.getLabelVersion()!=null){
+                    if(StringUtils.equals(labelVersion.getLabelVersion(),userCommUseTypeOfflineCheckV2)){
+                        //不需要更新
+                        base2.put("version",userCommUseTypeOfflineCheckV2);
+                        base1.put("labelVersion",base2);
+                        return base1;
+                    }
+                }
+            }
+            base2.put("version", userCommUseTypeOfflineCheckV2);
+        }
+        //针对不同账本  判断当前用户下的账本数
+        List<String> accountBookIds = userAccountBookRestServiceI.listForABIdSByUserInfoId(userInfoId);
+        if(accountBookIds!=null){
+            if(accountBookIds.size()>0){
+                accountBookIds.forEach(v ->{
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject = getUserCommUseType(shareCode,userInfoId, Integer.valueOf(accountBookId),jsonObject);
+                    jsonObject.put("userInfoId", Integer.valueOf(userInfoId));
+                    jsonObject.put("accountBookId", Integer.valueOf(accountBookId));
+                    jsonArray.add(jsonObject);
+                });
+                base1.put("label",jsonArray);
+            }
+        }
+        base1.put("labelVersion",base2);
+        return base1;
+    }
+
+    /**
+     * 获取用户常用标签
+     * @return
+     */
+    private JSONObject getUserCommUseType(String shareCode,String userInfoId,Integer abId,JSONObject jsonObject) {
+        Map userLabel = redisTemplateUtils.getHashMap(RedisPrefix.USER_LABEL + shareCode+":"+abId);
+        JSONObject itemJSONObj = JSONObject.parseObject(JSON.toJSONString(userLabel));
+        if(userLabel.size()<1){
+            List<?> spendList = userPrivateLabelRestService.getUserCommUseType(userInfoId, RedisPrefix.SPEND,abId);
+            List<?> incomeList = userPrivateLabelRestService.getUserCommUseType(userInfoId, RedisPrefix.INCOME,abId);
+            //缓存个人类目
+            JSONObject jsonObject1 = new JSONObject();
+            jsonObject1.put(RedisPrefix.INCOME,incomeList);
+            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode+":"+abId,jsonObject1);
+            JSONObject jsonObject2 = new JSONObject();
+            jsonObject2.put(RedisPrefix.SPEND,spendList);
+            //缓存个人类目
+            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode+":"+abId,jsonObject2);
+
+            jsonObject.put("income",incomeList);
+            jsonObject.put("spend",spendList);
+            return jsonObject;
+        }else{
+            jsonObject.put("income",itemJSONObj.get(RedisPrefix.INCOME));
+            jsonObject.put("spend",itemJSONObj.get(RedisPrefix.SPEND));
+            return jsonObject;
+        }
+    }
     /**
      * 个人常用返回排序好的数据
      *

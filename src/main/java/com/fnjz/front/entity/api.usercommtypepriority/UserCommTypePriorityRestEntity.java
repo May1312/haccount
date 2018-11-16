@@ -1,19 +1,9 @@
 package com.fnjz.front.entity.api.usercommtypepriority;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
+
+import javax.persistence.*;
 
 /**   
  * @Title: Entity
@@ -37,6 +27,13 @@ public class UserCommTypePriorityRestEntity implements java.io.Serializable {
 		this.relation = relation;
 	}
 
+	public UserCommTypePriorityRestEntity(Integer userInfoId, Integer type,Integer accountBookId, String relation) {
+		this.userInfoId = userInfoId;
+		this.type = type;
+		this.relation = relation;
+		this.accountBookId = accountBookId;
+	}
+
 	/**id*/
 	private java.lang.Integer id;
 	/**用户详情id*/
@@ -49,6 +46,8 @@ public class UserCommTypePriorityRestEntity implements java.io.Serializable {
 	private java.lang.String relation;
 	/**更新时间*/
 	private java.util.Date updateDate;
+	/**账本id*/
+	private java.lang.Integer accountBookId;
 	
 	/**
 	 *方法: 取得java.lang.Integer
@@ -148,5 +147,14 @@ public class UserCommTypePriorityRestEntity implements java.io.Serializable {
 	 */
 	public void setUpdateDate(java.util.Date updateDate){
 		this.updateDate = updateDate;
+	}
+
+	@Column(name ="ACCOUNT_BOOK_ID")
+	public Integer getAccountBookId() {
+		return accountBookId;
+	}
+
+	public void setAccountBookId(Integer accountBookId) {
+		this.accountBookId = accountBookId;
 	}
 }

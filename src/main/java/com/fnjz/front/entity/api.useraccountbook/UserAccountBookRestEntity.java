@@ -1,19 +1,9 @@
 package com.fnjz.front.entity.api.useraccountbook;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.SequenceGenerator;
+
+import javax.persistence.*;
 
 /**   
  * @Title: Entity
@@ -46,6 +36,8 @@ public class UserAccountBookRestEntity implements java.io.Serializable {
 	private java.lang.Integer delflag;
 	/**删除时间*/
 	private java.util.Date delDate;
+	/**是否为默认账本 1:默认账本 2:非默认*/
+	private java.lang.Integer defaultFlag;
 	
 	/**
 	 *方法: 取得java.lang.Integer
@@ -193,5 +185,14 @@ public class UserAccountBookRestEntity implements java.io.Serializable {
 	 */
 	public void setDelDate(java.util.Date delDate){
 		this.delDate = delDate;
+	}
+
+	@Column(name ="DEFAULT_FLAG",nullable=true)
+	public Integer getDefaultFlag() {
+		return defaultFlag;
+	}
+
+	public void setDefaultFlag(Integer defaultFlag) {
+		this.defaultFlag = defaultFlag;
 	}
 }

@@ -4,11 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.fnjz.front.dao.AccountBookRestDao;
+import com.fnjz.front.dao.UserAccountBookRestDao;
+import com.fnjz.front.dao.UserPrivateLabelRestDao;
 import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.statistics.*;
-import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
-import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.entity.api.userprivatelabel.UserPrivateLabelRestEntity;
+import com.fnjz.front.entity.api.warterorder.*;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
@@ -39,24 +42,33 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     @Autowired
     private CreateTokenUtils createTokenUtils;
 
+    @Autowired
+    private UserPrivateLabelRestDao userPrivateLabelRestDao;
+
+    @Autowired
+    private AccountBookRestDao accountBookRestDao;
+
+    @Autowired
+    private UserAccountBookRestDao userAccountBookRestDao;
+
     @Test
-    public void run(){
+    public void run() {
         String[] args = StringUtils.split("2018-10", "-");
         LocalDate date = LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf("01"));
         LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
-        System.out.println(first.atTime(0,0,0).toInstant(ZoneOffset.of("+8")).toEpochMilli());
-        System.out.println(end.atTime(23,59,59).toInstant(ZoneOffset.of("+8")).toEpochMilli());
+        System.out.println(first.atTime(0, 0, 0).toInstant(ZoneOffset.of("+8")).toEpochMilli());
+        System.out.println(end.atTime(23, 59, 59).toInstant(ZoneOffset.of("+8")).toEpochMilli());
     }
 
     @Override
-    public Map<String, Object> findListForPage(String time, String accountBookId,Integer curPage,Integer pageSize) {
+    public Map<String, Object> findListForPage(String time, String accountBookId, Integer curPage, Integer pageSize) {
         //time  年-月格式 转化成时间戳
         String[] args = StringUtils.split(time, "-");
         LocalDate date = LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf("01"));
         LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
-        List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(first.toString(),end.toString(), accountBookId,null, null);
+        List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPage(first.toString(), end.toString(), accountBookId, null, null);
         //获取到当月所有记录
         Map<Date, Object> map = new HashMap<>();
         for (Iterator<WarterOrderRestDTO> it = listForPage.iterator(); it.hasNext(); ) {
@@ -120,14 +132,12 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     }
 
     @Override
-    public Map<String, Object> findListForPagev2(String time, String accountBookId,Integer curPage,Integer pageSize) {
+    public Map<String, Object> findListForPagev2(String time, String accountBookId, Integer curPage, Integer pageSize, Integer abId, String userInfoId) {
         //time  年-月格式 转化成时间戳
         String[] args = StringUtils.split(time, "-");
         LocalDate date = LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf("01"));
         LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
-        //long firstOfDay = first.atTime(0,0,0).toInstant(ZoneOffset.of("+8")).toEpochMilli();
-        //long endOdDay = end.atTime(23,59,59).toInstant(ZoneOffset.of("+8")).toEpochMilli();
         PageRest pageRest = new PageRest();
         if (curPage != null) {
             pageRest.setCurPage(curPage);
@@ -135,25 +145,46 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         if (pageSize != null) {
             pageRest.setPageSize(pageSize);
         }
-        List<WarterOrderRestDTO> listForPage = warterOrderRestDao.findListForPagev2(first.toString(),end.toString(), accountBookId, pageRest.getStartIndex(),pageRest.getPageSize());
+        List<WXAppletWarterOrderRestBaseDTO> listForPage = new ArrayList<>();
         //获取总条数
-        Integer count = warterOrderRestDao.getCount(first.toString(),end.toString(), accountBookId);
+        Integer count;
+        Map<String, Object> ja = new HashMap();
+        if (abId != null) {
+            //需要读取头像
+            listForPage = warterOrderRestDao.findListForPagev2(first.toString(), end.toString(), abId + "", pageRest.getStartIndex(), pageRest.getPageSize());
+            //获取总条数
+            count = warterOrderRestDao.getCount(first.toString(), end.toString(), abId+"");
+            //判断是否为场景账本 1:普通日常账本 2:场景账本
+            int status = accountBookRestDao.getABTypeByABId(abId);
+            if (status == 2) {
+                //2:场景账本  计算支出总金额
+                Map<String, BigDecimal> account = warterOrderRestDao.getAccountv2(abId);
+                if (account.get("spend")!=null) {
+                    ja.put("sceneSpend", account.get("spend"));
+                }
+            }
+        } else {
+            //读取总账本
+            listForPage = warterOrderRestDao.findListForPagev2All(first.toString(), end.toString(), userInfoId, pageRest.getStartIndex(), pageRest.getPageSize());
+            //获取总条数
+            count = warterOrderRestDao.getCountv2(first.toString(), end.toString(), userInfoId);
+        }
         //设置总记录数
         pageRest.setTotalCount(count);
         //获取到当月所有记录
         Map<Date, Object> map = new HashMap<>();
-        for (Iterator<WarterOrderRestDTO> it = listForPage.iterator(); it.hasNext(); ) {
-            WarterOrderRestDTO warter = it.next();
+        for (Iterator<WXAppletWarterOrderRestBaseDTO> it = listForPage.iterator(); it.hasNext(); ) {
+            WXAppletWarterOrderRestBaseDTO warter = it.next();
             //判断是否包含日期
             if (map.containsKey(warter.getChargeDate())) {
                 ((ArrayList) map.get(warter.getChargeDate())).add(warter);
             } else {
-                List<WarterOrderRestDTO> list = new ArrayList<>();
+                List<WXAppletWarterOrderRestBaseDTO> list = new ArrayList<>();
                 list.add(warter);
                 map.put(warter.getChargeDate(), list);
             }
         }
-        Map<String, Object> ja = new HashMap();
+
         if (map.size() > 0) {
             Map<Date, Object> resultMap = sortMapByKey(map);
             JSONArray array = new JSONArray();
@@ -189,22 +220,21 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                     jsonObject.put("dayIncome", dayIncome);
                     jsonObject.put("daySpend", daySpend);
                     array2.add(jsonObject);
-                    //jsonObject转json
                 }
             }
             //获取月份统计数据
-            Map<String, BigDecimal> account = warterOrderRestDao.getAccount(first.toString(),end.toString(), accountBookId);
+            Map<String, BigDecimal> account = warterOrderRestDao.getAccount(first.toString(), end.toString(), abId+"");
             ja.put("arrays", array2);
             ja.put("monthSpend", account.get("spend"));
             ja.put("monthIncome", account.get("income"));
-            ja.put("totalPage",pageRest.getTotalPage());
+            ja.put("totalPage", pageRest.getTotalPage());
             return ja;
         }
 
-        if(pageRest.getTotalPage()==0){
+        if (pageRest.getTotalPage() == 0) {
             return ja;
-        }else{
-            ja.put("totalPage",pageRest.getTotalPage());
+        } else {
+            ja.put("totalPage", pageRest.getTotalPage());
             return ja;
         }
     }
@@ -223,13 +253,14 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     }
 
     @Override
-    public Integer update(WarterOrderRestEntity charge) {
+    public Integer update(WarterOrderRestNewLabel charge) {
+        charge = addLabelInfo(charge);
         return warterOrderRestDao.update(charge);
     }
 
     @Override
     public Integer deleteOrder(String orderId, String userInfoId, String code) {
-        int i = commonDao.updateBySqlString("UPDATE `hbird_account`.`hbird_water_order` SET `delflag` = " + 1 + " , `del_date` = NOW(), `update_date` = NOW(), `update_by` = " + userInfoId + ", `update_name` = '" + code + "' WHERE `id` = '" + orderId + "';");
+        int i = commonDao.updateBySqlString("UPDATE `hbird_water_order` SET `delflag` = " + 1 + " , `del_date` = NOW(), `update_date` = NOW(), `update_by` = " + userInfoId + ", `update_name` = '" + code + "' WHERE `id` = '" + orderId + "';");
         return i;
     }
 
@@ -245,10 +276,24 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     }
 
     @Override
+    public WXAppletWarterOrderRestInfoDTO findByIdv2(String id, Integer memberFlag) {
+        if (memberFlag == null) {
+            //定义 1头像  2不带头像  为null默认不带头像
+            memberFlag = 2;
+        }
+        if (memberFlag == 1) {
+            return warterOrderRestDao.findByIdv2(id);
+        } else {
+            return warterOrderRestDao.findByIdv2NoAvatar(id);
+        }
+    }
+
+    @Override
     public int countChargeDays(String currentYearMonth, Integer accountBookId) {
         List<Map<String, String>> maps = warterOrderRestDao.countChargeDays(currentYearMonth, accountBookId);
         return maps.size();
     }
+
     @Override
     public int countChargeDaysByChargeDays(String currentYearMonth, Integer accountBookId) {
         List<Map<String, String>> maps = warterOrderRestDao.countChargeDaysByChargeDays(currentYearMonth, accountBookId);
@@ -261,63 +306,88 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     }
 
     @Override
-    public void insert(WarterOrderRestEntity charge, String code, Integer accountBookId) {
+    public void insert(WarterOrderRestNewLabel charge, String code, Integer accountBookId) {
         //引入当日任务 判断当前时间是否为
-        createTokenUtils.integralTask(charge.getCreateBy()+"",ShareCodeUtil.id2sharecode(Integer.valueOf(charge.getCreateBy())), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+        createTokenUtils.integralTask(charge.getCreateBy() + "", ShareCodeUtil.id2sharecode(Integer.valueOf(charge.getCreateBy())), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
         commonDao.save(charge);
-        //String insertId = warterOrderRestDao.insert(charge);
-        //return insertId;
     }
 
     @Override
-    public Map<String,Object> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId,int orderType) {
-        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForDays(beginTime, endTime, accountBookId,orderType);
+    public void insertv2(WarterOrderRestNewLabel charge) {
+        //引入当日任务 判断当前时间是否为
+        createTokenUtils.integralTask(charge.getCreateBy() + "", ShareCodeUtil.id2sharecode(Integer.valueOf(charge.getCreateBy())), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+        charge = addLabelInfo(charge);
+        warterOrderRestDao.insert(charge);
+        //commonDao.save(charge);
+    }
+
+    //记账流程加入
+    //{"chargeDate":1541548800000,"isStaged":1,"money":7,"orderType":1,"remark":"","spendHappiness":0,
+    // "typeId":"2c91dbe363f81ded0163f83d33320016","typeName":"饮食","typePid":"2c91dbe363f72fec0163f818eea4001b","typePname":"饮食"}
+    private WarterOrderRestNewLabel addLabelInfo(WarterOrderRestNewLabel charge) {
+        //追加标签信息
+        if (charge.getUserPrivateLabelId() != null) {
+            //获取标签详情
+            UserPrivateLabelRestEntity userPrivateLabelRestEntity = userPrivateLabelRestDao.selectInfoByLabelId(charge.getUserPrivateLabelId());
+            if (userPrivateLabelRestEntity != null) {
+                charge.setTypePid(userPrivateLabelRestEntity.getTypePid());
+                charge.setTypeId(userPrivateLabelRestEntity.getTypeId());
+                charge.setTypeName(userPrivateLabelRestEntity.getTypeName());
+                charge.setIcon(userPrivateLabelRestEntity.getIcon());
+            }
+        }
+        return charge;
+    }
+
+    @Override
+    public Map<String, Object> statisticsForDays(Date beginTime, Date endTime, Integer accountBookId, int orderType) {
+        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForDays(beginTime, endTime, accountBookId, orderType);
         //查询年中--->日最大金额
-        String max = warterOrderRestDao.findMaxDayMoneyOfYear(accountBookId,orderType);
+        String max = warterOrderRestDao.findMaxDayMoneyOfYear(accountBookId, orderType);
         BigDecimal maxValue;
-        if(StringUtils.isNotEmpty(max)){
+        if (StringUtils.isNotEmpty(max)) {
             maxValue = new BigDecimal(max);
-        }else{
+        } else {
             maxValue = new BigDecimal(0);
         }
-        Map<String,Object> map = new HashMap<>(2);
-        map.put("maxMoney",maxValue);
-        map.put("arrays",list);
+        Map<String, Object> map = new HashMap<>(2);
+        map.put("maxMoney", maxValue);
+        map.put("arrays", list);
         return map;
     }
 
     @Override
-    public Map<String,Object> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId,int orderType) {
+    public Map<String, Object> statisticsForWeeks(String beginWeek, String endWeek, Integer accountBookId, int orderType) {
         //周统计接口
-        List<StatisticsWeeksRestDTO> list = warterOrderRestDao.statisticsForWeeks(beginWeek, endWeek, accountBookId,orderType);
+        List<StatisticsWeeksRestDTO> list = warterOrderRestDao.statisticsForWeeks(beginWeek, endWeek, accountBookId, orderType);
         //查询年中--->周最大金额
-        String max = warterOrderRestDao.findMaxWeekMoneyOfYear(accountBookId,orderType);
+        String max = warterOrderRestDao.findMaxWeekMoneyOfYear(accountBookId, orderType);
         BigDecimal maxValue;
-        if(StringUtils.isNotEmpty(max)){
+        if (StringUtils.isNotEmpty(max)) {
             maxValue = new BigDecimal(max);
-        }else{
+        } else {
             maxValue = new BigDecimal(0);
         }
-        Map<String,Object> map = new HashMap<>();
-        map.put("maxMoney",maxValue);
-        map.put("arrays",list);
+        Map<String, Object> map = new HashMap<>();
+        map.put("maxMoney", maxValue);
+        map.put("arrays", list);
         return map;
     }
 
     @Override
-    public Map<String,Object> statisticsForMonths(Integer accountBookId,int orderType) {
-        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForMonths(accountBookId,orderType);
+    public Map<String, Object> statisticsForMonths(Integer accountBookId, int orderType) {
+        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForMonths(accountBookId, orderType);
         //查询年中--->月最大金额
-        String max = warterOrderRestDao.findMaxMonthMoneyOfYear(accountBookId,orderType);
+        String max = warterOrderRestDao.findMaxMonthMoneyOfYear(accountBookId, orderType);
         BigDecimal maxValue;
-        if(StringUtils.isNotEmpty(max)){
+        if (StringUtils.isNotEmpty(max)) {
             maxValue = new BigDecimal(max);
-        }else{
+        } else {
             maxValue = new BigDecimal(0);
         }
-        Map<String,Object> map = new HashMap<>();
-        map.put("maxMoney",maxValue);
-        map.put("arrays",list);
+        Map<String, Object> map = new HashMap<>();
+        map.put("maxMoney", maxValue);
+        map.put("arrays", list);
         return map;
     }
 
@@ -339,20 +409,20 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Override
     public StatisticsSpendTopAndHappinessDTO statisticsForWeeksTopAndHappiness(String time, Integer accountBookId) {
-        Map<String,String> map = DateUtils.getDateByWeeks(Integer.valueOf(time));
+        Map<String, String> map = DateUtils.getDateByWeeks(Integer.valueOf(time));
         String beginTime = map.get("beginTime");
         String endTime = map.get("endTime");
-        List<Map<String, Object>> list = warterOrderRestDao.statisticsForWeeksByTime(beginTime,endTime, accountBookId);
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForWeeksByTime(beginTime, endTime, accountBookId);
         StatisticsSpendTopAndHappinessDTO statisticsSpendTopAndHappinessDTO = statisticsForAllTopAndHappiness(list);
         return statisticsSpendTopAndHappinessDTO;
     }
 
     @Override
     public StatisticsIncomeTopDTO statisticsForWeeksTop(String time, Integer accountBookId) {
-        Map<String,String> map = DateUtils.getDateByWeeks(Integer.valueOf(time));
+        Map<String, String> map = DateUtils.getDateByWeeks(Integer.valueOf(time));
         String beginTime = map.get("beginTime");
         String endTime = map.get("endTime");
-        List<Map<String, Object>> list = warterOrderRestDao.statisticsForWeeksByTimeOfIncome(beginTime,endTime, accountBookId);
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForWeeksByTimeOfIncome(beginTime, endTime, accountBookId);
         StatisticsIncomeTopDTO statisticsIncomeTopDTO = statisticsForAllTop(list);
         return statisticsIncomeTopDTO;
     }
@@ -373,10 +443,11 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     /**
      * 支出统计类目排行榜和情绪公用方法
+     *
      * @param list
      * @return
      */
-    public StatisticsSpendTopAndHappinessDTO statisticsForAllTopAndHappiness(List<Map<String, Object>> list){
+    public StatisticsSpendTopAndHappinessDTO statisticsForAllTopAndHappiness(List<Map<String, Object>> list) {
         StatisticsSpendTopAndHappinessDTO statisticsSpendTopAndHappinessDTO = new StatisticsSpendTopAndHappinessDTO();
         //总金额
         BigDecimal trueTotalMoney = new BigDecimal(0);
@@ -396,31 +467,25 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 //统计总金额
                 BigDecimal bd = new BigDecimal(list.get(i).get("money") + "");
                 trueTotalMoney = trueTotalMoney.add(bd);
-                //double money = Math.abs(Double.valueOf(list.get(i).get("money") + ""));
                 BigDecimal falseMoney = new BigDecimal(list.get(i).get("money") + "");
                 BigDecimal abs = falseMoney.abs();
                 falseTotalMoney = falseTotalMoney.add(abs);
-                //统计深度为5
-                //if (i < 5) {
-                    //每个类目对应金额统计
-                    StatisticsTopDTO statisticsSpendTopDTO = new StatisticsTopDTO();
-                    //设置金额
-                    statisticsSpendTopDTO.setMoney((BigDecimal) list.get(i).get("money"));
-                    //设置类目名称
-                    statisticsSpendTopDTO.setTypeName(list.get(i).get("type_name") + "");
-                    //设置图标
-                    statisticsSpendTopDTO.setIcon(list.get(i).get("icon") + "");
-                    //添加到排行榜集合
-                    //top.add(statisticsSpendTopDTO);
-                    if(mapTop.containsKey(list.get(i).get("type_name") + "")){
-                        //重复 金额累加
-                        BigDecimal money = mapTop.get(list.get(i).get("type_name") + "").getMoney().add(statisticsSpendTopDTO.getMoney());
-                        statisticsSpendTopDTO.setMoney(money);
-                        mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
-                    }else{
-                        mapTop.put(list.get(i).get("type_name") + "",statisticsSpendTopDTO);
-                    }
-                //}
+                //每个类目对应金额统计
+                StatisticsTopDTO statisticsSpendTopDTO = new StatisticsTopDTO();
+                //设置金额
+                statisticsSpendTopDTO.setMoney((BigDecimal) list.get(i).get("money"));
+                //设置类目名称
+                statisticsSpendTopDTO.setTypeName(list.get(i).get("type_name") + "");
+                //设置图标
+                statisticsSpendTopDTO.setIcon(list.get(i).get("icon") + "");
+                if (mapTop.containsKey(list.get(i).get("type_name") + "")) {
+                    //重复 金额累加
+                    BigDecimal money = mapTop.get(list.get(i).get("type_name") + "").getMoney().add(statisticsSpendTopDTO.getMoney());
+                    statisticsSpendTopDTO.setMoney(money);
+                    mapTop.put(list.get(i).get("type_name") + "", statisticsSpendTopDTO);
+                } else {
+                    mapTop.put(list.get(i).get("type_name") + "", statisticsSpendTopDTO);
+                }
                 //统计总笔数 moneytimes-->会统计进没心情的笔数  count--->不会统计
                 totalCount += Integer.valueOf(list.get(i).get("count") + "");
                 //每个情绪对应笔数统计
@@ -446,51 +511,28 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 top.add(entry.getValue());
             }
             //情绪消费统计排序
-            Collections.sort(happiness, new Comparator<StatisticsSpendHappinessDTO>() {
-                @Override
-                public int compare(StatisticsSpendHappinessDTO o1, StatisticsSpendHappinessDTO o2) {
-                    int i = o1.getCount() - o2.getCount();
-                    if (i > 0) {
-                        return -1;
-                    } else if (i < 0) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                }
-            });
+            //降序
+            Collections.sort(happiness, Comparator.comparing(StatisticsSpendHappinessDTO::getCount).reversed());
             //排行榜统计排序
-            Collections.sort(top, new Comparator<StatisticsTopDTO>() {
-                @Override
-                public int compare(StatisticsTopDTO o1, StatisticsTopDTO o2) {
-                    double i = Double.valueOf((o1.getMoney().subtract(o2.getMoney()))+"");
-                    if (i > 0) {
-                        return -1;
-                    } else if (i < 0) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                }
-            });
+            Collections.sort(top, Comparator.comparing(StatisticsTopDTO::getMoney).reversed());
             //top 取前五位
             List<StatisticsTopDTO> returnTop = new ArrayList<>();
-            for(int i = 0 ; i < top.size() && top.size()>5; i++){
-                if(i>=5){
+            for (int i = 0; i < top.size() && top.size() > 5; i++) {
+                if (i >= 5) {
                     break;
                 }
                 returnTop.add(top.get(i));
             }
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendHappinessArrays(happiness);
-            if(returnTop.size()>0){
+            if (returnTop.size() > 0) {
                 statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(returnTop);
-            }else{
+            } else {
                 statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(top);
             }
             statisticsSpendTopAndHappinessDTO.setTotalCount(totalCount);
             statisticsSpendTopAndHappinessDTO.setTrueTotalMoney(trueTotalMoney);
             statisticsSpendTopAndHappinessDTO.setFalseTotalMoney(falseTotalMoney);
-        }else{
+        } else {
             //数据为空情况下
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendHappinessArrays(happiness);
             statisticsSpendTopAndHappinessDTO.setStatisticsSpendTopArrays(top);
@@ -503,10 +545,11 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     /**
      * 收入统计类目排行榜公用方法
+     *
      * @param list
      * @return
      */
-    public StatisticsIncomeTopDTO statisticsForAllTop(List<Map<String, Object>> list){
+    public StatisticsIncomeTopDTO statisticsForAllTop(List<Map<String, Object>> list) {
         StatisticsIncomeTopDTO statisticsIncomeTopDTO = new StatisticsIncomeTopDTO();
         //总金额
         BigDecimal trueTotalMoney = new BigDecimal(0);
@@ -518,7 +561,6 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 //统计总金额
                 BigDecimal bd = new BigDecimal(list.get(i).get("money") + "");
                 trueTotalMoney = trueTotalMoney.add(bd);
-                //double money = Math.abs(Double.valueOf(list.get(i).get("money") + ""));
                 BigDecimal falseMoney = new BigDecimal(Double.valueOf(list.get(i).get("money") + ""));
                 BigDecimal abs = falseMoney.abs();
                 falseTotalMoney = falseTotalMoney.add(abs);
@@ -539,12 +581,172 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             statisticsIncomeTopDTO.setStatisticsIncomeTopArrays(top);
             statisticsIncomeTopDTO.setTrueTotalMoney(trueTotalMoney);
             statisticsIncomeTopDTO.setFalseTotalMoney(falseTotalMoney);
-        }else{
+        } else {
             //数据为空情况下
             statisticsIncomeTopDTO.setStatisticsIncomeTopArrays(top);
             statisticsIncomeTopDTO.setTrueTotalMoney(trueTotalMoney);
             statisticsIncomeTopDTO.setFalseTotalMoney(falseTotalMoney);
         }
+        return statisticsIncomeTopDTO;
+    }
+
+    @Test
+    public void run2() {
+        LocalDate localDate = LocalDate.of(LocalDate.now().getYear(), 1, 1);
+        System.out.println(localDate.toString());
+    }
+
+    /**
+     * v2 统计日
+     *
+     * @param beginTime
+     * @param endTime
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public Map<String, Object> statisticsForDaysv2(Date beginTime, Date endTime, String userInfoId, int orderType) {
+        //查看更新人为当前用户的记录
+        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForDaysv2(beginTime, endTime, userInfoId, orderType);
+        //查询范围内最大日金额
+        String max = warterOrderRestDao.findMaxDayMoneyOfYearv2(beginTime, endTime, userInfoId, orderType);
+        BigDecimal maxValue;
+        if (StringUtils.isNotEmpty(max)) {
+            maxValue = new BigDecimal(max);
+        } else {
+            maxValue = new BigDecimal(0);
+        }
+        Map<String, Object> map = new HashMap<>(2);
+        map.put("maxMoney", maxValue);
+        map.put("arrays", list);
+        return map;
+    }
+
+    /**
+     * v2 统计周
+     *
+     * @param beginWeek
+     * @param endWeek
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public Map<String, Object> statisticsForWeeksv2(String beginWeek, String endWeek, String userInfoId, int orderType) {
+        //周统计接口
+        List<StatisticsWeeksRestDTO> list = warterOrderRestDao.statisticsForWeeksv2(beginWeek, endWeek, userInfoId, orderType);
+        //查询年中--->周最大金额  获取年初
+        String max = warterOrderRestDao.findMaxWeekMoneyOfYearv2(beginWeek, endWeek, userInfoId, orderType);
+        BigDecimal maxValue;
+        if (StringUtils.isNotEmpty(max)) {
+            maxValue = new BigDecimal(max);
+        } else {
+            maxValue = new BigDecimal(0);
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("maxMoney", maxValue);
+        map.put("arrays", list);
+        return map;
+    }
+
+    /**
+     * v2 统计月
+     *
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public Map<String, Object> statisticsForMonthsv2(String userInfoId, int orderType) {
+        LocalDate localDate = LocalDate.of(LocalDate.now().getYear(), 1, 1);
+        List<StatisticsDaysRestDTO> list = warterOrderRestDao.statisticsForMonthsv2(localDate.toString(), LocalDate.now().toString(), userInfoId, orderType);
+        //查询年中--->月最大金额
+        String max = warterOrderRestDao.findMaxMonthMoneyOfYearv2(localDate.toString(), LocalDate.now().toString(), userInfoId, orderType);
+        BigDecimal maxValue;
+        if (StringUtils.isNotEmpty(max)) {
+            maxValue = new BigDecimal(max);
+        } else {
+            maxValue = new BigDecimal(0);
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("maxMoney", maxValue);
+        map.put("arrays", list);
+        return map;
+    }
+
+    /**
+     * v2 日统计排行
+     *
+     * @param time
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public StatisticsSpendTopAndHappinessDTO statisticsForDaysTopAndHappinessv2(Date time, String userInfoId) {
+        String date = DateUtils.convert2String(time);
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForDaysByTimev2(date, userInfoId);
+        StatisticsSpendTopAndHappinessDTO statisticsSpendTopAndHappinessDTO = statisticsForAllTopAndHappiness(list);
+        return statisticsSpendTopAndHappinessDTO;
+    }
+
+    /**
+     * v2 周统计排行
+     *
+     * @param time
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public StatisticsSpendTopAndHappinessDTO statisticsForWeeksTopAndHappinessv2(String time, String userInfoId) {
+        Map<String, String> map = DateUtils.getDateByWeeks(Integer.valueOf(time));
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForWeeksByTimev2(map.get("beginTime"), map.get("endTime"), userInfoId);
+        StatisticsSpendTopAndHappinessDTO statisticsSpendTopAndHappinessDTO = statisticsForAllTopAndHappiness(list);
+        return statisticsSpendTopAndHappinessDTO;
+    }
+
+    /**
+     * v2 月统计排行
+     *
+     * @param time
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public StatisticsSpendTopAndHappinessDTO statisticsForMonthsTopAndHappinessv2(String time, String userInfoId) {
+        LocalDate now = LocalDate.now();
+        //获取月初  月末时间
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForMonthsByTimev2(LocalDate.of(now.getYear(), Integer.valueOf(time), 1).toString(), now.with(TemporalAdjusters.lastDayOfMonth()).toString(), userInfoId);
+        StatisticsSpendTopAndHappinessDTO statisticsSpendTopAndHappinessDTO = statisticsForAllTopAndHappiness(list);
+        return statisticsSpendTopAndHappinessDTO;
+    }
+
+    /**
+     * v2 日统计 收入排行榜
+     *
+     * @param time
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public StatisticsIncomeTopDTO statisticsForDaysTopv2(Date time, String userInfoId) {
+        String date = DateUtils.convert2String(time);
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForDaysByTimeOfIncomev2(date, userInfoId);
+        StatisticsIncomeTopDTO statisticsIncomeTopDTO = statisticsForAllTop(list);
+        return statisticsIncomeTopDTO;
+    }
+
+    @Override
+    public StatisticsIncomeTopDTO statisticsForWeeksTopv2(String time, String userInfoId) {
+        Map<String, String> map = DateUtils.getDateByWeeks(Integer.valueOf(time));
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForWeeksByTimeOfIncomev2(map.get("beginTime"), map.get("endTime"), userInfoId);
+        StatisticsIncomeTopDTO statisticsIncomeTopDTO = statisticsForAllTop(list);
+        return statisticsIncomeTopDTO;
+    }
+
+    @Override
+    public StatisticsIncomeTopDTO statisticsForMonthsTopv2(String time, String userInfoId) {
+        LocalDate now = LocalDate.now();
+        //获取月初  月末时间
+        List<Map<String, Object>> list = warterOrderRestDao.statisticsForMonthsByTimeOfIncomev2(LocalDate.of(now.getYear(), Integer.valueOf(time), 1).toString(), now.with(TemporalAdjusters.lastDayOfMonth()).toString(), userInfoId);
+        StatisticsIncomeTopDTO statisticsIncomeTopDTO = statisticsForAllTop(list);
         return statisticsIncomeTopDTO;
     }
 }
@@ -553,7 +755,6 @@ class MapKeyComparator implements Comparator<Date> {
 
     @Override
     public int compare(Date str1, Date str2) {
-
         return str2.compareTo(str1);
     }
 }

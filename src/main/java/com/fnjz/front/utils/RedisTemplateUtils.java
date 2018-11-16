@@ -5,7 +5,7 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
-import net.sf.json.JSONArray;
+import com.alibaba.fastjson.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -134,7 +134,7 @@ public class RedisTemplateUtils {
      */
     public void cacheUserAndAccount(int userInfoId, String user) {
         //缓存账本
-        this.setAccountBookCache(userInfoId);
+        //this.setAccountBookCache(userInfoId);
         //缓存用户信息
         this.setCache(user, userInfoId);
     }
@@ -146,7 +146,7 @@ public class RedisTemplateUtils {
         String userAccount = (String) redisTemplate.opsForValue().get(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode);
         //为null 重新获取缓存
         if (StringUtils.isEmpty(userAccount)) {
-            UserAccountBookRestEntity task = userAccountBookRestServiceI.findUniqueByProperty(UserAccountBookRestEntity.class, "userInfoId", userInfoId);
+            UserAccountBookRestEntity task = userAccountBookRestServiceI.getUserAccountBookByUserInfoId(userInfoId);
             String userAccount2 = JSON.toJSONString(task);
             redisTemplate.opsForValue().set(RedisPrefix.PREFIX_USER_ACCOUNT_BOOK + shareCode, userAccount2, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
             return userAccount2;
@@ -171,7 +171,7 @@ public class RedisTemplateUtils {
     }
 
     /**
-     * 根据key获取hash类型value
+     * 获取剩余缓存时间
      * @param key
      * @return
      */
@@ -354,7 +354,19 @@ public class RedisTemplateUtils {
         String o = (String)redisTemplate.opsForValue().get(typeShareCode);
         JSONArray jsonArray = new JSONArray();
         if(StringUtils.isNotEmpty(o)){
-            jsonArray = JSONArray.fromObject(o);
+            jsonArray = JSONArray.parseArray(o);
+            //重置缓存时间
+            redisTemplate.expire(typeShareCode, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
+        }
+
+        return jsonArray;
+    }
+
+    public JSONArray getCacheLabelTypeForArray(String typeShareCode) {
+        String o = (String)redisTemplate.opsForValue().get(typeShareCode);
+        JSONArray jsonArray = new JSONArray();
+        if(StringUtils.isNotEmpty(o)){
+            jsonArray = JSONArray.parseArray(o);
             //重置缓存时间
             redisTemplate.expire(typeShareCode, RedisPrefix.USER_VALID_TIME, TimeUnit.DAYS);
         }
@@ -415,6 +427,37 @@ public class RedisTemplateUtils {
             return 0;
         }
         return entries.get(keyName);
+    }
+
+    /**
+     * 获取hash中的值
+     * @return
+     */
+    public List getHashValueV2(String prefix,String keyName) {
+        return (List) redisTemplate.opsForHash().get(prefix, keyName);
+    }
+
+    /**
+     * 删除hash中的值
+     * @return
+     */
+    public void deleteHashValueV2(String prefix,String keyName) {
+        redisTemplate.opsForHash().delete(prefix, keyName);
+    }
+
+    public boolean hasKey(String prefix,String keyName) {
+        if(redisTemplate.hasKey(prefix)){
+            return redisTemplate.opsForHash().hasKey(prefix,keyName);
+        }
+        return false;
+    }
+    /**
+     * 获取hash map值
+     * @param key
+     * @return
+     */
+    public Map getHashMap(String key) {
+        return redisTemplate.opsForHash().entries(key);
     }
 
     public long getSetSize(String wxappletChannel,String keyName) {

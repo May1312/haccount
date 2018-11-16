@@ -1,9 +1,13 @@
 package com.fnjz.front.service.impl.api.offlineSynchronized;
 
 import com.fnjz.front.dao.OfflineSynchronizedRestDao;
+import com.fnjz.front.dao.UserPrivateLabelRestDao;
 import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.offlineSynchronized.SynDateRestDTO;
+import com.fnjz.front.entity.api.userprivatelabel.UserPrivateLabelRestEntity;
+import com.fnjz.front.entity.api.warterorder.APPWarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
@@ -32,6 +36,9 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
 
     @Autowired
     private CreateTokenUtils createTokenUtils;
+
+    @Autowired
+    private UserPrivateLabelRestDao userPrivateLabelRestDao;
 
     /**
      * 获取最新同步时间
@@ -75,13 +82,43 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
     }
 
     /**
+     * 多账本同步接口
+     * @param mobileDevice
+     * @param isFirst
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public Map<String,Object> offlinePullV2(String mobileDevice, String isFirst,String userInfoId) {
+        SynDateRestDTO latelySynDate = offlineSynchronizedRestDao.getLatelySynDate(mobileDevice, userInfoId);
+        //第一次同步  为null情况下 获取当前时间戳为同步时间
+        Date date = new Date();
+        Map<String,Object> map = new HashMap<String,Object>();
+        if(latelySynDate.getSynDate()==null){
+            offlineSynchronizedRestDao.firstInsert(mobileDevice,userInfoId,date);
+            map.put("synDate",date);
+        }else{
+            map.put("synDate",latelySynDate.getSynDate());
+        }
+        List<APPWarterOrderRestDTO> list;
+        //判断 isFirst标识是否为true, true 获取所有
+        if(Boolean.valueOf(isFirst)){
+            list = warterOrderRestDao.findAllWaterListOfNoDelV2(userInfoId, null);
+        }else{
+            list = warterOrderRestDao.findAllWaterListV2(userInfoId, latelySynDate.getSynDate());
+        }
+        map.put("synData", list);
+        return map;
+    }
+
+    /**
      * 移动端push 插入记录
      * @param list
      * @param mobileDevice
      * @param userInfoId
      */
     @Override
-    public void offlinePush(List<WarterOrderRestEntity> list, String mobileDevice, String userInfoId) {
+    public void offlinePush(List<WarterOrderRestNewLabel> list, String mobileDevice, String userInfoId) {
         //生成本次同步记录
         offlineSynchronizedRestDao.insert(mobileDevice,userInfoId);
         if(list!=null){
@@ -94,12 +131,28 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                         createTokenUtils.integralTask(userInfoId,ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
                     }
                 }
-                for(WarterOrderRestEntity warter:list){
+                for(WarterOrderRestNewLabel warter:list){
+                    warter = addLabelInfo(warter);
                     //同步数据
                     warterOrderRestDao.saveOrUpdateOfflineData(warter);
                 }
             }
         }
+    }
+
+    private WarterOrderRestNewLabel addLabelInfo(WarterOrderRestNewLabel charge) {
+        //追加标签信息
+        if (charge.getUserPrivateLabelId() != null) {
+            //获取标签详情
+            UserPrivateLabelRestEntity userPrivateLabelRestEntity = userPrivateLabelRestDao.selectInfoByLabelId(charge.getUserPrivateLabelId());
+            if(userPrivateLabelRestEntity!=null){
+                charge.setTypePid(userPrivateLabelRestEntity.getTypePid());
+                charge.setTypeId(userPrivateLabelRestEntity.getTypeId());
+                charge.setTypeName(userPrivateLabelRestEntity.getTypeName());
+                charge.setIcon(userPrivateLabelRestEntity.getIcon());
+            }
+        }
+        return charge;
     }
 
     @Test

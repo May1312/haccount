@@ -1,7 +1,5 @@
 package com.fnjz.front.entity.api.incometype;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fnjz.front.entity.api.spendtype.SpendTypeRestDTO;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -29,16 +27,11 @@ public class IncomeTypeRestDTO implements java.io.Serializable {
 	private String id;
 	/**收入类目名称*/
 	private String incomeName;
-	/**收入父级类目*/
-	private String parentId;
-	/**收入父级类目*/
-	private String parentName;
 	/**图标*/
 	private String icon;
 	/**优先级*/
 	private Integer priority;
-	/**常用标记,0:不常用,1:常用*/
-	private Integer mark;
+
 
 	private List<IncomeTypeRestDTO> IncomeTypeSons;
 
@@ -78,22 +71,7 @@ public class IncomeTypeRestDTO implements java.io.Serializable {
 	public void setIncomeName(String incomeName){
 		this.incomeName = incomeName;
 	}
-	/**
-	 *方法: 取得java.lang.String
-	 *@return: java.lang.String  收入父级类目
-	 */
-	@Column(name ="PARENT_ID",nullable=true,length=36)
-	public String getParentId(){
-		return this.parentId;
-	}
 
-	/**
-	 *方法: 设置java.lang.String
-	 *@param: java.lang.String  收入父级类目
-	 */
-	public void setParentId(String parentId){
-		this.parentId = parentId;
-	}
 	/**
 	 *方法: 取得java.lang.String
 	 *@return: java.lang.String  图标
@@ -125,30 +103,6 @@ public class IncomeTypeRestDTO implements java.io.Serializable {
 	 */
 	public void setPriority(Integer priority){
 		this.priority = priority;
-	}
-	/**
-	 *方法: 取得java.lang.Integer
-	 *@return: java.lang.Integer  常用标记,0:不常用,1:常用
-	 */
-	@Column(name ="MARK",nullable=true,precision=10,scale=0)
-	public Integer getMark(){
-		return this.mark;
-	}
-
-	/**
-	 *方法: 设置java.lang.Integer
-	 *@param: java.lang.Integer  常用标记,0:不常用,1:常用
-	 */
-	public void setMark(Integer mark){
-		this.mark = mark;
-	}
-	@Transient
-	public String getParentName() {
-		return parentName;
-	}
-
-	public void setParentName(String parentName) {
-		this.parentName = parentName;
 	}
 
 	@Transient

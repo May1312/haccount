@@ -46,6 +46,10 @@ public class AccountBookRestEntity implements java.io.Serializable {
 	private java.lang.Integer delflag;
 	/**删除时间*/
 	private java.util.Date delDate;
+    /**账本类型id*/
+	private java.lang.Integer accountBookTypeId;
+	/**成员数*/
+	private java.lang.Integer member;
 	
 	/**
 	 *方法: 取得java.lang.Integer
@@ -193,5 +197,21 @@ public class AccountBookRestEntity implements java.io.Serializable {
 	 */
 	public void setDelDate(java.util.Date delDate){
 		this.delDate = delDate;
+	}
+
+	public Integer getAccountBookTypeId() {
+		return accountBookTypeId;
+	}
+
+	public void setAccountBookTypeId(Integer accountBookTypeId) {
+		this.accountBookTypeId = accountBookTypeId;
+	}
+
+	public Integer getMember() {
+		return member;
+	}
+
+	public void setMember(Integer member) {
+		this.member = member;
 	}
 }

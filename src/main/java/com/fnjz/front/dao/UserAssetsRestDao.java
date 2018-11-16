@@ -26,10 +26,10 @@ public interface UserAssetsRestDao {
     @Sql("SELECT * FROM hbird_user_assets WHERE user_info_id=:userInfoId and if(:type=1,type=:type,type=:type);")
     List<UserAssetsRestEntity> getAssetsAll(@Param("userInfoId") String userInfoId,@Param("type") Integer type);
 
-    @Sql("UPDATE `hbird_account`.`hbird_user_assets` SET `money`=:money where user_info_id = :userInfoId and assets_type=:assetstype;")
+    @Sql("UPDATE `hbird_user_assets` SET `money`=:money where user_info_id = :userInfoId and assets_type=:assetstype;")
     void updateMoney(@Param("money") BigDecimal money, @Param("userInfoId") String userInfoId, @Param("assetstype") Integer assetstype);
 
-    @Sql("UPDATE `hbird_account`.`hbird_user_assets` SET `init_date`=:initDate,update_date = now() where user_info_id = :userInfoId and type=2;")
+    @Sql("UPDATE `hbird_user_assets` SET `init_date`=:initDate,update_date = now() where user_info_id = :userInfoId and type=2;")
     void updateInitDate(@Param("initDate") String initDate, @Param("userInfoId") String userInfoId);
     /**
      * 获取资产总额

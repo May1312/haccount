@@ -31,7 +31,7 @@ public interface UserInviteRestDao {
     int getCountForInvitedUsers(@Param("userInfoId") String userInfoId);
 
     @ResultType(UserInviteRestDTO.class)
-    @Sql("SELECT userinfo.nick_name,userinfo.avatar_url,userinfo.register_date FROM hbird_user_invite invite RIGHT JOIN hbird_user_info userinfo on invite.invite_user_info_id=userinfo.id where invite.user_info_id=:userInfoId ORDER BY invite.create_date LIMIT :curpage,:itemPerPage;")
+    @Sql("SELECT userinfo.nick_name,userinfo.avatar_url,userinfo.register_date FROM hbird_user_invite invite RIGHT JOIN hbird_user_info userinfo on invite.invite_user_info_id=userinfo.id where invite.user_info_id=:userInfoId ORDER BY invite.create_date desc LIMIT :curpage,:itemPerPage;")
     List<UserInviteRestDTO> listForPage(@Param("userInfoId") String userInfoId,@Param("curpage") int startIndex,@Param("itemPerPage") int pageSize);
 
     @Sql("select count(*) from hbird_user_invite where user_info_id=:userInfoId")

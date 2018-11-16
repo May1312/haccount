@@ -1,5 +1,6 @@
 package com.fnjz.front.service.api.usercommtypepriority;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
 import org.jeecgframework.core.common.service.CommonService;
 
@@ -25,4 +26,7 @@ public interface UserCommTypePriorityRestServiceI extends CommonService{
      */
     Map<String,Object> saveOrUpdateRelationForMap(String shareCode, int accountBookId, String userInfoId, UserCommTypePriorityRestEntity userCommTypePriorityRestEntity);
 
+    JSONObject saveOrUpdateRelationForMapv2(UserCommTypePriorityRestEntity userCommTypePriorityRestEntity);
+
+    String saveOrUpdateRelationv2(UserCommTypePriorityRestEntity userCommTypePriorityRestEntity);
 }

@@ -6,8 +6,9 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.controller.api.common.ClockInDays;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
+import com.fnjz.front.entity.api.warterorder.WXAppletWarterOrderRestInfoDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
-import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.CommonUtils;
 import com.fnjz.front.utils.ParamValidateUtils;
@@ -57,7 +58,7 @@ public class WarterOrderRestController extends BaseController {
     @ApiOperation(value = "记账功能")
     @RequestMapping(value = "/toCharge/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean toCharge(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody WarterOrderRestEntity charge) {
+    public ResultBean toCharge(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody WarterOrderRestNewLabel charge) {
         System.out.println("登录终端：" + type);
         ResultBean rb = ParamValidateUtils.checkToCharge(charge);
         if (rb != null) {
@@ -88,11 +89,6 @@ public class WarterOrderRestController extends BaseController {
             charge.setCreateName(code);
             //设置记录状态
             charge.setDelflag(0);
-            //转义emoji表情
-            if (StringUtils.isNotEmpty(charge.getRemark())) {
-                //charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
-                charge.setRemark(charge.getRemark());
-            }
             charge.setId(CommonUtils.getAccountOrder());
             warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
             //打卡统计
@@ -140,6 +136,78 @@ public class WarterOrderRestController extends BaseController {
         }
     }
 
+    @ApiOperation(value = "记账功能")
+    @RequestMapping(value = "/toChargev2/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean toChargev2(@PathVariable("type") String type, HttpServletRequest request, @RequestBody WarterOrderRestNewLabel charge) {
+        System.out.println("登录终端：" + type);
+        ResultBean rb = ParamValidateUtils.checkToCharge(charge);
+        if (rb != null) {
+            return rb;
+        }
+        String code = (String) request.getAttribute("code");
+        String shareCode = (String) request.getAttribute("shareCode");
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        //1 为即时记账类型    2 为分期记账类型
+        if (charge.getOrderType() == 1 && charge.getIsStaged() == 1) {
+            //使用度必须为空
+            if (charge.getUseDegree() != null) {
+                charge.setUseDegree(null);
+            }
+            //设置创建时间
+            charge.setCreateDate(new Date());
+            //设置更新时间
+            charge.setUpdateDate(new Date());
+            //绑定创建者id
+            charge.setCreateBy(Integer.valueOf(userInfoId));
+            //初始修改者id
+            charge.setUpdateBy(Integer.valueOf(userInfoId));
+            //绑定创建者名称
+            charge.setCreateName(code);
+            //设置记录状态
+            charge.setDelflag(0);
+            charge.setId(CommonUtils.getAccountOrder());
+            warterOrderRestService.insertv2(charge);
+            //打卡统计
+            myCount(shareCode, null);
+            return CommonUtils.returnCharge(charge.getId());
+        } else if (charge.getOrderType() == 1 && charge.getIsStaged() == 2) {
+            Map map = new HashMap<>();
+            map.put("msg", "分期功能未开放");
+            rb.setResult(map);
+            return rb;
+        }
+        //收入类型愉悦度必须为空
+        if (charge.getSpendHappiness() != null) {
+            charge.setSpendHappiness(null);
+        }
+        //收入类型即时/分期必须为空
+        if (charge.getIsStaged() != null) {
+            charge.setIsStaged(null);
+        }
+        //设置创建时间
+        charge.setCreateDate(new Date());
+        //绑定创建者id
+        charge.setCreateBy(Integer.valueOf(userInfoId));
+        //初始修改者id
+        charge.setUpdateBy(Integer.valueOf(userInfoId));
+        //绑定创建者名称
+        charge.setCreateName(code);
+        //设置记录状态
+        charge.setDelflag(0);
+        charge.setId(CommonUtils.getAccountOrder());
+        try {
+            warterOrderRestService.insertv2(charge);
+            //打卡统计
+            myCount(shareCode, null);
+            //返回记账id
+            return CommonUtils.returnCharge(null);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
     /**
      * 返回一个月数据,重置用户 账本缓存
      *
@@ -164,7 +232,7 @@ public class WarterOrderRestController extends BaseController {
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             //连续打卡统计
             clockInDays.clockInDays(shareCode);
-            Map<String, Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "",curPage,pageSize);
+            Map<String, Object> json = warterOrderRestService.findListForPage(time, userLoginRestEntity.getAccountBookId() + "", curPage, pageSize);
             return new ResultBean(ApiResultType.OK, json);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -176,7 +244,7 @@ public class WarterOrderRestController extends BaseController {
     @RequestMapping(value = "/warterOrderListv2/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean warterOrderListv2(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,
-                                      HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) Integer curPage, @RequestParam(value = "pageSize", required = false) Integer pageSize) {
+                                        HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) Integer curPage, @RequestParam(value = "pageSize", required = false) Integer pageSize, @RequestParam(value = "abId", required = false) Integer abId) {
         System.out.println("登录终端：" + type);
         logger.info("获取流水分页列表接口: year-->" + year + "  month-->" + month);
         String time = ParamValidateUtils.getTime(year, month);
@@ -187,7 +255,7 @@ public class WarterOrderRestController extends BaseController {
             UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             //连续打卡统计
             clockInDays.clockInDays(shareCode);
-            Map<String, Object> json = warterOrderRestService.findListForPagev2(time, userLoginRestEntity.getAccountBookId() + "",curPage,pageSize);
+            Map<String, Object> json = warterOrderRestService.findListForPagev2(time, userLoginRestEntity.getAccountBookId() + "", curPage, pageSize, abId, userInfoId);
             return new ResultBean(ApiResultType.OK, json);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -221,20 +289,40 @@ public class WarterOrderRestController extends BaseController {
         }
     }
 
+    /**
+     * 流水详情获取   多账本版
+     *
+     * @param type
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/getOrderInfov2/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getOrderInfov2(@PathVariable("type") String type, @RequestParam(required = false) String id, @RequestParam(required = false) Integer memberFlag) {
+        System.out.println("登录终端：" + type);
+        if (StringUtils.isEmpty(id)) {
+            return new ResultBean(ApiResultType.ORDER_ID_IS_NULL, null);
+        }
+        try {
+            WXAppletWarterOrderRestInfoDTO task = warterOrderRestService.findByIdv2(id, memberFlag);
+            return new ResultBean(ApiResultType.OK, task);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
     @ApiOperation(value = "修改单笔记账订单详情")
     @RequestMapping(value = "/updateOrderInfo/{type}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResultBean updateOrderInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody WarterOrderRestEntity charge, HttpServletRequest request) {
+    public ResultBean updateOrderInfo(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody WarterOrderRestNewLabel charge, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
         //判断单笔记账id
         if (charge.getId() == null) {
             return new ResultBean(ApiResultType.ORDER_ID_IS_NULL, null);
         }
         String code = (String) request.getAttribute("code");
-        String shareCode = (String) request.getAttribute("shareCode");
         String userInfoId = (String) request.getAttribute("userInfoId");
-        String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
-        UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
         if (charge.getOrderType() != null) {
             if (charge.getOrderType() == 1) {
                 //使用度必须为空
@@ -254,15 +342,10 @@ public class WarterOrderRestController extends BaseController {
         //设置创建时间
         charge.setUpdateDate(new Date());
         //绑定修改者id
-        charge.setUpdateBy(userLoginRestEntity.getUserInfoId());
+        charge.setUpdateBy(Integer.valueOf(userInfoId));
         //绑定修改者名称
         charge.setUpdateName(code);
         //设置记录状态
-        //转义表情
-        if (StringUtils.isNotEmpty(charge.getRemark())) {
-            //charge.setRemark(EmojiUtils.emojiToAlias(charge.getRemark()));
-            charge.setRemark(charge.getRemark());
-        }
         try {
             warterOrderRestService.update(charge);
             return new ResultBean(ApiResultType.OK, null);
@@ -281,10 +364,6 @@ public class WarterOrderRestController extends BaseController {
             return new ResultBean(ApiResultType.ORDER_ID_IS_NULL, null);
         }
         try {
-            WarterOrderRestEntity task = warterOrderRestService.findUniqueByProperty(WarterOrderRestEntity.class, "id", map.get("id"));
-            if (task == null) {
-                return new ResultBean(ApiResultType.GET_ORDER_ERROR, null);
-            }
             //获取当前用户信息
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
@@ -353,8 +432,14 @@ public class WarterOrderRestController extends BaseController {
 
     @RequestMapping(value = "/toCharge", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean toCharge(HttpServletRequest request, @RequestBody WarterOrderRestEntity charge) {
+    public ResultBean toCharge(HttpServletRequest request, @RequestBody WarterOrderRestNewLabel charge) {
         return this.toCharge(null, request, charge);
+    }
+
+    @RequestMapping(value = "/toChargev2", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean toChargev2(HttpServletRequest request, @RequestBody WarterOrderRestNewLabel charge) {
+        return this.toChargev2(null, request, charge);
     }
 
     @RequestMapping(value = "/getOrderInfo", method = RequestMethod.GET)
@@ -363,21 +448,27 @@ public class WarterOrderRestController extends BaseController {
         return this.getOrderInfo(null, id);
     }
 
+    @RequestMapping(value = "/getOrderInfov2", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getOrderInfov2(@RequestParam(required = false) String id, @RequestParam(required = false) Integer memberFlag) {
+        return this.getOrderInfov2(null, id, memberFlag);
+    }
+
     @RequestMapping(value = "/warterOrderList", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean warterOrderList(HttpServletRequest request,@RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) Integer curPage, @RequestParam(value = "pageSize", required = false) Integer pageSize) {
-        return this.warterOrderList(null, request,year,month,curPage,pageSize);
+    public ResultBean warterOrderList(HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) Integer curPage, @RequestParam(value = "pageSize", required = false) Integer pageSize) {
+        return this.warterOrderList(null, request, year, month, curPage, pageSize);
     }
 
     @RequestMapping(value = "/warterOrderListv2", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean warterOrderListv2(HttpServletRequest request,@RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) Integer curPage, @RequestParam(value = "pageSize", required = false) Integer pageSize) {
-        return this.warterOrderListv2(null, request,year,month,curPage,pageSize);
+    public ResultBean warterOrderListv2(HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) Integer curPage, @RequestParam(value = "pageSize", required = false) Integer pageSize, @RequestParam(value = "abId", required = false) Integer abId) {
+        return this.warterOrderListv2(null, request, year, month, curPage, pageSize, abId);
     }
 
     @RequestMapping(value = "/updateOrderInfo", method = RequestMethod.PUT)
     @ResponseBody
-    public ResultBean updateOrderInfo(@RequestBody WarterOrderRestEntity charge, HttpServletRequest request) {
+    public ResultBean updateOrderInfo(@RequestBody WarterOrderRestNewLabel charge, HttpServletRequest request) {
         return this.updateOrderInfo(null, charge, request);
     }
 

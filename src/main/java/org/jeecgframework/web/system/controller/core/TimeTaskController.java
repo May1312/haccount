@@ -1,3 +1,4 @@
+/*
 package org.jeecgframework.web.system.controller.core;
 import java.io.IOException;
 import java.text.ParseException;
@@ -31,14 +32,16 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSONObject;
 
 
-/**   
+*/
+/**
  * @Title: Controller
  * @Description: 定时任务管理
  * @author jueyue
  * @date 2013-09-21 20:47:43
  * @version V1.0   
  *
- */
+ *//*
+
 //@Scope("prototype")
 @Controller
 @RequestMapping("/timeTaskController")
@@ -52,24 +55,28 @@ public class TimeTaskController extends BaseController {
 	private SystemService systemService;
 
 
-	/**
+	*/
+/**
 	 * 定时任务管理列表 页面跳转
 	 * 
 	 * @return
-	 */
+	 *//*
+
 	@RequestMapping(params = "timeTask")
 	public ModelAndView timeTask(HttpServletRequest request) {
 		return new ModelAndView("system/timetask/timeTaskList");
 	}
 
-	/**
+	*/
+/**
 	 * easyui AJAX请求数据
 	 * 
 	 * @param request
 	 * @param response
 	 * @param dataGrid
 	 * @param user
-	 */
+	 *//*
+
 
 	@RequestMapping(params = "datagrid")
 	public void datagrid(TSTimeTaskEntity timeTask,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
@@ -80,11 +87,13 @@ public class TimeTaskController extends BaseController {
 		TagUtil.datagrid(response, dataGrid);
 	}
 
-	/**
+	*/
+/**
 	 * 删除定时任务管理
 	 * 
 	 * @return
-	 */
+	 *//*
+
 	@RequestMapping(params = "del")
 	@ResponseBody
 	public AjaxJson del(TSTimeTaskEntity timeTask, HttpServletRequest request) {
@@ -103,12 +112,14 @@ public class TimeTaskController extends BaseController {
 	}
 
 
-	/**
+	*/
+/**
 	 * 添加定时任务管理
 	 * 
 	 * @param ids
 	 * @return
-	 */
+	 *//*
+
 	@RequestMapping(params = "save")
 	@ResponseBody
 	public AjaxJson save(TSTimeTaskEntity timeTask, HttpServletRequest request) {
@@ -149,11 +160,13 @@ public class TimeTaskController extends BaseController {
 		return j;
 	}
 
-	/**
+	*/
+/**
 	 * 定时任务管理列表页面跳转
 	 * 
 	 * @return
-	 */
+	 *//*
+
 	@RequestMapping(params = "addorupdate")
 	public ModelAndView addorupdate(TSTimeTaskEntity timeTask, HttpServletRequest req) {
 		if (StringUtil.isNotEmpty(timeTask.getId())) {
@@ -163,9 +176,11 @@ public class TimeTaskController extends BaseController {
 		return new ModelAndView("system/timetask/timeTask");
 	}
 	
-	/**
+	*/
+/**
 	 * 更新任务时间使之生效
-	 */
+	 *//*
+
 	@RequestMapping(params = "updateTime")
 	@ResponseBody
 	public AjaxJson updateTime(TSTimeTaskEntity timeTask, HttpServletRequest request) {
@@ -175,9 +190,11 @@ public class TimeTaskController extends BaseController {
 		return j;
 	}
 	
-	/**
+	*/
+/**
 	 * 启动或者停止任务
-	 */
+	 *//*
+
 	@RequestMapping(params = "startOrStopTask")
 	@ResponseBody
 	public AjaxJson startOrStopTask(TSTimeTaskEntity timeTask, HttpServletRequest request) {
@@ -228,9 +245,11 @@ public class TimeTaskController extends BaseController {
 	}
 	
 	
-	/**
+	*/
+/**
 	 * 远程启动或者停止任务
-	 */
+	 *//*
+
 	@RequestMapping(params = "remoteTask")
 	@ResponseBody
 	public JSONObject remoteTask(TSTimeTaskEntity timeTask, HttpServletRequest request) {
@@ -254,3 +273,4 @@ public class TimeTaskController extends BaseController {
 	}
 
 }
+*/

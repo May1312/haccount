@@ -75,7 +75,7 @@ public class UserRegisterRestController extends BaseController {
                 UserInfoRestEntity userInfo = new UserInfoRestEntity();
                 userInfo = ParamValidateUtils.checkRegisterParams(userInfo,map,type);
                 //执行新增
-                int insertId = userInfoRestService.insert(userInfo);
+                int insertId = userInfoRestService.insert(userInfo,type);
                 if(insertId>0){
                     //缓存用户信息  TODO 有必要重新查库？？
                     UserLoginRestEntity task = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile",map.get("mobile"));

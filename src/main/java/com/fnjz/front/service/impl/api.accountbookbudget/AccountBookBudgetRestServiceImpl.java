@@ -1,12 +1,17 @@
 package com.fnjz.front.service.impl.api.accountbookbudget;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.AccountBookBudgetRestDao;
+import com.fnjz.front.dao.AccountBookRestDao;
+import com.fnjz.front.dao.UserPrivateLabelRestDao;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.StatisticAnalysisDTO;
+import com.fnjz.front.entity.api.accountbookbudget.SceneABBudgetRestDTO;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
@@ -19,6 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @Service("accountBookBudgetRestService")
@@ -31,6 +39,12 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     @Autowired
     private CreateTokenUtils createTokenUtils;
 
+    @Autowired
+    private AccountBookRestDao accountBookRestDao;
+
+    @Autowired
+    private UserPrivateLabelRestDao userPrivateLabelRestDao;
+
     /**
      * 设置或更新预算
      *
@@ -41,10 +55,10 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     @Override
     public int saveOrUpdate(AccountBookBudgetRestEntity budget, boolean flag) {
         //TODO 存在问题 预算/固定大额支出在同一条记录中  需要判断出  引入新手任务   判断是预算/存钱效率
-        if(budget.getBudgetMoney()!=null){
-            createTokenUtils.integralTask(budget.getCreateBy()+"",ShareCodeUtil.id2sharecode(budget.getCreateBy()),CategoryOfBehaviorEnum.NewbieTask,AcquisitionModeEnum.Setting_up_budget);
-        }else if(budget.getFixedLifeExpenditure()!=null || budget.getFixedLargeExpenditure()!=null){
-            createTokenUtils.integralTask(budget.getCreateBy()+"",ShareCodeUtil.id2sharecode(budget.getCreateBy()),CategoryOfBehaviorEnum.NewbieTask,AcquisitionModeEnum.Setting_up_savings_efficiency);
+        if (budget.getBudgetMoney() != null) {
+            createTokenUtils.integralTask(budget.getCreateBy() + "", ShareCodeUtil.id2sharecode(budget.getCreateBy()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Setting_up_budget);
+        } else if (budget.getFixedLifeExpenditure() != null || budget.getFixedLargeExpenditure() != null) {
+            createTokenUtils.integralTask(budget.getCreateBy() + "", ShareCodeUtil.id2sharecode(budget.getCreateBy()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Setting_up_savings_efficiency);
         }
         if (flag) {
             //更新流程
@@ -242,6 +256,59 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     }
 
     /**
+     * v2 获取消费结构比
+     * @param userInfoId
+     * @param month
+     * @return
+     */
+    @Override
+    public List<ConsumptionStructureRatioDTO> getConsumptionStructureRatiov2(Integer userInfoId, String month) {
+        //传入三对时间段  当月  上月  去年同月
+        //获取传入月份初末范围
+        LocalDate date = LocalDate.of(LocalDate.now().getYear(),Integer.valueOf(month),1);
+        //将date设置为这个月的第一天
+        date = date.minusDays(date.getDayOfMonth()-1);
+        //月末一天
+        LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
+        //获取上月
+        LocalDate lastMonth = date.minusMonths(1);
+        //月的第一天
+        lastMonth = lastMonth.minusDays(lastMonth.getDayOfMonth()-1);
+        //月末一天
+        LocalDate lastMonthend = lastMonth.with(TemporalAdjusters.lastDayOfMonth());
+        //获取去年同期
+        LocalDate lastYear = date.minusYears(1);
+        //月第一天
+        lastYear = lastYear.minusDays(lastYear.getDayOfMonth()-1);
+        //月末一天
+        LocalDate lastYearend = lastYear.with(TemporalAdjusters.lastDayOfMonth());
+        List<ConsumptionStructureRatioDTO> list = accountBookBudgetRestDao.getConsumptionStructureRatiov2(userInfoId,date.toString(),end.toString(),lastMonth.toString(),lastMonthend.toString(),lastYear.toString(),lastYearend.toString(),RedisPrefix.CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE);
+        if (list.size() < 3) {
+            Map containMap = new HashMap<String, Object>();
+            DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy-MM");
+            containMap.put(date.format(formatters), null);
+            containMap.put(lastMonth.format(formatters), null);
+            containMap.put(lastYear.format(formatters), null);
+            for (int i = 0; i < list.size(); i++) {
+                if (containMap.containsKey(list.get(i).getTime())) {
+                    containMap.remove(list.get(i).getTime());
+                }
+            }
+            //取出map中剩余的值
+            Set set = containMap.keySet();
+            Iterator<String> iter = set.iterator();
+            while (iter.hasNext()) {
+                ConsumptionStructureRatioDTO csr = new ConsumptionStructureRatioDTO();
+                csr.setTime(iter.next());
+                list.add(csr);
+            }
+        }
+        //倒叙
+        Collections.sort(list, Comparator.comparing(ConsumptionStructureRatioDTO::getTime).reversed());
+        return list;
+    }
+
+    /**
      * 预算完成率
      *
      * @param accountBookId
@@ -273,5 +340,207 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         List<BudgetCompletionRateDTO> budgetCompletionRate = getBudgetCompletionRate(accountBookId, month, range);
         StatisticAnalysisDTO statisticAnalysisDTO = new StatisticAnalysisDTO(savingEfficiency, consumptionStructureRatio, budgetCompletionRate);
         return statisticAnalysisDTO;
+    }
+
+    /**
+     * 获取账本类型
+     *
+     * @param abId
+     * @return
+     */
+    @Override
+    public int getABTypeByABId(Integer abId) {
+        return accountBookRestDao.getABTypeByABId(abId);
+    }
+
+    /**
+     * 获取场景账本预算
+     *
+     * @param abId
+     * @return
+     */
+    @Override
+    public SceneABBudgetRestDTO getSceneABBudget(Integer abId) {
+        return accountBookRestDao.getSceneABBudget(abId);
+    }
+
+    /**
+     * 获取大额支出
+     *
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public AccountBookBudgetRestEntity getFixedSpend(String userInfoId) {
+        return accountBookBudgetRestDao.getFixedSpend(userInfoId);
+    }
+
+    /**
+     * 获取预算   查询当月预算 前提是沿用上一月预算
+     *
+     * @param time
+     * @param abId
+     * @return
+     */
+    @Override
+    public AccountBookBudgetRestEntity getLatelyBudgetv2(String time, Integer abId) {
+        String currentYearMonth = DateUtils.getCurrentYearMonth();
+        AccountBookBudgetRestEntity budgetResult;
+        if (StringUtils.equals(currentYearMonth, time)) {
+            //判断 若查询当月 执行原有sql--->限制time 不能大于当月
+            budgetResult = accountBookBudgetRestDao.getLatelyBudget(abId, currentYearMonth);
+            if (budgetResult != null) {
+                if (StringUtils.equals(currentYearMonth, budgetResult.getTime())) {
+                    //查询到当月预算
+                    return budgetResult;
+                } else {
+                    //判断月份差额 只允许间隔一个月 并且创建时间也要间隔一个月
+                    String rangeMonth = DateUtils.getRangeMonth(DateUtils.getCurrentMonth(), -1);
+                    if (StringUtils.equals(budgetResult.getTime(), rangeMonth) && StringUtils.equals(DateUtils.getYearMonthByDate(budgetResult.getCreateDate()), rangeMonth)) {
+                        //执行新增前，增加判断是否 为-1
+                        if ((budgetResult.getBudgetMoney() != null && budgetResult.getBudgetMoney().intValue() != -1) || (budgetResult.getFixedLifeExpenditure() != null && budgetResult.getFixedLifeExpenditure().intValue() != -1) || (budgetResult.getFixedLargeExpenditure() != null && budgetResult.getFixedLargeExpenditure().intValue() != -1)) {
+                            //校验通过
+                            AccountBookBudgetRestEntity budget = new AccountBookBudgetRestEntity();
+                            if (budgetResult.getBudgetMoney() != null) {
+                                if (budgetResult.getBudgetMoney().intValue() == -1) {
+                                    budget.setBudgetMoney(null);
+                                } else {
+                                    budget.setBudgetMoney(budgetResult.getBudgetMoney());
+                                }
+                            }
+                            if (budgetResult.getCreateBy() != null) {
+                                budget.setCreateBy(budgetResult.getCreateBy());
+                            }
+                            if (budgetResult.getAccountBookId() != null) {
+                                budget.setAccountBookId(budgetResult.getAccountBookId());
+                            }
+                            budget.setTime(currentYearMonth);
+                            int insert = accountBookBudgetRestDao.insert(budget);
+                            if (insert > 0) {
+                                //设置时间
+                                return budget;
+                            }
+                        }
+                    }
+                }
+            } else {
+                return budgetResult;
+            }
+        } else {
+            //根据指定月份查询预算
+            return accountBookBudgetRestDao.getCurrentBudget(time, abId);
+        }
+        return null;
+    }
+
+    /**
+     * 设置固定大额支出
+     *
+     * @param budget
+     * @param userInfoId
+     */
+    @Override
+    public void setFixedSpend(AccountBookBudgetRestEntity budget, String userInfoId) {
+        AccountBookBudgetRestEntity fixedSpend = accountBookBudgetRestDao.getFixedSpend(userInfoId);
+        if (fixedSpend != null) {
+            //更新流程
+            budget.setId(fixedSpend.getId());
+            budget.setUpdateBy(Integer.valueOf(userInfoId));
+            budget.setUpdateDate(new Date());
+            budget.setCreateBy(Integer.valueOf(userInfoId));
+            budget.setCreateDate(fixedSpend.getCreateDate());
+            this.saveOrUpdate(budget);
+        } else {
+            budget.setCreateBy(Integer.valueOf(userInfoId));
+            budget.setCreateDate(new Date());
+            this.saveOrUpdate(budget);
+        }
+    }
+
+    /**
+     * 获取场景账本预算
+     *
+     * @param accountBookId
+     * @return
+     */
+    @Override
+    public AccountBookBudgetRestEntity getLatelyBudgetv2(Integer accountBookId) {
+        return accountBookBudgetRestDao.getLatelyBudgetv2(accountBookId);
+    }
+
+    /**
+     * v2 获取存钱效率
+     *
+     * @param userInfoId
+     * @param month
+     * @param range
+     * @return
+     */
+    @Override
+    public JSONObject getSavingEfficiencyv2(String userInfoId, String month, String range) {
+        //获取到固定大额支出
+        AccountBookBudgetRestEntity fixedSpend = accountBookBudgetRestDao.getFixedSpend(userInfoId);
+        //无可支配金额  结束
+        if (fixedSpend == null) {
+            return null;
+        }
+        if (fixedSpend.getFixedLifeExpenditure() == null && fixedSpend.getFixedLargeExpenditure() == null) {
+            return null;
+        }
+        LocalDate localDate = LocalDate.of(LocalDate.now().getYear(), Integer.valueOf(month), 1);
+        //时间间隔-1
+        LocalDate localDate1 = localDate.minusMonths(Integer.valueOf(range) - 1);
+        //获取查询的时间范围
+        LocalDate localDate8 = localDate.with(TemporalAdjusters.lastDayOfMonth());
+        JSONObject jsonObject = new JSONObject();
+        //在区级内查找
+        List<SavingEfficiencyDTO> savingEfficiencyDTOS = accountBookBudgetRestDao.listSavingEfficiencyStatisticsByMonthsv2(localDate1.toString(), localDate8.toString(), userInfoId);
+
+        JSONArray jsonArray = new JSONArray();
+        savingEfficiencyDTOS.forEach(v -> {
+            JSONObject jsonObject1 = new JSONObject();
+            jsonObject1.put("monthIncome",v.getMonthIncome());
+            jsonObject1.put("monthSpend",v.getMonthSpend());
+            jsonObject1.put("time",v.getTime());
+            jsonArray.add(jsonObject1);
+        });
+        //正常返回
+        jsonObject.put("arrays",jsonArray);
+        //封装固定大额支出
+        JSONObject jsonObject1 = new JSONObject();
+        jsonObject1.put("fixedLargeExpenditure",fixedSpend.getFixedLargeExpenditure());
+        jsonObject1.put("fixedLifeExpenditure",fixedSpend.getFixedLifeExpenditure());
+        jsonObject.put("arrays",jsonArray);
+        jsonObject.put("fixedSpend",jsonObject1);
+        return jsonObject;
+    }
+
+    /**
+     * v2 日常账本预算完成率
+     * @param userInfoId
+     * @param month
+     * @param range
+     * @return
+     */
+    @Override
+    public List<BudgetCompletionRateDTO> getBudgetCompletionRatev2(String userInfoId,Integer abId, String month, String range) {
+        /*LocalDate localDate = LocalDate.of(LocalDate.now().getYear(),Integer.valueOf(month),1);
+        //取月末
+        LocalDate end = localDate.with(TemporalAdjusters.lastDayOfMonth());
+        LocalDate begin = localDate.minusMonths(Integer.valueOf(range) + 1);
+        //取月初
+        begin =begin.minusDays(begin.getDayOfMonth()- 1);
+        //获取范围内预算
+        List<AccountBookBudgetRestEntity> list = accountBookBudgetRestDao.getBudgetByTimeRange(begin.toString(), end.toString(),abId);
+        list.forEach(v->{
+            //遍历预算期内数据
+            String[] split = StringUtils.split(v.getTime(), "-");
+            //月初时间
+            LocalDate localDate1 = LocalDate.of(Integer.valueOf(split[0]),Integer.valueOf(split[1]),1);
+            //获取月末时间
+            LocalDate localDate2 = localDate1.with(TemporalAdjusters.lastDayOfMonth());
+            List<BudgetCompletionRateDTO> list2 = accountBookBudgetRestDao.listBudgetCompletionRateStatisticsByMonths(rangeMonth, month, accountBookId);
+        });*/
+        return null;
     }
 }

@@ -1,57 +1,271 @@
 package com.fnjz.front.controller.api.accountbook;
 
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-import org.jeecgframework.core.common.controller.BaseController;
-import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
-import org.jeecgframework.core.common.model.json.AjaxJson;
-import org.jeecgframework.core.common.model.json.DataGrid;
-import org.jeecgframework.core.constant.Globals;
-import org.jeecgframework.core.util.StringUtil;
-import org.jeecgframework.tag.core.easyui.TagUtil;
-import org.jeecgframework.web.system.service.SystemService;
-import org.jeecgframework.core.util.MyBeanUtils;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.fnjz.commonbean.ResultBean;
+import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.accountbook.AccountBookRestDTO;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
 import com.fnjz.front.service.api.accountbook.AccountBookRestServiceI;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.jeecgframework.core.beanvalidator.BeanValidators;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import java.net.URI;
-import org.springframework.http.MediaType;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.jeecgframework.core.common.controller.BaseController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
-/**   
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author zhangdaihao
+ * @version V1.0
  * @Title: Controller
  * @Description: 账本表相关
- * @author zhangdaihao
  * @date 2018-05-30 14:08:15
- * @version V1.0   
- *
  */
 @Controller
-@RequestMapping("/accountBookRestController")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class AccountBookRestController extends BaseController {
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger.getLogger(AccountBookRestController.class);
+    /**
+     * Logger for this class
+     */
+    private static final Logger logger = Logger.getLogger(AccountBookRestController.class);
 
-	@Autowired
-	private AccountBookRestServiceI accountBookRestService;
+    @Autowired
+    private AccountBookRestServiceI accountBookRestService;
 
+    /**
+     * 获取 账本id对应成员数关系
+     *
+     * @param type
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/checkABMembers/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean checkABMembers(@PathVariable("type") String type, HttpServletRequest request) {
+        System.out.println("登录终端：" + type);
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            JSONArray jsonArray = accountBookRestService.checkABMembers(userInfoId);
+            return new ResultBean(ApiResultType.OK, jsonArray);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 首页获取当前账本对应成员信息
+     *
+     * @param type
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/getABMembers/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getABMembers(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(required = false) Integer abId) {
+        System.out.println("登录终端：" + type);
+        if(abId==null){
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,null);
+        }
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            //创建者  当前用户   其他组员需要区分
+            JSONObject jsonObject = accountBookRestService.getABMembers(abId, userInfoId);
+            return new ResultBean(ApiResultType.OK, jsonObject);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 获取用户所拥有账本
+     *
+     * @param type
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/getABAll/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getABAll(@PathVariable("type") String type, HttpServletRequest request) {
+        System.out.println("登录终端：" + type);
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            List<AccountBookRestDTO> list = accountBookRestService.getABAll(userInfoId);
+            return new ResultBean(ApiResultType.OK, list);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 获取用户所拥有账本
+     *
+     * @param type
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/deleteAB/{type}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResultBean deleteAB(@PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, Integer> map) {
+        System.out.println("登录终端：" + type);
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            accountBookRestService.deleteAB(map.get("abId"), userInfoId);
+            return new ResultBean(ApiResultType.OK, null);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 创建账本
+     *
+     * @param type
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/createAB/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean createAB(@PathVariable("type") String type, HttpServletRequest request, @RequestBody AccountBookRestEntity accountBookRestEntity) {
+        System.out.println("登录终端：" + type);
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            accountBookRestEntity.setCreateBy(Integer.valueOf(userInfoId));
+            int abId = accountBookRestService.createAB(accountBookRestEntity);
+            return new ResultBean(ApiResultType.OK, abId);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 更新账本名称
+     *
+     * @param type
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/updateAB/{type}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResultBean updateAB(@PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, Object> map) {
+        System.out.println("登录终端：" + type);
+        if (StringUtils.isEmpty(map.get("abName") + "") || StringUtils.isEmpty(map.get("abId") + "")) {
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
+        }
+        try {
+            accountBookRestService.updateAB(map.get("abName") + "", map.get("abId") + "");
+            return new ResultBean(ApiResultType.OK, null);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 成员管理页 数据获取
+     * @param type
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/membersInfo/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean membersInfo(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(required = false) Integer abId) {
+        System.out.println("登录终端：" + type);
+        if(abId==null){
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,null);
+        }
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            //创建者  当前用户   其他组员需要区分
+            JSONObject jsonObject = accountBookRestService.membersInfo(abId, userInfoId);
+            return new ResultBean(ApiResultType.OK, jsonObject);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 成员管理页 删除成员
+     * @param type
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/deleteMembers/{type}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResultBean deleteMembers(@PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String,Object> map) {
+        System.out.println("登录终端：" + type);
+        if(map==null){
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,null);
+        }
+        if(map.get("memberIds")==null || map.get("abId")==null){
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,null);
+        }
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            accountBookRestService.deleteMembers(map, userInfoId);
+            return new ResultBean(ApiResultType.OK, null);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+
+    @RequestMapping(value = "/checkABMembers", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean checkABMembers(HttpServletRequest request) {
+        return this.checkABMembers(null, request);
+    }
+
+    @RequestMapping(value = "/getABMembers", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getABMembers(HttpServletRequest request, @RequestParam Integer abId) {
+        return this.getABMembers(null, request, abId);
+    }
+
+    @RequestMapping(value = "/getABAll", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getABAll(HttpServletRequest request) {
+        return this.getABAll(null, request);
+    }
+
+    @RequestMapping(value = "/deleteAB", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResultBean deleteAB(HttpServletRequest request, @RequestBody Map<String, Integer> map) {
+        return this.deleteAB(null, request, map);
+    }
+
+    @RequestMapping(value = "/createAB", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean createAB(HttpServletRequest request, @RequestBody AccountBookRestEntity accountBookRestEntity) {
+        return this.createAB(null, request, accountBookRestEntity);
+    }
+
+    @RequestMapping(value = "/updateAB", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResultBean updateAB(HttpServletRequest request, @RequestBody Map<String, Object> map) {
+        return this.updateAB(null, request, map);
+    }
+
+    @RequestMapping(value = "/membersInfo", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean membersInfo(HttpServletRequest request, @RequestParam(required = false) Integer abId) {
+        return this.membersInfo(null, request, abId);
+    }
+
+    @RequestMapping(value = "/deleteMembers", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResultBean deleteMembers(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+        return this.deleteMembers(null, request, map);
+    }
 }

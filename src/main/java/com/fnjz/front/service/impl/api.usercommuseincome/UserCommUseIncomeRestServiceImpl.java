@@ -44,7 +44,7 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
     @Override
     public Map<String, Object> getListById(String userInfoId) {
         String hql2 = "FROM IncomeTypeRestDTO where status = 1 ORDER BY priority ASC";
-        List<IncomeTypeRestDTO> list2 = commonDao.findByQueryString(hql2);
+        List<IncomeTypeRestEntity> list2 = commonDao.findByQueryString(hql2);
         List<IncomeTypeRestDTO> allList = new ArrayList();
         Map<String, Object> map = new HashMap();
         if (!list2.isEmpty()) {
@@ -62,7 +62,7 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
                             //封装三级类目
                             IncomeTypeRestDTO jIncome = new IncomeTypeRestDTO();
                             BeanUtils.copyProperties(list2.get(j), jIncome);
-                            jIncome.setParentName(income1.getIncomeName());
+                            //jIncome.setParentName(income1.getIncomeName());
                             allList.get(index).getIncomeTypeSons().add(jIncome);
                         }
                     }
@@ -111,8 +111,8 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
      */
     public List<?> getSysType(String type) {
         String hql2;
-        List<IncomeTypeRestDTO> incomeList = new ArrayList<>();
-        List<SpendTypeRestDTO> spendList = new ArrayList<>();
+        List<IncomeTypeRestEntity> incomeList = new ArrayList<>();
+        List<SpendTypeRestEntity> spendList = new ArrayList<>();
         if(StringUtils.equals(type,RedisPrefix.INCOME)){
             hql2 = "FROM IncomeTypeRestDTO where status = 1 ORDER BY priority ASC";
             incomeList = commonDao.findByQueryString(hql2);
@@ -138,7 +138,7 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
                                 //封装三级类目
                                 IncomeTypeRestDTO jIncome = new IncomeTypeRestDTO();
                                 BeanUtils.copyProperties(incomeList.get(j), jIncome);
-                                jIncome.setParentName(income1.getIncomeName());
+                                //jIncome.setParentName(income1.getIncomeName());
                                 incomeAllList.get(index).getIncomeTypeSons().add(jIncome);
                             }
                         }
@@ -162,7 +162,7 @@ public class UserCommUseIncomeRestServiceImpl extends CommonServiceImpl implemen
                                 //封装三级类目
                                 SpendTypeRestDTO jSpend = new SpendTypeRestDTO();
                                 BeanUtils.copyProperties(spendList.get(j), jSpend);
-                                jSpend.setParentName(spend1.getSpendName());
+                                //jSpend.setParentName(spend1.getSpendName());
                                 spendAllList.get(index).getSpendTypeSons().add(jSpend);
                             }
                         }

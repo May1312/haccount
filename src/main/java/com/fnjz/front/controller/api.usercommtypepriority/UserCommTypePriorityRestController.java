@@ -1,5 +1,6 @@
 package com.fnjz.front.controller.api.usercommtypepriority;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -47,7 +48,7 @@ public class UserCommTypePriorityRestController extends BaseController {
     @RequestMapping(value = "/uploadUserTypePriority/{type}", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean uploadUserTypePriority(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, Object> map) {
-        logger.info("请求源:"+type);
+        logger.info("请求源:" + type);
         ResultBean rb = ParamValidateUtils.checkUserTypePriority(map);
         if (rb != null) {
             return rb;
@@ -58,30 +59,81 @@ public class UserCommTypePriorityRestController extends BaseController {
             //获取accountBookId
             UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
             JSONArray relation1 = JSONArray.fromObject((ArrayList) map.get("relation"));
-            UserCommTypePriorityRestEntity userCommTypePriorityRestEntity = new UserCommTypePriorityRestEntity(Integer.valueOf(userInfoId),Integer.valueOf(map.get("type") + ""),relation1.toString());
+            UserCommTypePriorityRestEntity userCommTypePriorityRestEntity = new UserCommTypePriorityRestEntity(Integer.valueOf(userInfoId), Integer.valueOf(map.get("type") + ""), relation1.toString());
             //清空用户类目缓存
-            if(StringUtils.equals(map.get("type")+"","1")){
+            if (StringUtils.equals(map.get("type") + "", "1")) {
                 redisTemplateUtils.deleteKey(RedisPrefix.USER_SPEND_LABEL_TYPE + shareCode);
-            }else{
+            } else {
                 redisTemplateUtils.deleteKey(RedisPrefix.USER_INCOME_LABEL_TYPE + shareCode);
             }
-            Map<String,Object> resultmap = new HashMap<>();
-            if(StringUtils.equalsIgnoreCase("ios",type) || StringUtils.equalsIgnoreCase("android",type)){
-                resultmap = userCommTypePriorityRestService.saveOrUpdateRelationForMap(shareCode,userAccountBookRestEntityCache.getAccountBookId(),userInfoId,userCommTypePriorityRestEntity);
-            }else{
-                String version = userCommTypePriorityRestService.saveOrUpdateRelation(userAccountBookRestEntityCache.getAccountBookId(),userInfoId,userCommTypePriorityRestEntity);
-                resultmap.put("version",version);
+            Map<String, Object> resultmap = new HashMap<>();
+            if (StringUtils.equalsIgnoreCase("ios", type) || StringUtils.equalsIgnoreCase("android", type)) {
+                resultmap = userCommTypePriorityRestService.saveOrUpdateRelationForMap(shareCode, userAccountBookRestEntityCache.getAccountBookId(), userInfoId, userCommTypePriorityRestEntity);
+            } else {
+                String version = userCommTypePriorityRestService.saveOrUpdateRelation(userAccountBookRestEntityCache.getAccountBookId(), userInfoId, userCommTypePriorityRestEntity);
+                resultmap.put("version", version);
             }
-            return new ResultBean(ApiResultType.OK,resultmap);
+            return new ResultBean(ApiResultType.OK, resultmap);
         } catch (Exception e) {
             logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR,null);
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 多账本上传排序关系
+     * @param type
+     * @param request
+     * @param map
+     * @return
+     */
+    @RequestMapping(value = "/uploadLabelPriority/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean uploadLabelPriority(@PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, Object> map) {
+        logger.info("请求源:" + type);
+        ResultBean rb = ParamValidateUtils.checkUserTypePriority(map);
+        if (rb != null) {
+            return rb;
+        }
+        try {
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            String shareCode = (String) request.getAttribute("shareCode");
+            JSONArray relation1 = JSONArray.fromObject(map.get("relation"));
+            UserCommTypePriorityRestEntity userCommTypePriorityRestEntity = new UserCommTypePriorityRestEntity(Integer.valueOf(userInfoId), Integer.valueOf(map.get("type") + ""),Integer.valueOf(map.get("abId") + ""), relation1.toString());
+            //清空用户类目缓存
+            if (StringUtils.equals(map.get("type") + "", "2")) {
+                //清空用户类目缓存
+                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.INCOME)) {
+                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.INCOME);
+                }
+            } else {
+                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.SPEND)) {
+                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.SPEND);
+                }
+            }
+            JSONObject resultmap = new JSONObject();
+            if (StringUtils.equalsIgnoreCase("ios", type) || StringUtils.equalsIgnoreCase("android", type)) {
+                resultmap = userCommTypePriorityRestService.saveOrUpdateRelationForMapv2(userCommTypePriorityRestEntity);
+            } else {
+                String version = userCommTypePriorityRestService.saveOrUpdateRelationv2(userCommTypePriorityRestEntity);
+                resultmap.put("version", version);
+            }
+            return new ResultBean(ApiResultType.OK, resultmap);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
 
     @RequestMapping(value = "/uploadUserTypePriority", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean uploadUserTypePriority(HttpServletRequest request, @RequestBody Map<String, Object> map) {
+        return this.uploadUserTypePriority(null, request, map);
+    }
+
+    @RequestMapping(value = "/uploadLabelPriority", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean uploadLabelPriority(HttpServletRequest request, @RequestBody Map<String, Object> map) {
         return this.uploadUserTypePriority(null, request, map);
     }
 }

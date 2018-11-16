@@ -82,9 +82,19 @@ public class RedisPrefix {
     public static final String USER_INCOME_LABEL_TYPE = "user_income_label_type:";
 
     /**
+     * 缓存类目收入前缀v2 多账本  前缀:用户id:账本id :string 类型
+     */
+    public static final String USER_LABEL = "user_label:";
+
+    /**
      * 缓存系统类目收入前缀
      */
     public static final String SYS_INCOME_LABEL_TYPE = "sys_label_type:income";
+
+    /**
+     * 缓存系统类目收入前缀 id:账本id :string 类型
+     */
+    public static final String SYS_LABEL = "sys_label:";
 
     /**
      * 缓存系统类目支出前缀

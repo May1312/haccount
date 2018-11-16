@@ -2,8 +2,9 @@ package com.fnjz.front.service.api.warterorder;
 
 import com.fnjz.front.entity.api.statistics.StatisticsIncomeTopDTO;
 import com.fnjz.front.entity.api.statistics.StatisticsSpendTopAndHappinessDTO;
+import com.fnjz.front.entity.api.warterorder.WXAppletWarterOrderRestInfoDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
-import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.math.BigDecimal;
@@ -29,13 +30,13 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @param pageSize
      * @return
      */
-    Map<String,Object> findListForPagev2(String time, String accountBookId,Integer curPage,Integer pageSize);
+    Map<String,Object> findListForPagev2(String time, String accountBookId,Integer curPage,Integer pageSize,Integer abId,String userInfoId);
 
     /**
      * 更新
      * @param charge
      */
-    Integer update(WarterOrderRestEntity charge);
+    Integer update(WarterOrderRestNewLabel charge);
 
     /**
      * 删除单笔记录
@@ -80,7 +81,7 @@ public interface WarterOrderRestServiceI extends CommonService{
      * 记账功能
      * @param charge
      */
-    void insert(WarterOrderRestEntity charge,String code,Integer accountBookId);
+    void insert(WarterOrderRestNewLabel charge, String code, Integer accountBookId);
 
     /**
      * 日统计接口
@@ -164,4 +165,94 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @return
      */
     int countChargeDaysByChargeDays(String time, Integer accountBookId);
+
+    /**
+     * 获取订单详情
+     * @param id
+     * @param memberFlag
+     * @return
+     */
+    WXAppletWarterOrderRestInfoDTO findByIdv2(String id, Integer memberFlag);
+
+    /**
+     * v2 记账
+     * @param charge
+     */
+    void insertv2(WarterOrderRestNewLabel charge);
+
+    /**
+     * v2 统计日
+     * @param beginTime
+     * @param endTime
+     * @param userInfoId
+     * @param i
+     * @return
+     */
+    Map<String,Object> statisticsForDaysv2(Date beginTime, Date endTime, String userInfoId, int i);
+
+    /**
+     * v2 统计周
+     * @param beginWeek
+     * @param endWeek
+     * @param userInfoId
+     * @param i
+     * @return
+     */
+    Map<String,Object> statisticsForWeeksv2(String beginWeek, String endWeek, String userInfoId, int i);
+
+    /**
+     * v2  统计月
+     * @param userInfoId
+     * @param i
+     * @return
+     */
+    Map<String,Object> statisticsForMonthsv2(String userInfoId, int i);
+
+    /**
+     * v2 日统计 支出排行榜
+     * @param dayTime
+     * @param userInfoId
+     * @return
+     */
+    StatisticsSpendTopAndHappinessDTO statisticsForDaysTopAndHappinessv2(Date dayTime, String userInfoId);
+
+    /**
+     * v2 周统计 支出排行榜
+     * @param time
+     * @param userInfoId
+     * @return
+     */
+    StatisticsSpendTopAndHappinessDTO statisticsForWeeksTopAndHappinessv2(String time, String userInfoId);
+
+    /**
+     * v2 月统计 支出排行榜
+     * @param time
+     * @param userInfoId
+     * @return
+     */
+    StatisticsSpendTopAndHappinessDTO statisticsForMonthsTopAndHappinessv2(String time, String userInfoId);
+
+    /**
+     * v2 日统计 收入排行榜
+     * @param dayTime
+     * @param userInfoId
+     * @return
+     */
+    StatisticsIncomeTopDTO statisticsForDaysTopv2(Date dayTime, String userInfoId);
+
+    /**
+     * v2 周统计 收入排行榜
+     * @param time
+     * @param userInfoId
+     * @return
+     */
+    StatisticsIncomeTopDTO statisticsForWeeksTopv2(String time, String userInfoId);
+
+    /**
+     * v2 月统计 收入排行榜
+     * @param time
+     * @param userInfoId
+     * @return
+     */
+    StatisticsIncomeTopDTO statisticsForMonthsTopv2(String time, String userInfoId);
 }
