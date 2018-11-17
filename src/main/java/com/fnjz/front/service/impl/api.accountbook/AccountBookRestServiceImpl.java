@@ -74,8 +74,13 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
             abMembers.forEach(v -> {
                 if (StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "0")) {
                     //当前请求用户为账本所有者
+<<<<<<< HEAD
                     jsonObject.put("yourSelf", v.get("avatarurl"));
                 } else if (StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "2")) {
+=======
+                    jsonObject.put("yourSelf",v.get("avatarurl"));
+                }else if(StringUtils.equals(v.get("userinfoid")+"",userInfoId)&&StringUtils.equals(v.get("usertype")+"","1")){
+>>>>>>> b9415da03437d8daf7f8db8e4ac433867007c38a
                     //当前用户作为成员
                     jsonObject.put("yourSelf", v.get("avatarurl"));
                 } else if (!StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "0")) {

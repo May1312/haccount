@@ -160,7 +160,8 @@ public interface AccountBookBudgetRestDao {
      * @param userInfoId
      * @return
      */
-    List<BudgetCompletionRateDTO> listBudgetCompletionRateStatisticsByMonthsv2(@Param("begin") String s,@Param("end") String s1,@Param("userInfoId") String userInfoId);
+    @Sql("SELECT SUM( money ) AS monthSpend FROM `hbird_water_order` WHERE account_book_id=:abId and charge_date between :begin and :end AND delflag = 0 AND order_type = 1;")
+    String listBudgetCompletionRateStatisticsByMonthsv2(@Param("begin") String s,@Param("end") String s1,@Param("abId") Integer abId);
 
     /**
      * 获取范围预算
@@ -170,5 +171,5 @@ public interface AccountBookBudgetRestDao {
      * @return
      */
     @Sql("SELECT time, budget_money FROM `hbird_accountbook_budget` WHERE account_book_id = :abId AND time between :begin and :end AND budget_money !=- 1 ")
-    List<AccountBookBudgetRestEntity> getBudgetByTimeRange(@Param("begin") String s,@Param("end") String s1, Integer abId);
+    List<AccountBookBudgetRestEntity> getBudgetByTimeRange(@Param("begin") String s,@Param("end") String s1,@Param("abId") Integer abId);
 }

@@ -1,5 +1,6 @@
 package com.fnjz.front.service.api.accountbookbudget;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
@@ -144,6 +145,7 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @param range
      * @return
      */
+<<<<<<< HEAD
     List<BudgetCompletionRateDTO> getBudgetCompletionRatev2(String userInfoId,Integer abId, String month, String range);
     /**
      * 功能描述: 修改预算消息推送通知
@@ -154,4 +156,17 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @date: 2018/11/16 20:08
      */
     void reviseBudgetNotification(Integer userInfoId,AccountBookBudgetRestEntity budget);
+=======
+    JSONArray getBudgetCompletionRatev2(String userInfoId, Integer abId, String month, String range);
+
+    /**
+     * v2 获取场景账本
+     * @param userInfoId
+     * @param abId
+     * @param month
+     * @param range
+     * @return
+     */
+    JSONArray getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, String month, String range);
+>>>>>>> b9415da03437d8daf7f8db8e4ac433867007c38a
 }

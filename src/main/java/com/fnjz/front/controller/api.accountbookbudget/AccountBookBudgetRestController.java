@@ -1,5 +1,6 @@
 package com.fnjz.front.controller.api.accountbookbudget;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
@@ -470,16 +471,26 @@ public class AccountBookBudgetRestController extends BaseController {
     @ResponseBody
     public ResultBean getbudgetcompletionratev2(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range, @RequestParam(value = "abId", required = false) Integer abId) {
         System.out.println("登录终端：" + type);
+        if (abId == null) {
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
+        }
         String userInfoId = (String) request.getAttribute("userInfoId");
         JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
         try {
             //查询当前账本类型  1:普通日常账本 2:场景账本(即需设置预算起始时间)
             int status = accountBookBudgetRestService.getABTypeByABId(abId);
+            JSONArray jsonArray = new JSONArray();
             if(status==1){
-                List<BudgetCompletionRateDTO> list = accountBookBudgetRestService.getBudgetCompletionRatev2(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"));
-                return new ResultBean(ApiResultType.OK, list);
+                jsonArray = accountBookBudgetRestService.getBudgetCompletionRatev2(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"));
+                return new ResultBean(ApiResultType.OK, jsonArray);
             }else{
-                //场景账本
+                //场景账本  查看是否设置预算及起止时间
+                SceneABBudgetRestDTO sceneABBudget = accountBookBudgetRestService.getSceneABBudget(abId);
+                if(sceneABBudget.getBudgetMoney()!=null && sceneABBudget.getBeginTime()!=null && sceneABBudget.getEndTime()!=null){
+                    jsonArray = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"));
+                }else{
+                    return new ResultBean(ApiResultType.OK,jsonArray);
+                }
                 return null;
             }
 
