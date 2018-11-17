@@ -74,6 +74,14 @@ public interface AccountBookRestDao {
     Integer checkUserType(@Param("userInfoId") String userInfoId,@Param("abId") Integer abId);
 
     /**
+     * 根据账本id获取账本name
+     * @param abId
+     * @return
+     */
+    @Sql("select ab_name from hbird_account_book where id=:abId;")
+    String getTypeNameByABId(@Param("abId") Integer abId);
+
+    /**
      * 删除用户---账本绑定关系
      * @param userInfoId
      * @param abId

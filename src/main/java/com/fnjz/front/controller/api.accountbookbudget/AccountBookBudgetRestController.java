@@ -146,6 +146,14 @@ public class AccountBookBudgetRestController extends BaseController {
                 if (i < 0) {
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
                 }
+
+                //更新流程执行成功之后发送消息推送
+                new Thread() {
+                    public void run() {
+                        accountBookBudgetRestService.reviseBudgetNotification(Integer.parseInt(userInfoId),budget);
+                    }
+                }.start();
+
                 return new ResultBean(ApiResultType.OK, null);
             } else {
                 //执行新增流程 此种情况只适用于第一次设置预算

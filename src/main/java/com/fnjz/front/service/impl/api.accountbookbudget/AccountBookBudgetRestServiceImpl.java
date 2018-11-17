@@ -3,18 +3,22 @@ package com.fnjz.front.service.impl.api.accountbookbudget;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.dao.AccountBookBudgetRestDao;
-import com.fnjz.front.dao.AccountBookRestDao;
-import com.fnjz.front.dao.UserPrivateLabelRestDao;
+import com.fnjz.front.controller.api.message.MessageContentFactory;
+import com.fnjz.front.controller.api.message.MessageType;
+import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.StatisticAnalysisDTO;
 import com.fnjz.front.entity.api.accountbookbudget.SceneABBudgetRestDTO;
+import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
+import com.fnjz.front.service.api.accountbook.AccountBookRestServiceI;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
+import com.fnjz.front.service.api.message.MessageServiceI;
+import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
@@ -24,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
@@ -45,6 +50,18 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     @Autowired
     private UserPrivateLabelRestDao userPrivateLabelRestDao;
 
+    @Autowired
+    private UserAccountBookRestDao userAccountBookRestDao;
+
+    @Autowired
+    private MessageServiceI messageService;
+
+    @Autowired
+    private UserInfoRestDao userInfoRestDao;
+
+    @Autowired
+    private UserAccountBookRestServiceI userAccountBookRestService;
+
     /**
      * 设置或更新预算
      *
@@ -61,10 +78,44 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             createTokenUtils.integralTask(budget.getCreateBy() + "", ShareCodeUtil.id2sharecode(budget.getCreateBy()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Setting_up_savings_efficiency);
         }
         if (flag) {
-            //更新流程
+            //更新流程-->更新之后账本成员大于1给账本成员发送通知
+
             return accountBookBudgetRestDao.update(budget);
         } else {
             return accountBookBudgetRestDao.insert(budget);
+        }
+    }
+
+    /**
+     * 功能描述: 修改预算之后给成员发送通知
+     *
+     * @param: userInfoId 当前修改用户id
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/16 17:41
+     */
+    @Override
+    public void reviseBudgetNotification(Integer userInfoId,AccountBookBudgetRestEntity budget){
+        int totalMember = accountBookRestDao.getTotalMember(budget.getAccountBookId()+"");
+        if(totalMember>1){
+            //修改账本名称
+            String ABtypeName = accountBookRestDao.getTypeNameByABId(budget.getAccountBookId());
+            //修改前预算金额
+            AccountBookBudgetRestEntity budget1 = accountBookBudgetRestDao.getBudget(budget.getAccountBookId());
+            BigDecimal preBudgetMoney = budget1.getBudgetMoney();
+            //通知人数集合
+            List<UserAccountBookRestEntity> accountBookId = userAccountBookRestService.findByProperty(UserAccountBookRestEntity.class, "accountBookId", budget.getAccountBookId());
+            ArrayList<Integer> integers = new ArrayList<>();
+            //List<Integer> strings = userAccountBookRestDao.listForUserInfoIdSByaABId(budget.getAccountBookId());
+            for (UserAccountBookRestEntity userAccountBookRestEntity : accountBookId) {
+               integers.add(userAccountBookRestEntity.getUserInfoId());
+            }
+            //创建者姓名
+            String creatName = userInfoRestDao.getUserNameByUserId(userInfoId);
+            //组合消息内容
+            String messageContent = MessageContentFactory.getMessageContent(MessageType.reviseBudgetNotification,ABtypeName,creatName,preBudgetMoney.toString(),budget.getBudgetMoney().toString());
+            //添加消息，发送通知
+            messageService.addUserMessage(messageContent,userInfoId,integers);
         }
     }
 

@@ -28,6 +28,15 @@ public interface AccountBookBudgetRestDao {
     AccountBookBudgetRestEntity getCurrentBudget(@Param("time") String time,@Param("accountBookId") Integer accountBookId);
 
     /**
+     * 获取指定时间预算结果集
+     *
+     * @return
+     */
+    @ResultType(AccountBookBudgetRestEntity.class)
+    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId ;")
+    AccountBookBudgetRestEntity getBudget(@Param("accountBookId") Integer accountBookId);
+
+    /**
      * 获取指定时间预算结果集并且限制记录创建时间不能为当前月
      *
      * @return

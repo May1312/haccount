@@ -65,4 +65,23 @@ public interface AccountBookRestServiceI extends CommonService{
      * @param userInfoId
      */
     void deleteMembers(Map<String,Object> map, String userInfoId);
+    /**
+     * 功能描述: 发送移除通知
+     *
+     * @param:
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/16 20:52
+     */
+    void removeTheNotification(Map<String, Object> map,String userInfoId);
+    /**
+     * 功能描述:
+     *
+     * @param:
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/17 15:01
+     */
+    JSONObject invitationToAccount(String adminUserInfoId,String accountBookId,String invitedId);
+
 }
