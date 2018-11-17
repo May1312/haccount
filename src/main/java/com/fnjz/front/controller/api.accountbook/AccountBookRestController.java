@@ -215,6 +215,8 @@ public class AccountBookRestController extends BaseController {
             accountBookRestService.deleteMembers(map, userInfoId);
 
             //移除流程执行成功之后发送消息推送
+
+            
             new Thread() {
                 @Override
                 public void run() {
