@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.AccountBookBudgetRestDao;
 import com.fnjz.front.dao.AccountBookRestDao;
-import com.fnjz.front.dao.UserPrivateLabelRestDao;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
@@ -24,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
@@ -41,9 +41,6 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
 
     @Autowired
     private AccountBookRestDao accountBookRestDao;
-
-    @Autowired
-    private UserPrivateLabelRestDao userPrivateLabelRestDao;
 
     /**
      * 设置或更新预算
@@ -523,15 +520,16 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @return
      */
     @Override
-    public List<BudgetCompletionRateDTO> getBudgetCompletionRatev2(String userInfoId,Integer abId, String month, String range) {
-        /*LocalDate localDate = LocalDate.of(LocalDate.now().getYear(),Integer.valueOf(month),1);
+    public JSONArray getBudgetCompletionRatev2(String userInfoId,Integer abId, String month, String range) {
+        LocalDate localDate = LocalDate.of(LocalDate.now().getYear(),Integer.valueOf(month),1);
         //取月末
         LocalDate end = localDate.with(TemporalAdjusters.lastDayOfMonth());
-        LocalDate begin = localDate.minusMonths(Integer.valueOf(range) + 1);
+        LocalDate begin = localDate.minusMonths(Integer.valueOf(range) - 1);
         //取月初
         begin =begin.minusDays(begin.getDayOfMonth()- 1);
         //获取范围内预算
         List<AccountBookBudgetRestEntity> list = accountBookBudgetRestDao.getBudgetByTimeRange(begin.toString(), end.toString(),abId);
+        JSONArray jsonArray = new JSONArray();
         list.forEach(v->{
             //遍历预算期内数据
             String[] split = StringUtils.split(v.getTime(), "-");
@@ -539,8 +537,26 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             LocalDate localDate1 = LocalDate.of(Integer.valueOf(split[0]),Integer.valueOf(split[1]),1);
             //获取月末时间
             LocalDate localDate2 = localDate1.with(TemporalAdjusters.lastDayOfMonth());
-            List<BudgetCompletionRateDTO> list2 = accountBookBudgetRestDao.listBudgetCompletionRateStatisticsByMonths(rangeMonth, month, accountBookId);
-        });*/
+            String monthSpend = accountBookBudgetRestDao.listBudgetCompletionRateStatisticsByMonthsv2(localDate1.toString(), localDate2.toString(), abId);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("monthSpend",monthSpend==null?0:new BigDecimal(monthSpend));
+            jsonObject.put("time",v.getTime());
+            jsonObject.put("budgetMoney",v.getBudgetMoney());
+            jsonArray.add(jsonObject);
+        });
+        return jsonArray;
+    }
+
+    /**
+     * v2 场景账本预算完成率获取
+     * @param userInfoId
+     * @param abId
+     * @param month
+     * @param range
+     * @return
+     */
+    @Override
+    public JSONArray getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, String month, String range) {
         return null;
     }
 }

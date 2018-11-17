@@ -45,7 +45,7 @@ public interface AccountBookRestDao {
      * @param abId
      * @return
      */
-    @Sql("SELECT base1.user_info_id as userInfoId,base1.user_type as userType,base3.avatar_url as avatarUrl FROM hbird_user_account_book base1 inner JOIN hbird_user_info as base3 on base1.user_info_id=base3.id where base1.account_book_id=:abId;")
+    @Sql("SELECT base1.user_info_id as userInfoId,base1.user_type as userType,base3.avatar_url as avatarUrl FROM hbird_user_account_book base1 inner JOIN hbird_user_info as base3 on base1.user_info_id=base3.id where base1.account_book_id=:abId and base1.delflag=0;")
     List<Map<String,Object>> getABMembers(@Param("abId") Integer abId);
 
     /**

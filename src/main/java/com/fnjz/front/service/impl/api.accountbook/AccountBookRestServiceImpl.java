@@ -62,7 +62,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                 if(StringUtils.equals(v.get("userinfoid")+"",userInfoId)&&StringUtils.equals(v.get("usertype")+"","0")){
                     //当前请求用户为账本所有者
                     jsonObject.put("yourSelf",v.get("avatarurl"));
-                }else if(StringUtils.equals(v.get("userinfoid")+"",userInfoId)&&StringUtils.equals(v.get("usertype")+"","2")){
+                }else if(StringUtils.equals(v.get("userinfoid")+"",userInfoId)&&StringUtils.equals(v.get("usertype")+"","1")){
                     //当前用户作为成员
                     jsonObject.put("yourSelf",v.get("avatarurl"));
                 }else if(!StringUtils.equals(v.get("userinfoid")+"",userInfoId)&&StringUtils.equals(v.get("usertype")+"","0")){

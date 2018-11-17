@@ -134,6 +134,6 @@ public class UserCommTypePriorityRestController extends BaseController {
     @RequestMapping(value = "/uploadLabelPriority", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean uploadLabelPriority(HttpServletRequest request, @RequestBody Map<String, Object> map) {
-        return this.uploadUserTypePriority(null, request, map);
+        return this.uploadLabelPriority(null, request, map);
     }
 }

@@ -1,5 +1,6 @@
 package com.fnjz.front.service.api.accountbookbudget;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
 import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
@@ -144,5 +145,15 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @param range
      * @return
      */
-    List<BudgetCompletionRateDTO> getBudgetCompletionRatev2(String userInfoId,Integer abId, String month, String range);
+    JSONArray getBudgetCompletionRatev2(String userInfoId, Integer abId, String month, String range);
+
+    /**
+     * v2 获取场景账本
+     * @param userInfoId
+     * @param abId
+     * @param month
+     * @param range
+     * @return
+     */
+    JSONArray getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, String month, String range);
 }
