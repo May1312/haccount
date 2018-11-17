@@ -734,4 +734,10 @@ public class AccountBookBudgetRestController extends BaseController {
     public ResultBean getFixedSpend(HttpServletRequest request) {
         return this.getFixedSpend(null, request);
     }
+
+    @RequestMapping(value = "/setFixedSpend", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean setFixedSpend(HttpServletRequest request,@RequestBody AccountBookBudgetRestEntity budget) {
+        return this.setFixedSpend(null,budget,request);
+    }
 }

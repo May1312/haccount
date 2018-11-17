@@ -55,7 +55,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         JSONArray memberArray = new JSONArray();
         int totalMember = accountBookRestDao.getTotalMember(abId + "");
         //判断当前请求用户是否为账本所有者
-        if (totalMember>1){
+        if (totalMember>=1){
             //包含多组员  查询创建者  当前用户  其他组员
             List<Map<String, Object>> abMembers = accountBookRestDao.getABMembers(abId);
             abMembers.forEach(v->{

@@ -41,46 +41,45 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
     private UserCommUseTypeOfflineCheckRestDao userCommUseTypeOfflineCheckRestDao;
 
     @Override
-    public JSONObject getCacheLabel(Integer abId, String userInfoId, String shareCode, String type) {
+    public JSONObject getCacheLabel(Integer abTypeId, String userInfoId, String shareCode, String type) {
         //根据账本id获取当前账本类型
-        Integer typeId = userPrivateLabelRestDao.getAccountBookTypeIdByABId(abId);
-        List userType = redisTemplateUtils.getHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + abId, type);
-        List sysType = redisTemplateUtils.getHashValueV2(RedisPrefix.SYS_LABEL + typeId, type);
+        //Integer typeId = userPrivateLabelRestDao.getAccountBookTypeIdByABId(abTypeId);
+        List userType = redisTemplateUtils.getHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + abTypeId, type);
+        List sysType = redisTemplateUtils.getHashValueV2(RedisPrefix.SYS_LABEL + abTypeId, type);
         JSONObject map = new JSONObject();
-        //if (userType.size()>0 && sysType.size()>0) {
         if (userType != null && sysType != null) {
             map.put("allList", sysType);
             map.put("commonList", userType);
         } else if (userType != null && userType == null) {
             //个人有效  系统失
-            List<?> sysType2 = this.getSysType(type, abId);
+            List<?> sysType2 = this.getSysType(type, abTypeId);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(type, sysType2);
             //缓存系统类目
-            redisTemplateUtils.updateForHash(RedisPrefix.SYS_LABEL + typeId, jsonObject);
+            redisTemplateUtils.updateForHash(RedisPrefix.SYS_LABEL + abTypeId, jsonObject);
             map.put("allList", sysType2);
             map.put("commonList", userType);
         } else if (userType == null && sysType != null) {
             //系统有效   个人失效
-            List<?> userCommUseType = this.getUserCommUseType(userInfoId, type, abId);
+            List<?> userCommUseType = this.getUserCommUseType(userInfoId, type, abTypeId);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(type, userCommUseType);
             //缓存个人类目
-            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode + ":" + abId, jsonObject);
+            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode + ":" + abTypeId, jsonObject);
             map.put("allList", sysType);
             map.put("commonList", userCommUseType);
         } else {
             //都失效
-            List<?> sysType2 = this.getSysType(type, abId);
-            List<?> userCommUseType = this.getUserCommUseType(userInfoId, type, abId);
+            List<?> sysType2 = this.getSysType(type, abTypeId);
+            List<?> userCommUseType = this.getUserCommUseType(userInfoId, type, abTypeId);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(type, userCommUseType);
             //缓存个人类目
-            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode + ":" + abId, jsonObject);
+            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode + ":" + abTypeId, jsonObject);
             JSONObject jsonObject2 = new JSONObject();
             jsonObject2.put(type, sysType2);
             //缓存系统类目
-            redisTemplateUtils.updateForHash(RedisPrefix.SYS_LABEL + typeId, jsonObject2);
+            redisTemplateUtils.updateForHash(RedisPrefix.SYS_LABEL + abTypeId, jsonObject2);
             map.put("allList", sysType2);
             map.put("commonList", userCommUseType);
         }
@@ -293,15 +292,15 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
      * @param type
      * @return
      */
-    private List<?> getSysType(String type, Integer abId) {
+    private List<?> getSysType(String type, Integer abTypeId) {
         List<IncomeTypeRestEntity> incomeList = new ArrayList<>();
         List<SpendTypeRestEntity> spendList = new ArrayList<>();
         if (StringUtils.equals(type, RedisPrefix.INCOME)) {
             //获取当前账本类型对应系统三级标签
-            incomeList = userPrivateLabelRestDao.listLabelByAbIdForIncome(abId);
+            incomeList = userPrivateLabelRestDao.listLabelByAbIdForIncome(abTypeId);
         } else {
             //获取当前账本类型对应系统标签
-            spendList = userPrivateLabelRestDao.listLabelByAbIdForSpend(abId);
+            spendList = userPrivateLabelRestDao.listLabelByAbIdForSpend(abTypeId);
         }
         List<IncomeTypeRestDTO> incomeAllList = new ArrayList();
         List<SpendTypeRestDTO> spendAllList = new ArrayList();
@@ -377,20 +376,20 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
      * @return
      */
     @Override
-     public List<?> getUserCommUseType(String userInfoId, String type, Integer abId) {
+     public List<?> getUserCommUseType(String userInfoId, String type, Integer abTypeId) {
         List<UserPrivateIncomeLabelRestDTO> incomeList = new ArrayList<>();
         List<UserPrivateSpendLabelRestDTO> spendList = new ArrayList<>();
         String relationHql;
         //判断是否为注册用户首次调用
-        this.checkUserPrivateLabel(userInfoId, type, abId);
+        this.checkUserPrivateLabel(userInfoId, type, abTypeId);
         if (StringUtils.equals(type, RedisPrefix.INCOME)) {
             //用户常用类目获取
-            incomeList = userPrivateLabelRestDao.selectLabelByAbId2(abId, 2);
+            incomeList = userPrivateLabelRestDao.selectLabelByAbId2(userInfoId,abTypeId, 2);
             //获取类目优先级
-            relationHql = "from UserCommTypePriorityRestEntity where userInfoId = " + userInfoId + " AND accountBookId = " + abId + " AND type = 2";
+            relationHql = "from UserCommTypePriorityRestEntity where userInfoId = " + userInfoId + " AND abTypeId = " + abTypeId + " AND type = 2";
         } else {
-            spendList = userPrivateLabelRestDao.selectLabelByAbId(abId, 1);
-            relationHql = "from UserCommTypePriorityRestEntity where userInfoId = " + userInfoId + " AND accountBookId = " + abId + " AND type = 1";
+            spendList = userPrivateLabelRestDao.selectLabelByAbId(userInfoId,abTypeId, 1);
+            relationHql = "from UserCommTypePriorityRestEntity where userInfoId = " + userInfoId + " AND abTypeId = " + abTypeId + " AND type = 1";
         }
         UserCommTypePriorityRestEntity u = (UserCommTypePriorityRestEntity) commonDao.singleResult(relationHql);
         if (u != null) {
@@ -450,12 +449,12 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
     /**
      * 为新注册用户分配系统常用标签
      */
-    private void checkUserPrivateLabel(String userInfoId, String type, Integer abId) {
+    private void checkUserPrivateLabel(String userInfoId, String type, Integer abTypeId) {
         //判断用户自有标签是否已存在
         if (StringUtils.equals(type, RedisPrefix.INCOME)) {
-            int count = userPrivateLabelRestDao.checkUserPrivateLabelForIncome(abId);
+            int count = userPrivateLabelRestDao.checkUserPrivateLabelForIncome(userInfoId,abTypeId);
             if (count < 1) {
-                List<IncomeTypeLabelIdRestDTO> incomeTypeRestDTOS = userPrivateLabelRestDao.listMarkLabelByAbIdForIncome(abId);
+                List<IncomeTypeLabelIdRestDTO> incomeTypeRestDTOS = userPrivateLabelRestDao.listMarkLabelByAbIdForIncome(abTypeId);
                 if (incomeTypeRestDTOS != null) {
                     if (incomeTypeRestDTOS.size() > 0) {
                         incomeTypeRestDTOS.forEach(v -> {
@@ -471,7 +470,7 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
                             //绑定用户
                             userPrivateLabelRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
                             //绑定账本id
-                            userPrivateLabelRestEntity.setAccountBookId(abId);
+                            //userPrivateLabelRestEntity.setAccountBookId(abId);
                             //图标
                             userPrivateLabelRestEntity.setIcon(v.getIcon());
                             //
@@ -490,9 +489,9 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
                 }
             }
         } else {
-            int count = userPrivateLabelRestDao.checkUserPrivateLabelForSpend(abId);
+            int count = userPrivateLabelRestDao.checkUserPrivateLabelForSpend(userInfoId,abTypeId);
             if (count < 1) {
-                List<SpendTypeLabelIdRestDTO> spendTypeRestDTOS = userPrivateLabelRestDao.listMarkLabelByAbIdForSpend(abId);
+                List<SpendTypeLabelIdRestDTO> spendTypeRestDTOS = userPrivateLabelRestDao.listMarkLabelByAbIdForSpend(abTypeId);
                 if (spendTypeRestDTOS != null) {
                     if (spendTypeRestDTOS.size() > 0) {
                         spendTypeRestDTOS.forEach(v -> {
@@ -508,7 +507,7 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
                             //绑定用户
                             userPrivateLabelRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
                             //绑定账本id
-                            userPrivateLabelRestEntity.setAccountBookId(abId);
+                            //userPrivateLabelRestEntity.setAccountBookId(abId);
                             //图标
                             userPrivateLabelRestEntity.setIcon(v.getIcon());
                             //

@@ -38,21 +38,20 @@ public interface UserPrivateLabelRestDao {
      * @return
      */
     @ResultType(IncomeTypeRestEntity.class)
-    @Sql("SELECT base2.id,sys_income.income_name,sys_income.parent_id,sys_income.icon,base2.priority FROM hbird_income_type AS sys_income, ( SELECT id,sys_label_id,priority FROM hbird_account_book_type_label AS type_label, ( SELECT account_book_type_id AS type_id FROM hbird_account_book WHERE id = :accountBookId ) AS base1 WHERE type_label.ab_type_id = base1.type_id AND type_label.label_type = 2 AND type_label.`status` = 1 ) AS base2 WHERE sys_income.id = base2.sys_label_id order by base2.priority;")
-    List<IncomeTypeRestEntity> listLabelByAbIdForIncome(@Param("accountBookId") Integer abId);
+    @Sql("SELECT base2.id, sys_income.income_name, sys_income.parent_id, sys_income.icon, base2.priority FROM hbird_income_type AS sys_income, ( SELECT id, sys_label_id, priority FROM hbird_account_book_type_label WHERE ab_type_id =:abTypeId AND label_type = 2 AND `status` = 1 ) AS base2 WHERE sys_income.id = base2.sys_label_id ORDER BY base2.priority;")
+    List<IncomeTypeRestEntity> listLabelByAbIdForIncome(@Param("abTypeId") Integer abTypeId);
 
     @ResultType(SpendTypeRestEntity.class)
-    @Sql("SELECT base2.id,sys_spend.spend_name,sys_spend.parent_id,sys_spend.icon,base2.priority FROM hbird_spend_type AS sys_spend, ( SELECT id,sys_label_id,priority FROM hbird_account_book_type_label AS type_label, ( SELECT account_book_type_id AS type_id FROM hbird_account_book WHERE id = :accountBookId ) AS base1 WHERE type_label.ab_type_id = base1.type_id AND type_label.label_type = 1 AND type_label.`status` = 1 ) AS base2 WHERE sys_spend.id = base2.sys_label_id order by base2.priority;")
-    List<SpendTypeRestEntity> listLabelByAbIdForSpend(@Param("accountBookId")Integer abId);
+    @Sql("SELECT base2.id, sys_spend.spend_name, sys_spend.parent_id, sys_spend.icon, base2.priority FROM hbird_spend_type AS sys_spend, ( SELECT id, sys_label_id, priority FROM hbird_account_book_type_label WHERE ab_type_id = :abTypeId AND label_type = 1 AND status = 1 ) AS base2 WHERE sys_spend.id = base2.sys_label_id ORDER BY base2.priority;")
+    List<SpendTypeRestEntity> listLabelByAbIdForSpend(@Param("abId")Integer abId);
 
     /**
      * 获取当前账本类型对应系统常用标签
-     * @param abId
      * @return
      */
     @ResultType(IncomeTypeLabelIdRestDTO.class)
-    @Sql("SELECT sys_income.id,sys_income.income_name,sys_income.parent_id,sys_income.icon,base2.priority,base2.id as labelId FROM hbird_income_type AS sys_income, ( SELECT sys_label_id,priority,type_label.id FROM hbird_account_book_type_label AS type_label, ( SELECT account_book_type_id AS type_id FROM hbird_account_book WHERE id = :accountBookId ) AS base1 WHERE type_label.ab_type_id = base1.type_id AND type_label.label_type = 2 AND type_label.`status` = 1 and mark=1) AS base2 WHERE sys_income.id = base2.sys_label_id order by base2.priority;")
-    List<IncomeTypeLabelIdRestDTO> listMarkLabelByAbIdForIncome(@Param("accountBookId") Integer abId);
+    @Sql("SELECT sys_income.id, sys_income.income_name, sys_income.parent_id, sys_income.icon, base2.priority, base2.id AS labelId FROM hbird_income_type AS sys_income, ( SELECT sys_label_id, priority, id FROM hbird_account_book_type_label WHERE ab_type_id = :abTypeId AND label_type = 2 AND status = 1 AND mark = 1 ) AS base2 WHERE sys_income.id = base2.sys_label_id ORDER BY base2.priority;")
+    List<IncomeTypeLabelIdRestDTO> listMarkLabelByAbIdForIncome(@Param("abTypeId") Integer abTypeId);
 
     @ResultType(SpendTypeLabelIdRestDTO.class)
     @Sql("SELECT sys_spend.id,sys_spend.spend_name,sys_spend.parent_id,sys_spend.icon,base2.priority,base2.id as labelId FROM hbird_spend_type AS sys_spend, ( SELECT sys_label_id,priority,type_label.id FROM hbird_account_book_type_label AS type_label, ( SELECT account_book_type_id AS type_id FROM hbird_account_book WHERE id = :accountBookId ) AS base1 WHERE type_label.ab_type_id = base1.type_id AND type_label.label_type = 1 AND type_label.`status` = 1 and mark=1) AS base2 WHERE sys_spend.id = base2.sys_label_id order by base2.priority;")
@@ -60,19 +59,17 @@ public interface UserPrivateLabelRestDao {
 
     /**
      * 判断用户自有标签是否已存在  ---支出
-     * @param accountBookId
      * @return
      */
-    @Sql("SELECT COALESCE(count(id),0) FROM hbird_user_private_label where account_book_id = :accountBookId and property=1 and type=1;")
-    int checkUserPrivateLabelForSpend(@Param("accountBookId")Integer accountBookId);
+    @Sql("SELECT COALESCE ( count( id ), 0 ) FROM hbird_user_private_label WHERE user_info_id=:userInfoId and ab_type_id=:abTypeId AND property = 1 AND type = 1;")
+    int checkUserPrivateLabelForSpend(@Param("userInfoId")String userInfoId,@Param("abTypeId")Integer abTypeId);
 
     /**
      * 判断用户自有标签是否已存在  ---收入
-     * @param accountBookId
      * @return
      */
-    @Sql("SELECT COALESCE(count(id),0) FROM hbird_user_private_label where account_book_id = :accountBookId and property=2 and type=1;")
-    int checkUserPrivateLabelForIncome(@Param("accountBookId")Integer accountBookId);
+    @Sql("SELECT COALESCE ( count( id ), 0 ) FROM hbird_user_private_label WHERE user_info_id=:userInfoId and ab_type_id=:abTypeId AND property = 2 AND type = 1;")
+    int checkUserPrivateLabelForIncome(@Param("userInfoId")String userInfoId,@Param("abTypeId")Integer abTypeId);
 
     /**
      * 插入用户自有标签表
@@ -83,16 +80,15 @@ public interface UserPrivateLabelRestDao {
 
     /**
      * 根据账本id获取自有标签表中有效数据
-     * @param abId
      * @return
      */
     @ResultType(UserPrivateSpendLabelRestDTO.class)
-    @Sql("select id,type_name as spendName,icon,account_book_id,priority from hbird_user_private_label where account_book_id = :accountBookId and if(:property=1,property=1,property=2) and type=1 and status = 1;")
-    List<UserPrivateSpendLabelRestDTO> selectLabelByAbId(@Param("accountBookId")Integer abId, @Param("property") Integer property);
+    @Sql("SELECT id, type_name AS spendName, icon, priority FROM hbird_user_private_label WHERE user_info_id =:userInfoId AND ab_type_id =:abTypeId AND IF ( :property = 1, property = 1, property = 2 ) AND type = 1 AND STATUS = 1;")
+    List<UserPrivateSpendLabelRestDTO> selectLabelByAbId(@Param("userInfoId")String userInfoId,@Param("abTypeId")Integer abTypeId, @Param("property") Integer property);
 
     @ResultType(UserPrivateIncomeLabelRestDTO.class)
-    @Sql("select id,type_name as incomeName,icon,account_book_id,priority from hbird_user_private_label where account_book_id = :accountBookId and if(:property=1,property=1,property=2) and type=1 and status = 1;")
-    List<UserPrivateIncomeLabelRestDTO> selectLabelByAbId2(@Param("accountBookId")Integer abId, @Param("property") Integer property);
+    @Sql("SELECT id, type_name AS incomeName, icon, priority FROM hbird_user_private_label WHERE user_info_id=:userInfoId and ab_type_id=:abTypeId AND IF ( :property = 1, property = 1, property = 2 ) AND type = 1 AND STATUS = 1;")
+    List<UserPrivateIncomeLabelRestDTO> selectLabelByAbId2(@Param("userInfoId")String userInfoId,@Param("abTypeId")Integer abTypeId, @Param("property") Integer property);
 
     /**
      *

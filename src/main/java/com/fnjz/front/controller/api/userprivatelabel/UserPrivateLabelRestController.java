@@ -34,20 +34,20 @@ public class UserPrivateLabelRestController {
 
     @RequestMapping(value = {"/getIncomeLabel/{type}", "/getSpendLabel/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getIncomeTypeList(@PathVariable("type") String type, HttpServletRequest request, @RequestParam String abId) {
+    public ResultBean getIncomeTypeList(@PathVariable("type") String type, HttpServletRequest request, @RequestParam String abTypeId) {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
-        if (StringUtils.isEmpty(abId)) {
+        if (StringUtils.isEmpty(abTypeId)) {
             return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
         }
         JSONObject jsonObject;
         try {
             if (StringUtils.contains(request.getRequestURI(), "/getIncomeLabel")) {
                 //收入请求
-                jsonObject = userPrivateLabelRestService.getCacheLabel(Integer.valueOf(abId), userInfoId, shareCode, RedisPrefix.INCOME);
+                jsonObject = userPrivateLabelRestService.getCacheLabel(Integer.valueOf(abTypeId), userInfoId, shareCode, RedisPrefix.INCOME);
             } else {
                 //支出请求
-                jsonObject = userPrivateLabelRestService.getCacheLabel(Integer.valueOf(abId), userInfoId, shareCode, RedisPrefix.SPEND);
+                jsonObject = userPrivateLabelRestService.getCacheLabel(Integer.valueOf(abTypeId), userInfoId, shareCode, RedisPrefix.SPEND);
             }
             return new ResultBean(ApiResultType.OK, jsonObject);
         } catch (Exception e) {
@@ -144,8 +144,8 @@ public class UserPrivateLabelRestController {
 
     @RequestMapping(value = {"/getIncomeLabel", "/getSpendLabel"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getIncomeTypeList(HttpServletRequest request, @RequestParam String abId) {
-        return this.getIncomeTypeList(null, request, abId);
+    public ResultBean getIncomeTypeList(HttpServletRequest request, @RequestParam String abTypeId) {
+        return this.getIncomeTypeList(null, request, abTypeId);
     }
 
     @RequestMapping(value = {"/addIncomeLabel", "/addSpendLabel"}, method = RequestMethod.POST)
