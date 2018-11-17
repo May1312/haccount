@@ -4,6 +4,7 @@ import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import org.jeecgframework.minidao.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by yhang on 2018/6/1.
@@ -19,7 +20,7 @@ public interface UserAccountBookRestDao {
     int insert(@Param("userAccountBookRestEntity") UserAccountBookRestEntity userAccountBookRestEntity);
 
     @Sql("select account_book_id from hbird_user_account_book where user_info_id=:userInfoId;")
-    List<String> listForABIdSByUserInfoId(@Param("userInfoId") String userInfoId);
+    List<Map<String,Integer>> listForABIdSByUserInfoId(@Param("userInfoId") String userInfoId);
 
     /**
      * 获取用户默认账本
