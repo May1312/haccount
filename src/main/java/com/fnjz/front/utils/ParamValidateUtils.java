@@ -341,7 +341,7 @@ public class ParamValidateUtils {
      * @return
      */
     public static ResultBean checkUserTypePriority(Map<String, Object> map) {
-        if (StringUtils.isEmpty(map.get("type") + "") || StringUtils.isEmpty(map.get("abId") + "")) {
+        if (StringUtils.isEmpty(map.get("type") + "") || StringUtils.isEmpty(map.get("abTypeId") + "")) {
             return new ResultBean(ApiResultType.TYPE_IS_NULL, null);
         }
         if (map.get("relation") == null) {

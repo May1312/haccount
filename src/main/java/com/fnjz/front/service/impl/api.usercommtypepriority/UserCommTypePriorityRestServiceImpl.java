@@ -77,7 +77,7 @@ public class UserCommTypePriorityRestServiceImpl extends CommonServiceImpl imple
 
     @Override
     public JSONObject saveOrUpdateRelationForMapv2(UserCommTypePriorityRestEntity userCommTypePriorityRestEntity) {
-        String hql = "from UserCommTypePriorityRestEntity where userInfoId = " + userCommTypePriorityRestEntity.getUserInfoId() + " AND accountBookId = "+userCommTypePriorityRestEntity.getAccountBookId()+" AND type = " + userCommTypePriorityRestEntity.getType() + "";
+        String hql = "from UserCommTypePriorityRestEntity where userInfoId = " + userCommTypePriorityRestEntity.getUserInfoId() + " AND abTypeId = "+userCommTypePriorityRestEntity.getAbTypeId()+" AND type = " + userCommTypePriorityRestEntity.getType() + "";
         UserCommTypePriorityRestEntity o = commonDao.singleResult(hql);
         if (o != null) {
             String sql = "UPDATE `hbird_account`.`hbird_user_comm_type_priority` SET `type` = " + userCommTypePriorityRestEntity.getType() + ", `relation` = '" + userCommTypePriorityRestEntity.getRelation() + "', `update_date` = NOW() WHERE `id` = " + o.getId() + ";";
@@ -92,7 +92,7 @@ public class UserCommTypePriorityRestServiceImpl extends CommonServiceImpl imple
             String version = getTypeVersion(userCommTypePriorityRestEntity.getUserInfoId()+"");
             //支出
             //获取离线-用户常用类目
-            List<?> userCommUseType = userPrivateLabelRestService.getUserCommUseType(userCommTypePriorityRestEntity.getUserInfoId() + "", RedisPrefix.SPEND, userCommTypePriorityRestEntity.getAccountBookId());
+            List<?> userCommUseType = userPrivateLabelRestService.getUserCommUseType(userCommTypePriorityRestEntity.getUserInfoId() + "", RedisPrefix.SPEND, userCommTypePriorityRestEntity.getAbTypeId());
             jsonObject.put("version", version);
             jsonObject.put("commonList", userCommUseType);
             return jsonObject;
@@ -100,7 +100,7 @@ public class UserCommTypePriorityRestServiceImpl extends CommonServiceImpl imple
             String version = getTypeVersion(userCommTypePriorityRestEntity.getUserInfoId()+"");
             //收入
             //获取离线-用户常用类目
-            List<?> userCommUseType = userPrivateLabelRestService.getUserCommUseType(userCommTypePriorityRestEntity.getUserInfoId() + "", RedisPrefix.INCOME, userCommTypePriorityRestEntity.getAccountBookId());
+            List<?> userCommUseType = userPrivateLabelRestService.getUserCommUseType(userCommTypePriorityRestEntity.getUserInfoId() + "", RedisPrefix.INCOME, userCommTypePriorityRestEntity.getAbTypeId());
             jsonObject.put("version", version);
             jsonObject.put("commonList", userCommUseType);
             return jsonObject;
@@ -109,7 +109,7 @@ public class UserCommTypePriorityRestServiceImpl extends CommonServiceImpl imple
 
     @Override
     public String saveOrUpdateRelationv2(UserCommTypePriorityRestEntity userCommTypePriorityRestEntity) {
-        String hql = "from UserCommTypePriorityRestEntity where userInfoId = " + userCommTypePriorityRestEntity.getUserInfoId() + " AND accountBookId = "+userCommTypePriorityRestEntity.getAccountBookId()+" AND type = " + userCommTypePriorityRestEntity.getType() + "";
+        String hql = "from UserCommTypePriorityRestEntity where userInfoId = " + userCommTypePriorityRestEntity.getUserInfoId() + " AND abTypeId = "+userCommTypePriorityRestEntity.getAbTypeId()+" AND type = " + userCommTypePriorityRestEntity.getType() + "";
         UserCommTypePriorityRestEntity o = commonDao.singleResult(hql);
         if (o != null) {
             String sql = "UPDATE `hbird_user_comm_type_priority` SET `type` = " + userCommTypePriorityRestEntity.getType() + ", `relation` = '" + userCommTypePriorityRestEntity.getRelation() + "', `update_date` = NOW() WHERE `id` = " + o.getId() + ";";

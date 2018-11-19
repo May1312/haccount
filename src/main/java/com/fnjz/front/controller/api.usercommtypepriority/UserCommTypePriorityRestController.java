@@ -99,16 +99,16 @@ public class UserCommTypePriorityRestController extends BaseController {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
             JSONArray relation1 = JSONArray.fromObject(map.get("relation"));
-            UserCommTypePriorityRestEntity userCommTypePriorityRestEntity = new UserCommTypePriorityRestEntity(Integer.valueOf(userInfoId), Integer.valueOf(map.get("type") + ""),Integer.valueOf(map.get("abId") + ""), relation1.toString());
+            UserCommTypePriorityRestEntity userCommTypePriorityRestEntity = new UserCommTypePriorityRestEntity(Integer.valueOf(userInfoId), Integer.valueOf(map.get("type") + ""),Integer.valueOf(map.get("abTypeId") + ""), relation1.toString());
             //清空用户类目缓存
             if (StringUtils.equals(map.get("type") + "", "2")) {
                 //清空用户类目缓存
-                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.INCOME)) {
-                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.INCOME);
+                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.INCOME)) {
+                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.INCOME);
                 }
             } else {
-                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.SPEND)) {
-                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.SPEND);
+                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.SPEND)) {
+                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.SPEND);
                 }
             }
             JSONObject resultmap = new JSONObject();

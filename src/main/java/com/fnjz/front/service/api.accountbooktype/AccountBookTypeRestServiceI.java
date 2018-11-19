@@ -12,4 +12,11 @@ public interface AccountBookTypeRestServiceI extends CommonService{
      * @return
      */
     List<AccountBookTypeRestEntity> getABTypeAll();
+
+    /**
+     * 获取用户已解锁的账本类型
+     * @param userInfoId
+     * @return
+     */
+    List<AccountBookTypeRestEntity> getHadABType(String userInfoId);
 }

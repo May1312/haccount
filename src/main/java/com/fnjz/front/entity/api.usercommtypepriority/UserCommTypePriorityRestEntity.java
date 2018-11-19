@@ -27,11 +27,11 @@ public class UserCommTypePriorityRestEntity implements java.io.Serializable {
 		this.relation = relation;
 	}
 
-	public UserCommTypePriorityRestEntity(Integer userInfoId, Integer type,Integer accountBookId, String relation) {
+	public UserCommTypePriorityRestEntity(Integer userInfoId, Integer type,Integer abTypeId, String relation) {
 		this.userInfoId = userInfoId;
 		this.type = type;
 		this.relation = relation;
-		this.accountBookId = accountBookId;
+		this.abTypeId = abTypeId;
 	}
 
 	/**id*/
