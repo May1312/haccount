@@ -141,12 +141,10 @@ public interface UserPrivateLabelRestDao {
 
     /**
      * 检查是否存在此标签
-     * @param abId
-     * @param labelId
      * @return
      */
-    @Sql("select count(id) from hbird_user_private_label where account_book_id=:abId and ab_type_label_id=:labelId and status=1;")
-    Integer checkExists(@Param("abId") String abId,@Param("labelId") String labelId);
+    @Sql("SELECT count( id ) FROM hbird_user_private_label WHERE user_info_id=:userInfoId and ab_type_id=:abTypeId AND ab_type_label_id =:labelId AND STATUS = 1;")
+    Integer checkExists(@Param("userInfoId") String userInfoId,@Param("abTypeId") String abTypeId,@Param("labelId") String labelId);
 
     /**
      * 获取收入标签详情
@@ -166,25 +164,22 @@ public interface UserPrivateLabelRestDao {
 
     /**
      * 获取最大优先级
-     * @param abId
      * @return
      */
-    @Sql("SELECT MAX(priority) FROM hbird_user_private_label where account_book_id = :adId and property=1;")
-    Integer getMaxPriorityForSpend(@Param("adId") String abId);
+    @Sql("SELECT MAX( priority ) FROM hbird_user_private_label WHERE user_info_id=:userInfoId and ab_type_id=:abTypeId AND property = 1;")
+    Integer getMaxPriorityForSpend(@Param("abTypeId") String abTypeId,@Param("userInfoId")String userInfoId);
 
     /**
      * 获取最大优先级
-     * @param abId
      * @return
      */
-    @Sql("SELECT MAX(priority) FROM hbird_user_private_label where account_book_id = :adId and property=2;")
-    Integer getMaxPriorityForIncome(@Param("adId") String abId);
+    @Sql("SELECT MAX( priority ) FROM hbird_user_private_label WHERE user_info_id=:userInfoId and ab_type_id=:abTypeId AND property = 2;")
+    Integer getMaxPriorityForIncome(@Param("abTypeId") String abTypeId,@Param("userInfoId")String userInfoId);
 
     /**
      * 删除标签
-     * @param abId
      */
-    @Sql("update hbird_user_private_label set status=0 where id=:labelId and account_book_id=:abId;")
-    void delete(@Param("abId") String abId,@Param("labelId") String labelId);
+    @Sql("UPDATE hbird_user_private_label SET STATUS = 0 WHERE id =:labelId AND ab_type_id =:abTypeId;")
+    void delete(@Param("abTypeId") String abTypeId,@Param("labelId") String labelId);
 
 }

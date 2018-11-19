@@ -93,12 +93,12 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
      * @return
      */
     @Override
-    public Integer checkExists(String abId, String labelId) {
-        return userPrivateLabelRestDao.checkExists(abId, labelId);
+    public Integer checkExists(String userInfoId,String abTypeId, String labelId) {
+        return userPrivateLabelRestDao.checkExists(userInfoId,abTypeId, labelId);
     }
 
     @Override
-    public JSONObject insertUserPrivateLabelForMap(String shareCode, String abId, String labelId, String userInfoId, String type) {
+    public JSONObject insertUserPrivateLabelForMap(String shareCode, String abTypeId, String labelId, String userInfoId, String type) {
         if (StringUtils.equals(type, RedisPrefix.INCOME)) {
             //获取标签详情
             UserPrivateLabelUpdateRestDTO userCommUseIncomeRestEntity = userPrivateLabelRestDao.getLabelInfoForIncome(labelId);
@@ -119,12 +119,11 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
             userPrivateLabelRestEntity.setType(1);
             //设置状态标签状态 1:有效  0:失效
             userPrivateLabelRestEntity.setStatus(1);
-            //绑定账本id
-            userPrivateLabelRestEntity.setAccountBookId(Integer.valueOf(abId));
-            //
+            //绑定账本类型id
+            userPrivateLabelRestEntity.setAccountBookId(Integer.valueOf(abTypeId));
             userPrivateLabelRestEntity.setAbTypeLabelId(Integer.valueOf(labelId));
             //获取当前db优先级
-            Integer max = userPrivateLabelRestDao.getMaxPriorityForIncome(abId);
+            Integer max = userPrivateLabelRestDao.getMaxPriorityForIncome(abTypeId,userInfoId);
             if (max != null) {
                 userPrivateLabelRestEntity.setPriority(++max);
             } else {
@@ -133,7 +132,7 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
             userPrivateLabelRestDao.insert(userPrivateLabelRestEntity);
             //离线功能 更新用户当前类目版本号
             String version = getTypeVersion(userInfoId);
-            return this.insertOrDeleteType(userInfoId, shareCode, version, type, abId);
+            return this.insertOrDeleteType(userInfoId, shareCode, version, type,abTypeId);
         } else {
             //获取标签详情
             UserPrivateLabelUpdateRestDTO userCommUseSpendRestEntity = userPrivateLabelRestDao.getLabelInfoForSpend(labelId);
@@ -154,12 +153,11 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
             userPrivateLabelRestEntity.setType(1);
             //设置状态标签状态 1:有效  0:失效
             userPrivateLabelRestEntity.setStatus(1);
-            //绑定账本id
-            userPrivateLabelRestEntity.setAccountBookId(Integer.valueOf(abId));
-            //
+            //绑定账本类型id
+            userPrivateLabelRestEntity.setAccountBookId(Integer.valueOf(abTypeId));
             userPrivateLabelRestEntity.setAbTypeLabelId(Integer.valueOf(labelId));
             //获取当前db优先级
-            Integer max = userPrivateLabelRestDao.getMaxPriorityForSpend(abId);
+            Integer max = userPrivateLabelRestDao.getMaxPriorityForSpend(abTypeId,userInfoId);
             if (max != null) {
                 userPrivateLabelRestEntity.setPriority(max + 1);
             } else {
@@ -168,22 +166,22 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
             userPrivateLabelRestDao.insert(userPrivateLabelRestEntity);
             //离线功能 更新用户当前类目版本号
             String version = getTypeVersion(userInfoId);
-            return this.insertOrDeleteType(userInfoId, shareCode, version, type, abId);
+            return this.insertOrDeleteType(userInfoId, shareCode, version, type, abTypeId);
         }
     }
 
     //新增/删除类目 ---->设置缓存，返回Map数据通用方法
-    private JSONObject insertOrDeleteType(String userInfoId, String shareCode, String version, String type, String abId) {
+    private JSONObject insertOrDeleteType(String userInfoId, String shareCode, String version, String type, String abTypeId) {
         //重新查询排序关系
         //获取离线-用户常用类目
-        List<?> list = this.getUserCommUseType(userInfoId, type, Integer.valueOf(abId));
+        List<?> list = this.getUserCommUseType(userInfoId, type, Integer.valueOf(abTypeId));
         JSONObject jsonObject = new JSONObject();
         if (StringUtils.equals(type, RedisPrefix.INCOME)) {
             jsonObject.put(type, list);
-            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode + ":" + abId,jsonObject);
+            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode + ":" + abTypeId,jsonObject);
         } else {
             jsonObject.put(type, list);
-            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode + ":" + abId, jsonObject);
+            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode + ":" + abTypeId, jsonObject);
         }
         JSONObject map = new JSONObject();
         map.put("version", version);
@@ -192,7 +190,7 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
     }
 
     @Override
-    public String insertUserPrivateLabelType(String abId, String labelId, String userInfoId,String type) {
+    public String insertUserPrivateLabelType(String abTypeId, String labelId, String userInfoId,String type) {
         if (StringUtils.equals(type, RedisPrefix.INCOME)) {
             //获取标签详情
             UserPrivateLabelUpdateRestDTO userCommUseIncomeRestEntity = userPrivateLabelRestDao.getLabelInfoForIncome(labelId);
@@ -213,12 +211,12 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
             userPrivateLabelRestEntity.setType(1);
             //设置状态标签状态 1:有效  0:失效
             userPrivateLabelRestEntity.setStatus(1);
-            //绑定账本id
-            userPrivateLabelRestEntity.setAccountBookId(Integer.valueOf(abId));
+            //绑定账本类型id
+            userPrivateLabelRestEntity.setAbTypeId(Integer.valueOf(abTypeId));
             //
             userPrivateLabelRestEntity.setAbTypeLabelId(Integer.valueOf(labelId));
             //获取当前db优先级
-            Integer max = userPrivateLabelRestDao.getMaxPriorityForIncome(abId);
+            Integer max = userPrivateLabelRestDao.getMaxPriorityForIncome(abTypeId,userInfoId);
             if (max != null) {
                 userPrivateLabelRestEntity.setPriority(++max);
             } else {
@@ -247,12 +245,12 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
             userPrivateLabelRestEntity.setType(1);
             //设置状态标签状态 1:有效  0:失效
             userPrivateLabelRestEntity.setStatus(1);
-            //绑定账本id
-            userPrivateLabelRestEntity.setAccountBookId(Integer.valueOf(abId));
+            //绑定账本类型id
+            userPrivateLabelRestEntity.setAbTypeId(Integer.valueOf(abTypeId));
             //
             userPrivateLabelRestEntity.setAbTypeLabelId(Integer.valueOf(labelId));
             //获取当前db优先级
-            Integer max = userPrivateLabelRestDao.getMaxPriorityForSpend(abId);
+            Integer max = userPrivateLabelRestDao.getMaxPriorityForSpend(abTypeId,userInfoId);
             if (max != null) {
                 userPrivateLabelRestEntity.setPriority(max + 1);
             } else {
@@ -268,18 +266,18 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
     public JSONObject deleteUserPrivateLabelForMap(String shareCode, Map<String, Object> map, String userInfoId, String type) {
         JSONArray labelIds = JSONArray.parseArray(JSON.toJSONString(map.get("labelIds")));
         for (int i = 0; i < labelIds.size(); i++) {
-            userPrivateLabelRestDao.delete(map.get("abId") + "", labelIds.get(i) + "");
+            userPrivateLabelRestDao.delete(map.get("abTypeId") + "", labelIds.get(i) + "");
         }
         //离线功能 更新用户当前类目版本号
         String version = getTypeVersion(userInfoId);
-        return this.insertOrDeleteType(userInfoId, shareCode, version, type, map.get("abId") + "");
+        return this.insertOrDeleteType(userInfoId, shareCode, version, type, map.get("abTypeId") + "");
     }
 
     @Override
     public String deleteUserPrivateLabelType(String shareCode, Map<String, Object> map, String userInfoId, String income) {
         JSONArray labelIds = JSONArray.parseArray(JSON.toJSONString(map.get("labelIds")));
         for (int i = 0; i < labelIds.size(); i++) {
-            userPrivateLabelRestDao.delete(map.get("abId") + "", labelIds.get(i) + "");
+            userPrivateLabelRestDao.delete(map.get("abTypeId") + "", labelIds.get(i) + "");
         }
         //离线功能 更新用户当前类目版本号
         String version = getTypeVersion(userInfoId);

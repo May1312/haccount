@@ -156,7 +156,6 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @date: 2018/11/16 20:08
      */
     void reviseBudgetNotification(Integer userInfoId,AccountBookBudgetRestEntity budget);
-
     /**
      * v2 获取场景账本
      * @param userInfoId

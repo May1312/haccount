@@ -267,7 +267,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         JSONObject jsonObject = new JSONObject();
         //确认管理员权限
         UserAccountBookRestEntity userAccountBook = userAccountBookRestDao.getUserAccountBookByUserInfoIdAndAccountBookId(Integer.parseInt(adminUserInfoId), Integer.parseInt(accountBookId));
-        //确认
+        //确认 0_管理员 1_成员
         if (userAccountBook.getUserType() == 0) {
             //当前账本人数是否小于五人
             int totalMember = accountBookRestDao.getTotalMember(accountBookId);

@@ -59,13 +59,13 @@ public class UserPrivateLabelRestController {
     @RequestMapping(value = {"/addIncomeLabel/{type}", "/addSpendLabel/{type}"}, method = RequestMethod.POST)
     @ResponseBody
     public ResultBean addIncomeLabel(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, String> map) {
-        if (StringUtils.isEmpty(map.get("labelId")) || StringUtils.isEmpty(map.get("abId"))) {
-            return new ResultBean(ApiResultType.SPEND_TYPE_ID_IS_NULL, null);
+        if (StringUtils.isEmpty(map.get("labelId")) || StringUtils.isEmpty(map.get("abTypeId"))) {
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
         }
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             String shareCode = (String) request.getAttribute("shareCode");
-            Integer status = userPrivateLabelRestService.checkExists(map.get("abId"), map.get("labelId"));
+            Integer status = userPrivateLabelRestService.checkExists(userInfoId,map.get("abTypeId"), map.get("labelId"));
             if (status != null) {
                 if (status > 0) {
                     return new ResultBean(ApiResultType.SPEND_TYPE_IS_ADDED, null);
@@ -74,24 +74,24 @@ public class UserPrivateLabelRestController {
             JSONObject resultmap = new JSONObject();
             if (StringUtils.contains(request.getRequestURI(), "/addIncomeLabel")) {
                 //清空用户类目缓存
-                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.INCOME)) {
-                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.INCOME);
+                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.INCOME)) {
+                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.INCOME);
                 }
                 if (StringUtils.equalsIgnoreCase("ios", type) || StringUtils.equalsIgnoreCase("android", type)) {
-                    resultmap = userPrivateLabelRestService.insertUserPrivateLabelForMap(shareCode, map.get("abId"), map.get("labelId"), userInfoId, RedisPrefix.INCOME);
+                    resultmap = userPrivateLabelRestService.insertUserPrivateLabelForMap(shareCode, map.get("abTypeId"), map.get("labelId"), userInfoId, RedisPrefix.INCOME);
                 } else {
-                    String version = userPrivateLabelRestService.insertUserPrivateLabelType(map.get("abId"), map.get("labelId"), userInfoId,RedisPrefix.INCOME);
+                    String version = userPrivateLabelRestService.insertUserPrivateLabelType(map.get("abTypeId"), map.get("labelId"), userInfoId,RedisPrefix.INCOME);
                     resultmap.put("version", version);
                 }
             } else {
                 //清空用户类目缓存
-                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.SPEND)) {
-                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.SPEND);
+                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.SPEND)) {
+                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.SPEND);
                 }
                 if (StringUtils.equalsIgnoreCase("ios", type) || StringUtils.equalsIgnoreCase("android", type)) {
-                    resultmap = userPrivateLabelRestService.insertUserPrivateLabelForMap(shareCode, map.get("abId"), map.get("labelId"), userInfoId, RedisPrefix.SPEND);
+                    resultmap = userPrivateLabelRestService.insertUserPrivateLabelForMap(shareCode, map.get("abTypeId"), map.get("labelId"), userInfoId, RedisPrefix.SPEND);
                 } else {
-                    String version = userPrivateLabelRestService.insertUserPrivateLabelType(map.get("abId"), map.get("labelId"), userInfoId, RedisPrefix.SPEND);
+                    String version = userPrivateLabelRestService.insertUserPrivateLabelType(map.get("abTypeId"), map.get("labelId"), userInfoId, RedisPrefix.SPEND);
                     resultmap.put("version", version);
                 }
             }
@@ -105,7 +105,7 @@ public class UserPrivateLabelRestController {
     @RequestMapping(value = {"/deleteIncomeLabel/{type}", "/deleteSpendLabel/{type}"}, method = RequestMethod.DELETE)
     @ResponseBody
     public ResultBean deleteIncomeLabel(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String,Object> map) {
-        if (map.get("labelIds")==null || map.get("abId")==null) {
+        if (map.get("labelIds")==null || map.get("abTypeId")==null) {
             return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,null);
         }
         try {
@@ -114,8 +114,8 @@ public class UserPrivateLabelRestController {
             JSONObject resultmap = new JSONObject();
             if (StringUtils.contains(request.getRequestURI(), "/deleteIncomeLabel")) {
                 //清空用户类目缓存
-                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.INCOME)) {
-                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.INCOME);
+                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.INCOME)) {
+                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.INCOME);
                 }
                 if (StringUtils.equalsIgnoreCase("ios", type) || StringUtils.equalsIgnoreCase("android", type)) {
                     resultmap = userPrivateLabelRestService.deleteUserPrivateLabelForMap(shareCode,map, userInfoId,RedisPrefix.INCOME);
@@ -125,8 +125,8 @@ public class UserPrivateLabelRestController {
                 }
             } else {
                 //清空用户类目缓存
-                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.SPEND)) {
-                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abId"), RedisPrefix.SPEND);
+                if (redisTemplateUtils.hasKey(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.SPEND)) {
+                    redisTemplateUtils.deleteHashValueV2(RedisPrefix.USER_LABEL + shareCode + ":" + map.get("abTypeId"), RedisPrefix.SPEND);
                 }
                 if (StringUtils.equalsIgnoreCase("ios", type) || StringUtils.equalsIgnoreCase("android", type)) {
                     resultmap = userPrivateLabelRestService.deleteUserPrivateLabelForMap(shareCode,map, userInfoId,RedisPrefix.SPEND);
