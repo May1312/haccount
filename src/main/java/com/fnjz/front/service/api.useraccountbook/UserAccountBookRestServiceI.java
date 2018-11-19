@@ -20,4 +20,13 @@ public interface UserAccountBookRestServiceI extends CommonService{
      * @return
      */
     UserAccountBookRestEntity getUserAccountBookByUserInfoId(int userInfoId);
+    /**
+     * 功能描述: 判断用户是否已经加入此账本
+     *
+     * @param: 用户id  账本id
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/19 17:06
+     */
+    UserAccountBookRestEntity checkUserisExistAccount(String userInfoId,String accountBookId);
 }

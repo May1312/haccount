@@ -174,6 +174,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     //微信注册用户
     @Override
     public int wechatinsert(JSONObject jsonObject, Map<String, String> map, String type) {
+
         UserInfoRestEntity userInfoRestEntity = new UserInfoRestEntity();
         //设置昵称
         if (StringUtils.isNotEmpty(jsonObject.getString("nickname"))) {
@@ -231,6 +232,12 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         if (StringUtils.isNotEmpty(map.get("androidChannel"))) {
             userInfoRestEntity.setAndroidChannel(map.get("androidChannel"));
         }
+
+        //判断是否是从邀请多人记账页面过来，如果是带手机号  设置手机号
+        if(StringUtils.isNotEmpty(map.get("mobile"))){
+            userInfoRestEntity.setMobile(map.get("mobile"));
+        }
+
         //insert user info表
         int insertId = userInfoRestDao.insert(userInfoRestEntity);
         //获取主键,insert-->user login 表
@@ -238,6 +245,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         //转存属性值
         userLogin.setWechatAuth(userInfoRestEntity.getWechatAuth());
         userLogin.setUserInfoId(insertId);
+        //判断是否是从邀请多人记账页面过来，如果是带手机号  设置手机号
+        if(StringUtils.isNotEmpty(map.get("mobile"))){
+            userLogin.setMobile(map.get("mobile"));
+        }
         userLoginRestDao.insert(userLogin);
         //创建账本----->绑定用户id
         AccountBookRestEntity ab = new AccountBookRestEntity();
@@ -264,6 +275,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             uabre.setCreateName(userLogin.getMobile());
         }
         uabre.setUserType(0);
+
         int insert3 = userAccountBookRestDao.insert(uabre);
         //判断是否为受邀用户
         if(StringUtils.isNotEmpty(map.get("inviteCode"))){
