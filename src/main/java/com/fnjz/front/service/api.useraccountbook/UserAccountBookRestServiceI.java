@@ -4,6 +4,7 @@ import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserAccountBookRestServiceI extends CommonService{
 
@@ -12,7 +13,11 @@ public interface UserAccountBookRestServiceI extends CommonService{
      * @param userInfoId
      * @return
      */
-    List<String> listForABIdSByUserInfoId(String userInfoId);
+    //List<String> listForABIdSByUserInfoId(String userInfoId);
+
+    List<Map<String,Integer>> listForABTypeIdSByUserInfoId(String userInfoId);
+
+    List<Map<String,Integer>> listForABIdSByUserInfoId(String userInfoId);
 
     /**
      * 获取用户默认账本
@@ -20,13 +25,6 @@ public interface UserAccountBookRestServiceI extends CommonService{
      * @return
      */
     UserAccountBookRestEntity getUserAccountBookByUserInfoId(int userInfoId);
-    /**
-     * 功能描述: 判断用户是否已经加入此账本
-     *
-     * @param: 用户id  账本id
-     * @return:
-     * @auther: yonghuizhao
-     * @date: 2018/11/19 17:06
-     */
-    UserAccountBookRestEntity checkUserisExistAccount(String userInfoId,String accountBookId);
+
+    UserAccountBookRestEntity checkUserisExistAccount(String userInfoId, String accountBookId);
 }

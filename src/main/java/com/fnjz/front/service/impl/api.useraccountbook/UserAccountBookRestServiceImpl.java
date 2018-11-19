@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service("userAccountBookRestService")
 @Transactional
@@ -25,10 +26,19 @@ public class UserAccountBookRestServiceImpl extends CommonServiceImpl implements
      * @return
      */
     @Override
-    public List<String> listForABIdSByUserInfoId(String userInfoId){
+    public List<Map<String,Integer>> listForABIdSByUserInfoId(String userInfoId){
         return userAccountBookRestDao.listForABIdSByUserInfoId(userInfoId);
     }
 
+    /**
+     * 获取当前用户下的账本类型ids
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public List<Map<String,Integer>> listForABTypeIdSByUserInfoId(String userInfoId){
+        return userAccountBookRestDao.listForABTypeIdSByUserInfoId(userInfoId);
+    }
     @Override
     public UserAccountBookRestEntity getUserAccountBookByUserInfoId(int userInfoId) {
         return userAccountBookRestDao.getUserAccountBookByUserInfoId(userInfoId);

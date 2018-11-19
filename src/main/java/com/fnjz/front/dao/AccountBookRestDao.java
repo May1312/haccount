@@ -61,7 +61,7 @@ public interface AccountBookRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("select base1.account_book_id as id,base1.user_type,base1.default_flag,base2.ab_name,base2.account_book_type_id,base2.update_date,base2.member,base3.ab_type_name as abTypeName,base3.type_budget as typeBudget,base3.icon from hbird_user_account_book as base1 INNER JOIN hbird_account_book as base2 on base1.account_book_id=base2.id INNER JOIN hbird_account_book_type as base3 on base2.account_book_type_id=base3.id where base1.user_info_id=:userInfoId and base1.delflag=0 order by update_date desc;")
+    @Sql("select base1.account_book_id as id,base1.user_type,base1.default_flag,base2.ab_name,base2.account_book_type_id,base2.update_date,base2.member,base3.ab_type_name as abTypeName,base3.type_budget as typeBudget,base3.icon,base3.id as abTypeId from hbird_user_account_book as base1 INNER JOIN hbird_account_book as base2 on base1.account_book_id=base2.id INNER JOIN hbird_account_book_type as base3 on base2.account_book_type_id=base3.id where base1.user_info_id=:userInfoId and base1.delflag=0 order by update_date desc;")
     List<AccountBookRestDTO> getABAll(@Param("userInfoId") String userInfoId);
 
     /**

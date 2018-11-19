@@ -20,7 +20,15 @@ public interface UserAccountBookRestDao {
     int insert(@Param("userAccountBookRestEntity") UserAccountBookRestEntity userAccountBookRestEntity);
 
     @Sql("select account_book_id from hbird_user_account_book where user_info_id=:userInfoId;")
-    List<String> listForABIdSByUserInfoId(@Param("userInfoId") String userInfoId);
+    List<Map<String,Integer>> listForABIdSByUserInfoId(@Param("userInfoId") String userInfoId);
+
+    /**
+     * 获取当前用户所拥有的账本类型
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select DISTINCT account_book_type_id as abTypeId from hbird_account_book as base2,(select account_book_id from hbird_user_account_book where user_info_id=:userInfoId)as base1 where base2.id=base1.account_book_id;")
+    List<Map<String,Integer>> listForABTypeIdSByUserInfoId(@Param("userInfoId") String userInfoId);
 
     @Sql("select user_info_id  from hbird_user_account_book where account_book_id=:ABId;")
     List<Integer> listForUserInfoIdSByaABId(@Param("ABId") Integer ABId);

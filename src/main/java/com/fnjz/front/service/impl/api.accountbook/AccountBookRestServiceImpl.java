@@ -14,10 +14,8 @@ import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.accountbook.AccountBookRestServiceI;
 import com.fnjz.front.service.api.message.MessageServiceI;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
-import com.google.gson.JsonArray;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
-import org.jeecgframework.web.cgform.enhance.IFillRuleHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,7 +66,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         JSONArray memberArray = new JSONArray();
         int totalMember = accountBookRestDao.getTotalMember(abId + "");
         //判断当前请求用户是否为账本所有者
-        if (totalMember > 1) {
+        if (totalMember>=1){
             //包含多组员  查询创建者  当前用户  其他组员
             List<Map<String, Object>> abMembers = accountBookRestDao.getABMembers(abId);
             abMembers.forEach(v -> {

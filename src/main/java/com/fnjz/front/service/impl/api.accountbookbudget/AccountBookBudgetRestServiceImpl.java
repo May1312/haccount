@@ -611,6 +611,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      */
     @Override
     public JSONArray getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, String month, String range) {
+
         return null;
     }
 }

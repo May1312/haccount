@@ -21,21 +21,19 @@ public interface UserPrivateLabelRestService {
 
     /**
      * 检查用户是否已添加此标签
-     * @param abId
      * @param labelId
      * @return
      */
-    Integer checkExists(String abId, String labelId);
+    Integer checkExists(String userInfoId,String abTypeId, String labelId);
 
     /**
      * ios/android 添加标签
      * @param shareCode
-     * @param abId
      * @param userInfoId
      * @param type
      * @return
      */
-    JSONObject insertUserPrivateLabelForMap(String shareCode, String abId,String labelId, String userInfoId, String type);
+    JSONObject insertUserPrivateLabelForMap(String shareCode, String abTypeId,String labelId, String userInfoId, String type);
 
     /**
      * wxapplet

@@ -63,6 +63,11 @@ public class UserPrivateLabelRestEntity implements java.io.Serializable {
      */
     private java.lang.Integer abTypeLabelId;
 
+    /**
+     * 账本类型id
+     */
+    private java.lang.Integer abTypeId;
+
     @Column(name ="ID")
     public Integer getId() {
         return id;
@@ -166,5 +171,13 @@ public class UserPrivateLabelRestEntity implements java.io.Serializable {
 
     public void setAbTypeLabelId(Integer abTypeLabelId) {
         this.abTypeLabelId = abTypeLabelId;
+    }
+
+    public Integer getAbTypeId() {
+        return abTypeId;
+    }
+
+    public void setAbTypeId(Integer abTypeId) {
+        this.abTypeId = abTypeId;
     }
 }

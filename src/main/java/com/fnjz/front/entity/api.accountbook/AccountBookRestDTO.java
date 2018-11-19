@@ -45,6 +45,9 @@ public class AccountBookRestDTO implements java.io.Serializable {
     /**账本图标*/
     private String icon;
 
+    /**账本类型id*/
+    private Integer abTypeId;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false, precision = 10, scale = 0)
@@ -145,5 +148,13 @@ public class AccountBookRestDTO implements java.io.Serializable {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public Integer getAbTypeId() {
+        return abTypeId;
+    }
+
+    public void setAbTypeId(Integer abTypeId) {
+        this.abTypeId = abTypeId;
     }
 }
