@@ -148,6 +148,16 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
     JSONArray getBudgetCompletionRatev2(String userInfoId, Integer abId, String month, String range);
 
     /**
+     * 功能描述: 修改预算消息推送通知
+     *
+     * @param:
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/16 20:08
+     */
+    void reviseBudgetNotification(Integer userInfoId,AccountBookBudgetRestEntity budget);
+
+    /**
      * v2 获取场景账本
      * @param userInfoId
      * @param abId

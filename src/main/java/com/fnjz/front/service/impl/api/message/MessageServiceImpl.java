@@ -88,7 +88,7 @@ public class MessageServiceImpl extends CommonServiceImpl implements MessageServ
             updateSql = "update hbird_message set status = 1 ,update_date = current_timestamp() where user_info_id = " + userinfoId;
         } else if (messageUpdateType.equals("ONE")) {
             Assert.notNull(messageId, "messageId must not be null");
-            updateSql = "update hbird_message set status = 1,update_date = current_timestamp()  where id  = " + userinfoId;
+            updateSql = "update hbird_message set status = 1,update_date = current_timestamp()  where id  = " + messageId;
         } else {
             throw new IllegalArgumentException("没有约定的更新类型");
         }
@@ -106,19 +106,14 @@ public class MessageServiceImpl extends CommonServiceImpl implements MessageServ
      */
     public void sendPush(String messageContent, Integer creatId, List<Integer> noticeUserIdList) {
 
-        /*String sql = "select IFNULL(u.nick_name,REPLACE(u.mobile, SUBSTR(mobile,4,4), '****')) name  from hbird_user_info u  where id = "+creatId;
-        List<Map<String, Object>> forJdbc = userInfoRestService.findForJdbc(sql);*/
-
         String jumpPage = "fftz";
         if (messageContent.length() > 20) {
             messageContent = messageContent.substring(0, 20);
         }
         for (Integer noticeUserId : noticeUserIdList) {
             String sharecode = ShareCodeUtil.id2sharecode(noticeUserId);
-            //蜂鸟记账主体下推送
+            //分环境
             JgPushExampls.sendPushObject_android_and_ios(sharecode,messageContent,jumpPage);
-            //速贷之家主体下推送
-            //JgPushExampls.sendPushObject_android_and_ios(messageContent,noticeUserIds.substring(0,noticeUserIds.length() - 1),fnjzAppKey,fnjzMasterSecret,jumpPage);
         }
     }
 }

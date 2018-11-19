@@ -48,6 +48,9 @@ public class UserCommTypePriorityRestEntity implements java.io.Serializable {
 	private java.util.Date updateDate;
 	/**账本id*/
 	private java.lang.Integer accountBookId;
+
+	/**账本类型id*/
+	private java.lang.Integer abTypeId;
 	
 	/**
 	 *方法: 取得java.lang.Integer
@@ -156,5 +159,14 @@ public class UserCommTypePriorityRestEntity implements java.io.Serializable {
 
 	public void setAccountBookId(Integer accountBookId) {
 		this.accountBookId = accountBookId;
+	}
+
+	@Column(name ="AB_TYPE_ID")
+	public Integer getAbTypeId() {
+		return abTypeId;
+	}
+
+	public void setAbTypeId(Integer abTypeId) {
+		this.abTypeId = abTypeId;
 	}
 }

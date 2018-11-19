@@ -7,15 +7,21 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.SystemParamRestDao;
 import com.fnjz.front.dao.SystemTypeRestDao;
 import com.fnjz.front.dao.UserCommUseTypeOfflineCheckRestDao;
+import com.fnjz.front.dao.UserPrivateLabelRestDao;
 import com.fnjz.front.entity.api.check.LabelVersionRestDTO;
 import com.fnjz.front.entity.api.check.SystemParamCheckRestDTO;
+import com.fnjz.front.entity.api.incometype.IncomeTypeLabelIdRestDTO;
 import com.fnjz.front.entity.api.incometype.IncomeTypeRestEntity;
+import com.fnjz.front.entity.api.spendtype.SpendTypeLabelIdRestDTO;
 import com.fnjz.front.entity.api.spendtype.SpendTypeRestEntity;
 import com.fnjz.front.entity.api.systemparam.SystemParamRestEntity;
 import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
 import com.fnjz.front.entity.api.usercommuseincome.UserCommUseIncomeRestEntity;
 import com.fnjz.front.entity.api.usercommusespend.UserCommUseSpendRestEntity;
 import com.fnjz.front.entity.api.usercommusetypeofflinecheck.UserCommUseTypeOfflineCheckRestEntity;
+import com.fnjz.front.entity.api.userprivatelabel.UserPrivateIncomeLabelRestDTO;
+import com.fnjz.front.entity.api.userprivatelabel.UserPrivateLabelRestEntity;
+import com.fnjz.front.entity.api.userprivatelabel.UserPrivateSpendLabelRestDTO;
 import com.fnjz.front.service.api.checkrest.CheckRestServiceI;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestServiceI;
@@ -26,9 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * app启动检查类目更新情况
@@ -56,6 +60,9 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
 
     @Autowired
     private UserAccountBookRestServiceI userAccountBookRestServiceI;
+
+    @Autowired
+    private UserPrivateLabelRestDao userPrivateLabelRestDao;
 
     private static final String SPEND_TYPE = "spend_type";
     private static final String INCOME_TYPE = "income_type";
@@ -369,7 +376,7 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
     }
 
     @Override
-    public Map<String, Object> getUserPrivateLabelAndSynInterval(String shareCode, String userInfoId, String accountBookId, LabelVersionRestDTO labelVersion) {
+    public Map<String, Object> getUserPrivateLabelAndSynInterval(String shareCode, String userInfoId, LabelVersionRestDTO labelVersion) {
         //获取离线-用户常用类目/排序关系检查表数据
         String userCommUseTypeOfflineCheckV2 = userCommUseTypeOfflineCheckRestDao.getUserCommUseTypeOfflineCheckV2(userInfoId);
         //第一次调用追加用户个 人常用版本
@@ -392,15 +399,15 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
             }
             base2.put("version", userCommUseTypeOfflineCheckV2);
         }
-        //针对不同账本  判断当前用户下的账本数
-        List<String> accountBookIds = userAccountBookRestServiceI.listForABIdSByUserInfoId(userInfoId);
-        if(accountBookIds!=null){
-            if(accountBookIds.size()>0){
-                accountBookIds.forEach(v ->{
+        //针对不同账本  判断当前用户下所拥有的账本类型
+        List<Map<String,Integer>> abTypeIds = userAccountBookRestServiceI.listForABTypeIdSByUserInfoId(userInfoId);
+        if(abTypeIds!=null){
+            if(abTypeIds.size()>0){
+                abTypeIds.forEach(v ->{
                     JSONObject jsonObject = new JSONObject();
-                    jsonObject = getUserCommUseType(shareCode,userInfoId, Integer.valueOf(accountBookId),jsonObject);
+                    jsonObject = getUserCommUseType(shareCode,userInfoId, v.get("abtypeid"),jsonObject);
                     jsonObject.put("userInfoId", Integer.valueOf(userInfoId));
-                    jsonObject.put("accountBookId", Integer.valueOf(accountBookId));
+                    jsonObject.put("abTypeId", v.get("abtypeid"));
                     jsonArray.add(jsonObject);
                 });
                 base1.put("label",jsonArray);
@@ -414,20 +421,21 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
      * 获取用户常用标签
      * @return
      */
-    private JSONObject getUserCommUseType(String shareCode,String userInfoId,Integer abId,JSONObject jsonObject) {
-        Map userLabel = redisTemplateUtils.getHashMap(RedisPrefix.USER_LABEL + shareCode+":"+abId);
+    private JSONObject getUserCommUseType(String shareCode,String userInfoId,Integer abTypeId,JSONObject jsonObject) {
+        Map userLabel = redisTemplateUtils.getHashMap(RedisPrefix.USER_LABEL + shareCode+":"+abTypeId);
         JSONObject itemJSONObj = JSONObject.parseObject(JSON.toJSONString(userLabel));
         if(userLabel.size()<1){
-            List<?> spendList = userPrivateLabelRestService.getUserCommUseType(userInfoId, RedisPrefix.SPEND,abId);
-            List<?> incomeList = userPrivateLabelRestService.getUserCommUseType(userInfoId, RedisPrefix.INCOME,abId);
+            //判断是否为注册用户首次调用
+            List<?> spendList = userPrivateLabelRestService.getUserCommUseType(userInfoId, RedisPrefix.SPEND,abTypeId);
+            List<?> incomeList = userPrivateLabelRestService.getUserCommUseType(userInfoId, RedisPrefix.INCOME,abTypeId);
             //缓存个人类目
             JSONObject jsonObject1 = new JSONObject();
             jsonObject1.put(RedisPrefix.INCOME,incomeList);
-            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode+":"+abId,jsonObject1);
+            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode+":"+abTypeId,jsonObject1);
             JSONObject jsonObject2 = new JSONObject();
             jsonObject2.put(RedisPrefix.SPEND,spendList);
             //缓存个人类目
-            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode+":"+abId,jsonObject2);
+            redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode+":"+abTypeId,jsonObject2);
 
             jsonObject.put("income",incomeList);
             jsonObject.put("spend",spendList);
@@ -551,5 +559,105 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
         }
         //数据处理完成
         return map;
+    }
+
+    /**
+     * 为新注册用户分配系统常用标签
+     */
+    private List<?> checkUserPrivateLabel(String userInfoId, String type, Integer abTypeId) {
+        //判断用户自有标签是否已存在
+        if (StringUtils.equals(type, RedisPrefix.INCOME)) {
+            int count = userPrivateLabelRestDao.checkUserPrivateLabelForIncome(userInfoId,abTypeId);
+            if (count < 1) {
+                List<IncomeTypeLabelIdRestDTO> incomeTypeRestDTOS = userPrivateLabelRestDao.listMarkLabelByAbIdForIncome(abTypeId);
+                if (incomeTypeRestDTOS != null) {
+                    if (incomeTypeRestDTOS.size() > 0) {
+                        incomeTypeRestDTOS.forEach(v -> {
+                            UserPrivateLabelRestEntity userPrivateLabelRestEntity = new UserPrivateLabelRestEntity();
+                            //设置三级类目id
+                            userPrivateLabelRestEntity.setTypeId(v.getId());
+                            //设置三级类目名称
+                            userPrivateLabelRestEntity.setTypeName(v.getIncomeName());
+                            //设置二级类目id
+                            userPrivateLabelRestEntity.setTypePid(v.getParentId());
+                            //设置优先级
+                            userPrivateLabelRestEntity.setPriority(v.getPriority());
+                            //绑定用户
+                            userPrivateLabelRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
+                            //绑定账本id
+                            //userPrivateLabelRestEntity.setAccountBookId(abId);
+                            //账本类型id
+                            userPrivateLabelRestEntity.setAbTypeId(abTypeId);
+                            //图标
+                            userPrivateLabelRestEntity.setIcon(v.getIcon());
+                            //
+                            userPrivateLabelRestEntity.setAbTypeLabelId(v.getLabelId());
+                            //设置属性  1:支出 2:收入
+                            userPrivateLabelRestEntity.setProperty(2);
+                            //设置属性  1:系统分配  2:用户自建
+                            userPrivateLabelRestEntity.setType(1);
+                            //设置属性  1:有效  0:失效
+                            userPrivateLabelRestEntity.setStatus(1);
+                            //insert
+                            userPrivateLabelRestDao.insert(userPrivateLabelRestEntity);
+                        });
+
+                    }
+                }
+            }
+        } else {
+            int count = userPrivateLabelRestDao.checkUserPrivateLabelForSpend(userInfoId,abTypeId);
+            if (count < 1) {
+                List<SpendTypeLabelIdRestDTO> spendTypeRestDTOS = userPrivateLabelRestDao.listMarkLabelByAbIdForSpend(abTypeId);
+                if (spendTypeRestDTOS != null) {
+                    if (spendTypeRestDTOS.size() > 0) {
+                        spendTypeRestDTOS.forEach(v -> {
+                            UserPrivateLabelRestEntity userPrivateLabelRestEntity = new UserPrivateLabelRestEntity();
+                            //设置三级类目id
+                            userPrivateLabelRestEntity.setTypeId(v.getId());
+                            //设置三级类目名称
+                            userPrivateLabelRestEntity.setTypeName(v.getSpendName());
+                            //设置二级类目id
+                            userPrivateLabelRestEntity.setTypePid(v.getParentId());
+                            //设置优先级
+                            userPrivateLabelRestEntity.setPriority(v.getPriority());
+                            //绑定用户
+                            userPrivateLabelRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
+                            //绑定账本id
+                            //userPrivateLabelRestEntity.setAccountBookId(abId);
+                            //账本类型id
+                            userPrivateLabelRestEntity.setAbTypeId(abTypeId);
+                            //图标
+                            userPrivateLabelRestEntity.setIcon(v.getIcon());
+                            //
+                            userPrivateLabelRestEntity.setAbTypeLabelId(v.getLabelId());
+                            //设置属性  1:支出 2:收入
+                            userPrivateLabelRestEntity.setProperty(1);
+                            //设置属性  1:系统分配  2:用户自建
+                            userPrivateLabelRestEntity.setType(1);
+                            //设置属性  1:有效  0:失效
+                            userPrivateLabelRestEntity.setStatus(1);
+                            //insert
+                            userPrivateLabelRestDao.insert(userPrivateLabelRestEntity);
+                        });
+                    }
+                }
+            }
+        }
+
+        //todo  代码需要优化！！！！
+        List<UserPrivateIncomeLabelRestDTO> incomeList = new ArrayList<>();
+        List<UserPrivateSpendLabelRestDTO> spendList = new ArrayList<>();
+        if (StringUtils.equals(type, RedisPrefix.INCOME)) {
+            //用户常用类目获取
+            incomeList = userPrivateLabelRestDao.selectLabelByAbId2(userInfoId,abTypeId, 2);
+        } else {
+            spendList = userPrivateLabelRestDao.selectLabelByAbId(userInfoId,abTypeId, 1); }
+        //不需排序
+        if (StringUtils.equals(type, RedisPrefix.INCOME)) {
+            return incomeList;
+        } else {
+            return spendList;
+        }
     }
 }

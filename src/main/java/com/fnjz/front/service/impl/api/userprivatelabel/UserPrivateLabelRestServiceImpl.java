@@ -471,9 +471,10 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
                             userPrivateLabelRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
                             //绑定账本id
                             //userPrivateLabelRestEntity.setAccountBookId(abId);
+                            //账本类型id
+                            userPrivateLabelRestEntity.setAbTypeId(abTypeId);
                             //图标
                             userPrivateLabelRestEntity.setIcon(v.getIcon());
-                            //
                             userPrivateLabelRestEntity.setAbTypeLabelId(v.getLabelId());
                             //设置属性  1:支出 2:收入
                             userPrivateLabelRestEntity.setProperty(2);
@@ -508,6 +509,8 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
                             userPrivateLabelRestEntity.setUserInfoId(Integer.valueOf(userInfoId));
                             //绑定账本id
                             //userPrivateLabelRestEntity.setAccountBookId(abId);
+                            //账本类型id
+                            userPrivateLabelRestEntity.setAbTypeId(abTypeId);
                             //图标
                             userPrivateLabelRestEntity.setIcon(v.getIcon());
                             //

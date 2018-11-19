@@ -119,12 +119,11 @@ public class CheckRestController extends BaseController {
         //正常流程执行
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
-        UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
         //连续打卡统计
         clockInDays.clockInDays(shareCode);
             //返回所有
             try {
-                map = checkRestServiceI.getUserPrivateLabelAndSynInterval(shareCode, userInfoId, userAccountBookRestEntityCache.getAccountBookId() + "",labelVersion);
+                map = checkRestServiceI.getUserPrivateLabelAndSynInterval(shareCode, userInfoId,labelVersion);
             } catch (Exception e) {
                 logger.error(e.toString());
                 return new ResultBean(ApiResultType.SERVER_ERROR, null);

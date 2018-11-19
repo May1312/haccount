@@ -34,7 +34,6 @@ public interface UserPrivateLabelRestDao {
 
     /**
      * 获取当前账本类型对应系统标签  todo 优先级获取从账本类型对应标签表中获取
-     * @param abId
      * @return
      */
     @ResultType(IncomeTypeRestEntity.class)
@@ -54,8 +53,8 @@ public interface UserPrivateLabelRestDao {
     List<IncomeTypeLabelIdRestDTO> listMarkLabelByAbIdForIncome(@Param("abTypeId") Integer abTypeId);
 
     @ResultType(SpendTypeLabelIdRestDTO.class)
-    @Sql("SELECT sys_spend.id,sys_spend.spend_name,sys_spend.parent_id,sys_spend.icon,base2.priority,base2.id as labelId FROM hbird_spend_type AS sys_spend, ( SELECT sys_label_id,priority,type_label.id FROM hbird_account_book_type_label AS type_label, ( SELECT account_book_type_id AS type_id FROM hbird_account_book WHERE id = :accountBookId ) AS base1 WHERE type_label.ab_type_id = base1.type_id AND type_label.label_type = 1 AND type_label.`status` = 1 and mark=1) AS base2 WHERE sys_spend.id = base2.sys_label_id order by base2.priority;")
-    List<SpendTypeLabelIdRestDTO> listMarkLabelByAbIdForSpend(@Param("accountBookId") Integer abId);
+    @Sql("SELECT sys_spend.id, sys_spend.spend_name, sys_spend.parent_id, sys_spend.icon, base2.priority, base2.id AS labelId FROM hbird_spend_type AS sys_spend, ( SELECT sys_label_id, priority, id FROM hbird_account_book_type_label WHERE ab_type_id = :abTypeId AND label_type = 1 AND STATUS = 1 AND mark = 1 ) AS base2 WHERE sys_spend.id = base2.sys_label_id ORDER BY base2.priority;")
+    List<SpendTypeLabelIdRestDTO> listMarkLabelByAbIdForSpend(@Param("abTypeId") Integer abTypeId);
 
     /**
      * 判断用户自有标签是否已存在  ---支出
@@ -75,11 +74,11 @@ public interface UserPrivateLabelRestDao {
      * 插入用户自有标签表
      * @param userPrivateLabelRestEntity
      */
-    @Sql("INSERT INTO `hbird_user_private_label` ( `user_info_id`, `type_pid`, `type_id`, `type_name`, `icon`, `priority`, `property`, `type`, `status`, `account_book_id`,`ab_type_label_id` ) VALUES(:label.userInfoId,:label.typePid,:label.typeId,:label.typeName,:label.icon,:label.priority,:label.property,:label.type,:label.status,:label.accountBookId,:label.abTypeLabelId);")
+    @Sql("INSERT INTO `hbird_user_private_label` ( `user_info_id`, `type_pid`, `type_id`, `type_name`, `icon`, `priority`, `property`, `type`, `status`, `account_book_id`,`ab_type_label_id`,`ab_type_id` ) VALUES(:label.userInfoId,:label.typePid,:label.typeId,:label.typeName,:label.icon,:label.priority,:label.property,:label.type,:label.status,:label.accountBookId,:label.abTypeLabelId,:label.abTypeId);")
     void insert(@Param("label") UserPrivateLabelRestEntity userPrivateLabelRestEntity);
 
     /**
-     * 根据账本id获取自有标签表中有效数据
+     * 根据账本类型id获取自有标签表中有效数据
      * @return
      */
     @ResultType(UserPrivateSpendLabelRestDTO.class)

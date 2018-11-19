@@ -23,6 +23,17 @@ public interface UserAccountBookRestDao {
     List<Map<String,Integer>> listForABIdSByUserInfoId(@Param("userInfoId") String userInfoId);
 
     /**
+     * 获取当前用户所拥有的账本类型
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select DISTINCT account_book_type_id as abTypeId from hbird_account_book as base2,(select account_book_id from hbird_user_account_book where user_info_id=:userInfoId)as base1 where base2.id=base1.account_book_id;")
+    List<Map<String,Integer>> listForABTypeIdSByUserInfoId(@Param("userInfoId") String userInfoId);
+
+    @Sql("select user_info_id  from hbird_user_account_book where account_book_id=:ABId;")
+    List<Integer> listForUserInfoIdSByaABId(@Param("ABId") Integer ABId);
+
+    /**
      * 获取用户默认账本
      * @param userInfoId
      * @return
@@ -30,6 +41,15 @@ public interface UserAccountBookRestDao {
     @ResultType(UserAccountBookRestEntity.class)
     @Sql("select * from hbird_user_account_book where user_info_id=:userInfoId and default_flag=1;")
     UserAccountBookRestEntity getUserAccountBookByUserInfoId(int userInfoId);
+
+    /**
+     * 根据用户id  账本id  查询当前邀请账本
+     * @param userInfoId   accountBookId
+     * @return
+     */
+    @ResultType(UserAccountBookRestEntity.class)
+    @Sql("select * from hbird_user_account_book where user_info_id=:userInfoId and account_book_id=:accountBookId  and default_flag=1;")
+    UserAccountBookRestEntity getUserAccountBookByUserInfoIdAndAccountBookId(int userInfoId,int accountBookId);
 
     /**
      * 获取用户类型

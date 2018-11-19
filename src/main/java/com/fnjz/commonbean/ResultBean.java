@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 /**
  * Created by yhang on 2018/5/31.
+ 
+ 
  */
 public class ResultBean implements Serializable {
 

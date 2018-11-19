@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 
 /**
@@ -51,7 +50,8 @@ public class JgPushExampls {
                                 .setTitle("蜂鸟记账")
                                 .addExtras(extras).build())
                         .addPlatformNotification(IosNotification.newBuilder()
-                                .incrBadge(1)
+                                .setAlert(alertContent)
+                                .incrBadge(0)
                                 .addExtras(extras).build())
                         .build())
                 .build();

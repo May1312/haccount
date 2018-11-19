@@ -20,7 +20,7 @@ public class UserPrivateIncomeLabelRestDTO implements java.io.Serializable {
     /**
      * 账本id
      */
-    private Integer accountBookId;
+    //private Integer accountBookId;
 
     private Integer priority;
 
@@ -40,13 +40,13 @@ public class UserPrivateIncomeLabelRestDTO implements java.io.Serializable {
         this.icon = icon;
     }
 
-    public Integer getAccountBookId() {
+    /*public Integer getAccountBookId() {
         return accountBookId;
     }
 
     public void setAccountBookId(Integer accountBookId) {
         this.accountBookId = accountBookId;
-    }
+    }*/
 
     public Integer getPriority() {
         return priority;

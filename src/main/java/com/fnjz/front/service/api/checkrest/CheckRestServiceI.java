@@ -32,5 +32,5 @@ public interface CheckRestServiceI {
      * @param userInfoId
      * @return
      */
-    Map<String,Object> getUserPrivateLabelAndSynInterval(String shareCode, String userInfoId, String accountBookId, LabelVersionRestDTO labelVersion);
+    Map<String,Object> getUserPrivateLabelAndSynInterval(String shareCode, String userInfoId, LabelVersionRestDTO labelVersion);
 }

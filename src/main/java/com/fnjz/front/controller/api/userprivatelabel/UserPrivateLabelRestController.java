@@ -34,7 +34,7 @@ public class UserPrivateLabelRestController {
 
     @RequestMapping(value = {"/getIncomeLabel/{type}", "/getSpendLabel/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getIncomeTypeList(@PathVariable("type") String type, HttpServletRequest request, @RequestParam String abTypeId) {
+    public ResultBean getIncomeTypeList(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(required = false) String abTypeId) {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         if (StringUtils.isEmpty(abTypeId)) {
@@ -144,7 +144,7 @@ public class UserPrivateLabelRestController {
 
     @RequestMapping(value = {"/getIncomeLabel", "/getSpendLabel"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getIncomeTypeList(HttpServletRequest request, @RequestParam String abTypeId) {
+    public ResultBean getIncomeTypeList(HttpServletRequest request, @RequestParam(required = false) String abTypeId) {
         return this.getIncomeTypeList(null, request, abTypeId);
     }
 

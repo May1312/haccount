@@ -4,6 +4,7 @@ import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserAccountBookRestServiceI extends CommonService{
 
@@ -12,7 +13,7 @@ public interface UserAccountBookRestServiceI extends CommonService{
      * @param userInfoId
      * @return
      */
-    List<String> listForABIdSByUserInfoId(String userInfoId);
+    List<Map<String,Integer>> listForABIdSByUserInfoId(String userInfoId);
 
     /**
      * 获取用户默认账本
@@ -20,4 +21,11 @@ public interface UserAccountBookRestServiceI extends CommonService{
      * @return
      */
     UserAccountBookRestEntity getUserAccountBookByUserInfoId(int userInfoId);
+
+    /**
+     * 获取当前用户下的账本类型ids
+     * @param userInfoId
+     * @return
+     */
+    List<Map<String,Integer>> listForABTypeIdSByUserInfoId(String userInfoId);
 }
