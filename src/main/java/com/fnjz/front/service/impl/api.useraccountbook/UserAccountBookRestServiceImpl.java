@@ -43,4 +43,10 @@ public class UserAccountBookRestServiceImpl extends CommonServiceImpl implements
     public UserAccountBookRestEntity getUserAccountBookByUserInfoId(int userInfoId) {
         return userAccountBookRestDao.getUserAccountBookByUserInfoId(userInfoId);
     }
+
+    @Override
+    public UserAccountBookRestEntity checkUserisExistAccount(String userInfoId, String accountBookId) {
+        UserAccountBookRestEntity userAccountBookByUserInfoIdAndAccountBookId = userAccountBookRestDao.getUserAccountBookByUserInfoIdAndAccountBookId(Integer.parseInt(userInfoId), Integer.parseInt(accountBookId));
+        return userAccountBookByUserInfoIdAndAccountBookId;
+    }
 }

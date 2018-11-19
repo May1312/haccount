@@ -80,4 +80,6 @@ public interface UserInfoRestServiceI extends CommonService{
      * @param userInfoRestEntity
      */
     void updateUserInfo(UserInfoRestEntity userInfoRestEntity,UserInfoRestDTO task);
+
+
 }

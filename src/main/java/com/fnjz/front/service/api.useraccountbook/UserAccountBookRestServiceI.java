@@ -13,6 +13,10 @@ public interface UserAccountBookRestServiceI extends CommonService{
      * @param userInfoId
      * @return
      */
+    //List<String> listForABIdSByUserInfoId(String userInfoId);
+
+    List<Map<String,Integer>> listForABTypeIdSByUserInfoId(String userInfoId);
+
     List<Map<String,Integer>> listForABIdSByUserInfoId(String userInfoId);
 
     /**
@@ -22,10 +26,5 @@ public interface UserAccountBookRestServiceI extends CommonService{
      */
     UserAccountBookRestEntity getUserAccountBookByUserInfoId(int userInfoId);
 
-    /**
-     * 获取当前用户下的账本类型ids
-     * @param userInfoId
-     * @return
-     */
-    List<Map<String,Integer>> listForABTypeIdSByUserInfoId(String userInfoId);
+    UserAccountBookRestEntity checkUserisExistAccount(String userInfoId, String accountBookId);
 }

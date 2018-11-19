@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestDTO;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
+import io.swagger.models.auth.In;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.util.List;
@@ -75,7 +76,7 @@ public interface AccountBookRestServiceI extends CommonService{
      */
     void removeTheNotification(Map<String, Object> map,String userInfoId);
     /**
-     * 功能描述:
+     * 功能描述:邀请记账
      *
      * @param:
      * @return:
@@ -83,5 +84,13 @@ public interface AccountBookRestServiceI extends CommonService{
      * @date: 2018/11/17 15:01
      */
     JSONObject invitationToAccount(String adminUserInfoId,String accountBookId,String invitedId);
-
+    /**
+     * 功能描述: 获取当前账本人数
+     *
+     * @param: 账本创建者id 账本id
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/19 16:26
+     */
+    Integer getAccountNumber(String accountBookId);
 }

@@ -277,4 +277,46 @@ public class AccountBookRestController extends BaseController {
     public ResultBean deleteMembers(HttpServletRequest request, @RequestBody Map<String,Object> map) {
         return this.deleteMembers(null, request, map);
     }
+
+    /**
+     * 功能描述:同意加入账本调用
+     *
+     * @param:  账本id，通用userinid
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/19 15:37
+     */
+    @RequestMapping(value = "/acceptInvitationToAccount", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean acceptInvitationToAccount(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+        //账本创建者id
+        String adminUserInfoId =String.valueOf(map.get("adminUserInfoId"));
+        //账本id
+        String accountBookId =String.valueOf(map.get("accountBookId"));
+        if (StringUtils.isEmpty(adminUserInfoId) || StringUtils.isEmpty(accountBookId)){
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,"检查账本创建者id，账本id");
+        }
+        //当前登录用户id
+        String userinfoId = (String) request.getAttribute("userInfoId");
+        JSONObject jsonObject = accountBookRestService.invitationToAccount(adminUserInfoId, accountBookId, userinfoId);
+        return new ResultBean(ApiResultType.OK,jsonObject);
+    }
+    /**
+     * 功能描述: 获取当前账本是否满员
+     *
+     * @param:
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/19 16:41
+     */
+    @RequestMapping(value = "/getAccountTotalMember", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean getAccountTotalMember(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+        Integer accountBookId = accountBookRestService.getAccountNumber(String.valueOf(map.get("accountBookId")));
+        if (accountBookId<5){
+            return new ResultBean(ApiResultType.OK,"true");
+        }else {
+            return new ResultBean(ApiResultType.OK,"false");
+        }
+    }
 }
