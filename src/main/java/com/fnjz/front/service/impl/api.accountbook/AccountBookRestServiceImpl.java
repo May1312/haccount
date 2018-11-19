@@ -74,13 +74,10 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
             abMembers.forEach(v -> {
                 if (StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "0")) {
                     //当前请求用户为账本所有者
-<<<<<<< HEAD
                     jsonObject.put("yourSelf", v.get("avatarurl"));
                 } else if (StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "2")) {
-=======
                     jsonObject.put("yourSelf",v.get("avatarurl"));
                 }else if(StringUtils.equals(v.get("userinfoid")+"",userInfoId)&&StringUtils.equals(v.get("usertype")+"","1")){
->>>>>>> b9415da03437d8daf7f8db8e4ac433867007c38a
                     //当前用户作为成员
                     jsonObject.put("yourSelf", v.get("avatarurl"));
                 } else if (!StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "0")) {
@@ -272,7 +269,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         JSONObject jsonObject = new JSONObject();
         //确认管理员权限
         UserAccountBookRestEntity userAccountBook = userAccountBookRestDao.getUserAccountBookByUserInfoIdAndAccountBookId(Integer.parseInt(adminUserInfoId), Integer.parseInt(accountBookId));
-        //确认
+        //确认 0_管理员 1_成员
         if (userAccountBook.getUserType() == 0) {
             //当前账本人数是否小于五人
             int totalMember = accountBookRestDao.getTotalMember(accountBookId);
