@@ -284,7 +284,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                         result = true;
                     }
                 } else {
-                    message = "人数达到上限";
+                    message = "人数达到上限,请联系管理员";
                 }
             } else {
                 message = "没有邀请权限";

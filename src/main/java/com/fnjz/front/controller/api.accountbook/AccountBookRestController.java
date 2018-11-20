@@ -8,6 +8,7 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestDTO;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
 import com.fnjz.front.service.api.accountbook.AccountBookRestServiceI;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -286,9 +287,9 @@ public class AccountBookRestController extends BaseController {
      * @auther: yonghuizhao
      * @date: 2018/11/19 15:37
      */
-    @RequestMapping(value = "/acceptInvitationToAccount", method = RequestMethod.POST)
+    @RequestMapping(value = "/acceptInvitationToAccount/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean acceptInvitationToAccount(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+    public ResultBean acceptInvitationToAccount(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String,Object> map) {
         //账本创建者id
         String adminUserInfoId =String.valueOf(map.get("adminUserInfoId"));
         //账本id
@@ -309,9 +310,9 @@ public class AccountBookRestController extends BaseController {
      * @auther: yonghuizhao
      * @date: 2018/11/19 16:41
      */
-    @RequestMapping(value = "/getAccountTotalMember", method = RequestMethod.POST)
+    @RequestMapping(value = "/accountBooksIsFull/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean getAccountTotalMember(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+    public ResultBean accountBooksIsFull(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,HttpServletRequest request, @RequestBody Map<String,Object> map) {
         Integer accountBookId = accountBookRestService.getAccountNumber(String.valueOf(map.get("accountBookId")));
         if (accountBookId<5){
             return new ResultBean(ApiResultType.OK,"true");
