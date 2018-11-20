@@ -239,7 +239,8 @@ public class UserLoginRestController extends BaseController {
         UserLoginRestEntity userEntity = userLoginRestService.wxUnionidIsExist(user.getString("unionid"));
 
         if (userEntity != null){
-            return new ResultBean(ApiResultType.WECHAT_IS_BINDED,"success");
+            ResultBean resultBean = createTokenUtils.loginSuccess(userEntity, ShareCodeUtil.id2sharecode(userEntity.getUserInfoId()));
+            return resultBean;
         }else {
             return new ResultBean(ApiResultType.USER_NOT_EXIST,"success");
         }
@@ -268,7 +269,7 @@ public class UserLoginRestController extends BaseController {
                 //验证码为空
                 return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
             } else {
-                if (StringUtil.equals(code, map.get("verifycode"))) {
+                if (StringUtil.equals(code, verifycode)) {
                     List<UserLoginRestEntity> UserLoginRestEntity = userLoginRestService.findByProperty(UserLoginRestEntity.class, "mobile", mobile);
                     //如果是老用户去调用手机号绑定微信接口
                     if (UserLoginRestEntity.size()>0){

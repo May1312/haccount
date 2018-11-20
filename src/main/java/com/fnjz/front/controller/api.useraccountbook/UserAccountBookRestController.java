@@ -2,15 +2,13 @@ package com.fnjz.front.controller.api.useraccountbook;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
+import io.swagger.annotations.ApiParam;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.jeecgframework.core.common.controller.BaseController;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -43,9 +41,9 @@ public class UserAccountBookRestController extends BaseController {
 	 * @auther: yonghuizhao
 	 * @date: 2018/11/19 16:41
 	 */
-	@RequestMapping(value = "/checkUserisExistAccount", method = RequestMethod.POST)
+	@RequestMapping(value = "/checkUserisExistAccount/{type}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResultBean checkUserisExistAccount(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+	public ResultBean checkUserisExistAccount(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String,Object> map) {
 		String userInfoId  = (String) request.getAttribute("userInfoId");
 		//账本id
 		String accountBookId =String.valueOf(map.get("accountBookId"));
