@@ -24,6 +24,6 @@ public class AccountBookTypeRestServiceImpl extends CommonServiceImpl implements
 
     @Override
     public List<AccountBookTypeRestEntity> getHadABType(String userInfoId) {
-        return null;
+        return accountBookTypeRestDao.getHadABType(userInfoId);
     }
 }
