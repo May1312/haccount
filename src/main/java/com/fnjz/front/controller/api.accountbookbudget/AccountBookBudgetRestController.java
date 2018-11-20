@@ -133,6 +133,9 @@ public class AccountBookBudgetRestController extends BaseController {
             //判断是否存在预算
             budgetResult = accountBookBudgetRestService.getLatelyBudget(budget.getTime(), budget.getAccountBookId());
         }else{
+            if(budget.getBeginTime()==null || budget.getEndTime()==null){
+                return new ResultBean(ApiResultType.TIME_IS_ERROR, null);
+            }
             budgetResult = accountBookBudgetRestService.getLatelyBudgetv2(budget.getAccountBookId());
         }
         //校验金额

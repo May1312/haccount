@@ -287,13 +287,25 @@ public interface WarterOrderRestDao {
     String getTotalByDate(@Param("initDate") Date initDate,@Param("userInfoId") String userInfoId);
 
     /**
-     * 统计条数
+     * 根据账本统计收入支出
      * @param accountBookId
      * @return
      */
     @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS spend, SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END ) AS income FROM `hbird_water_order` WHERE account_book_id = :accountBookId and charge_date BETWEEN :first AND :end AND delflag = 0;")
     Map<String,BigDecimal> getAccount(@Param("first") String first,@Param("end") String end,@Param("accountBookId") String accountBookId);
 
+    /**
+     * 统计总收入支出
+     * @return
+     */
+    @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS spend, SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END ) AS income FROM `hbird_water_order` as base2,(select account_book_id from hbird_user_account_book where user_info_id=:userInfoId and delflag=0) as base1 WHERE base2.account_book_id = base1.account_book_id AND charge_date BETWEEN :first AND :end AND delflag = 0;")
+    Map<String,BigDecimal> getAccountForAll(@Param("first") String first,@Param("end") String end,@Param("userInfoId") String userInfoId);
+
+    /**
+     * 统计场景账本收入支出
+     * @param accountBookId
+     * @return
+     */
     @Sql("SELECT SUM( money ) AS spend FROM `hbird_water_order` WHERE account_book_id = :accountBookId and order_type=1 AND delflag = 0;")
     Map<String,BigDecimal> getAccountv2(@Param("accountBookId") Integer accountBookId);
 

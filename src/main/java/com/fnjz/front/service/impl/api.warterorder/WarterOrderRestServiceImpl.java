@@ -149,6 +149,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         //获取总条数
         Integer count;
         Map<String, Object> ja = new HashMap();
+        //获取月份统计数据
+        Map<String, BigDecimal> account2 = new HashMap<>(2);
         if (abId != null) {
             //需要读取头像
             listForPage = warterOrderRestDao.findListForPagev2(first.toString(), end.toString(), abId + "", pageRest.getStartIndex(), pageRest.getPageSize());
@@ -168,6 +170,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             listForPage = warterOrderRestDao.findListForPagev2All(first.toString(), end.toString(), userInfoId, pageRest.getStartIndex(), pageRest.getPageSize());
             //获取总条数
             count = warterOrderRestDao.getCountv2(first.toString(), end.toString(), userInfoId);
+            account2 = warterOrderRestDao.getAccountForAll(first.toString(), end.toString(), userInfoId);
         }
         //设置总记录数
         pageRest.setTotalCount(count);
@@ -222,11 +225,9 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                     array2.add(jsonObject);
                 }
             }
-            //获取月份统计数据
-            Map<String, BigDecimal> account = warterOrderRestDao.getAccount(first.toString(), end.toString(), abId+"");
             ja.put("arrays", array2);
-            ja.put("monthSpend", account.get("spend"));
-            ja.put("monthIncome", account.get("income"));
+            ja.put("monthSpend", account2.get("spend"));
+            ja.put("monthIncome", account2.get("income"));
             ja.put("totalPage", pageRest.getTotalPage());
             return ja;
         }
