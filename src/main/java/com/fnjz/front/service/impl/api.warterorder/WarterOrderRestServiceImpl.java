@@ -256,6 +256,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     @Override
     public Integer update(WarterOrderRestNewLabel charge) {
         charge = addLabelInfo(charge);
+        //修改账本更新时间
+        createTokenUtils.updateABtime(charge.getAccountBookId());
         return warterOrderRestDao.update(charge);
     }
 
@@ -319,6 +321,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         createTokenUtils.integralTask(charge.getCreateBy() + "", ShareCodeUtil.id2sharecode(Integer.valueOf(charge.getCreateBy())), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
         charge = addLabelInfo(charge);
         warterOrderRestDao.insert(charge);
+        //修改账本更新时间
+        createTokenUtils.updateABtime(charge.getAccountBookId());
         //commonDao.save(charge);
     }
 

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.dao.AccountBookRestDao;
 import com.fnjz.front.dao.FengFengTicketRestDao;
 import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
@@ -36,6 +37,9 @@ public class CreateTokenUtils {
 
     @Autowired
     private FengFengTicketRestDao fengFengTicketRestDao;
+
+    @Autowired
+    private AccountBookRestDao accountBookRestDao;
 
     public String createToken(String code) {
         //使用sharcode作为源token
@@ -153,5 +157,13 @@ public class CreateTokenUtils {
                 }
             }
         }
+    }
+
+    /**
+     * 更新账本最后同步时间
+     * @param abId
+     */
+    public void updateABtime(Integer abId){
+        accountBookRestDao.updateABtime(abId);
     }
 }

@@ -149,4 +149,11 @@ public interface AccountBookRestDao {
      */
     @Sql("select id,account_book_id,budget_money,begin_time,end_time from hbird_accountbook_budget where account_book_id=:abId;")
     SceneABBudgetRestDTO getSceneABBudget(@Param("abId") Integer abId);
+
+    /**
+     * 更新账本时间
+     * @param abId
+     */
+    @Sql("UPDATE `hbird_account_book` SET `update_date` = NOW() WHERE `id` = :abId;")
+    void updateABtime(@Param("abId") Integer abId);
 }
