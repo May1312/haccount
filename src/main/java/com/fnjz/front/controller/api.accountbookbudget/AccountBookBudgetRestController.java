@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhangdaihao
@@ -487,8 +488,8 @@ public class AccountBookBudgetRestController extends BaseController {
                 //场景账本  查看是否设置预算及起止时间
                 SceneABBudgetRestDTO sceneABBudget = accountBookBudgetRestService.getSceneABBudget(abId);
                 if(sceneABBudget.getBudgetMoney()!=null && sceneABBudget.getBeginTime()!=null && sceneABBudget.getEndTime()!=null){
-                    jsonArray = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId,abId,sceneABBudget);
-                    return new ResultBean(ApiResultType.OK,jsonArray);
+                    Map<String,Object> map = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId,abId,sceneABBudget);
+                    return new ResultBean(ApiResultType.OK,map);
                 }else{
                     return new ResultBean(ApiResultType.OK,jsonArray);
                 }
