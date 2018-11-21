@@ -326,10 +326,15 @@ public class AccountBookRestController extends BaseController {
             return new ResultBean(ApiResultType.SERVER_ERROR,"去检查accountBookId");
         }
         Integer accountBookId = accountBookRestService.getAccountNumber(accountBookId1);
-        if (accountBookId<5){
-            return new ResultBean(ApiResultType.OK,"true");
+        if (accountBookId != null ){
+            if (accountBookId<5){
+                return new ResultBean(ApiResultType.OK,"true");
+            }else {
+                return new ResultBean(ApiResultType.OK,"false");
+            }
         }else {
-            return new ResultBean(ApiResultType.OK,"false");
+            return new ResultBean(ApiResultType.SERVER_ERROR,"此账本id查不到记录");
         }
+
     }
 }

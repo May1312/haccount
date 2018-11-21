@@ -107,14 +107,11 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @date: 2018/11/16 17:41
      */
     @Override
-    public void reviseBudgetNotification(Integer userInfoId, AccountBookBudgetRestEntity budget) {
+    public void reviseBudgetNotification(Integer userInfoId, AccountBookBudgetRestEntity budget,BigDecimal preBudgetMoney) {
         int totalMember = accountBookRestDao.getTotalMember(budget.getAccountBookId() + "");
         if (totalMember > 1) {
             //修改账本名称
             String ABtypeName = accountBookRestDao.getTypeNameByABId(budget.getAccountBookId());
-            //修改前预算金额
-            AccountBookBudgetRestEntity budget1 = accountBookBudgetRestDao.getBudget(budget.getAccountBookId());
-            BigDecimal preBudgetMoney = budget1.getBudgetMoney();
             //通知人数集合
             List<UserAccountBookRestEntity> accountBookId = userAccountBookRestService.findByProperty(UserAccountBookRestEntity.class, "accountBookId", budget.getAccountBookId());
             ArrayList<Integer> integers = new ArrayList<>();
