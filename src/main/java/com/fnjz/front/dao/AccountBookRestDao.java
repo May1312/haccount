@@ -64,6 +64,9 @@ public interface AccountBookRestDao {
     @Sql("select base1.account_book_id as id,base1.user_type,base1.default_flag,base2.ab_name,base2.account_book_type_id,base2.update_date,base2.member,base3.ab_type_name as abTypeName,base3.type_budget as typeBudget,base3.icon,base3.id as abTypeId from hbird_user_account_book as base1 INNER JOIN hbird_account_book as base2 on base1.account_book_id=base2.id INNER JOIN hbird_account_book_type as base3 on base2.account_book_type_id=base3.id where base1.user_info_id=:userInfoId and base1.delflag=0 order by update_date desc;")
     List<AccountBookRestDTO> getABAll(@Param("userInfoId") String userInfoId);
 
+    @Sql("SELECT base1.account_book_id AS id, base1.user_type, base1.default_flag, base3.type_budget AS typeBudget, base3.id AS abTypeId FROM hbird_user_account_book AS base1 INNER JOIN hbird_account_book AS base2 ON base1.account_book_id = base2.id INNER JOIN hbird_account_book_type AS base3 ON base2.account_book_type_id = base3.id WHERE base1.user_info_id =:userInfoId AND base1.delflag = 0 order by default_flag desc;")
+    List<AccountBookRestDTO> getCheckABAll(@Param("userInfoId") String userInfoId);
+
     /**
      * 判断当前用户  当前账本属性
      * @param userInfoId
@@ -149,4 +152,11 @@ public interface AccountBookRestDao {
      */
     @Sql("select id,account_book_id,budget_money,begin_time,end_time from hbird_accountbook_budget where account_book_id=:abId;")
     SceneABBudgetRestDTO getSceneABBudget(@Param("abId") Integer abId);
+
+    /**
+     * 更新账本时间
+     * @param abId
+     */
+    @Sql("UPDATE `hbird_account_book` SET `update_date` = NOW() WHERE `id` = :abId;")
+    void updateABtime(@Param("abId") Integer abId);
 }

@@ -4,10 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.dao.SystemParamRestDao;
-import com.fnjz.front.dao.SystemTypeRestDao;
-import com.fnjz.front.dao.UserCommUseTypeOfflineCheckRestDao;
-import com.fnjz.front.dao.UserPrivateLabelRestDao;
+import com.fnjz.front.dao.*;
+import com.fnjz.front.entity.api.accountbook.AccountBookRestDTO;
 import com.fnjz.front.entity.api.check.LabelVersionRestDTO;
 import com.fnjz.front.entity.api.check.SystemParamCheckRestDTO;
 import com.fnjz.front.entity.api.incometype.IncomeTypeLabelIdRestDTO;
@@ -63,6 +61,9 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
 
     @Autowired
     private UserPrivateLabelRestDao userPrivateLabelRestDao;
+
+    @Autowired
+    private AccountBookRestDao accountBookRestDao;
 
     private static final String SPEND_TYPE = "spend_type";
     private static final String INCOME_TYPE = "income_type";
@@ -381,23 +382,21 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
         String userCommUseTypeOfflineCheckV2 = userCommUseTypeOfflineCheckRestDao.getUserCommUseTypeOfflineCheckV2(userInfoId);
         //第一次调用追加用户个 人常用版本
         JSONObject base1 = new JSONObject();
-        JSONObject base2 = new JSONObject();
         JSONArray jsonArray = new JSONArray();
         if (StringUtils.isEmpty(userCommUseTypeOfflineCheckV2)) {
             userCommUseTypeOfflineCheckRestDao.insertV2(userInfoId);
-            base2.put("version", "v1");
+            base1.put("labelVersion","v1");
         }else{
             if(labelVersion!=null){
                 if(labelVersion.getLabelVersion()!=null){
                     if(StringUtils.equals(labelVersion.getLabelVersion(),userCommUseTypeOfflineCheckV2)){
                         //不需要更新
-                        base2.put("version",userCommUseTypeOfflineCheckV2);
-                        base1.put("labelVersion",base2);
+                        base1.put("labelVersion",userCommUseTypeOfflineCheckV2);
                         return base1;
                     }
                 }
             }
-            base2.put("version", userCommUseTypeOfflineCheckV2);
+            base1.put("labelVersion", userCommUseTypeOfflineCheckV2);
         }
         //针对不同账本  判断当前用户下所拥有的账本类型
         List<Map<String,Integer>> abTypeIds = userAccountBookRestServiceI.listForABTypeIdSByUserInfoId(userInfoId);
@@ -413,7 +412,9 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
                 base1.put("label",jsonArray);
             }
         }
-        base1.put("labelVersion",base2);
+        //获取账本id关系
+        List<AccountBookRestDTO> checkABAll = accountBookRestDao.getCheckABAll(userInfoId);
+        base1.put("abs",checkABAll);
         return base1;
     }
 

@@ -136,6 +136,8 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                     //同步数据
                     warterOrderRestDao.saveOrUpdateOfflineData(warter);
                 }
+                //修改账本更新时间
+                createTokenUtils.updateABtime(list.get(0).getAccountBookId());
             }
         }
     }
