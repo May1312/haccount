@@ -12,7 +12,7 @@ public class SceneBaseDTO implements Serializable {
     /**
      * 支出
      */
-    private BigDecimal spend;
+    private BigDecimal money;
 
     /**
      * 时间 年-月字符串格式
@@ -41,11 +41,11 @@ public class SceneBaseDTO implements Serializable {
         return Objects.hash(time);
     }
 
-    public BigDecimal getSpend() {
-        return spend;
+    public BigDecimal getMoney() {
+        return money;
     }
 
-    public void setSpend(BigDecimal spend) {
-        this.spend = spend;
+    public void setMoney(BigDecimal money) {
+        this.money = money;
     }
 }

@@ -1,6 +1,5 @@
 package com.fnjz.front.service.impl.api.accountbookbudget;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
@@ -656,7 +655,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @return
      */
     @Override
-    public JSONArray getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, SceneABBudgetRestDTO budget) {
+    public Map<String,Object> getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, SceneABBudgetRestDTO budget) {
         //按照3周21天 3周~5个月按照每周  5个月~24个月按照月 24个月以上按照年
         if (budget.getSceneType() == null) {
             Integer setSceneType = setSceneType(budget.getBeginTime(), budget.getEndTime());
@@ -666,27 +665,30 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         //根据统计类型 执行不同sql
         if (StringUtils.equals(budget.getSceneType() + "", StatisticsEnum.STATISTICS_FOR_DAY.getIndex())) {
             //日统计
-            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneDays(abId,budget.getBeginTime(),budget.getEndTime());
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneDays(abId,LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(),LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
 
         } else if (StringUtils.equals(budget.getSceneType() + "", StatisticsEnum.STATISTICS_FOR_WEEK.getIndex())) {
             //统计周
-            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneWeeks(abId,budget.getBeginTime(),budget.getEndTime());
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneWeeks(abId,LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(),LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
         } else if (StringUtils.equals(budget.getSceneType() + "", StatisticsEnum.STATISTICS_FOR_MONTH.getIndex())) {
             //统计月
-            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneMonths(abId,budget.getBeginTime(),budget.getEndTime());
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneMonths(abId,LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(),LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
         } else {
             //统计年
-            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneYears(abId,budget.getBeginTime(),budget.getEndTime());
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneYears(abId,LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(),LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
         }
         //数据累加
         list = sumSpend(list);
-        return JSONArray.parseArray(JSON.toJSONString(list));
+        Map<String,Object> jsonObject = new HashMap<>();
+        jsonObject.put("arrays",list);
+        jsonObject.put("sceneBudget",budget);
+        return jsonObject;
     }
 
     private List<SceneBaseDTO> sumSpend(List<SceneBaseDTO> list){
         for(int i = 1; i<list.size();i++){
             //第二位元素追加前一位数据
-            list.get(i).setSpend(list.get(i).getSpend().add(list.get(i-1).getSpend()));
+            list.get(i).setMoney(list.get(i).getMoney().add(list.get(i-1).getMoney()));
         }
         return list;
     }

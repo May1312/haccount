@@ -182,7 +182,7 @@ public interface AccountBookBudgetRestDao {
      * @return
      */
     @Sql("SELECT sum( money ) AS money, charge_date AS time FROM hbird_water_order WHERE account_book_id=:abId AND charge_date BETWEEN :beginTime AND :endTime AND order_type = 1 AND delflag = 0 GROUP BY charge_date ORDER BY charge_date;")
-    List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneDays(@Param("abId") Integer abId, @Param("beginTime")Date beginTime, @Param("endTime") Date endTime);
+    List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneDays(@Param("abId") Integer abId, @Param("beginTime")String beginTime, @Param("endTime") String endTime);
 
     /**
      * 按周统计预算完成率  场景账本
@@ -192,7 +192,7 @@ public interface AccountBookBudgetRestDao {
      * @return
      */
     @Sql("SELECT sum( wo.money ) AS money, DATE_FORMAT( wo.charge_date, '%u' ) AS time, DATE_FORMAT( wo.charge_date, '%Y-%u' ) AS yearweek FROM hbird_water_order AS wo WHERE wo.account_book_id = :abId AND wo.charge_date BETWEEN :beginTime AND :endTime AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY yearweek ORDER BY yearweek;")
-    List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneWeeks(@Param("abId") Integer abId, @Param("beginTime")Date beginTime, @Param("endTime") Date endTime);
+    List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneWeeks(@Param("abId") Integer abId, @Param("beginTime")String beginTime, @Param("endTime") String endTime);
 
     /**
      * 按月统计预算完成率  场景账本
@@ -202,7 +202,7 @@ public interface AccountBookBudgetRestDao {
      * @return
      */
     @Sql("SELECT sum( money ) AS money, wo.charge_date AS time, DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth FROM hbird_water_order AS wo WHERE wo.account_book_id = :abId AND wo.charge_date BETWEEN :beginTime AND :endTime AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY yearmonth ORDER BY yearmonth;")
-    List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneMonths(@Param("abId") Integer abId, @Param("beginTime")Date beginTime, @Param("endTime") Date endTime);
+    List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneMonths(@Param("abId") Integer abId, @Param("beginTime")String beginTime, @Param("endTime") String endTime);
 
     /**
      * 按年统计预算完成率  场景账本
@@ -212,5 +212,5 @@ public interface AccountBookBudgetRestDao {
      * @return
      */
     @Sql("SELECT sum( money ) AS money, wo.charge_date AS time, DATE_FORMAT( wo.charge_date, '%Y' ) AS year FROM hbird_water_order AS wo WHERE wo.account_book_id = :abId AND wo.charge_date BETWEEN :beginTime AND :endTime AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY year ORDER BY year;")
-    List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneYears(@Param("abId") Integer abId, @Param("beginTime")Date beginTime, @Param("endTime") Date endTime);
+    List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneYears(@Param("abId") Integer abId, @Param("beginTime")String beginTime, @Param("endTime") String endTime);
 }

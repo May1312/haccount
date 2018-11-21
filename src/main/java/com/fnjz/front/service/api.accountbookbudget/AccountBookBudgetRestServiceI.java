@@ -12,6 +12,7 @@ import org.jeecgframework.core.common.service.CommonService;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface AccountBookBudgetRestServiceI extends CommonService {
 
@@ -163,5 +164,5 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @param abId
      * @return
      */
-    JSONArray getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId,SceneABBudgetRestDTO sceneABBudget);
+    Map<String,Object> getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, SceneABBudgetRestDTO sceneABBudget);
 }
