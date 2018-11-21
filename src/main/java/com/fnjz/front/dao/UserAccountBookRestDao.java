@@ -48,8 +48,8 @@ public interface UserAccountBookRestDao {
      * @return
      */
     @ResultType(UserAccountBookRestEntity.class)
-    @Sql("select * from hbird_user_account_book where user_info_id=:userInfoId and account_book_id=:accountBookId  and default_flag=1;")
-    UserAccountBookRestEntity getUserAccountBookByUserInfoIdAndAccountBookId(int userInfoId,int accountBookId);
+    @Sql("select * from hbird_user_account_book where user_info_id=:userInfoId and account_book_id=:accountBookId  and delflag=0;")
+    UserAccountBookRestEntity getUserAccountBookByUserInfoIdAndAccountBookId(@Param("userInfoId")int userInfoId,@Param("accountBookId")int accountBookId);
 
     /**
      * 获取用户类型

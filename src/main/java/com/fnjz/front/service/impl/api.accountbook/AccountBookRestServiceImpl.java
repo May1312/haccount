@@ -265,33 +265,43 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         Boolean result = false;
         String message = "";
         JSONObject jsonObject = new JSONObject();
-        //确认管理员权限
-        UserAccountBookRestEntity userAccountBook = userAccountBookRestDao.getUserAccountBookByUserInfoIdAndAccountBookId(Integer.parseInt(adminUserInfoId), Integer.parseInt(accountBookId));
-        if (userAccountBook != null){
-            //确认 0_管理员 1_成员
-            if (userAccountBook.getUserType() == 0) {
-                //当前账本人数是否小于五人
-                int totalMember = accountBookRestDao.getTotalMember(accountBookId);
-                if (totalMember <= 5) {
-                    UserAccountBookRestEntity userAccountBookRestEntity = new UserAccountBookRestEntity();
-                    userAccountBookRestEntity.setAccountBookId(Integer.parseInt(accountBookId));
-                    userAccountBookRestEntity.setUserInfoId(Integer.parseInt(invitedId));
-                    userAccountBookRestEntity.setUserType(1);
-                    userAccountBookRestEntity.setCreateDate(new Date());
-                    int insert = userAccountBookRestDao.insert(userAccountBookRestEntity);
-                    if (insert > 0) {
-                        message = "邀请成功";
-                        result = true;
+
+        //确认是否已经在此账本中
+        UserAccountBookRestEntity invitedUserAccountBook = userAccountBookRestDao.getUserAccountBookByUserInfoIdAndAccountBookId(Integer.parseInt(invitedId), Integer.parseInt(accountBookId));
+        if(invitedUserAccountBook == null){
+            //确认管理员权限
+            UserAccountBookRestEntity userAccountBook = userAccountBookRestDao.getUserAccountBookByUserInfoIdAndAccountBookId(Integer.parseInt(adminUserInfoId), Integer.parseInt(accountBookId));
+            if (userAccountBook != null){
+                //确认 0_管理员 1_成员
+                if (userAccountBook.getUserType() == 0) {
+                    //当前账本人数是否小于五人
+                    int totalMember = accountBookRestDao.getTotalMember(accountBookId);
+                    if (totalMember <= 5) {
+                        UserAccountBookRestEntity userAccountBookRestEntity = new UserAccountBookRestEntity();
+                        userAccountBookRestEntity.setAccountBookId(Integer.parseInt(accountBookId));
+                        userAccountBookRestEntity.setUserInfoId(Integer.parseInt(invitedId));
+                        userAccountBookRestEntity.setUserType(1);
+                        userAccountBookRestEntity.setCreateDate(new Date());
+                        int insert = userAccountBookRestDao.insert(userAccountBookRestEntity);
+                        if (insert > 0) {
+                            message = "邀请成功";
+                            result = true;
+                            //参加人数+1
+                            accountBookRestDao.updateABMember(Integer.parseInt(accountBookId),1);
+                        }
+                    } else {
+                        message = "人数达到上限,请联系管理员";
                     }
                 } else {
-                    message = "人数达到上限,请联系管理员";
+                    message = "没有邀请权限";
                 }
-            } else {
-                message = "没有邀请权限";
+            }else {
+                message = "此账本不存在，请核实创建者id，账本id";
             }
         }else {
-            message = "此账本不存在，请核实创建者id，账本id";
+            message="已经加入过了";
         }
+
 
         jsonObject.put("success", result);
         jsonObject.put("msg", message);

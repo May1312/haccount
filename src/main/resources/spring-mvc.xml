@@ -243,6 +243,10 @@
                         <value>/rest/api/wxActivity/sum</value>
                         <value>/rest/api/wxActivity/statisticsNewVisitor</value>
                         <value>/rest/api/v1/soouucallback</value>
+                        <!--多账本邀请-->
+                        <value>/rest/api/v1/accountBooksIsFull/</value>
+                        <value>/rest/api/v1/wxUnionidIsExist/</value>
+                        <value>/rest/api/v1/completeMobile/</value>
                     </list>
                 </property>
             </bean>

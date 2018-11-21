@@ -217,77 +217,7 @@ public class UserLoginRestController extends BaseController {
         }
     }
 
-    /**
-     * 功能描述: 判断微信是否注册
-     *
-     * @param: code
-     * @return:
-     * @auther: yonghuizhao
-     * @date: 2018/11/19 15:20
-     */
-    @RequestMapping(value = "/wxUnionidIsExist/{type}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResultBean wxUnionidIsExist(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
 
-        JSONObject user = WeChatUtils.getUser(map.get("code"));
-
-        if (user.getString("errcode") != null) {
-            return new ResultBean(ApiResultType.WXAPPLET_LOGIN_ERROR, "小程序解码异常");
-        }
-        //微信解码正常判断是否已经注册
-
-        UserLoginRestEntity userEntity = userLoginRestService.wxUnionidIsExist(user.getString("unionid"));
-
-        if (userEntity != null){
-            ResultBean resultBean = createTokenUtils.loginSuccess(userEntity, ShareCodeUtil.id2sharecode(userEntity.getUserInfoId()));
-            return resultBean;
-        }else {
-            return new ResultBean(ApiResultType.USER_NOT_EXIST,"success");
-        }
-    }
-
-    /**
-     * 功能描述: 验证手机号
-     *
-     * @param: mobile 手机号   code  验证码
-     * @return:
-     * @auther: yonghuizhao
-     * @date: 2018/11/19 17:27
-     */
-    @RequestMapping(value = "/completeMobile/{type}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResultBean completeMobile(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map){
-        String mobile = map.get("mobile");
-        String verifycode = map.get("verifycode");
-        if (StringUtils.isEmpty(mobile)) {
-            return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
-        }
-        try {
-            //获取验证码
-            String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN + map.get("mobile"));
-            if (StringUtil.isEmpty(code)) {
-                //验证码为空
-                return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
-            } else {
-                if (StringUtil.equals(code, verifycode)) {
-                    List<UserLoginRestEntity> UserLoginRestEntity = userLoginRestService.findByProperty(UserLoginRestEntity.class, "mobile", mobile);
-                    //如果是老用户去调用手机号绑定微信接口
-                    if (UserLoginRestEntity.size()>0){
-                        return createTokenUtils.loginSuccess(UserLoginRestEntity.get(0), ShareCodeUtil.id2sharecode(UserLoginRestEntity.get(0).getUserInfoId()));
-                    }else {
-                        //新用户，调注册接口，多一个参数手机号
-                        return new ResultBean(ApiResultType.OK,"REGISTER");
-                    }
-
-                } else {
-                    return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
-                }
-            }
-        } catch (Exception e) {
-            logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR, null);
-        }
-    }
 
     /**
      * 微信小程序登录
@@ -586,5 +516,120 @@ public class UserLoginRestController extends BaseController {
     @ResponseBody
     public ResultBean registerByWXApplet(@RequestBody @ApiIgnore Map<String, String> map) {
         return this.registerByWXApplet(null, map);
+    }
+
+    @ApiOperation(value = "小程序多账本新用户手机号绑定微信wechat")
+    @RequestMapping(value = "/mobileBindWeChat/{type}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResultBean mobileBindWeChat(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map, HttpServletRequest request) {
+
+        String mobile = map.get("mobile");
+        String unionid = map.get("unionid");
+        UserLoginRestEntity userLgonMobile = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", mobile);
+        UserInfoRestEntity userInfoMobile = userInfoRestServiceI.findUniqueByProperty(UserInfoRestEntity.class, "mobile", mobile);
+        //用户注册表信息表数据是否正常
+        if (userLgonMobile != null && userInfoMobile != null){
+            //当前uniond是否已经注册
+            UserLoginRestEntity userLoginwechatAuth = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
+            UserInfoRestEntity userInfowechatAuth = userInfoRestServiceI.findUniqueByProperty(UserInfoRestEntity.class, "", unionid);
+            if (userLoginwechatAuth != null || userInfowechatAuth!=null ){
+                return new ResultBean(ApiResultType.OK, "绑定成功");
+            }else {
+                //根据手机号更新uniond
+                userInfoMobile.setWechatAuth(unionid);
+                userLgonMobile.setWechatAuth(unionid);
+                userLoginRestService.updateEntitie(userLgonMobile);
+                userInfoRestServiceI.updateEntitie(userInfoMobile);
+                return new ResultBean(ApiResultType.SERVER_ERROR, "当前微信账号已经存在，或者数据异常");
+            }
+        }else {
+            return new ResultBean(ApiResultType.SERVER_ERROR, "手机号未注册，请求注册接口");
+        }
+
+    }
+
+    /**
+     * 功能描述: 判断微信是否注册
+     *
+     * @param: code
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/19 15:20
+     */
+    @RequestMapping(value = "/wxUnionidIsExist/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean wxUnionidIsExist(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
+
+        //根据code获取session_key
+        String code = WXAppletUtils.getUser(map.get("code"));
+        //转换成json对象
+        JSONObject jsonObject = JSONObject.parseObject(code);
+        if (jsonObject == null || jsonObject.getString("errcode") != null) {
+            System.out.println(jsonObject.getString("errmsg"));
+            logger.error("wechat授权异常:"+jsonObject.getString("errmsg"));
+            return new ResultBean(ApiResultType.WXAPPLET_LOGIN_ERROR, "小程序解码异常");
+        }
+
+        String session_key = jsonObject.getString("session_key");
+        //根据sessionkey解密unionid
+        JSONObject user = WXAppletDecodeUtils.getUserInfo(map.get("encryptedData"), session_key, map.get("iv"));
+        //微信解码正常判断是否已经注册
+        if (user != null && StringUtils.isNotEmpty(user.get("unionId").toString())){
+            String unionId = user.get("unionId").toString();
+            UserLoginRestEntity userEntity = userLoginRestService.wxUnionidIsExist(unionId);
+            if (userEntity != null){
+                ResultBean resultBean = createTokenUtils.loginSuccess(userEntity, ShareCodeUtil.id2sharecode(userEntity.getUserInfoId()));
+                return resultBean;
+            }else {
+                //用户没有注册，先返回uniond，到注册时候在传过来
+                return new ResultBean(ApiResultType.USER_NOT_EXIST,unionId);
+            }
+        }else {
+            return new ResultBean(ApiResultType.SERVER_ERROR,"unionid解码异常");
+        }
+
+    }
+
+    /**
+     * 功能描述: 验证手机号
+     *
+     * @param: mobile 手机号   code  验证码
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/19 17:27
+     */
+    @RequestMapping(value = "/completeMobile/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean completeMobile(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map){
+        String mobile = map.get("mobile");
+        String verifycode = map.get("verifycode");
+        if (StringUtils.isEmpty(mobile)) {
+            return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
+        }
+        try {
+            //获取验证码
+            String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN + map.get("mobile"));
+            if (StringUtil.isEmpty(code)) {
+                //验证码为空
+                return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
+            } else {
+                if (StringUtil.equals(code, verifycode)) {
+                    List<UserLoginRestEntity> UserLoginRestEntity = userLoginRestService.findByProperty(UserLoginRestEntity.class, "mobile", mobile);
+                    //如果是老用户去调用手机号绑定微信接口
+                    if (UserLoginRestEntity.size()>0){
+                        return new ResultBean(ApiResultType.OK,"BINGDING");
+                    }else {
+                        //新用户，调注册接口，多一个参数手机号
+                        return new ResultBean(ApiResultType.OK,"REGISTER");
+                    }
+
+                } else {
+                    return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
     }
 }
