@@ -86,16 +86,22 @@ public class AccountBookRestController extends BaseController {
 
     /**
      * 获取用户所拥有账本
-     *
+     * 1为标示获取默认账本信息
      * @param type
      * @param request
      * @return
      */
     @RequestMapping(value = "/getABAll/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getABAll(@PathVariable("type") String type, HttpServletRequest request) {
+    public ResultBean getABAll(@PathVariable("type") String type, HttpServletRequest request,@RequestParam(required = false)String flag) {
         System.out.println("登录终端：" + type);
         String userInfoId = (String) request.getAttribute("userInfoId");
+        if(StringUtils.isNotEmpty(flag)){
+            if(StringUtils.equals(flag,"1")){
+                AccountBookRestDTO ab = accountBookRestService.getDefaultAB(userInfoId);
+                return new ResultBean(ApiResultType.OK, ab);
+            }
+        }
         try {
             List<AccountBookRestDTO> list = accountBookRestService.getABAll(userInfoId);
             return new ResultBean(ApiResultType.OK, list);
@@ -106,7 +112,7 @@ public class AccountBookRestController extends BaseController {
     }
 
     /**
-     * 获取用户所拥有账本
+     * 删除账本
      *
      * @param type
      * @param request
@@ -245,8 +251,8 @@ public class AccountBookRestController extends BaseController {
 
     @RequestMapping(value = "/getABAll", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getABAll(HttpServletRequest request) {
-        return this.getABAll(null, request);
+    public ResultBean getABAll(HttpServletRequest request,@RequestParam(required = false)String flag) {
+        return this.getABAll(null, request,flag);
     }
 
     @RequestMapping(value = "/deleteAB", method = RequestMethod.DELETE)

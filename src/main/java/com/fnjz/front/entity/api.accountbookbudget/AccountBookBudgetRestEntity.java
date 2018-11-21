@@ -81,6 +81,11 @@ public class AccountBookBudgetRestEntity implements java.io.Serializable {
     private Date endTime;
 
     /**
+     * 定义场景账本预算完成率统计类型  1 日  2  周  3 月  4 年
+     */
+    private Integer sceneType;
+
+    /**
      * 方法: 取得java.lang.Integer
      *
      * @return: java.lang.Integer  id
@@ -346,5 +351,14 @@ public class AccountBookBudgetRestEntity implements java.io.Serializable {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    @Column(name = "SCENE_TYPE", nullable = true)
+    public Integer getSceneType() {
+        return sceneType;
+    }
+
+    public void setSceneType(Integer sceneType) {
+        this.sceneType = sceneType;
     }
 }

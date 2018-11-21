@@ -157,12 +157,10 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      */
     void reviseBudgetNotification(Integer userInfoId,AccountBookBudgetRestEntity budget);
     /**
-     * v2 获取场景账本
+     * v2 获取场景账本预算完成率
      * @param userInfoId
      * @param abId
-     * @param month
-     * @param range
      * @return
      */
-    JSONArray getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, String month, String range);
+    JSONArray getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId,SceneABBudgetRestDTO sceneABBudget);
 }

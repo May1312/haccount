@@ -19,6 +19,8 @@ public class SceneABBudgetRestDTO implements Serializable {
     private Date beginTime;
     /**场景账本 结束时间*/
     private Date endTime;
+    /**定义场景账本预算完成率统计类型  1 日  2  周  3 月  4 年*/
+    private Integer sceneType;
 
     public BigDecimal getBudgetMoney() {
         return budgetMoney;
@@ -58,5 +60,13 @@ public class SceneABBudgetRestDTO implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getSceneType() {
+        return sceneType;
+    }
+
+    public void setSceneType(Integer sceneType) {
+        this.sceneType = sceneType;
     }
 }
