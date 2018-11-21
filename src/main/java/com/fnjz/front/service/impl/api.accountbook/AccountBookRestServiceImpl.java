@@ -265,7 +265,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         Boolean result = false;
         String message = "";
         JSONObject jsonObject = new JSONObject();
-
+        int code = 2000;
         //确认是否已经在此账本中
         UserAccountBookRestEntity invitedUserAccountBook = userAccountBookRestDao.getUserAccountBookByUserInfoIdAndAccountBookId(Integer.parseInt(invitedId), Integer.parseInt(accountBookId));
         if(invitedUserAccountBook == null){
@@ -290,20 +290,23 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                             accountBookRestDao.updateABMember(Integer.parseInt(accountBookId),1);
                         }
                     } else {
+                        code=2001;
                         message = "人数达到上限,请联系管理员";
                     }
                 } else {
+                    code=2004;
                     message = "没有邀请权限";
                 }
             }else {
+                code=2002;
                 message = "此账本不存在，请核实创建者id，账本id";
             }
         }else {
+            code=2003;
             message="已经加入过了";
         }
-
-
         jsonObject.put("success", result);
+        jsonObject.put("code", code);
         jsonObject.put("msg", message);
         return jsonObject;
     }

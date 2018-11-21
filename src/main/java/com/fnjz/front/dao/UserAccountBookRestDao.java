@@ -40,7 +40,7 @@ public interface UserAccountBookRestDao {
      */
     @ResultType(UserAccountBookRestEntity.class)
     @Sql("select * from hbird_user_account_book where user_info_id=:userInfoId and default_flag=1;")
-    UserAccountBookRestEntity getUserAccountBookByUserInfoId(int userInfoId);
+    UserAccountBookRestEntity getUserAccountBookByUserInfoId(@Param("userInfoId") int userInfoId);
 
     /**
      * 根据用户id  账本id  查询当前邀请账本

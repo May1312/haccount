@@ -234,7 +234,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
 
         //判断是否是从邀请多人记账页面过来，如果是带手机号  设置手机号
-        if(StringUtils.isNotEmpty(map.get("mobile"))){
+        if(StringUtils.isNotEmpty(jsonObject.get("mobile").toString())){
             userInfoRestEntity.setMobile(map.get("mobile"));
         }
 
@@ -246,7 +246,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         userLogin.setWechatAuth(userInfoRestEntity.getWechatAuth());
         userLogin.setUserInfoId(insertId);
         //判断是否是从邀请多人记账页面过来，如果是带手机号  设置手机号
-        if(StringUtils.isNotEmpty(map.get("mobile"))){
+        if(StringUtils.isNotEmpty(jsonObject.get("mobile").toString())){
             userLogin.setMobile(map.get("mobile"));
         }
         userLoginRestDao.insert(userLogin);
