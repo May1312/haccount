@@ -133,9 +133,6 @@ public class AccountBookBudgetRestController extends BaseController {
             //判断是否存在预算
             budgetResult = accountBookBudgetRestService.getLatelyBudget(budget.getTime(), budget.getAccountBookId());
         }else{
-            if(budget.getBeginTime()==null || budget.getEndTime()==null){
-                return new ResultBean(ApiResultType.TIME_IS_ERROR, null);
-            }
             budgetResult = accountBookBudgetRestService.getLatelyBudgetv2(budget.getAccountBookId());
         }
         //校验金额
@@ -145,7 +142,7 @@ public class AccountBookBudgetRestController extends BaseController {
                 budget.setUpdateBy(Integer.valueOf(userInfoId));
                 budget.setId(budgetResult.getId());
                 budget.setCreateBy(budgetResult.getCreateBy());
-                budget.setCreateDate(budgetResult.getUpdateDate());
+                budget.setCreateDate(budgetResult.getCreateDate());
                 int i = accountBookBudgetRestService.saveOrUpdate(budget, true);
                 if (i < 0) {
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -490,11 +487,11 @@ public class AccountBookBudgetRestController extends BaseController {
                 //场景账本  查看是否设置预算及起止时间
                 SceneABBudgetRestDTO sceneABBudget = accountBookBudgetRestService.getSceneABBudget(abId);
                 if(sceneABBudget.getBudgetMoney()!=null && sceneABBudget.getBeginTime()!=null && sceneABBudget.getEndTime()!=null){
-                    jsonArray = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"));
+                    jsonArray = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId,abId,sceneABBudget);
+                    return new ResultBean(ApiResultType.OK,jsonArray);
                 }else{
                     return new ResultBean(ApiResultType.OK,jsonArray);
                 }
-                return null;
             }
 
         } catch (Exception e) {

@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestDTO;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
-import io.swagger.models.auth.In;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.util.List;
@@ -93,4 +92,11 @@ public interface AccountBookRestServiceI extends CommonService{
      * @date: 2018/11/19 16:26
      */
     Integer getAccountNumber(String accountBookId);
+
+    /**
+     * 获取默认账本数据
+     * @param userInfoId
+     * @return
+     */
+    AccountBookRestDTO getDefaultAB(String userInfoId);
 }

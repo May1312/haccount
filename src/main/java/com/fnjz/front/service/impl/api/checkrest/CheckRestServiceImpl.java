@@ -415,6 +415,9 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
         //获取账本id关系
         List<AccountBookRestDTO> checkABAll = accountBookRestDao.getCheckABAll(userInfoId);
         base1.put("abs",checkABAll);
+        //获取同步时间
+        SystemParamRestEntity systemParam = systemParamRestDao.getSynInterval();
+        base1.put("synInterval", systemParam.getVersion());
         return base1;
     }
 

@@ -316,4 +316,9 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         int totalMember = accountBookRestDao.getTotalMember(accountBookId);
         return totalMember;
     }
+
+    @Override
+    public AccountBookRestDTO getDefaultAB(String userInfoId) {
+        return accountBookRestDao.getDefaultAB(userInfoId);
+    }
 }

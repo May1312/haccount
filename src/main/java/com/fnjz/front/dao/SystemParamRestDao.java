@@ -19,4 +19,7 @@ public interface SystemParamRestDao {
      */
     @Sql("select param_type,max(version) as version from hbird_system_param group by param_type;")
     List<SystemParamRestEntity> getSystemParam();
+
+    @Sql("select * from hbird_system_param where param_type='syn_interval' limit 0,1;")
+    SystemParamRestEntity getSynInterval();
 }

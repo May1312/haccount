@@ -17,6 +17,9 @@ SET
 		   begin_time = :budget.beginTime,
 		</#if>
 		<#if budget.endTime ?exists>
-		   end_time = :budget.endTime
+		   end_time = :budget.endTime,
+		</#if>
+		<#if budget.sceneType ?exists>
+		   scene_type = :budget.sceneType
 		</#if>
 WHERE id = :budget.id

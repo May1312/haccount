@@ -1,22 +1,19 @@
 package com.fnjz.front.service.impl.api.accountbookbudget;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.controller.api.message.MessageContentFactory;
 import com.fnjz.front.controller.api.message.MessageType;
 import com.fnjz.front.dao.*;
-import com.fnjz.front.dao.AccountBookBudgetRestDao;
-import com.fnjz.front.dao.AccountBookRestDao;
 import com.fnjz.front.entity.api.accountbookbudget.AccountBookBudgetRestEntity;
-import com.fnjz.front.entity.api.accountbookbudget.DTO.BudgetCompletionRateDTO;
-import com.fnjz.front.entity.api.accountbookbudget.DTO.ConsumptionStructureRatioDTO;
-import com.fnjz.front.entity.api.accountbookbudget.DTO.SavingEfficiencyDTO;
-import com.fnjz.front.entity.api.accountbookbudget.DTO.StatisticAnalysisDTO;
+import com.fnjz.front.entity.api.accountbookbudget.DTO.*;
 import com.fnjz.front.entity.api.accountbookbudget.SceneABBudgetRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
+import com.fnjz.front.enums.StatisticsEnum;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
 import com.fnjz.front.service.api.message.MessageServiceI;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
@@ -25,11 +22,16 @@ import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -62,6 +64,17 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     @Autowired
     private UserAccountBookRestServiceI userAccountBookRestService;
 
+    @Test
+    public void run() {
+        LocalDate localDate = LocalDate.of(2018, 10, 1);
+        LocalDate localDate2 = LocalDate.of(2018, 11, 3);
+        Period period = Period.between(localDate, localDate2);
+        int days = period.getDays();
+        int months = period.getMonths();
+        int years = period.getYears();
+        System.out.println(days + "--" + months + "--" + years + "--");
+    }
+
     /**
      * 设置或更新预算
      *
@@ -71,15 +84,14 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      */
     @Override
     public int saveOrUpdate(AccountBookBudgetRestEntity budget, boolean flag) {
-        //TODO 存在问题 预算/固定大额支出在同一条记录中  需要判断出  引入新手任务   判断是预算/存钱效率
-        if (budget.getBudgetMoney() != null) {
-            createTokenUtils.integralTask(budget.getCreateBy() + "", ShareCodeUtil.id2sharecode(budget.getCreateBy()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Setting_up_budget);
-        } else if (budget.getFixedLifeExpenditure() != null || budget.getFixedLargeExpenditure() != null) {
-            createTokenUtils.integralTask(budget.getCreateBy() + "", ShareCodeUtil.id2sharecode(budget.getCreateBy()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Setting_up_savings_efficiency);
+        //场景账本计算时间间隔
+        if (budget.getBeginTime() != null && budget.getEndTime() != null) {
+            Integer setSceneType = setSceneType(budget.getBeginTime(), budget.getEndTime());
+            budget.setSceneType(setSceneType);
         }
+        //引入新手任务
+        createTokenUtils.integralTask(budget.getCreateBy() + "", ShareCodeUtil.id2sharecode(budget.getCreateBy()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Setting_up_budget);
         if (flag) {
-            //更新流程-->更新之后账本成员大于1给账本成员发送通知
-
             return accountBookBudgetRestDao.update(budget);
         } else {
             return accountBookBudgetRestDao.insert(budget);
@@ -95,9 +107,9 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @date: 2018/11/16 17:41
      */
     @Override
-    public void reviseBudgetNotification(Integer userInfoId,AccountBookBudgetRestEntity budget){
-        int totalMember = accountBookRestDao.getTotalMember(budget.getAccountBookId()+"");
-        if(totalMember>1){
+    public void reviseBudgetNotification(Integer userInfoId, AccountBookBudgetRestEntity budget) {
+        int totalMember = accountBookRestDao.getTotalMember(budget.getAccountBookId() + "");
+        if (totalMember > 1) {
             //修改账本名称
             String ABtypeName = accountBookRestDao.getTypeNameByABId(budget.getAccountBookId());
             //修改前预算金额
@@ -108,14 +120,14 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             ArrayList<Integer> integers = new ArrayList<>();
             //List<Integer> strings = userAccountBookRestDao.listForUserInfoIdSByaABId(budget.getAccountBookId());
             for (UserAccountBookRestEntity userAccountBookRestEntity : accountBookId) {
-               integers.add(userAccountBookRestEntity.getUserInfoId());
+                integers.add(userAccountBookRestEntity.getUserInfoId());
             }
             //创建者姓名
             String creatName = userInfoRestDao.getUserNameByUserId(userInfoId);
             //组合消息内容
-            String messageContent = MessageContentFactory.getMessageContent(MessageType.reviseBudgetNotification,ABtypeName,creatName,preBudgetMoney.toString(),budget.getBudgetMoney().toString());
+            String messageContent = MessageContentFactory.getMessageContent(MessageType.reviseBudgetNotification, ABtypeName, creatName, preBudgetMoney.toString(), budget.getBudgetMoney().toString());
             //添加消息，发送通知
-            messageService.addUserMessage(messageContent,userInfoId,integers);
+            messageService.addUserMessage(messageContent, userInfoId, integers);
         }
     }
 
@@ -308,6 +320,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
 
     /**
      * v2 获取消费结构比
+     *
      * @param userInfoId
      * @param month
      * @return
@@ -316,24 +329,24 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     public List<ConsumptionStructureRatioDTO> getConsumptionStructureRatiov2(Integer userInfoId, String month) {
         //传入三对时间段  当月  上月  去年同月
         //获取传入月份初末范围
-        LocalDate date = LocalDate.of(LocalDate.now().getYear(),Integer.valueOf(month),1);
+        LocalDate date = LocalDate.of(LocalDate.now().getYear(), Integer.valueOf(month), 1);
         //将date设置为这个月的第一天
-        date = date.minusDays(date.getDayOfMonth()-1);
+        date = date.minusDays(date.getDayOfMonth() - 1);
         //月末一天
         LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
         //获取上月
         LocalDate lastMonth = date.minusMonths(1);
         //月的第一天
-        lastMonth = lastMonth.minusDays(lastMonth.getDayOfMonth()-1);
+        lastMonth = lastMonth.minusDays(lastMonth.getDayOfMonth() - 1);
         //月末一天
         LocalDate lastMonthend = lastMonth.with(TemporalAdjusters.lastDayOfMonth());
         //获取去年同期
         LocalDate lastYear = date.minusYears(1);
         //月第一天
-        lastYear = lastYear.minusDays(lastYear.getDayOfMonth()-1);
+        lastYear = lastYear.minusDays(lastYear.getDayOfMonth() - 1);
         //月末一天
         LocalDate lastYearend = lastYear.with(TemporalAdjusters.lastDayOfMonth());
-        List<ConsumptionStructureRatioDTO> list = accountBookBudgetRestDao.getConsumptionStructureRatiov2(userInfoId,date.toString(),end.toString(),lastMonth.toString(),lastMonthend.toString(),lastYear.toString(),lastYearend.toString(),RedisPrefix.CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE);
+        List<ConsumptionStructureRatioDTO> list = accountBookBudgetRestDao.getConsumptionStructureRatiov2(userInfoId, date.toString(), end.toString(), lastMonth.toString(), lastMonthend.toString(), lastYear.toString(), lastYearend.toString(), RedisPrefix.CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE);
         if (list.size() < 3) {
             Map containMap = new HashMap<String, Object>();
             DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy-MM");
@@ -493,6 +506,8 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     @Override
     public void setFixedSpend(AccountBookBudgetRestEntity budget, String userInfoId) {
         AccountBookBudgetRestEntity fixedSpend = accountBookBudgetRestDao.getFixedSpend(userInfoId);
+        //引入新手任务
+        createTokenUtils.integralTask(budget.getCreateBy() + "", ShareCodeUtil.id2sharecode(budget.getCreateBy()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Setting_up_savings_efficiency);
         if (fixedSpend != null) {
             //更新流程
             budget.setId(fixedSpend.getId());
@@ -550,68 +565,132 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         JSONArray jsonArray = new JSONArray();
         savingEfficiencyDTOS.forEach(v -> {
             JSONObject jsonObject1 = new JSONObject();
-            jsonObject1.put("monthIncome",v.getMonthIncome());
-            jsonObject1.put("monthSpend",v.getMonthSpend());
-            jsonObject1.put("time",v.getTime());
+            jsonObject1.put("monthIncome", v.getMonthIncome());
+            jsonObject1.put("monthSpend", v.getMonthSpend());
+            jsonObject1.put("time", v.getTime());
             jsonArray.add(jsonObject1);
         });
         //正常返回
-        jsonObject.put("arrays",jsonArray);
+        jsonObject.put("arrays", jsonArray);
         //封装固定大额支出
         JSONObject jsonObject1 = new JSONObject();
-        jsonObject1.put("fixedLargeExpenditure",fixedSpend.getFixedLargeExpenditure());
-        jsonObject1.put("fixedLifeExpenditure",fixedSpend.getFixedLifeExpenditure());
-        jsonObject.put("arrays",jsonArray);
-        jsonObject.put("fixedSpend",jsonObject1);
+        jsonObject1.put("fixedLargeExpenditure", fixedSpend.getFixedLargeExpenditure());
+        jsonObject1.put("fixedLifeExpenditure", fixedSpend.getFixedLifeExpenditure());
+        jsonObject.put("arrays", jsonArray);
+        jsonObject.put("fixedSpend", jsonObject1);
         return jsonObject;
     }
 
     /**
      * v2 日常账本预算完成率
+     *
      * @param userInfoId
      * @param month
      * @param range
      * @return
      */
     @Override
-    public JSONArray getBudgetCompletionRatev2(String userInfoId,Integer abId, String month, String range) {
-        LocalDate localDate = LocalDate.of(LocalDate.now().getYear(),Integer.valueOf(month),1);
+    public JSONArray getBudgetCompletionRatev2(String userInfoId, Integer abId, String month, String range) {
+        LocalDate localDate = LocalDate.of(LocalDate.now().getYear(), Integer.valueOf(month), 1);
         //取月末
         LocalDate end = localDate.with(TemporalAdjusters.lastDayOfMonth());
         LocalDate begin = localDate.minusMonths(Integer.valueOf(range) - 1);
         //取月初
-        begin =begin.minusDays(begin.getDayOfMonth()- 1);
+        begin = begin.minusDays(begin.getDayOfMonth() - 1);
         //获取范围内预算
-        List<AccountBookBudgetRestEntity> list = accountBookBudgetRestDao.getBudgetByTimeRange(begin.toString(), end.toString(),abId);
+        List<AccountBookBudgetRestEntity> list = accountBookBudgetRestDao.getBudgetByTimeRange(begin.toString(), end.toString(), abId);
         JSONArray jsonArray = new JSONArray();
-        list.forEach(v->{
+        list.forEach(v -> {
             //遍历预算期内数据
             String[] split = StringUtils.split(v.getTime(), "-");
             //月初时间
-            LocalDate localDate1 = LocalDate.of(Integer.valueOf(split[0]),Integer.valueOf(split[1]),1);
+            LocalDate localDate1 = LocalDate.of(Integer.valueOf(split[0]), Integer.valueOf(split[1]), 1);
             //获取月末时间
             LocalDate localDate2 = localDate1.with(TemporalAdjusters.lastDayOfMonth());
             String monthSpend = accountBookBudgetRestDao.listBudgetCompletionRateStatisticsByMonthsv2(localDate1.toString(), localDate2.toString(), abId);
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("monthSpend",monthSpend==null?0:new BigDecimal(monthSpend));
-            jsonObject.put("time",v.getTime());
-            jsonObject.put("budgetMoney",v.getBudgetMoney());
+            jsonObject.put("monthSpend", monthSpend == null ? 0 : new BigDecimal(monthSpend));
+            jsonObject.put("time", v.getTime());
+            jsonObject.put("budgetMoney", v.getBudgetMoney());
             jsonArray.add(jsonObject);
         });
         return jsonArray;
     }
 
     /**
+     * 设置预算统计类型
+     *
+     * @param begin1
+     * @param end1
+     * @return
+     */
+    private Integer setSceneType(Date begin1, Date end1) {
+        Integer sceneType;
+        LocalDate begin = LocalDateTime.ofInstant(begin1.toInstant(), ZoneId.systemDefault()).toLocalDate();
+        LocalDate end = LocalDateTime.ofInstant(end1.toInstant(), ZoneId.systemDefault()).toLocalDate();
+        Period period = Period.between(begin, end);
+        int days = period.getDays();
+        int months = period.getMonths();
+        int years = period.getYears();
+        if ((days + 1) <= 21 && months < 1 && years < 1 && months < 1) {
+            //按天统计
+            sceneType = Integer.valueOf(StatisticsEnum.STATISTICS_FOR_DAY.getIndex());
+        } else {
+            // 按照3周21天   3周~5个月按照每周  5个月~24个月按照月  24个月以上按照年
+            if (months <= 5 && years < 1) {
+                //按周统计
+                sceneType = Integer.valueOf(StatisticsEnum.STATISTICS_FOR_WEEK.getIndex());
+            } else if ((5 < months && months <= 12 && years < 1) || (years == 1 && years < 2 && 0 <= months && months <= 12)) {
+                //按月统计
+                sceneType = Integer.valueOf(StatisticsEnum.STATISTICS_FOR_MONTH.getIndex());
+            } else {
+                //按年统计
+                sceneType = Integer.valueOf(StatisticsEnum.STATISTICS_FOR_CHART.getIndex());
+            }
+        }
+        return sceneType;
+    }
+
+    /**
      * v2 场景账本预算完成率获取
+     *
      * @param userInfoId
      * @param abId
-     * @param month
-     * @param range
      * @return
      */
     @Override
-    public JSONArray getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, String month, String range) {
+    public JSONArray getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, SceneABBudgetRestDTO budget) {
+        //按照3周21天 3周~5个月按照每周  5个月~24个月按照月 24个月以上按照年
+        if (budget.getSceneType() == null) {
+            Integer setSceneType = setSceneType(budget.getBeginTime(), budget.getEndTime());
+            budget.setSceneType(setSceneType);
+        }
+        List<SceneBaseDTO> list;
+        //根据统计类型 执行不同sql
+        if (StringUtils.equals(budget.getSceneType() + "", StatisticsEnum.STATISTICS_FOR_DAY.getIndex())) {
+            //日统计
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneDays(abId,budget.getBeginTime(),budget.getEndTime());
 
-        return null;
+        } else if (StringUtils.equals(budget.getSceneType() + "", StatisticsEnum.STATISTICS_FOR_WEEK.getIndex())) {
+            //统计周
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneWeeks(abId,budget.getBeginTime(),budget.getEndTime());
+        } else if (StringUtils.equals(budget.getSceneType() + "", StatisticsEnum.STATISTICS_FOR_MONTH.getIndex())) {
+            //统计月
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneMonths(abId,budget.getBeginTime(),budget.getEndTime());
+        } else {
+            //统计年
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneYears(abId,budget.getBeginTime(),budget.getEndTime());
+        }
+        //数据累加
+        list = sumSpend(list);
+        return JSONArray.parseArray(JSON.toJSONString(list));
+    }
+
+    private List<SceneBaseDTO> sumSpend(List<SceneBaseDTO> list){
+        for(int i = 1; i<list.size();i++){
+            //第二位元素追加前一位数据
+            list.get(i).setSpend(list.get(i).getSpend().add(list.get(i-1).getSpend()));
+        }
+        return list;
     }
 }

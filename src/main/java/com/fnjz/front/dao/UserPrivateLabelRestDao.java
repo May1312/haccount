@@ -42,7 +42,7 @@ public interface UserPrivateLabelRestDao {
 
     @ResultType(SpendTypeRestEntity.class)
     @Sql("SELECT base2.id, sys_spend.spend_name, sys_spend.parent_id, sys_spend.icon, base2.priority FROM hbird_spend_type AS sys_spend, ( SELECT id, sys_label_id, priority FROM hbird_account_book_type_label WHERE ab_type_id = :abTypeId AND label_type = 1 AND status = 1 ) AS base2 WHERE sys_spend.id = base2.sys_label_id ORDER BY base2.priority;")
-    List<SpendTypeRestEntity> listLabelByAbIdForSpend(@Param("abId")Integer abId);
+    List<SpendTypeRestEntity> listLabelByAbIdForSpend(@Param("abTypeId")Integer abTypeId);
 
     /**
      * 获取当前账本类型对应系统常用标签
