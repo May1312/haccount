@@ -150,7 +150,7 @@ public interface AccountBookRestDao {
      * @param abId
      * @return
      */
-    @Sql("select id,account_book_id,budget_money,begin_time,end_time from hbird_accountbook_budget where account_book_id=:abId;")
+    @Sql("select id,account_book_id,budget_money,begin_time,end_time,scene_type from hbird_accountbook_budget where account_book_id=:abId;")
     SceneABBudgetRestDTO getSceneABBudget(@Param("abId") Integer abId);
 
     /**
@@ -165,6 +165,6 @@ public interface AccountBookRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT base1.account_book_id AS id,base1.user_type,base1.default_flag,base3.type_budget AS typeBudget,base3.id AS abTypeId FROM hbird_user_account_book AS base1 INNER JOIN hbird_account_book AS base2 ON base1.account_book_id = base2.id INNER JOIN hbird_account_book_type AS base3 ON base2.account_book_type_id = base3.id WHERE base1.user_info_id =:userInfoId AND base1.delflag = 0 ORDER BY base1.user_type,base1.default_flag limit 0,1;")
+    @Sql("SELECT base1.account_book_id AS id,base1.user_type,base1.default_flag,base3.type_budget AS typeBudget,base3.id AS abTypeId,base2.ab_name FROM hbird_user_account_book AS base1 INNER JOIN hbird_account_book AS base2 ON base1.account_book_id = base2.id INNER JOIN hbird_account_book_type AS base3 ON base2.account_book_type_id = base3.id WHERE base1.user_info_id =:userInfoId AND base1.delflag = 0 ORDER BY base1.user_type,base1.default_flag limit 0,1;")
     AccountBookRestDTO getDefaultAB(@Param("userInfoId") String userInfoId);
 }

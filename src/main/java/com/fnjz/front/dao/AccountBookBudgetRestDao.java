@@ -201,7 +201,7 @@ public interface AccountBookBudgetRestDao {
      * @param endTime
      * @return
      */
-    @Sql("SELECT sum( money ) AS money, wo.charge_date AS time, DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth FROM hbird_water_order AS wo WHERE wo.account_book_id = :abId AND wo.charge_date BETWEEN :beginTime AND :endTime AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY yearmonth ORDER BY yearmonth;")
+    @Sql("SELECT sum( money ) AS money, DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS time, DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth FROM hbird_water_order AS wo WHERE wo.account_book_id = :abId AND wo.charge_date BETWEEN :beginTime AND :endTime AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY yearmonth ORDER BY yearmonth;")
     List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneMonths(@Param("abId") Integer abId, @Param("beginTime")String beginTime, @Param("endTime") String endTime);
 
     /**
@@ -211,6 +211,6 @@ public interface AccountBookBudgetRestDao {
      * @param endTime
      * @return
      */
-    @Sql("SELECT sum( money ) AS money, wo.charge_date AS time, DATE_FORMAT( wo.charge_date, '%Y' ) AS year FROM hbird_water_order AS wo WHERE wo.account_book_id = :abId AND wo.charge_date BETWEEN :beginTime AND :endTime AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY year ORDER BY year;")
+    @Sql("SELECT sum( money ) AS money, DATE_FORMAT( wo.charge_date, '%Y' ) AS time FROM hbird_water_order AS wo WHERE wo.account_book_id = :abId AND wo.charge_date BETWEEN :beginTime AND :endTime AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY time ORDER BY time;")
     List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneYears(@Param("abId") Integer abId, @Param("beginTime")String beginTime, @Param("endTime") String endTime);
 }

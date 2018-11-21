@@ -405,6 +405,50 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         return statisticAnalysisDTO;
     }
 
+    @Override
+    public Map<String,Object> getStatisticAnalysisv2(String userInfoId,Integer abId, String month, String range) {
+        //TODO 三条sql是不是可以优化
+        //存钱效率
+        JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range);
+        //消费结构比
+        List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month);
+        //预算完成率  日常账本
+        JSONArray budgetCompletionRate = getBudgetCompletionRatev2(userInfoId,abId, month, range);
+        Map<String,Object> map = new HashMap<>();
+        map.put("listSavingEfficiency",savingEfficiency);
+        map.put("listConsumptionStructureRatio",consumptionStructureRatio);
+        map.put("listBudgetCompletionRate",budgetCompletionRate);
+        return map;
+    }
+
+    @Override
+    public Map<String, Object> getStatisticAnalysisv2ForScene(String userInfoId, Integer abId, String month, String range,SceneABBudgetRestDTO sceneABBudget) {
+        //存钱效率
+        JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range);
+        //消费结构比
+        List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month);
+        //预算完成率  场景账本
+        Map<String, Object> budgetCompletionRatev2ForScene = getBudgetCompletionRatev2ForScene(userInfoId, abId, sceneABBudget);
+        Map<String,Object> map = new HashMap<>();
+        map.put("listSavingEfficiency",savingEfficiency);
+        map.put("listConsumptionStructureRatio",consumptionStructureRatio);
+        map.put("listBudgetCompletionRate",budgetCompletionRatev2ForScene);
+        return map;
+    }
+
+    @Override
+    public Map<String, Object> getStatisticAnalysisv2ForNoScene(String userInfoId, Integer abId, String month, String range,SceneABBudgetRestDTO sceneABBudget) {
+        //存钱效率
+        JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range);
+        //消费结构比
+        List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month);
+        Map<String,Object> map = new HashMap<>();
+        map.put("listSavingEfficiency",savingEfficiency);
+        map.put("listConsumptionStructureRatio",consumptionStructureRatio);
+        map.put("listBudgetCompletionRate",new Map[0]);
+        return map;
+    }
+
     /**
      * 获取账本类型
      *

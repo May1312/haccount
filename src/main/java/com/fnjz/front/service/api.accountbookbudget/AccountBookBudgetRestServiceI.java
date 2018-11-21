@@ -164,4 +164,31 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @return
      */
     Map<String,Object> getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, SceneABBudgetRestDTO sceneABBudget);
+
+    /**
+     * v2版 分析页统一接口  设计三接口 存钱效率  消费结构比 日常类型预算完成率
+     * @param abId
+     * @param month
+     * @param range
+     * @return
+     */
+    Map<String,Object> getStatisticAnalysisv2(String userInfoId,Integer abId, String month, String range);
+
+    /**
+     * v2版 分析页统一接口  设计三接口 存钱效率  消费结构比 场景类型预算完成率
+     * @param abId
+     * @param month
+     * @param range
+     * @return
+     */
+    Map<String,Object> getStatisticAnalysisv2ForScene(String userInfoId, Integer abId, String month, String range,SceneABBudgetRestDTO sceneABBudget);
+
+    /**
+     * v2版 分析页统一接口  设计三接口 存钱效率  消费结构比 不包含预算完成率
+     * @param abId
+     * @param month
+     * @param range
+     * @return
+     */
+    Map<String,Object> getStatisticAnalysisv2ForNoScene(String userInfoId, Integer abId, String month, String range,SceneABBudgetRestDTO sceneABBudget);
 }

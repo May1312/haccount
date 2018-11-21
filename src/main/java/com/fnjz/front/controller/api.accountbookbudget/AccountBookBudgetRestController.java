@@ -494,7 +494,6 @@ public class AccountBookBudgetRestController extends BaseController {
                     return new ResultBean(ApiResultType.OK,jsonArray);
                 }
             }
-
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -521,6 +520,45 @@ public class AccountBookBudgetRestController extends BaseController {
             JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
             StatisticAnalysisDTO all = accountBookBudgetRestService.getStatisticAnalysis(userAccountBookRestEntityCache.getAccountBookId(), jsonObject.getString("month"), jsonObject.getString("range"));
             return new ResultBean(ApiResultType.OK, all);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * v2 多账本获取统计-分析接口 包含以上三个接口数据
+     *
+     * @param type
+     * @param request
+     * @param month
+     * @param range
+     * @return
+     */
+    @RequestMapping(value = "/getStatisticAnalysisv2 /{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getStatisticAnalysisv2(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range, @RequestParam(value = "abId", required = false) Integer abId) {
+        System.out.println("登录终端：" + type);
+        try {
+            String userInfoId = (String) request.getAttribute("userInfoId");
+            JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
+            //查询当前账本类型  1:普通日常账本 2:场景账本(即需设置预算起始时间)
+            int status = accountBookBudgetRestService.getABTypeByABId(abId);
+            if(status==1){
+                Map<String,Object> all = accountBookBudgetRestService.getStatisticAnalysisv2(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"));
+                return new ResultBean(ApiResultType.OK, all);
+            }else{
+                //场景账本  查看是否设置预算及起止时间
+                SceneABBudgetRestDTO sceneABBudget = accountBookBudgetRestService.getSceneABBudget(abId);
+                if(sceneABBudget.getBudgetMoney()!=null && sceneABBudget.getBeginTime()!=null && sceneABBudget.getEndTime()!=null){
+                    Map<String,Object> all = accountBookBudgetRestService.getStatisticAnalysisv2ForScene(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"),sceneABBudget);
+                    return new ResultBean(ApiResultType.OK,all);
+                }else{
+                    Map<String,Object> all = accountBookBudgetRestService.getStatisticAnalysisv2ForNoScene(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"),sceneABBudget);
+                    return new ResultBean(ApiResultType.OK,all);
+                }
+            }
+           // return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -718,6 +756,12 @@ public class AccountBookBudgetRestController extends BaseController {
     @ResponseBody
     public ResultBean getStatisticAnalysis(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
         return this.getStatisticAnalysis(null, request, month, range);
+    }
+
+    @RequestMapping(value = "/getStatisticAnalysisv2", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getStatisticAnalysisv2(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range, @RequestParam(value = "abId", required = false) Integer abId) {
+        return this.getStatisticAnalysisv2(null, request, month, range,abId);
     }
 
     @RequestMapping(value = "/getcountbyyearmonth", method = RequestMethod.GET)
