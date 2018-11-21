@@ -1,6 +1,7 @@
 package com.fnjz.front.controller.api.useraccountbook;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import io.swagger.annotations.ApiParam;
 import org.apache.log4j.Logger;
@@ -23,7 +24,7 @@ import java.util.Map;
  *
  */
 @Controller
-@RequestMapping("/userAccountBookRestController")
+@RequestMapping(RedisPrefix.BASE_URL)
 public class UserAccountBookRestController extends BaseController {
 	/**
 	 * Logger for this class
@@ -49,9 +50,9 @@ public class UserAccountBookRestController extends BaseController {
 		String accountBookId =String.valueOf(map.get("accountBookId"));
 		UserAccountBookRestEntity userAccountBookRestEntity = userAccountBookRestService.checkUserisExistAccount(userInfoId, accountBookId);
 		if (userAccountBookRestEntity != null){
-			return new ResultBean(ApiResultType.OK,"YES");
+			return new ResultBean(ApiResultType.OK,true);
 		}else {
-			return new ResultBean(ApiResultType.OK,"NO");
+			return new ResultBean(ApiResultType.OK,false);
 		}
 	}
 }

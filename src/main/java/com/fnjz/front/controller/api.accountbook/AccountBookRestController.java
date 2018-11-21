@@ -8,6 +8,7 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestDTO;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
 import com.fnjz.front.service.api.accountbook.AccountBookRestServiceI;
+import com.fnjz.front.utils.ShareCodeUtil;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -297,15 +298,16 @@ public class AccountBookRestController extends BaseController {
     @ResponseBody
     public ResultBean acceptInvitationToAccount(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String,Object> map) {
         //账本创建者id
-        String adminUserInfoId =String.valueOf(map.get("adminUserInfoId"));
+        String adminUserFFid =String.valueOf(map.get("adminUserFFid"));
         //账本id
         String accountBookId =String.valueOf(map.get("accountBookId"));
-        if (StringUtils.isEmpty(adminUserInfoId) || StringUtils.isEmpty(accountBookId)){
+        if (StringUtils.isEmpty(adminUserFFid) || StringUtils.isEmpty(accountBookId)){
             return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,"检查账本创建者id，账本id");
         }
+        int adminUserInfoId = ShareCodeUtil.sharecode2id(adminUserFFid);
         //当前登录用户id
         String userinfoId = (String) request.getAttribute("userInfoId");
-        JSONObject jsonObject = accountBookRestService.invitationToAccount(adminUserInfoId, accountBookId, userinfoId);
+        JSONObject jsonObject = accountBookRestService.invitationToAccount(String.valueOf(adminUserInfoId), accountBookId, userinfoId);
         return new ResultBean(ApiResultType.OK,jsonObject);
     }
     /**
@@ -319,7 +321,11 @@ public class AccountBookRestController extends BaseController {
     @RequestMapping(value = "/accountBooksIsFull/{type}", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean accountBooksIsFull(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,HttpServletRequest request, @RequestBody Map<String,Object> map) {
-        Integer accountBookId = accountBookRestService.getAccountNumber(String.valueOf(map.get("accountBookId")));
+        String accountBookId1 = String.valueOf(map.get("accountBookId"));
+        if (StringUtils.isEmpty(accountBookId1)){
+            return new ResultBean(ApiResultType.SERVER_ERROR,"去检查accountBookId");
+        }
+        Integer accountBookId = accountBookRestService.getAccountNumber(accountBookId1);
         if (accountBookId<5){
             return new ResultBean(ApiResultType.OK,"true");
         }else {

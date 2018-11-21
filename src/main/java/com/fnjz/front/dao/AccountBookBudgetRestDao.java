@@ -35,7 +35,7 @@ public interface AccountBookBudgetRestDao {
      * @return
      */
     @ResultType(AccountBookBudgetRestEntity.class)
-    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId ;")
+    @Sql("select * from hbird_accountbook_budget where account_book_id = :accountBookId and time=:time ;")
     AccountBookBudgetRestEntity getBudget(@Param("accountBookId") Integer accountBookId);
 
     /**

@@ -312,4 +312,33 @@ public class VerifyCodeRestController {
     public ResultBean checkOldMobile(@RequestBody Map<String, String> map) {
         return this.checkOldMobile(null, map);
     }
+
+    /**
+     * 功能描述:直接发送验证码
+     *
+     * @param:
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/21 10:44
+     */
+    @RequestMapping(value = "/getMobileVerifycode/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean getMobileVerifycode(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,@RequestBody Map<String, String> map) {
+        if (ParamValidateUtils.checkeMobile(map) != null) {
+            return ParamValidateUtils.checkeMobile(map);
+        }
+        //生成六位随机验证码
+        String random = CreateVerifyCodeUtils.createRandom(6);
+        //发送
+        SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.CL_LOGIN.getTemplateContent(),map.get("mobile"),true);
+
+        if (StringUtil.equals(smsSingleResponse.getCode(), "0")) {
+            //验证码存放redis
+            redisTemplateUtils.cacheVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE + map.get("mobile"),random);
+            logger.info("生成登录验证码:" + random);
+            return new ResultBean(ApiResultType.OK, null);
+        }else {
+            return new ResultBean(ApiResultType.SERVER_ERROR, "发送失败");
+        }
+    }
 }

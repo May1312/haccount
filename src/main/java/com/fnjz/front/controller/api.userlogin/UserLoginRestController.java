@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -171,7 +172,7 @@ public class UserLoginRestController extends BaseController {
             } else {
                 if (StringUtils.isNotEmpty(task.getAvatarUrl())) {
                     if (!StringUtils.contains(task.getAvatarUrl(), DomainEnum.HEAD_PICTURE_DOMAIN.getDomainUrl())) {
-                        if(StringUtils.isEmpty(task.getNickName())){
+                        if (StringUtils.isEmpty(task.getNickName())) {
                             //更新用户个人信息
                             if (StringUtils.isNotEmpty(user.getString("nickname"))) {
                                 String nickName = user.getString("nickname");
@@ -181,16 +182,16 @@ public class UserLoginRestController extends BaseController {
                             if (StringUtils.isNotEmpty(user.getString("headimgurl"))) {
                                 task.setAvatarUrl(user.getString("headimgurl"));
                             }
-                            userInfoRestServiceI.updateUserInfo(task,null);
-                        }else{
+                            userInfoRestServiceI.updateUserInfo(task, null);
+                        } else {
                             if (StringUtils.isNotEmpty(user.getString("headimgurl"))) {
                                 task.setAvatarUrl(user.getString("headimgurl"));
                             }
-                            userInfoRestServiceI.updateUserInfo(task,null);
+                            userInfoRestServiceI.updateUserInfo(task, null);
                         }
                     }
-                }else{
-                    if(StringUtils.isEmpty(task.getNickName())){
+                } else {
+                    if (StringUtils.isEmpty(task.getNickName())) {
                         //更新用户个人信息
                         if (StringUtils.isNotEmpty(user.getString("nickname"))) {
                             String nickName = user.getString("nickname");
@@ -200,12 +201,12 @@ public class UserLoginRestController extends BaseController {
                         if (StringUtils.isNotEmpty(user.getString("headimgurl"))) {
                             task.setAvatarUrl(user.getString("headimgurl"));
                         }
-                        userInfoRestServiceI.updateUserInfo(task,null);
-                    }else{
+                        userInfoRestServiceI.updateUserInfo(task, null);
+                    } else {
                         if (StringUtils.isNotEmpty(user.getString("headimgurl"))) {
                             task.setAvatarUrl(user.getString("headimgurl"));
                         }
-                        userInfoRestServiceI.updateUserInfo(task,null);
+                        userInfoRestServiceI.updateUserInfo(task, null);
                     }
                 }
                 UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionid"));
@@ -217,77 +218,6 @@ public class UserLoginRestController extends BaseController {
         }
     }
 
-    /**
-     * 功能描述: 判断微信是否注册
-     *
-     * @param: code
-     * @return:
-     * @auther: yonghuizhao
-     * @date: 2018/11/19 15:20
-     */
-    @RequestMapping(value = "/wxUnionidIsExist/{type}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResultBean wxUnionidIsExist(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
-
-        JSONObject user = WeChatUtils.getUser(map.get("code"));
-
-        if (user.getString("errcode") != null) {
-            return new ResultBean(ApiResultType.WXAPPLET_LOGIN_ERROR, "小程序解码异常");
-        }
-        //微信解码正常判断是否已经注册
-
-        UserLoginRestEntity userEntity = userLoginRestService.wxUnionidIsExist(user.getString("unionid"));
-
-        if (userEntity != null){
-            ResultBean resultBean = createTokenUtils.loginSuccess(userEntity, ShareCodeUtil.id2sharecode(userEntity.getUserInfoId()));
-            return resultBean;
-        }else {
-            return new ResultBean(ApiResultType.USER_NOT_EXIST,"success");
-        }
-    }
-
-    /**
-     * 功能描述: 验证手机号
-     *
-     * @param: mobile 手机号   code  验证码
-     * @return:
-     * @auther: yonghuizhao
-     * @date: 2018/11/19 17:27
-     */
-    @RequestMapping(value = "/completeMobile/{type}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResultBean completeMobile(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map){
-        String mobile = map.get("mobile");
-        String verifycode = map.get("verifycode");
-        if (StringUtils.isEmpty(mobile)) {
-            return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
-        }
-        try {
-            //获取验证码
-            String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_LOGIN + map.get("mobile"));
-            if (StringUtil.isEmpty(code)) {
-                //验证码为空
-                return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
-            } else {
-                if (StringUtil.equals(code, verifycode)) {
-                    List<UserLoginRestEntity> UserLoginRestEntity = userLoginRestService.findByProperty(UserLoginRestEntity.class, "mobile", mobile);
-                    //如果是老用户去调用手机号绑定微信接口
-                    if (UserLoginRestEntity.size()>0){
-                        return createTokenUtils.loginSuccess(UserLoginRestEntity.get(0), ShareCodeUtil.id2sharecode(UserLoginRestEntity.get(0).getUserInfoId()));
-                    }else {
-                        //新用户，调注册接口，多一个参数手机号
-                        return new ResultBean(ApiResultType.OK,"REGISTER");
-                    }
-
-                } else {
-                    return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
-                }
-            }
-        } catch (Exception e) {
-            logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR, null);
-        }
-    }
 
     /**
      * 微信小程序登录
@@ -369,7 +299,7 @@ public class UserLoginRestController extends BaseController {
                 if (task != null) {
                     if (StringUtils.isNotEmpty(task.getAvatarUrl())) {
                         if (!StringUtils.contains(task.getAvatarUrl(), DomainEnum.HEAD_PICTURE_DOMAIN.getDomainUrl())) {
-                            if(StringUtils.isEmpty(task.getNickName())){
+                            if (StringUtils.isEmpty(task.getNickName())) {
                                 //更新用户个人信息
                                 if (StringUtils.isNotEmpty(user.getString("nickName"))) {
                                     String nickName = user.getString("nickName");
@@ -379,16 +309,16 @@ public class UserLoginRestController extends BaseController {
                                 if (StringUtils.isNotEmpty(user.getString("avatarUrl"))) {
                                     task.setAvatarUrl(user.getString("avatarUrl"));
                                 }
-                                userInfoRestServiceI.updateUserInfo(task,null);
-                            }else{
+                                userInfoRestServiceI.updateUserInfo(task, null);
+                            } else {
                                 if (StringUtils.isNotEmpty(user.getString("avatarUrl"))) {
                                     task.setAvatarUrl(user.getString("avatarUrl"));
                                 }
-                                userInfoRestServiceI.updateUserInfo(task,null);
+                                userInfoRestServiceI.updateUserInfo(task, null);
                             }
                         }
-                    }else{
-                        if(StringUtils.isEmpty(task.getNickName())){
+                    } else {
+                        if (StringUtils.isEmpty(task.getNickName())) {
                             //更新用户个人信息
                             if (StringUtils.isNotEmpty(user.getString("nickName"))) {
                                 String nickName = user.getString("nickName");
@@ -398,12 +328,12 @@ public class UserLoginRestController extends BaseController {
                             if (StringUtils.isNotEmpty(user.getString("avatarUrl"))) {
                                 task.setAvatarUrl(user.getString("avatarUrl"));
                             }
-                            userInfoRestServiceI.updateUserInfo(task,null);
-                        }else{
+                            userInfoRestServiceI.updateUserInfo(task, null);
+                        } else {
                             if (StringUtils.isNotEmpty(user.getString("avatarUrl"))) {
                                 task.setAvatarUrl(user.getString("avatarUrl"));
                             }
-                            userInfoRestServiceI.updateUserInfo(task,null);
+                            userInfoRestServiceI.updateUserInfo(task, null);
                         }
                     }
                     UserLoginRestEntity task1 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
@@ -586,5 +516,143 @@ public class UserLoginRestController extends BaseController {
     @ResponseBody
     public ResultBean registerByWXApplet(@RequestBody @ApiIgnore Map<String, String> map) {
         return this.registerByWXApplet(null, map);
+    }
+
+
+    public ResultBean mobileBindWeChat(JSONObject map) {
+
+        String mobile = map.get("mobile").toString();
+        String unionid = map.get("unionId").toString();
+        UserLoginRestEntity userLgonMobile = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "mobile", mobile);
+        UserInfoRestEntity userInfoMobile = userInfoRestServiceI.findUniqueByProperty(UserInfoRestEntity.class, "mobile", mobile);
+        //用户注册表信息表数据是否正常
+        if (userLgonMobile != null && userInfoMobile != null) {
+            //当前uniond是否已经注册
+            UserLoginRestEntity userLoginwechatAuth = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", unionid);
+            UserInfoRestEntity userInfowechatAuth = userInfoRestServiceI.findUniqueByProperty(UserInfoRestEntity.class, "wechatAuth", unionid);
+            if (userLoginwechatAuth != null || userInfowechatAuth != null) {
+                return new ResultBean(ApiResultType.SERVER_ERROR, "当前微信账号已经存在，或者数据异常");
+
+            } else {
+                //根据手机号更新uniond
+                userInfoMobile.setWechatAuth(unionid);
+                userInfoMobile.setSex(map.getString("gender"));
+                userInfoMobile.setAvatarUrl( map.getString("avatarUrl"));
+                userInfoMobile.setNickName(map.getString("nickName"));
+                //login表
+                userLgonMobile.setWechatAuth(unionid);
+                userLoginRestService.updateEntitie(userLgonMobile);
+                userInfoRestServiceI.updateEntitie(userInfoMobile);
+                return createTokenUtils.wxappletLoginSuccess(userLgonMobile, ShareCodeUtil.id2sharecode(userLgonMobile.getUserInfoId()));
+            }
+        } else {
+            return new ResultBean(ApiResultType.SERVER_ERROR, "手机号未注册，请求注册接口");
+        }
+
+    }
+
+    /**
+     * 功能描述: 判断微信是否注册
+     *
+     * @param: code
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/19 15:20
+     */
+    @RequestMapping(value = "/wxUnionidIsExist/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean wxUnionidIsExist(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
+
+        //根据code获取session_key
+        String code = WXAppletUtils.getUser(map.get("code"));
+        //转换成json对象
+        JSONObject jsonObject = JSONObject.parseObject(code);
+        if (jsonObject == null || jsonObject.getString("errcode") != null) {
+            System.out.println(jsonObject.getString("errmsg"));
+            logger.error("wechat授权异常:" + jsonObject.getString("errmsg"));
+            return new ResultBean(ApiResultType.WXAPPLET_LOGIN_ERROR, "小程序解码异常");
+        }
+
+        String session_key = jsonObject.getString("session_key");
+        //根据sessionkey解密unionid
+        JSONObject user = WXAppletDecodeUtils.getUserInfo(map.get("encryptedData"), session_key, map.get("iv"));
+        //微信解码正常判断是否已经注册
+        if (user != null && StringUtils.isNotEmpty(user.getString("unionId"))) {
+            String unionId = user.getString("unionId");
+            UserLoginRestEntity userEntity = userLoginRestService.wxUnionidIsExist(unionId);
+            if (userEntity != null) {
+                ResultBean resultBean = createTokenUtils.wxappletLoginSuccess(userEntity, ShareCodeUtil.id2sharecode(userEntity.getUserInfoId()));
+                return resultBean;
+            } else {
+                //用户没有注册，先返回uniond，到注册时候在传过来
+                return new ResultBean(ApiResultType.USER_NOT_EXIST, user);
+            }
+        } else {
+            return new ResultBean(ApiResultType.SERVER_ERROR, "unionid解码异常");
+        }
+
+    }
+
+    /**
+     * 功能描述: 验证手机号
+     *
+     * @param: mobile 手机号   code  验证码
+     * @return:
+     * @auther: yonghuizhao
+     * @date: 2018/11/19 17:27
+     */
+    @RequestMapping(value = "/completeMobile/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean completeMobile(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore JSONObject map) {
+        String mobile = map.getString("mobile");
+        String verifycode = map.getString("verifycode");
+        if (StringUtils.isEmpty(mobile)) {
+            return new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
+        }
+        try {
+            //获取验证码
+            String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE + map.getString("mobile"));
+            if (StringUtil.isEmpty(code)) {
+                //验证码为空
+                return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
+            } else {
+                if (StringUtil.equals(code, verifycode)) {
+                    List<UserLoginRestEntity> UserLoginRestEntity = userLoginRestService.findByProperty(UserLoginRestEntity.class, "mobile", mobile);
+                    //如果是手机号老用户去调用手机号绑定微信接口
+                    if (UserLoginRestEntity.size() > 0) {
+                        //绑定
+                        ResultBean resultBean = mobileBindWeChat(map);
+                        return resultBean;
+                    } else {
+                        //新用户，调注册接口，多一个参数手机号
+                        ResultBean resultBean = accountRegister(map);
+                        return resultBean;
+                    }
+
+                } else {
+                    return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    public ResultBean accountRegister(JSONObject user) {
+        //先查询unionId是否存在
+        UserInfoRestEntity task = userLoginRestService.findUniqueByProperty(UserInfoRestEntity.class, "wechatAuth", user.getString("unionId"));
+        if (task == null) {
+            //注册
+            int insert = userInfoRestServiceI.wechatinsert(user, new HashMap<>(), null);
+            if (insert > 0) {
+                UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
+                return createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
+            } else {
+                return new ResultBean(ApiResultType.REGISTER_IS_ERROR, null);
+            }
+        } else {
+            return new ResultBean(ApiResultType.SERVER_ERROR, "此微信账号已注册");
+        }
     }
 }
