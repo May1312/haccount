@@ -10,6 +10,7 @@ import com.fnjz.front.entity.api.accountbookbudget.DTO.StatisticAnalysisDTO;
 import com.fnjz.front.entity.api.accountbookbudget.SceneABBudgetRestDTO;
 import org.jeecgframework.core.common.service.CommonService;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -156,7 +157,7 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @auther: yonghuizhao
      * @date: 2018/11/16 20:08
      */
-    void reviseBudgetNotification(Integer userInfoId,AccountBookBudgetRestEntity budget);
+    void reviseBudgetNotification(Integer userInfoId,AccountBookBudgetRestEntity budget,BigDecimal prebudgetMoney);
     /**
      * v2 获取场景账本预算完成率
      * @param userInfoId

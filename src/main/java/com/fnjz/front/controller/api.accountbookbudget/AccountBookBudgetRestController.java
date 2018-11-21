@@ -29,6 +29,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -152,7 +153,8 @@ public class AccountBookBudgetRestController extends BaseController {
                 //更新流程执行成功之后发送消息推送
                 new Thread() {
                     public void run() {
-                        accountBookBudgetRestService.reviseBudgetNotification(Integer.parseInt(userInfoId),budget);
+                        BigDecimal prebudgetMoney = budgetResult.getBudgetMoney();
+                        accountBookBudgetRestService.reviseBudgetNotification(Integer.parseInt(userInfoId),budget,prebudgetMoney);
                     }
                 }.start();
 
