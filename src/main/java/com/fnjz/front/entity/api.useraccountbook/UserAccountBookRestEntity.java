@@ -38,6 +38,9 @@ public class UserAccountBookRestEntity implements java.io.Serializable {
 	private java.util.Date delDate;
 	/**是否为默认账本 1:默认账本 2:非默认*/
 	private java.lang.Integer defaultFlag;
+
+    /**初始绑定标识，仅作为受邀用户标识 1:绑定账本，未同步数据  2:已绑定，已同步*/
+	private java.lang.Integer bindFlag;
 	
 	/**
 	 *方法: 取得java.lang.Integer
@@ -195,4 +198,12 @@ public class UserAccountBookRestEntity implements java.io.Serializable {
 	public void setDefaultFlag(Integer defaultFlag) {
 		this.defaultFlag = defaultFlag;
 	}
+
+    @Column(name ="BIND_FLAG",nullable=true)
+    public Integer getBindFlag() {
+        return bindFlag;
+    }
+    public void setBindFlag(Integer bindFlag) {
+        this.bindFlag = bindFlag;
+    }
 }
