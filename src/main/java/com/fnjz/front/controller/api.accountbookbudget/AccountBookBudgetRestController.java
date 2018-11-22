@@ -327,6 +327,7 @@ public class AccountBookBudgetRestController extends BaseController {
         System.out.println("登录终端：" + type);
         String userInfoId = (String) request.getAttribute("userInfoId");
         try {
+            budget.setCreateBy(Integer.valueOf(userInfoId));
             accountBookBudgetRestService.setFixedSpend(budget, userInfoId);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
@@ -489,9 +490,13 @@ public class AccountBookBudgetRestController extends BaseController {
             }else{
                 //场景账本  查看是否设置预算及起止时间
                 SceneABBudgetRestDTO sceneABBudget = accountBookBudgetRestService.getSceneABBudget(abId);
-                if(sceneABBudget.getBudgetMoney()!=null && sceneABBudget.getBeginTime()!=null && sceneABBudget.getEndTime()!=null){
-                    Map<String,Object> map = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId,abId,sceneABBudget);
-                    return new ResultBean(ApiResultType.OK,map);
+                if(sceneABBudget!=null){
+                    if(sceneABBudget.getBudgetMoney()!=null && sceneABBudget.getBeginTime()!=null && sceneABBudget.getEndTime()!=null){
+                        Map<String,Object> map = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId,abId,sceneABBudget);
+                        return new ResultBean(ApiResultType.OK,map);
+                    }else{
+                        return new ResultBean(ApiResultType.OK,jsonArray);
+                    }
                 }else{
                     return new ResultBean(ApiResultType.OK,jsonArray);
                 }
@@ -790,7 +795,7 @@ public class AccountBookBudgetRestController extends BaseController {
         return this.getFixedSpend(null, request);
     }
 
-    @RequestMapping(value = "/setFixedSpend", method = RequestMethod.GET)
+    @RequestMapping(value = "/setFixedSpend", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean setFixedSpend(HttpServletRequest request,@RequestBody AccountBookBudgetRestEntity budget) {
         return this.setFixedSpend(null,budget,request);

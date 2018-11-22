@@ -5,3 +5,4 @@
 /docs/
 *.log
 /src/main/resources/rebel.xml
+/dockerfile

@@ -590,7 +590,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         if (fixedSpend == null) {
             return null;
         }
-        if (fixedSpend.getFixedLifeExpenditure() == null && fixedSpend.getFixedLargeExpenditure() == null) {
+        if(!((fixedSpend.getFixedLargeExpenditure()!=null && fixedSpend.getFixedLargeExpenditure().intValue()!=-1) || (fixedSpend.getFixedLifeExpenditure()!=null && fixedSpend.getFixedLifeExpenditure().intValue()!=-1))){
             return null;
         }
         LocalDate localDate = LocalDate.of(LocalDate.now().getYear(), Integer.valueOf(month), 1);
