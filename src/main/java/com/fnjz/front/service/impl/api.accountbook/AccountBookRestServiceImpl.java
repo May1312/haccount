@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -282,8 +283,10 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                         userAccountBookRestEntity.setUserInfoId(Integer.parseInt(invitedId));
                         userAccountBookRestEntity.setUserType(1);
                         userAccountBookRestEntity.setCreateDate(new Date());
-                        int insert = userAccountBookRestDao.insert(userAccountBookRestEntity);
-                        if (insert > 0) {
+                        userAccountBookRestEntity.setBindFlag(1);
+                        Serializable save = this.save(userAccountBookRestEntity);
+                        Integer integer = (Integer)save;
+                        if ((Integer)save >0) {
                             message = "邀请成功";
                             result = true;
                             //参加人数+1
