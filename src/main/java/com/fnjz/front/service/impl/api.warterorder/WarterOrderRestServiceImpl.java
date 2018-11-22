@@ -178,6 +178,11 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         Map<Date, Object> map = new HashMap<>();
         for (Iterator<WXAppletWarterOrderRestBaseDTO> it = listForPage.iterator(); it.hasNext(); ) {
             WXAppletWarterOrderRestBaseDTO warter = it.next();
+            if(StringUtils.equals(warter.getIsYour()+"",userInfoId)){
+                warter.setIsYour(1);
+            }else{
+                warter.setIsYour(2);
+            }
             //判断是否包含日期
             if (map.containsKey(warter.getChargeDate())) {
                 ((ArrayList) map.get(warter.getChargeDate())).add(warter);
