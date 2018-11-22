@@ -42,6 +42,8 @@ public class WXAppletWarterOrderRestBaseDTO implements Serializable {
     private String reporterAvatar;
     /**成员数*/
     private Integer member;
+    /**是否为当前用户记账标识  1:是  2:否*/
+    private Integer isYour;
     @Id
     public String getId() {
         return id;
@@ -129,5 +131,13 @@ public class WXAppletWarterOrderRestBaseDTO implements Serializable {
 
     public void setMember(Integer member) {
         this.member = member;
+    }
+
+    public Integer getIsYour() {
+        return isYour;
+    }
+
+    public void setIsYour(Integer isYour) {
+        this.isYour = isYour;
     }
 }

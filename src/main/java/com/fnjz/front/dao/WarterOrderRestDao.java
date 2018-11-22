@@ -32,7 +32,7 @@ public interface WarterOrderRestDao {
      * @return
      */
     @ResultType(WXAppletWarterOrderRestBaseDTO.class)
-    @Sql("SELECT base1.id, base1.money, base1.order_type, base1.spend_happiness, base1.type_name, base1.remark, base1.icon, base1.user_private_label_id, base1.charge_date, base2.avatar_url as reporter_avatar,base3.member FROM hbird_water_order as base1 LEFT JOIN hbird_user_info as base2 on base1.update_by=base2.id LEFT JOIN hbird_account_book as base3 on base1.account_book_id=base3.id where base1.account_book_id=:accountBookId AND base1.delflag = 0 AND base1.charge_date between :first and :end order by base1.charge_date desc,base1.create_date desc LIMIT :startIndex,:pageSize")
+    @Sql("SELECT base1.id,base1.update_by as isYour, base1.money, base1.order_type, base1.spend_happiness, base1.type_name, base1.remark, base1.icon, base1.user_private_label_id, base1.charge_date, base2.avatar_url as reporter_avatar,base3.member FROM hbird_water_order as base1 LEFT JOIN hbird_user_info as base2 on base1.update_by=base2.id LEFT JOIN hbird_account_book as base3 on base1.account_book_id=base3.id where base1.account_book_id=:accountBookId AND base1.delflag = 0 AND base1.charge_date between :first and :end order by base1.charge_date desc,base1.create_date desc LIMIT :startIndex,:pageSize")
     List<WXAppletWarterOrderRestBaseDTO> findListForPagev2(@Param("first") String first, @Param("end") String end, @Param("accountBookId") String accountBookId, @Param("startIndex") Integer startIndex, @Param("pageSize") Integer pageSize);
     /**
      * 查询总记录数
@@ -202,7 +202,7 @@ public interface WarterOrderRestDao {
      * @return
      */
     //@IdAutoGenerator(generator = "native")
-    @Sql("INSERT INTO `hbird_water_order` ( `id`, `account_book_id`, `money`, `order_type`, `is_staged`, `spend_happiness`, `type_pid`, `type_id`, `type_name`, `create_date`, `charge_date`, `delflag`, `create_by`, `create_name`, `remark`, `user_private_label_id`,`icon` ) VALUES ( UUID( ), :charge.accountBookId, :charge.money, :charge.orderType, :charge.isStaged, :charge.spendHappiness, :charge.typePid, :charge.typeId, :charge.typeName, NOW(), :charge.chargeDate, :charge.delflag, :charge.createBy, :charge.createName, :charge.remark, :charge.userPrivateLabelId,:charge.icon);")
+    @Sql("INSERT INTO `hbird_water_order` ( `id`, `account_book_id`, `money`, `order_type`, `is_staged`, `spend_happiness`, `type_pid`, `type_id`, `type_name`, `create_date`, `charge_date`, `delflag`, `create_by`, `update_by`, `create_name`, `remark`, `user_private_label_id`,`icon` ) VALUES ( UUID( ), :charge.accountBookId, :charge.money, :charge.orderType, :charge.isStaged, :charge.spendHappiness, :charge.typePid, :charge.typeId, :charge.typeName, NOW(), :charge.chargeDate, :charge.delflag, :charge.createBy,:charge.updateBy, :charge.createName, :charge.remark, :charge.userPrivateLabelId,:charge.icon);")
     void insert(@Param("charge") WarterOrderRestNewLabel charge);
 
     /**
@@ -342,7 +342,7 @@ public interface WarterOrderRestDao {
      * @param pageSize
      * @return
      */
-    @Sql("SELECT base1.id, base1.money, base1.order_type, base1.spend_happiness, base1.type_name, base1.remark, base1.icon, base1.user_private_label_id, base1.charge_date, base2.avatar_url as reporter_avatar,base3.member FROM hbird_water_order as base1 LEFT JOIN hbird_user_info as base2 on base1.update_by=base2.id LEFT JOIN hbird_account_book as base3 on base1.account_book_id=base3.id,( SELECT account_book_id FROM hbird_user_account_book WHERE user_info_id = :userInfoId and delflag=0 ) AS base4 where base1.account_book_id=base4.account_book_id AND base1.delflag = 0 AND base1.charge_date between :first and :end order by base1.charge_date desc,base1.create_date desc LIMIT :startIndex,:pageSize")
+    @Sql("SELECT base1.id,base1.update_by as isYour, base1.money, base1.order_type, base1.spend_happiness, base1.type_name, base1.remark, base1.icon, base1.user_private_label_id, base1.charge_date, base2.avatar_url as reporter_avatar,base3.member FROM hbird_water_order as base1 LEFT JOIN hbird_user_info as base2 on base1.update_by=base2.id LEFT JOIN hbird_account_book as base3 on base1.account_book_id=base3.id,( SELECT account_book_id FROM hbird_user_account_book WHERE user_info_id = :userInfoId and delflag=0 ) AS base4 where base1.account_book_id=base4.account_book_id AND base1.delflag = 0 AND base1.charge_date between :first and :end order by base1.charge_date desc,base1.create_date desc LIMIT :startIndex,:pageSize")
     List<WXAppletWarterOrderRestBaseDTO> findListForPagev2All(@Param("first") String first, @Param("end") String end, @Param("userInfoId") String userInfoId, @Param("startIndex") Integer startIndex, @Param("pageSize") Integer pageSize);
 
     /**

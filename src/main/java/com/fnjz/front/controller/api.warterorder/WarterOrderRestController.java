@@ -251,8 +251,6 @@ public class WarterOrderRestController extends BaseController {
         try {
             String shareCode = (String) request.getAttribute("shareCode");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            //String useAccountrCache = redisTemplateUtils.getUseAccountCache(Integer.valueOf(userInfoId), shareCode);
-            //UserAccountBookRestEntity userLoginRestEntity = JSON.parseObject(useAccountrCache, UserAccountBookRestEntity.class);
             //连续打卡统计
             clockInDays.clockInDays(shareCode);
             Map<String, Object> json = warterOrderRestService.findListForPagev2(time, null, curPage, pageSize, abId, userInfoId);
