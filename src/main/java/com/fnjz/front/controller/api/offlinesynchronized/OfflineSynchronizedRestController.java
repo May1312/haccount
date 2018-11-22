@@ -5,13 +5,11 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
 import com.fnjz.front.utils.DateUtils;
-import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.utils.rabbitmq.RabbitmqUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -108,7 +106,7 @@ public class OfflineSynchronizedRestController extends BaseController {
 	 */
 	@RequestMapping(value = "/offlinePullv2/{type}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResultBean offlinePullV2(@PathVariable("type") String type,HttpServletRequest request,@RequestBody Map<String,String> map) {
+	public ResultBean offlinePullv2(@PathVariable("type") String type,HttpServletRequest request,@RequestBody Map<String,String> map) {
 		System.out.println("登录终端：" + type);
 		if(StringUtils.isEmpty(map.get("mobileDevice"))){
 			return new ResultBean(ApiResultType.MY_PARAMS_ERROR,null);
@@ -127,6 +125,12 @@ public class OfflineSynchronizedRestController extends BaseController {
 	@ResponseBody
 	public ResultBean offlinePull(HttpServletRequest request,@RequestBody Map<String,String> map) {
 		return this.offlinePull(null, request,map);
+	}
+
+	@RequestMapping(value = "/offlinePullv2", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultBean offlinePullv2(HttpServletRequest request,@RequestBody Map<String,String> map) {
+		return this.offlinePullv2(null, request,map);
 	}
 
 	@RequestMapping(value = "/offlinePush", method = RequestMethod.POST)

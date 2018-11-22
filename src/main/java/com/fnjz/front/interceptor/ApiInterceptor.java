@@ -55,14 +55,14 @@ public class ApiInterceptor implements HandlerInterceptor {
         }
         //从header中得到token
         String authHeader = request.getHeader("X-AUTH-TOKEN");
-        logger.info("toekn:"+authHeader);
+        //logger.info("toekn:"+authHeader);
         //校验系统参数接口 /checkSystemParam  包含token查询系统类目/个人类目  不包含token查询系统类目
-        if(requestPath.indexOf("/checkSystemParam")!=-1){
+        /*if(requestPath.indexOf("/checkSystemParam")!=-1){
             if(StringUtils.isEmpty(authHeader)){
                 request.setAttribute("containsToken",false);
                 return true;
             }
-        }
+        }*/
         /*if(requestPath.indexOf("/signIn")!=-1){
             if(StringUtils.isEmpty(authHeader)){
                 return true;

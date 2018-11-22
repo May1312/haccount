@@ -255,4 +255,18 @@ public interface WarterOrderRestServiceI extends CommonService{
      * @return
      */
     StatisticsIncomeTopDTO statisticsForMonthsTopv2(String time, String userInfoId);
+
+    /**
+     * 统计记账天数
+     * @param userInfoId
+     * @return
+     */
+    int countChargeDaysv2(String userInfoId);
+
+    /**
+     * 统计记账笔数
+     * @param userInfoId
+     * @return
+     */
+    int chargeTotalv2(String userInfoId);
 }

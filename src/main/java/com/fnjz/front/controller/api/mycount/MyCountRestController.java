@@ -3,7 +3,6 @@ package com.fnjz.front.controller.api.mycount;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.api.userinvite.UserInviteRestServiceI;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.DateUtils;
@@ -46,12 +45,9 @@ public class MyCountRestController extends BaseController {
     public ResultBean getMyCount(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request) {
         System.out.println("登录终端：" + type);
         try {
-            //获取当前年月
-            String currentYearMonth = DateUtils.getCurrentYearMonth();
             String shareCode = (String) request.getAttribute("shareCode");
             String userInfoId = (String) request.getAttribute("userInfoId");
-            UserAccountBookRestEntity userLoginRestEntity = redisTemplateUtils.getUserAccountBookRestEntityCache(Integer.valueOf(userInfoId), shareCode);
-            int daysCount = warterOrderRestServiceI.countChargeDays(currentYearMonth, userLoginRestEntity.getAccountBookId());
+            int daysCount = warterOrderRestServiceI.countChargeDaysv2(userInfoId);
             //获取连续打卡+记账总笔数
             Map map = redisTemplateUtils.getMyCount(shareCode);
             int chargeTotal;
@@ -60,7 +56,7 @@ public class MyCountRestController extends BaseController {
                 chargeTotal = Integer.valueOf(map.get("chargeTotal") + "");
                 //chargeTotal 为空   查询db
                 if (chargeTotal < 1) {
-                    chargeTotal = warterOrderRestServiceI.chargeTotal(userLoginRestEntity.getAccountBookId());
+                    chargeTotal = warterOrderRestServiceI.chargeTotalv2(userInfoId);
                     map.put("chargeTotal", chargeTotal);
                 }
                 //打卡天数置为1
@@ -69,7 +65,7 @@ public class MyCountRestController extends BaseController {
                     map.put("clockInTime", (System.currentTimeMillis() + ""));
                 }
             } else {
-                chargeTotal = warterOrderRestServiceI.chargeTotal(userLoginRestEntity.getAccountBookId());
+                chargeTotal = warterOrderRestServiceI.chargeTotalv2(userInfoId);
                 map.put("chargeTotal", chargeTotal);
                 //打卡天数置为1
                 if (!map.containsKey("clockInDays")) {

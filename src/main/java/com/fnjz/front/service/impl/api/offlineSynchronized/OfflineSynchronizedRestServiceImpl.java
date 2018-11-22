@@ -1,6 +1,7 @@
 package com.fnjz.front.service.impl.api.offlineSynchronized;
 
 import com.fnjz.front.dao.OfflineSynchronizedRestDao;
+import com.fnjz.front.dao.UserAccountBookRestDao;
 import com.fnjz.front.dao.UserPrivateLabelRestDao;
 import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.offlineSynchronized.SynDateRestDTO;
@@ -40,8 +41,12 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
     @Autowired
     private UserPrivateLabelRestDao userPrivateLabelRestDao;
 
+    @Autowired
+    private UserAccountBookRestDao userAccountBookRestDao;
+
     /**
      * 获取最新同步时间
+     *
      * @param mobileDevice
      * @param userInfoId
      * @return
@@ -54,27 +59,28 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
 
     /**
      * 移动端pull接口
+     *
      * @param mobileDevice
      * @param userInfoId
      * @return
      */
     @Override
-    public Map<String,Object> offlinePull(String mobileDevice, String isFirst,String userInfoId) {
+    public Map<String, Object> offlinePull(String mobileDevice, String isFirst, String userInfoId) {
         SynDateRestDTO latelySynDate = offlineSynchronizedRestDao.getLatelySynDate(mobileDevice, userInfoId);
         //第一次同步  为null情况下 获取当前时间戳为同步时间
         Date date = new Date();
-        Map<String,Object> map = new HashMap<String,Object>();
-        if(latelySynDate.getSynDate()==null){
-            offlineSynchronizedRestDao.firstInsert(mobileDevice,userInfoId,date);
-            map.put("synDate",date);
-        }else{
-            map.put("synDate",latelySynDate.getSynDate());
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (latelySynDate.getSynDate() == null) {
+            offlineSynchronizedRestDao.firstInsert(mobileDevice, userInfoId, date);
+            map.put("synDate", date);
+        } else {
+            map.put("synDate", latelySynDate.getSynDate());
         }
         List<WarterOrderRestEntity> list;
         //判断 isFirst标识是否为true, true 获取所有
-        if(Boolean.valueOf(isFirst)){
+        if (Boolean.valueOf(isFirst)) {
             list = warterOrderRestDao.findAllWaterListOfNoDel(userInfoId, null);
-        }else{
+        } else {
             list = warterOrderRestDao.findAllWaterList(userInfoId, latelySynDate.getSynDate());
         }
         map.put("synData", list);
@@ -83,29 +89,41 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
 
     /**
      * 多账本同步接口
+     *
      * @param mobileDevice
      * @param isFirst
      * @param userInfoId
      * @return
      */
     @Override
-    public Map<String,Object> offlinePullV2(String mobileDevice, String isFirst,String userInfoId) {
+    public Map<String, Object> offlinePullV2(String mobileDevice, String isFirst, String userInfoId) {
         SynDateRestDTO latelySynDate = offlineSynchronizedRestDao.getLatelySynDate(mobileDevice, userInfoId);
         //第一次同步  为null情况下 获取当前时间戳为同步时间
         Date date = new Date();
-        Map<String,Object> map = new HashMap<String,Object>();
-        if(latelySynDate.getSynDate()==null){
-            offlineSynchronizedRestDao.firstInsert(mobileDevice,userInfoId,date);
-            map.put("synDate",date);
-        }else{
-            map.put("synDate",latelySynDate.getSynDate());
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (latelySynDate.getSynDate() == null) {
+            offlineSynchronizedRestDao.firstInsert(mobileDevice, userInfoId, date);
+            map.put("synDate", date);
+        } else {
+            map.put("synDate", latelySynDate.getSynDate());
         }
         List<APPWarterOrderRestDTO> list;
         //判断 isFirst标识是否为true, true 获取所有
-        if(Boolean.valueOf(isFirst)){
+        if (Boolean.valueOf(isFirst)) {
             list = warterOrderRestDao.findAllWaterListOfNoDelV2(userInfoId, null);
-        }else{
+        } else {
+            //判断当前用户是否加入其他账本并获取待同步记录
+            Integer maps = userAccountBookRestDao.checkBindABFlag(userInfoId);
+            List<APPWarterOrderRestDTO> list2 = new ArrayList<>();
+            if (maps > 0) {
+                list2 = userAccountBookRestDao.checkBindABFlagAndReturn(userInfoId);
+            }
             list = warterOrderRestDao.findAllWaterListV2(userInfoId, latelySynDate.getSynDate());
+            if(list2!=null){
+                if(list2.size()>0){
+                    list.addAll(list2);
+                }
+            }
         }
         map.put("synData", list);
         return map;
@@ -113,6 +131,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
 
     /**
      * 移动端push 插入记录
+     *
      * @param list
      * @param mobileDevice
      * @param userInfoId
@@ -120,18 +139,18 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
     @Override
     public void offlinePush(List<WarterOrderRestNewLabel> list, String mobileDevice, String userInfoId) {
         //生成本次同步记录
-        offlineSynchronizedRestDao.insert(mobileDevice,userInfoId);
-        if(list!=null){
-            if(list.size()>0){
+        offlineSynchronizedRestDao.insert(mobileDevice, userInfoId);
+        if (list != null) {
+            if (list.size() > 0) {
                 //list排序  正序
                 list.sort(Comparator.naturalOrder());
-                if(list.get(list.size()-1).getCreateDate()!=null){
-                    if(LocalDateTime.ofInstant( list.get(list.size()-1).getCreateDate().toInstant(), ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now())){
+                if (list.get(list.size() - 1).getCreateDate() != null) {
+                    if (LocalDateTime.ofInstant(list.get(list.size() - 1).getCreateDate().toInstant(), ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now())) {
                         //引入当日任务
-                        createTokenUtils.integralTask(userInfoId,ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+                        createTokenUtils.integralTask(userInfoId, ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
                     }
                 }
-                for(WarterOrderRestNewLabel warter:list){
+                for (WarterOrderRestNewLabel warter : list) {
                     warter = addLabelInfo(warter);
                     //同步数据
                     warterOrderRestDao.saveOrUpdateOfflineData(warter);
@@ -147,7 +166,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
         if (charge.getUserPrivateLabelId() != null) {
             //获取标签详情
             UserPrivateLabelRestEntity userPrivateLabelRestEntity = userPrivateLabelRestDao.selectInfoByLabelId(charge.getUserPrivateLabelId());
-            if(userPrivateLabelRestEntity!=null){
+            if (userPrivateLabelRestEntity != null) {
                 charge.setTypePid(userPrivateLabelRestEntity.getTypePid());
                 charge.setTypeId(userPrivateLabelRestEntity.getTypeId());
                 charge.setTypeName(userPrivateLabelRestEntity.getTypeName());
@@ -158,7 +177,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
     }
 
     @Test
-    public void run(){
+    public void run() {
         String a = "[{\"accountBookId\":3237,\"chargeDate\":1539598142000,\"createBy\":6145,\"createDate\":1539655319000,\"delflag\":0,\"id\":\"64082620-927e-4b0f-874b-3e1dd66b594d\",\"isStaged\":1,\"money\":5,\"orderType\":1,\"remark\":\"洗澡\",\"spendHappiness\":-1,\"typeId\":\"2c91dbe363f8b9390163fc36f2010027\",\"typeName\":\"日用\",\"typePname\":\"购物\",\"updateDate\":1539598142000},{\"accountBookId\":3237,\"chargeDate\":1539598159000,\"createBy\":6145,\"createDate\":1539598159000,\"delflag\":0,\"id\":\"6c336608-b2b8-471f-85dc-0c88f6e09737\",\"isStaged\":1,\"money\":7,\"orderType\":1,\"spendHappiness\":-1,\"typeId\":\"2c91dbe363f81ded0163f83d33320016\",\"typeName\":\"饮食\",\"typePname\":\"饮食\",\"updateDate\":1539598159000},{\"accountBookId\":3237,\"chargeDate\":1539598175000,\"createBy\":6145,\"createDate\":1539598175000,\"delflag\":0,\"id\":\"6b749d45-7399-4e12-86fa-6c112429c1d2\",\"isStaged\":1,\"money\":7.5,\"orderType\":1,\"remark\":\"橘子\",\"spendHappiness\":-1,\"typeId\":\"2c91dbe363f81ded0163f83deeba0018\",\"typeName\":\"水果\",\"typePname\":\"饮食\",\"updateDate\":1539598175000},{\"accountBookId\":3237,\"chargeDate\":1539655319000,\"createBy\":6145,\"createDate\":1539598142000,\"delflag\":0,\"id\":\"fae70596-acc9-4e46-83b7-dd6de2514455\",\"isStaged\":1,\"money\":3,\"orderType\":1,\"spendHappiness\":-1,\"typeId\":\"2c91dbe363f81ded0163f83d33320016\",\"typeName\":\"饮食\",\"typePname\":\"饮食\",\"updateDate\":1539655319000}]";
         List<WarterOrderRestEntity> ts = com.alibaba.fastjson.JSONArray.parseArray(a, WarterOrderRestEntity.class);
         System.out.println(Arrays.toString(ts.toArray()));

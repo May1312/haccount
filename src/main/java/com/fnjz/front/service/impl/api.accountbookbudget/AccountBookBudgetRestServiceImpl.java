@@ -363,7 +363,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
                 list.add(csr);
             }
         }
-        //倒叙
+        //倒序
         Collections.sort(list, Comparator.comparing(ConsumptionStructureRatioDTO::getTime).reversed());
         return list;
     }

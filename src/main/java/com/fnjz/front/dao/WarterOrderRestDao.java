@@ -268,7 +268,7 @@ public interface WarterOrderRestDao {
      * @return
      */
     @ResultType(APPWarterOrderRestDTO.class)
-    @Sql("SELECT base1.*,base3.nick_name as reporter_nick_name,base3.avatar_url as reporter_avatar,base2.ab_name as ab_name FROM hbird_water_order AS base1 INNER JOIN hbird_user_info AS base3 ON base1.update_by = base3.id, ( SELECT base2.id, base2.ab_name FROM ( SELECT account_book_id FROM hbird_user_account_book WHERE user_info_id = :userInfoId ) AS base1, hbird_account_book AS base2 WHERE base2.id = base1.account_book_id AND base2.STATUS = 0 ) AS base2 WHERE base1.account_book_id = base2.id AND if(:synDate is null,1=1,base1.update_date>:synDate) and base1.delflag=0;")
+    @Sql("SELECT base1.*,base3.nick_name as reporter_nick_name,base3.avatar_url as reporter_avatar,base2.ab_name as ab_name FROM hbird_water_order AS base1 INNER JOIN hbird_user_info AS base3 ON base1.update_by = base3.id, ( SELECT base2.id, base2.ab_name FROM ( SELECT account_book_id FROM hbird_user_account_book WHERE user_info_id = :userInfoId and delflag=0 ) AS base1, hbird_account_book AS base2 WHERE base2.id = base1.account_book_id AND base2.STATUS = 0 ) AS base2 WHERE base1.account_book_id = base2.id AND if(:synDate is null,1=1,base1.update_date>:synDate) and base1.delflag=0;")
     List<APPWarterOrderRestDTO> findAllWaterListOfNoDelV2(@Param("userInfoId") String userInfoId, @Param("synDate") Date synDate);
 
     /**
@@ -454,4 +454,20 @@ public interface WarterOrderRestDao {
      */
     @Sql("SELECT SUM( money ) AS money, COUNT( money ) AS moneytimes, type_name, icon FROM hbird_water_order WHERE update_by = :userInfoId AND charge_date between :beginTime and :endTime AND order_type = 2 AND delflag = 0 GROUP BY user_private_label_id ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForMonthsByTimeOfIncomev2(@Param("beginTime") String beginTime,@Param("endTime") String endTime,@Param("userInfoId") String userInfoId);
+
+    /**
+     * 记账天数
+     * @param userInfoId
+     * @return
+     */
+    @Sql("SELECT count(id) FROM hbird_water_order WHERE update_by = :userInfoId AND delflag = 0 AND charge_date between :begin and :end; ")
+    Integer countChargeDaysByChargeDaysv2(@Param("begin") String begin,@Param("end") String end,@Param("userInfoId") String userInfoId);
+
+    /**
+     * 统计记账笔数
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select count(*) from hbird_water_order where update_by=:userInfoId AND delflag = 0;")
+    int chargeTotalv2(@Param("userInfoId")String userInfoId);
 }

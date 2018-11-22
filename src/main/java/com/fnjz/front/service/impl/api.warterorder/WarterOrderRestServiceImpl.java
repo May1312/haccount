@@ -759,6 +759,20 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         StatisticsIncomeTopDTO statisticsIncomeTopDTO = statisticsForAllTop(list);
         return statisticsIncomeTopDTO;
     }
+
+    @Override
+    public int countChargeDaysv2(String userInfoId) {
+        //月初时间
+        LocalDate localDate1 = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
+        //获取月末时间
+        LocalDate localDate2 = localDate1.with(TemporalAdjusters.lastDayOfMonth());
+        return warterOrderRestDao.countChargeDaysByChargeDaysv2(localDate1.toString(),localDate2.toString(), userInfoId);
+    }
+
+    @Override
+    public int chargeTotalv2(String userInfoId) {
+        return warterOrderRestDao.chargeTotalv2(userInfoId);
+    }
 }
 
 class MapKeyComparator implements Comparator<Date> {
