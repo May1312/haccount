@@ -55,10 +55,12 @@ public class MessageServiceImpl extends CommonServiceImpl implements MessageServ
         String unreadMessageNumberSql = "select count(id) from hbird_message where status = 2 and  user_info_id = " + userId;
         Long count = this.getCountForJdbc(unreadMessageNumberSql);
         //消息列表
-        String messageListSql = "select m.id,m.create_date,m.create_by,m.user_info_id,m.content,m.status,IFNULL(u.nick_name,REPLACE(u.mobile, SUBSTR(mobile,4,4), '****')) name " +
-                " from hbird_message  m ,hbird_user_info u WHERE m.user_info_id= " + userId +
-                " AND  m.create_by = u.id " +
-                " order by m.status desc,m.create_date desc";
+        String messageListSql ="select m.id,m.create_date,m.create_by,m.user_info_id,m.content,m.status,IFNULL(u.nick_name,REPLACE(u.mobile, SUBSTR(mobile,4,4), '****')) name   " +
+                "from (SELECT * FROM hbird_message WHERE user_info_id = " + userId +")  m   " +
+                "LEFT JOIN " +
+                "hbird_user_info u  " +
+                "ON  m.create_by = u.id  " +
+                "order by m.status desc,m.create_date desc";
 
         List<Map<String, Object>> messageList = this.findForJdbc(messageListSql, page, rows);
 
