@@ -44,6 +44,8 @@ public class WXAppletWarterOrderRestBaseDTO implements Serializable {
     private Integer member;
     /**是否为当前用户记账标识  1:是  2:否*/
     private Integer isYour;
+    /**账本类型id*/
+    private Integer abTypeId;
     @Id
     public String getId() {
         return id;
@@ -139,5 +141,13 @@ public class WXAppletWarterOrderRestBaseDTO implements Serializable {
 
     public void setIsYour(Integer isYour) {
         this.isYour = isYour;
+    }
+
+    public Integer getAbTypeId() {
+        return abTypeId;
+    }
+
+    public void setAbTypeId(Integer abTypeId) {
+        this.abTypeId = abTypeId;
     }
 }

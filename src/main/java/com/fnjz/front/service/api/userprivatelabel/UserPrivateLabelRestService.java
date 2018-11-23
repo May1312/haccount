@@ -56,4 +56,6 @@ public interface UserPrivateLabelRestService {
     String deleteUserPrivateLabelType(String shareCode, Map<String,Object> map, String userInfoId, String income);
 
     List<?>  getUserCommUseType(String userInfoId, String type, Integer abId);
+
+    boolean checkUserPrivateLabel(String userInfoId, String type, Integer abTypeId);
 }

@@ -99,4 +99,11 @@ public interface AccountBookRestServiceI extends CommonService{
      * @return
      */
     AccountBookRestDTO getDefaultAB(String userInfoId);
+
+    /**
+     * 移动端创建账本
+     * @param accountBookRestEntity
+     * @return
+     */
+    Map<String,List<?>> createABForMobiel(AccountBookRestEntity accountBookRestEntity);
 }

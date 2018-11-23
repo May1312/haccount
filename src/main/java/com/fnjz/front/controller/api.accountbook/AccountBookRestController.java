@@ -149,8 +149,8 @@ public class AccountBookRestController extends BaseController {
         try {
             if(StringUtils.equals(type,"ios") || StringUtils.equals(type,"android")){
                 //移动端创建账本  下发当前账本账本类型对应标签
-                //Map<String,List<?>> list = accountBookRestService.createABForMobiel(accountBookRestEntity);
-                return new ResultBean(ApiResultType.OK, null);
+                Map<String,List<?>> map = accountBookRestService.createABForMobiel(accountBookRestEntity);
+                return new ResultBean(ApiResultType.OK, map);
             }else{
                 int abId = accountBookRestService.createAB(accountBookRestEntity);
                 return new ResultBean(ApiResultType.OK, abId);

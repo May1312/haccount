@@ -32,7 +32,7 @@ public interface WarterOrderRestDao {
      * @return
      */
     @ResultType(WXAppletWarterOrderRestBaseDTO.class)
-    @Sql("SELECT base1.id,base1.update_by as isYour, base1.money, base1.order_type, base1.spend_happiness, base1.type_name, base1.remark, base1.icon, base1.user_private_label_id, base1.charge_date, base2.avatar_url as reporter_avatar,base3.member FROM hbird_water_order as base1 LEFT JOIN hbird_user_info as base2 on base1.update_by=base2.id LEFT JOIN hbird_account_book as base3 on base1.account_book_id=base3.id where base1.account_book_id=:accountBookId AND base1.delflag = 0 AND base1.charge_date between :first and :end order by base1.charge_date desc,base1.create_date desc LIMIT :startIndex,:pageSize")
+    @Sql("SELECT base1.id,base1.update_by as isYour, base1.money, base1.order_type, base1.spend_happiness, base1.type_name, base1.remark, base1.icon, base1.user_private_label_id, base1.charge_date, base2.avatar_url as reporter_avatar,base3.member,base3.account_book_type_id as abTypeId FROM hbird_water_order as base1 LEFT JOIN hbird_user_info as base2 on base1.update_by=base2.id LEFT JOIN hbird_account_book as base3 on base1.account_book_id=base3.id where base1.account_book_id=:accountBookId AND base1.delflag = 0 AND base1.charge_date between :first and :end order by base1.charge_date desc,base1.create_date desc LIMIT :startIndex,:pageSize")
     List<WXAppletWarterOrderRestBaseDTO> findListForPagev2(@Param("first") String first, @Param("end") String end, @Param("accountBookId") String accountBookId, @Param("startIndex") Integer startIndex, @Param("pageSize") Integer pageSize);
     /**
      * 查询总记录数
@@ -248,7 +248,7 @@ public interface WarterOrderRestDao {
     List<WarterOrderRestEntity> findAllWaterList(@Param("userInfoId") String userInfoId, @Param("synDate") Date synDate);
 
     @ResultType(APPWarterOrderRestDTO.class)
-    @Sql("SELECT base1.*,base3.nick_name as reporter_nick_name,base3.avatar_url as reporter_avatar,base2.ab_name as ab_name FROM hbird_water_order AS base1 INNER JOIN hbird_user_info AS base3 ON base1.update_by = base3.id, ( SELECT base2.id, base2.ab_name FROM ( SELECT account_book_id FROM hbird_user_account_book WHERE user_info_id = :userInfoId ) AS base1, hbird_account_book AS base2 WHERE base2.id = base1.account_book_id AND base2.STATUS = 0 ) AS base2 WHERE base1.account_book_id = base2.id AND if(:synDate is null,1=1,base1.update_date>:synDate);")
+    @Sql("SELECT base1.*,base3.nick_name as reporter_nick_name,base3.avatar_url as reporter_avatar,base2.ab_name as ab_name,base2.account_book_type_id as abTypeId FROM hbird_water_order AS base1 INNER JOIN hbird_user_info AS base3 ON base1.update_by = base3.id, ( SELECT base2.id, base2.ab_name FROM ( SELECT account_book_id FROM hbird_user_account_book WHERE user_info_id = :userInfoId ) AS base1, hbird_account_book AS base2 WHERE base2.id = base1.account_book_id AND base2.STATUS = 0 ) AS base2 WHERE base1.account_book_id = base2.id AND if(:synDate is null,1=1,base1.update_date>:synDate);")
     List<APPWarterOrderRestDTO> findAllWaterListV2(@Param("userInfoId") String userInfoId, @Param("synDate") Date synDate);
     /**
      * 只返回有效记录
@@ -268,7 +268,7 @@ public interface WarterOrderRestDao {
      * @return
      */
     @ResultType(APPWarterOrderRestDTO.class)
-    @Sql("SELECT base1.*,base3.nick_name as reporter_nick_name,base3.avatar_url as reporter_avatar,base2.ab_name as ab_name FROM hbird_water_order AS base1 INNER JOIN hbird_user_info AS base3 ON base1.update_by = base3.id, ( SELECT base2.id, base2.ab_name FROM ( SELECT account_book_id FROM hbird_user_account_book WHERE user_info_id = :userInfoId and delflag=0 ) AS base1, hbird_account_book AS base2 WHERE base2.id = base1.account_book_id AND base2.STATUS = 0 ) AS base2 WHERE base1.account_book_id = base2.id AND if(:synDate is null,1=1,base1.update_date>:synDate) and base1.delflag=0;")
+    @Sql("SELECT base1.*,base3.nick_name as reporter_nick_name,base3.avatar_url as reporter_avatar,base2.ab_name as ab_name,base2.account_book_type_id as abTypeId FROM hbird_water_order AS base1 INNER JOIN hbird_user_info AS base3 ON base1.update_by = base3.id, ( SELECT base2.id, base2.ab_name FROM ( SELECT account_book_id FROM hbird_user_account_book WHERE user_info_id = :userInfoId and delflag=0 ) AS base1, hbird_account_book AS base2 WHERE base2.id = base1.account_book_id AND base2.STATUS = 0 ) AS base2 WHERE base1.account_book_id = base2.id AND if(:synDate is null,1=1,base1.update_date>:synDate) and base1.delflag=0;")
     List<APPWarterOrderRestDTO> findAllWaterListOfNoDelV2(@Param("userInfoId") String userInfoId, @Param("synDate") Date synDate);
 
     /**

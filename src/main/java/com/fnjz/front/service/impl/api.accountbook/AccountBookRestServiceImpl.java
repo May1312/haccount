@@ -3,17 +3,22 @@ package com.fnjz.front.service.impl.api.accountbook;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.controller.api.message.MessageContentFactory;
 import com.fnjz.front.controller.api.message.MessageType;
 import com.fnjz.front.dao.AccountBookRestDao;
 import com.fnjz.front.dao.UserAccountBookRestDao;
+import com.fnjz.front.dao.UserPrivateLabelRestDao;
 import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestDTO;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
+import com.fnjz.front.entity.api.userprivatelabel.UserPrivateIncomeLabelRestDTO;
+import com.fnjz.front.entity.api.userprivatelabel.UserPrivateSpendLabelRestDTO;
 import com.fnjz.front.service.api.accountbook.AccountBookRestServiceI;
 import com.fnjz.front.service.api.message.MessageServiceI;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
+import com.fnjz.front.service.api.userprivatelabel.UserPrivateLabelRestService;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("accountBookRestService")
 @Transactional
@@ -41,8 +43,15 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
 
     @Autowired
     private MessageServiceI messageService;
+
     @Autowired
     private UserAccountBookRestServiceI userAccountBookRestService;
+
+    @Autowired
+    private UserPrivateLabelRestService userPrivateLabelRestService;
+
+    @Autowired
+    private UserPrivateLabelRestDao userPrivateLabelRestDao;
 
     @Override
     public JSONArray checkABMembers(String userInfoId) {
@@ -323,5 +332,33 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
     @Override
     public AccountBookRestDTO getDefaultAB(String userInfoId) {
         return accountBookRestDao.getDefaultAB(userInfoId);
+    }
+
+    @Override
+    public Map<String, List<?>> createABForMobiel(AccountBookRestEntity accountBookRestEntity) {
+        int abId = accountBookRestDao.createAB(accountBookRestEntity);
+        //用户账本绑定关系
+        //创建用户---账本关联记录
+        UserAccountBookRestEntity uabre = new UserAccountBookRestEntity();
+        uabre.setUserInfoId(accountBookRestEntity.getCreateBy());
+        uabre.setAccountBookId(abId);
+        uabre.setCreateBy(accountBookRestEntity.getCreateBy());
+        uabre.setUserType(0);
+        userAccountBookRestDao.insert(uabre);
+        //判断用户是否拥有此类型账本
+        boolean b = userPrivateLabelRestService.checkUserPrivateLabel(accountBookRestEntity.getCreateBy() + "", RedisPrefix.SPEND, accountBookRestEntity.getAccountBookTypeId());
+        userPrivateLabelRestService.checkUserPrivateLabel(accountBookRestEntity.getCreateBy() + "", RedisPrefix.INCOME, accountBookRestEntity.getAccountBookTypeId());
+        //分派标签
+        List<UserPrivateIncomeLabelRestDTO> income = new ArrayList<>();
+        List<UserPrivateSpendLabelRestDTO> spend = new ArrayList<>();
+        if(!b){
+            //分派标签
+            income = userPrivateLabelRestDao.selectLabelByAbId2(accountBookRestEntity.getCreateBy() + "", accountBookRestEntity.getAccountBookTypeId(), 2);
+            spend = userPrivateLabelRestDao.selectLabelByAbId(accountBookRestEntity.getCreateBy() + "",accountBookRestEntity.getAccountBookTypeId(), 1);
+        }
+        Map<String, List<?>> map = new HashMap<>();
+        map.put("spend",spend);
+        map.put("income",income);
+        return map;
     }
 }

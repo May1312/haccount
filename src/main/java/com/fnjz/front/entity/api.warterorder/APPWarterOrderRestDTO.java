@@ -1,15 +1,6 @@
 package com.fnjz.front.entity.api.warterorder;
 
-import com.fnjz.front.entity.api.stagedinfo.StagedInfoRestEntity;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.persistence.*;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import javax.persistence.Entity;
 
 /**
  * @Description: 账本流水表相关--->移动端多账本封装类  添加用户头像  昵称  账本名称
@@ -31,6 +22,9 @@ public class APPWarterOrderRestDTO extends WarterOrderRestEntity {
 
     /**账本名称*/
     private String abName;
+
+    /**账本类型id*/
+    private Integer abTypeId;
 
     public Integer getUserPrivateLabelId() {
         return userPrivateLabelId;
@@ -70,5 +64,13 @@ public class APPWarterOrderRestDTO extends WarterOrderRestEntity {
 
     public void setAbName(String abName) {
         this.abName = abName;
+    }
+
+    public Integer getAbTypeId() {
+        return abTypeId;
+    }
+
+    public void setAbTypeId(Integer abTypeId) {
+        this.abTypeId = abTypeId;
     }
 }

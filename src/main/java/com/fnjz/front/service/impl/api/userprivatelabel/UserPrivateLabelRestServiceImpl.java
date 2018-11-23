@@ -447,7 +447,8 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
     /**
      * 为新注册用户分配系统常用标签
      */
-    private void checkUserPrivateLabel(String userInfoId, String type, Integer abTypeId) {
+    @Override
+    public boolean checkUserPrivateLabel(String userInfoId, String type, Integer abTypeId) {
         //判断用户自有标签是否已存在
         if (StringUtils.equals(type, RedisPrefix.INCOME)) {
             int count = userPrivateLabelRestDao.checkUserPrivateLabelForIncome(userInfoId,abTypeId);
@@ -486,7 +487,9 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
 
                     }
                 }
+                return false;
             }
+            return true;
         } else {
             int count = userPrivateLabelRestDao.checkUserPrivateLabelForSpend(userInfoId,abTypeId);
             if (count < 1) {
@@ -524,7 +527,9 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
                         });
                     }
                 }
+                return false;
             }
+            return true;
         }
     }
 

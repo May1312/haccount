@@ -1,5 +1,5 @@
 INSERT INTO `hbird_water_order`
-(`id`,`account_book_id`, `money`, `order_type`, `is_staged`, `spend_happiness`, `use_degree`, `type_pid`, `type_pname`, `type_id`, `type_name`, `parent_id`, `picture_url`, `create_date`,`update_date`, `charge_date`, `delflag`, `del_date`,`create_by`, `create_name`, `update_by`, `update_name`,`remark`)
+(`id`,`account_book_id`, `money`, `order_type`, `is_staged`, `spend_happiness`, `use_degree`, `type_pid`, `type_pname`, `type_id`, `type_name`, `parent_id`, `picture_url`, `create_date`,`update_date`, `charge_date`, `delflag`, `del_date`,`create_by`, `create_name`, `update_by`, `update_name`,`remark`,`user_private_label_id`,`icon`)
 VALUES(
        :charge.id,
 		   :charge.accountBookId,
