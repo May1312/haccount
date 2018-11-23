@@ -440,7 +440,6 @@ public class CheckRestServiceImpl implements CheckRestServiceI {
             jsonObject2.put(RedisPrefix.SPEND,spendList);
             //缓存个人类目
             redisTemplateUtils.updateForHash(RedisPrefix.USER_LABEL + shareCode+":"+abTypeId,jsonObject2);
-
             jsonObject.put("income",incomeList);
             jsonObject.put("spend",spendList);
             return jsonObject;

@@ -23,5 +23,7 @@ VALUES(
 		   :charge.createName,
 		   :charge.updateBy,
 		   :charge.updateName,
-		   :charge.remark
-) ON DUPLICATE KEY UPDATE `money`=:charge.money,`order_type`=:charge.orderType,`spend_happiness`=:charge.spendHappiness,`type_pid`=:charge.typePid,`type_pname`=:charge.typePname,`type_id`=:charge.typeId,`type_name`=:charge.typeName,`update_date`=:charge.updateDate,`charge_date`=:charge.chargeDate,`delflag`=:charge.delflag,`del_date`=:charge.delDate,`update_by`=:charge.updateBy,`update_name`=:charge.updateName,`remark`=:charge.remark;
+		   :charge.remark,
+		   :charge.userPrivateLabelId,
+		   :charge.icon
+) ON DUPLICATE KEY UPDATE `money`=:charge.money,`order_type`=:charge.orderType,`spend_happiness`=:charge.spendHappiness,`type_pid`=:charge.typePid,`type_pname`=:charge.typePname,`type_id`=:charge.typeId,`type_name`=:charge.typeName,`update_date`=:charge.updateDate,`charge_date`=:charge.chargeDate,`delflag`=:charge.delflag,`del_date`=:charge.delDate,`update_by`=:charge.updateBy,`update_name`=:charge.updateName,`remark`=:charge.remark,`user_private_label_id`=:charge.userPrivateLabelId,`icon`=:charge.icon;

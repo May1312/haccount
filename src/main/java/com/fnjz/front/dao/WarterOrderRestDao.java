@@ -276,7 +276,7 @@ public interface WarterOrderRestDao {
      *
      * @param warter
      */
-    void saveOrUpdateOfflineData(@Param("charge") WarterOrderRestEntity warter);
+    void saveOrUpdateOfflineData(@Param("charge") WarterOrderRestNewLabel warter);
 
     /**
      * 根据传入时间统计 收支总额

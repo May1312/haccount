@@ -145,10 +145,16 @@ public class AccountBookRestController extends BaseController {
     public ResultBean createAB(@PathVariable("type") String type, HttpServletRequest request, @RequestBody AccountBookRestEntity accountBookRestEntity) {
         System.out.println("登录终端：" + type);
         String userInfoId = (String) request.getAttribute("userInfoId");
+        accountBookRestEntity.setCreateBy(Integer.valueOf(userInfoId));
         try {
-            accountBookRestEntity.setCreateBy(Integer.valueOf(userInfoId));
-            int abId = accountBookRestService.createAB(accountBookRestEntity);
-            return new ResultBean(ApiResultType.OK, abId);
+            if(StringUtils.equals(type,"ios") || StringUtils.equals(type,"android")){
+                //移动端创建账本  下发当前账本账本类型对应标签
+                //Map<String,List<?>> list = accountBookRestService.createABForMobiel(accountBookRestEntity);
+                return new ResultBean(ApiResultType.OK, null);
+            }else{
+                int abId = accountBookRestService.createAB(accountBookRestEntity);
+                return new ResultBean(ApiResultType.OK, abId);
+            }
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
