@@ -191,7 +191,7 @@ public interface AccountBookBudgetRestDao {
      * @param endTime
      * @return
      */
-    @Sql("SELECT sum( wo.money ) AS money, DATE_FORMAT( wo.charge_date, '%u' ) AS time, DATE_FORMAT( wo.charge_date, '%Y-%u' ) AS yearweek as weekTime FROM hbird_water_order AS wo WHERE wo.account_book_id = :abId AND wo.charge_date BETWEEN :beginTime AND :endTime AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY yearweek ORDER BY yearweek;")
+    @Sql("SELECT sum( wo.money ) AS money, DATE_FORMAT( wo.charge_date, '%u' ) AS time, DATE_FORMAT( wo.charge_date, '%Y-%u' ) as weekTime FROM hbird_water_order AS wo WHERE wo.account_book_id = :abId AND wo.charge_date BETWEEN :beginTime AND :endTime AND wo.order_type = 1 AND wo.delflag = 0 GROUP BY weekTime ORDER BY weekTime;")
     List<SceneBaseDTO> getBudgetCompletionRatev2ForSceneWeeks(@Param("abId") Integer abId, @Param("beginTime")String beginTime, @Param("endTime") String endTime);
 
     /**
