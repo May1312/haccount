@@ -15,9 +15,14 @@ public class SceneBaseDTO implements Serializable {
     private BigDecimal money;
 
     /**
-     * 时间 年-月字符串格式
+     * 时间
      */
     private String time;
+
+    /**
+     * 周时间
+     */
+    private String weekTime;
 
     public String getTime() {
         return time;
@@ -47,5 +52,13 @@ public class SceneBaseDTO implements Serializable {
 
     public void setMoney(BigDecimal money) {
         this.money = money;
+    }
+
+    public String getWeekTime() {
+        return weekTime;
+    }
+
+    public void setWeekTime(String weekTime) {
+        this.weekTime = weekTime;
     }
 }
