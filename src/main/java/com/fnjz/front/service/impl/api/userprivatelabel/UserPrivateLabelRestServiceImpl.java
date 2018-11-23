@@ -120,7 +120,7 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
             //设置状态标签状态 1:有效  0:失效
             userPrivateLabelRestEntity.setStatus(1);
             //绑定账本类型id
-            userPrivateLabelRestEntity.setAccountBookId(Integer.valueOf(abTypeId));
+            userPrivateLabelRestEntity.setAbTypeId(Integer.valueOf(abTypeId));
             userPrivateLabelRestEntity.setAbTypeLabelId(Integer.valueOf(labelId));
             //获取当前db优先级
             Integer max = userPrivateLabelRestDao.getMaxPriorityForIncome(abTypeId,userInfoId);
@@ -154,7 +154,7 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
             //设置状态标签状态 1:有效  0:失效
             userPrivateLabelRestEntity.setStatus(1);
             //绑定账本类型id
-            userPrivateLabelRestEntity.setAccountBookId(Integer.valueOf(abTypeId));
+            userPrivateLabelRestEntity.setAbTypeId(Integer.valueOf(abTypeId));
             userPrivateLabelRestEntity.setAbTypeLabelId(Integer.valueOf(labelId));
             //获取当前db优先级
             Integer max = userPrivateLabelRestDao.getMaxPriorityForSpend(abTypeId,userInfoId);
