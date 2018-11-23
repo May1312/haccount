@@ -70,4 +70,11 @@ public interface UserAccountBookRestDao {
      */
     @Sql("SELECT base1.*, base3.nick_name AS reporter_nick_name, base3.avatar_url AS reporter_avatar, base2.ab_name AS ab_name FROM hbird_water_order AS base1 INNER JOIN hbird_user_info AS base3 ON base1.update_by = base3.id, ( SELECT base2.id, base2.ab_name FROM ( SELECT account_book_id FROM hbird_user_account_book WHERE user_info_id = :userInfoId AND bind_flag = 1 ) AS base1, hbird_account_book AS base2 WHERE base2.id = base1.account_book_id AND base2.STATUS = 0 ) AS base2 WHERE base1.account_book_id = base2.id AND base1.delflag = 0;")
     List<APPWarterOrderRestDTO> checkBindABFlagAndReturn(@Param("userInfoId") String userInfoId);
+
+    /**
+     * 修改成员绑定状态为2 已同步数据
+     * @param userInfoId
+     */
+    @Sql("UPDATE `hbird_user_account_book` SET `bind_flag` = 2 WHERE user_info_id=:userInfoId and bind_flag=1;")
+    void updateBindABFlag(@Param("userInfoId") String userInfoId);
 }

@@ -117,6 +117,8 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
             List<APPWarterOrderRestDTO> list2 = new ArrayList<>();
             if (maps > 0) {
                 list2 = userAccountBookRestDao.checkBindABFlagAndReturn(userInfoId);
+                //更新记录状态
+                userAccountBookRestDao.updateBindABFlag(userInfoId);
             }
             list = warterOrderRestDao.findAllWaterListV2(userInfoId, latelySynDate.getSynDate());
             if(list2!=null){
