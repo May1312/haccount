@@ -1,13 +1,5 @@
 package com.fnjz.front.entity.api.warterorder;
 
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -27,6 +19,9 @@ public class WXAppletWarterOrderRestInfoDTO extends WXAppletWarterOrderRestBaseD
 
     /**更新时间*/
     private Date updateDate;
+
+    /**账本类型id*/
+    private Integer abTypeId;
 
     public String getReporterNickName() {
         return reporterNickName;
@@ -58,5 +53,15 @@ public class WXAppletWarterOrderRestInfoDTO extends WXAppletWarterOrderRestBaseD
 
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
+    }
+
+    @Override
+    public Integer getAbTypeId() {
+        return abTypeId;
+    }
+
+    @Override
+    public void setAbTypeId(Integer abTypeId) {
+        this.abTypeId = abTypeId;
     }
 }
