@@ -6,10 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.controller.api.message.MessageContentFactory;
 import com.fnjz.front.controller.api.message.MessageType;
-import com.fnjz.front.dao.AccountBookRestDao;
-import com.fnjz.front.dao.UserAccountBookRestDao;
-import com.fnjz.front.dao.UserPrivateLabelRestDao;
-import com.fnjz.front.dao.WarterOrderRestDao;
+import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestDTO;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
@@ -53,6 +50,9 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
     @Autowired
     private UserPrivateLabelRestDao userPrivateLabelRestDao;
 
+    @Autowired
+    private OfflineSynchronizedRestDao offlineSynchronizedRestDao;
+
     @Override
     public JSONArray checkABMembers(String userInfoId) {
         JSONArray jsonArray = new JSONArray();
@@ -76,7 +76,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         JSONArray memberArray = new JSONArray();
         int totalMember = accountBookRestDao.getTotalMember(abId + "");
         //判断当前请求用户是否为账本所有者
-        if (totalMember>=1){
+        if (totalMember >= 1) {
             //包含多组员  查询创建者  当前用户  其他组员
             List<Map<String, Object>> abMembers = accountBookRestDao.getABMembers(abId);
             abMembers.forEach(v -> {
@@ -84,8 +84,8 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                     //当前请求用户为账本所有者
                     jsonObject.put("yourSelf", v.get("avatarurl"));
                 } else if (StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "2")) {
-                    jsonObject.put("yourSelf",v.get("avatarurl"));
-                }else if(StringUtils.equals(v.get("userinfoid")+"",userInfoId)&&StringUtils.equals(v.get("usertype")+"","1")){
+                    jsonObject.put("yourSelf", v.get("avatarurl"));
+                } else if (StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "1")) {
                     //当前用户作为成员
                     jsonObject.put("yourSelf", v.get("avatarurl"));
                 } else if (!StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "0")) {
@@ -108,8 +108,14 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         return list;
     }
 
+    /**
+     * 删除账本
+     *
+     * @param userInfoId
+     */
     @Override
-    public void deleteAB(Integer abId, String userInfoId) {
+    public void deleteAB(String type, Map<String, String> map, String userInfoId) {
+        Integer abId = Integer.valueOf(map.get("abId"));
         //判断当前用户身份
         Integer userType = accountBookRestDao.checkUserType(userInfoId, abId);
         if (userType != null) {
@@ -139,6 +145,13 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                 accountBookRestDao.deleteUserAB(userInfoId, abId);
                 //账本人数-1
                 accountBookRestDao.updateABMember(abId, -1);
+            }
+            //更新移动端本次同步时间
+            if (StringUtils.equals(type, "android") || StringUtils.equals(type, "ios")) {
+                if (StringUtils.isNotEmpty(map.get("mobileDevice"))) {
+                    //生成本次同步记录  todo ??问题！！
+                    offlineSynchronizedRestDao.insert(map.get("mobileDevice"), userInfoId);
+                }
             }
         }
     }
@@ -278,10 +291,10 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         int code = 2000;
         //确认是否已经在此账本中
         UserAccountBookRestEntity invitedUserAccountBook = userAccountBookRestDao.getUserAccountBookByUserInfoIdAndAccountBookId(Integer.parseInt(invitedId), Integer.parseInt(accountBookId));
-        if(invitedUserAccountBook == null){
+        if (invitedUserAccountBook == null) {
             //确认管理员权限
             UserAccountBookRestEntity userAccountBook = userAccountBookRestDao.getUserAccountBookByUserInfoIdAndAccountBookId(Integer.parseInt(adminUserInfoId), Integer.parseInt(accountBookId));
-            if (userAccountBook != null){
+            if (userAccountBook != null) {
                 //确认 0_管理员 1_成员
                 if (userAccountBook.getUserType() == 0) {
                     //当前账本人数是否小于五人
@@ -294,28 +307,28 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                         userAccountBookRestEntity.setCreateDate(new Date());
                         userAccountBookRestEntity.setBindFlag(1);
                         Serializable save = this.save(userAccountBookRestEntity);
-                        Integer integer = (Integer)save;
-                        if ((Integer)save >0) {
+                        Integer integer = (Integer) save;
+                        if ((Integer) save > 0) {
                             message = "邀请成功";
                             result = true;
                             //参加人数+1
-                            accountBookRestDao.updateABMember(Integer.parseInt(accountBookId),1);
+                            accountBookRestDao.updateABMember(Integer.parseInt(accountBookId), 1);
                         }
                     } else {
-                        code=2001;
+                        code = 2001;
                         message = "人数达到上限,请联系管理员";
                     }
                 } else {
-                    code=2004;
+                    code = 2004;
                     message = "没有邀请权限";
                 }
-            }else {
-                code=2002;
+            } else {
+                code = 2002;
                 message = "此账本不存在，请核实创建者id，账本id";
             }
-        }else {
-            code=2003;
-            message="已经加入过了";
+        } else {
+            code = 2003;
+            message = "已经加入过了";
         }
         jsonObject.put("success", result);
         jsonObject.put("code", code);
@@ -351,14 +364,14 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         //分派标签
         List<UserPrivateIncomeLabelRestDTO> income = new ArrayList<>();
         List<UserPrivateSpendLabelRestDTO> spend = new ArrayList<>();
-        if(!b){
+        if (!b) {
             //分派标签
             income = userPrivateLabelRestDao.selectLabelByAbId2(accountBookRestEntity.getCreateBy() + "", accountBookRestEntity.getAccountBookTypeId(), 2);
-            spend = userPrivateLabelRestDao.selectLabelByAbId(accountBookRestEntity.getCreateBy() + "",accountBookRestEntity.getAccountBookTypeId(), 1);
+            spend = userPrivateLabelRestDao.selectLabelByAbId(accountBookRestEntity.getCreateBy() + "", accountBookRestEntity.getAccountBookTypeId(), 1);
         }
         Map<String, List<?>> map = new HashMap<>();
-        map.put("spend",spend);
-        map.put("income",income);
+        map.put("spend", spend);
+        map.put("income", income);
         return map;
     }
 }
