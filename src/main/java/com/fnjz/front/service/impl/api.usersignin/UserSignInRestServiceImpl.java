@@ -21,7 +21,6 @@ import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -140,7 +139,32 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             long now = System.currentTimeMillis();
             if (now > dateOfBegin.getTime() && now < dateOfEnd.getTime()) {
                 //签到成功  判断signInDays 是否达到上限28
-                map.put("signInDays", ((Integer.valueOf(map.get("signInDays") + "") + 1)) % 29);
+                if ((Integer.valueOf(map.get("signInDays") + "") + 1) % 29 == 0) {
+                    //达到周期上限
+                    map.put("signInDays", 1);
+                    //重新置灰周期内奖励
+                    //获取自己的签到领取情况
+                    Map<String, Integer> map2 = redisTemplateUtils.getForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode);
+                    //重新置为3
+                    if(map2!=null){
+                        if(map2.size()>0){
+                            if(map2.get("signIn_" + IntegralEnum.SIGNIN_7.getIndex())!=null){
+                                map2.put("signIn_" + IntegralEnum.SIGNIN_7.getIndex(),3);
+                            }
+                            if(map2.get("signIn_" + IntegralEnum.SIGNIN_14.getIndex())!=null){
+                                map2.put("signIn_" + IntegralEnum.SIGNIN_14.getIndex(),3);
+                            }
+                            if(map2.get("signIn_" + IntegralEnum.SIGNIN_21.getIndex())!=null){
+                                map2.put("signIn_" + IntegralEnum.SIGNIN_21.getIndex(),3);
+                            }
+                            if(map2.get("signIn_" + IntegralEnum.SIGNIN_28.getIndex())!=null){
+                                map2.put("signIn_" + IntegralEnum.SIGNIN_28.getIndex(),3);
+                            }
+                        }
+                    }
+                } else {
+                    map.put("signInDays", (Integer.valueOf(map.get("signInDays") + "") + 1));
+                }
                 map.put("signInDate", (System.currentTimeMillis() + ""));
             } else if (now > dateOfEnd.getTime()) {
                 //置空
@@ -697,9 +721,9 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             //判断是不是7的整数倍
                             if (StringUtils.equals(map.get("signInDays") + "", StringUtils.substringAfterLast(entry.getKey(), "_")) && (Integer.valueOf(map.get("signInDays") + "") % 7) == 0 && entry2.getValue() == SignInEnum.COMPLEMENT_SIGNED.getIndex()) {
                                 jsonObject1.put("cycleAwareStatus", SignInEnum.NOT_SIGN.getIndex());
-                            } else if(Integer.valueOf(map.get("signInDays") + "")-Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_"))<7&&Integer.valueOf(map.get("signInDays") + "")-Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_"))>0&& entry2.getValue() == SignInEnum.COMPLEMENT_SIGNED.getIndex()){
+                            } else if (Integer.valueOf(map.get("signInDays") + "") - Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")) < 7 && Integer.valueOf(map.get("signInDays") + "") - Integer.valueOf(StringUtils.substringAfterLast(entry.getKey(), "_")) > 0 && entry2.getValue() == SignInEnum.COMPLEMENT_SIGNED.getIndex()) {
                                 jsonObject1.put("cycleAwareStatus", SignInEnum.NOT_SIGN.getIndex());
-                            }else {
+                            } else {
                                 jsonObject1.put("cycleAwareStatus", entry2.getValue());
                             }
                         }
