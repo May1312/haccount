@@ -106,7 +106,11 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                     Period period = Period.between(LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf(args[2])), LocalDate.now());
                     // TODO days大于58情况下存在误差
                     int days = (period.getDays() + 1) % 29;
-                    map.put("signInDays", days);
+                    if(days==0){
+                        map.put("signInDays", 1);
+                    }else{
+                        map.put("signInDays", days);
+                    }
                     map.put("signInDate", System.currentTimeMillis() + "");
                     if (!flag) {
                         userSignInRestDao.signIn(userInfoId, 1);
@@ -160,6 +164,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             if(map2.get("signIn_" + IntegralEnum.SIGNIN_28.getIndex())!=null){
                                 map2.put("signIn_" + IntegralEnum.SIGNIN_28.getIndex(),3);
                             }
+                            //重置缓存
+                            redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, map2, RedisPrefix.VALID_TIME_28);
                         }
                     }
                 } else {
