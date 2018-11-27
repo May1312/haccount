@@ -34,7 +34,6 @@ class OfflinePushConsumerListener implements ChannelAwareMessageListener {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
         try {
             String mq = new String(message.getBody());
-            System.out.println("消费消息 = " + mq);
             logger.info("消费消息 = " + mq);
             JSONObject jsonObject= JSONObject.parseObject(mq);
             if(StringUtils.isNotEmpty(mq)){

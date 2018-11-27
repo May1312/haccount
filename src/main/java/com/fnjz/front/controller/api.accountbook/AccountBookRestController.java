@@ -71,8 +71,8 @@ public class AccountBookRestController extends BaseController {
     @ResponseBody
     public ResultBean getABMembers(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(required = false) Integer abId) {
         System.out.println("登录终端：" + type);
-        if(abId==null){
-            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,null);
+        if (abId == null) {
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
         }
         String userInfoId = (String) request.getAttribute("userInfoId");
         try {
@@ -88,17 +88,18 @@ public class AccountBookRestController extends BaseController {
     /**
      * 获取用户所拥有账本
      * 1为标示获取默认账本信息
+     *
      * @param type
      * @param request
      * @return
      */
     @RequestMapping(value = "/getABAll/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getABAll(@PathVariable("type") String type, HttpServletRequest request,@RequestParam(required = false)String flag) {
+    public ResultBean getABAll(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(required = false) String flag) {
         System.out.println("登录终端：" + type);
         String userInfoId = (String) request.getAttribute("userInfoId");
-        if(StringUtils.isNotEmpty(flag)){
-            if(StringUtils.equals(flag,"1")){
+        if (StringUtils.isNotEmpty(flag)) {
+            if (StringUtils.equals(flag, "1")) {
                 AccountBookRestDTO ab = accountBookRestService.getDefaultAB(userInfoId);
                 return new ResultBean(ApiResultType.OK, ab);
             }
@@ -121,11 +122,15 @@ public class AccountBookRestController extends BaseController {
      */
     @RequestMapping(value = "/deleteAB/{type}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResultBean deleteAB(@PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, Integer> map) {
+    public ResultBean deleteAB(@PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, String> map) {
         System.out.println("登录终端：" + type);
         String userInfoId = (String) request.getAttribute("userInfoId");
+        if(StringUtils.isEmpty(map.get("abId"))){
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,null);
+        }
         try {
-            accountBookRestService.deleteAB(map.get("abId"), userInfoId);
+            //移动端请求更新本次同步时间
+            accountBookRestService.deleteAB(type,map, userInfoId);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -147,11 +152,11 @@ public class AccountBookRestController extends BaseController {
         String userInfoId = (String) request.getAttribute("userInfoId");
         accountBookRestEntity.setCreateBy(Integer.valueOf(userInfoId));
         try {
-            if(StringUtils.equals(type,"ios") || StringUtils.equals(type,"android")){
+            if (StringUtils.equals(type, "ios") || StringUtils.equals(type, "android")) {
                 //移动端创建账本  下发当前账本账本类型对应标签
-                Map<String,List<?>> map = accountBookRestService.createABForMobiel(accountBookRestEntity);
+                Map<String, List<?>> map = accountBookRestService.createABForMobiel(accountBookRestEntity);
                 return new ResultBean(ApiResultType.OK, map);
-            }else{
+            } else {
                 int abId = accountBookRestService.createAB(accountBookRestEntity);
                 return new ResultBean(ApiResultType.OK, abId);
             }
@@ -186,6 +191,7 @@ public class AccountBookRestController extends BaseController {
 
     /**
      * 成员管理页 数据获取
+     *
      * @param type
      * @param request
      * @return
@@ -194,8 +200,8 @@ public class AccountBookRestController extends BaseController {
     @ResponseBody
     public ResultBean membersInfo(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(required = false) Integer abId) {
         System.out.println("登录终端：" + type);
-        if(abId==null){
-            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,null);
+        if (abId == null) {
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
         }
         String userInfoId = (String) request.getAttribute("userInfoId");
         try {
@@ -210,19 +216,20 @@ public class AccountBookRestController extends BaseController {
 
     /**
      * 成员管理页 删除成员
+     *
      * @param type
      * @param request
      * @return
      */
     @RequestMapping(value = "/deleteMembers/{type}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResultBean deleteMembers(@PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String,Object> map) {
+    public ResultBean deleteMembers(@PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, Object> map) {
         System.out.println("登录终端：" + type);
-        if(map==null){
-            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,null);
+        if (map == null) {
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
         }
-        if(map.get("memberIds")==null || map.get("abId")==null){
-            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,null);
+        if (map.get("memberIds") == null || map.get("abId") == null) {
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
         }
         String userInfoId = (String) request.getAttribute("userInfoId");
         try {
@@ -232,7 +239,7 @@ public class AccountBookRestController extends BaseController {
             new Thread() {
                 @Override
                 public void run() {
-                    accountBookRestService.removeTheNotification(map,userInfoId);
+                    accountBookRestService.removeTheNotification(map, userInfoId);
                 }
             }.start();
 
@@ -258,13 +265,13 @@ public class AccountBookRestController extends BaseController {
 
     @RequestMapping(value = "/getABAll", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getABAll(HttpServletRequest request,@RequestParam(required = false)String flag) {
-        return this.getABAll(null, request,flag);
+    public ResultBean getABAll(HttpServletRequest request, @RequestParam(required = false) String flag) {
+        return this.getABAll(null, request, flag);
     }
 
     @RequestMapping(value = "/deleteAB", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResultBean deleteAB(HttpServletRequest request, @RequestBody Map<String, Integer> map) {
+    public ResultBean deleteAB(HttpServletRequest request, @RequestBody Map<String, String> map) {
         return this.deleteAB(null, request, map);
     }
 
@@ -288,34 +295,35 @@ public class AccountBookRestController extends BaseController {
 
     @RequestMapping(value = "/deleteMembers", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResultBean deleteMembers(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+    public ResultBean deleteMembers(HttpServletRequest request, @RequestBody Map<String, Object> map) {
         return this.deleteMembers(null, request, map);
     }
 
     /**
      * 功能描述:同意加入账本调用
      *
-     * @param:  账本id，通用userinid
+     * @param: 账本id，通用userinid
      * @return:
      * @auther: yonghuizhao
      * @date: 2018/11/19 15:37
      */
     @RequestMapping(value = "/acceptInvitationToAccount/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean acceptInvitationToAccount(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String,Object> map) {
+    public ResultBean acceptInvitationToAccount(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, Object> map) {
         //账本创建者id
-        String adminUserFFid =String.valueOf(map.get("adminUserFFid"));
+        String adminUserFFid = String.valueOf(map.get("adminUserFFid"));
         //账本id
-        String accountBookId =String.valueOf(map.get("accountBookId"));
-        if (StringUtils.isEmpty(adminUserFFid) || StringUtils.isEmpty(accountBookId)){
-            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR,"检查账本创建者id，账本id");
+        String accountBookId = String.valueOf(map.get("accountBookId"));
+        if (StringUtils.isEmpty(adminUserFFid) || StringUtils.isEmpty(accountBookId)) {
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, "检查账本创建者id，账本id");
         }
         int adminUserInfoId = ShareCodeUtil.sharecode2id(adminUserFFid);
         //当前登录用户id
         String userinfoId = (String) request.getAttribute("userInfoId");
         JSONObject jsonObject = accountBookRestService.invitationToAccount(String.valueOf(adminUserInfoId), accountBookId, userinfoId);
-        return new ResultBean(ApiResultType.OK,jsonObject);
+        return new ResultBean(ApiResultType.OK, jsonObject);
     }
+
     /**
      * 功能描述: 获取当前账本是否满员
      *
@@ -326,20 +334,20 @@ public class AccountBookRestController extends BaseController {
      */
     @RequestMapping(value = "/accountBooksIsFull/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean accountBooksIsFull(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,HttpServletRequest request, @RequestBody Map<String,Object> map) {
+    public ResultBean accountBooksIsFull(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, Object> map) {
         String accountBookId1 = String.valueOf(map.get("accountBookId"));
-        if (StringUtils.isEmpty(accountBookId1)){
-            return new ResultBean(ApiResultType.SERVER_ERROR,"去检查accountBookId");
+        if (StringUtils.isEmpty(accountBookId1)) {
+            return new ResultBean(ApiResultType.SERVER_ERROR, "去检查accountBookId");
         }
         Integer accountBookId = accountBookRestService.getAccountNumber(accountBookId1);
-        if (accountBookId != null ){
-            if (accountBookId<5){
-                return new ResultBean(ApiResultType.OK,"true");
-            }else {
-                return new ResultBean(ApiResultType.OK,"false");
+        if (accountBookId != null) {
+            if (accountBookId < 5) {
+                return new ResultBean(ApiResultType.OK, "true");
+            } else {
+                return new ResultBean(ApiResultType.OK, "false");
             }
-        }else {
-            return new ResultBean(ApiResultType.SERVER_ERROR,"此账本id查不到记录");
+        } else {
+            return new ResultBean(ApiResultType.SERVER_ERROR, "此账本id查不到记录");
         }
 
     }

@@ -3,6 +3,9 @@ SET
 	   <#if budget.budgetMoney ?exists>
 		   budget_money = :budget.budgetMoney,
 		</#if>
+		<#if budget.time ?exists>
+		   time = :budget.time,
+		</#if>
 	   <#if budget.fixedLargeExpenditure ?exists>
 		   fixed_large_expenditure = :budget.fixedLargeExpenditure,
 		</#if>

@@ -33,9 +33,8 @@ public interface AccountBookRestServiceI extends CommonService{
 
     /**
      * 删除账本
-     * @param abId
      */
-    void deleteAB(Integer abId,String userInfoId);
+    void deleteAB(String type,Map<String, String> map,String userInfoId);
 
     /**
      * 创建账本

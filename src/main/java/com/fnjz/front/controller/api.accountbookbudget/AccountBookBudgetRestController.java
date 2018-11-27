@@ -132,6 +132,8 @@ public class AccountBookBudgetRestController extends BaseController {
                     return new ResultBean(ApiResultType.TIME_IS_ERROR, null);
                 }
             }
+            //格式化日期
+            budget.setTime(DateUtils.checkYearMonth(budget.getTime()));
             //判断是否存在预算
             budgetResult = accountBookBudgetRestService.getLatelyBudget(budget.getTime(), budget.getAccountBookId());
         }else{
