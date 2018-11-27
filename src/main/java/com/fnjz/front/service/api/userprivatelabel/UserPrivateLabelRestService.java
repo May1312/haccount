@@ -1,6 +1,7 @@
 package com.fnjz.front.service.api.userprivatelabel;
 
 import com.alibaba.fastjson.JSONObject;
+import org.jeecgframework.core.common.service.CommonService;
 
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,7 @@ import java.util.Map;
 /**
  * Created by yhang on 2018/11/7.
  */
-public interface UserPrivateLabelRestService {
+public interface UserPrivateLabelRestService extends CommonService {
     /**
      * 根据账本id获取记账标签
      * @param integer

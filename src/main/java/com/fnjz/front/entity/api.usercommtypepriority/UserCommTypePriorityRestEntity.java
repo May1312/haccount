@@ -44,6 +44,7 @@ public class UserCommTypePriorityRestEntity implements java.io.Serializable {
 	private java.util.Date createDate;
 	/**类目优先级关系*/
 	private java.lang.String relation;
+	//private java.lang.String relationOld;
 	/**更新时间*/
 	private java.util.Date updateDate;
 	/**账本id*/
@@ -135,6 +136,17 @@ public class UserCommTypePriorityRestEntity implements java.io.Serializable {
 	public void setRelation(java.lang.String relation){
 		this.relation = relation;
 	}
+
+
+	/*@Column(name ="RELATION_OLD",nullable=true)
+	public String getRelationOld() {
+		return relationOld;
+	}
+
+	public void setRelationOld(String relationOld) {
+		this.relationOld = relationOld;
+	}*/
+
 	/**
 	 *方法: 取得java.util.Date
 	 *@return: java.util.Date  更新时间
