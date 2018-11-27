@@ -164,6 +164,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 if (account.get("spend")!=null) {
                     ja.put("sceneSpend", account.get("spend"));
                 }
+            }else{
+                account2 = warterOrderRestDao.getAccount(first.toString(), end.toString(), abId+"");
             }
         } else {
             //读取总账本
