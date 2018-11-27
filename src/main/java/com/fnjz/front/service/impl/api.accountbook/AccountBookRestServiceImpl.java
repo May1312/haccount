@@ -306,6 +306,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                         userAccountBookRestEntity.setUserType(1);
                         userAccountBookRestEntity.setCreateDate(new Date());
                         userAccountBookRestEntity.setBindFlag(1);
+                        userAccountBookRestEntity.setDelflag(0);
                         Serializable save = this.save(userAccountBookRestEntity);
                         Integer integer = (Integer) save;
                         if ((Integer) save > 0) {
