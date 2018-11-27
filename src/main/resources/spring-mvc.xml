@@ -248,6 +248,7 @@
                         <value>/rest/api/v1/wxUnionidIsExist/</value>
                         <value>/rest/api/v1/completeMobile/</value>
                         <value>/rest/api/v1/getMobileVerifycode/</value>
+                        <value>/rest/api/v1/updateRelationData/</value>
                     </list>
                 </property>
             </bean>

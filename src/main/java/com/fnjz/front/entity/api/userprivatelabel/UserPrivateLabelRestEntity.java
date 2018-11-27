@@ -165,6 +165,7 @@ public class UserPrivateLabelRestEntity implements java.io.Serializable {
         this.typeName = typeName;
     }
 
+    @Column(name ="AB_TYPE_LABEL_ID")
     public Integer getAbTypeLabelId() {
         return abTypeLabelId;
     }
@@ -173,6 +174,7 @@ public class UserPrivateLabelRestEntity implements java.io.Serializable {
         this.abTypeLabelId = abTypeLabelId;
     }
 
+    @Column(name ="AB_TYPE_ID")
     public Integer getAbTypeId() {
         return abTypeId;
     }
