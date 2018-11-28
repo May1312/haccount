@@ -9,6 +9,7 @@ import com.fnjz.front.entity.api.userassets.UserAssetsRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userassets.UserAssetsRestServiceI;
 import com.fnjz.front.utils.RedisTemplateUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -96,9 +97,13 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
      */
     @Override
     public void updateInitDate(String userInfoId, Map<String, Object> map) {
-        Instant instant = Instant.ofEpochMilli(Long.valueOf(map.get("initDate")+""));
-        ZoneId zone = ZoneId.systemDefault();
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zone);
-        userAssetsRestDao.updateInitDate(localDateTime.toLocalDate().toString(),userInfoId);
+        if(StringUtils.contains(map.get("initDate")+"","-")){
+            userAssetsRestDao.updateInitDate(map.get("initDate")+"",userInfoId);
+        }else{
+            Instant instant = Instant.ofEpochMilli(Long.valueOf(map.get("initDate")+""));
+            ZoneId zone = ZoneId.systemDefault();
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zone);
+            userAssetsRestDao.updateInitDate(localDateTime.toLocalDate().toString(),userInfoId);
+        }
     }
 }
