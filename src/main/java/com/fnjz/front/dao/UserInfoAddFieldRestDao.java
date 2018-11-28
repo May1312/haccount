@@ -1,6 +1,5 @@
 package com.fnjz.front.dao;
 
-import org.apache.ibatis.annotations.Select;
 import org.jeecgframework.minidao.annotation.MiniDao;
 import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.Sql;
@@ -17,7 +16,7 @@ public interface UserInfoAddFieldRestDao {
      * @param userInfoId
      * @return
      */
-    @Select("select open_id from hbird_user_info_add_field where user_info_in=:userInfoId;")
+    @Sql("select open_id from hbird_user_info_add_field where user_info_in=:userInfoId;")
     String getByUserInfoId(@Param("userInfoId") String userInfoId);
 
     @Sql("insert into hbird_user_info_add_field (user_info_id,open_id,type,create_date) values (:userInfoId,:openId,1,now());")
