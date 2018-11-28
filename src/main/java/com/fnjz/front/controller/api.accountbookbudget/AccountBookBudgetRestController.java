@@ -136,7 +136,7 @@ public class AccountBookBudgetRestController extends BaseController {
             budget.setTime(DateUtils.checkYearMonth(budget.getTime()));
             //判断是否存在预算
             budgetResult = accountBookBudgetRestService.getLatelyBudget(budget.getTime(), budget.getAccountBookId());
-        }else{
+        } else {
             budgetResult = accountBookBudgetRestService.getLatelyBudgetv2(budget.getAccountBookId());
         }
         //校验金额
@@ -156,7 +156,7 @@ public class AccountBookBudgetRestController extends BaseController {
                 new Thread() {
                     public void run() {
                         BigDecimal prebudgetMoney = budgetResult.getBudgetMoney();
-                        accountBookBudgetRestService.reviseBudgetNotification(Integer.parseInt(userInfoId),budget,prebudgetMoney);
+                        accountBookBudgetRestService.reviseBudgetNotification(Integer.parseInt(userInfoId), budget, prebudgetMoney);
                     }
                 }.start();
 
@@ -253,7 +253,7 @@ public class AccountBookBudgetRestController extends BaseController {
                             budgetResult.setBudgetMoney(null);
                         }
                     }
-                    if(budgetResult!=null){
+                    if (budgetResult != null) {
                         jsonObject.put("accountBookId", budgetResult.getAccountBookId());
                         jsonObject.put("budgetMoney", budgetResult.getBudgetMoney());
                         jsonObject.put("time", budgetResult.getTime());
@@ -270,7 +270,7 @@ public class AccountBookBudgetRestController extends BaseController {
                         }
                     }
                 }
-                if(budgetResult!=null){
+                if (budgetResult != null) {
                     jsonObject.put("accountBookId", budgetResult.getAccountBookId());
                     jsonObject.put("budgetMoney", budgetResult.getBudgetMoney());
                     jsonObject.put("beginTime", budgetResult.getBeginTime());
@@ -378,7 +378,7 @@ public class AccountBookBudgetRestController extends BaseController {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
-            JSONObject list = accountBookBudgetRestService.getSavingEfficiencyv2(userInfoId,jsonObject.getString("month"), jsonObject.getString("range"));
+            JSONObject list = accountBookBudgetRestService.getSavingEfficiencyv2(userInfoId, jsonObject.getString("month"), jsonObject.getString("range"));
             return new ResultBean(ApiResultType.OK, list);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -467,6 +467,7 @@ public class AccountBookBudgetRestController extends BaseController {
     /**
      * v2版
      * 获取预算完成率接口  Budget completion rate
+     *
      * @param type
      * @param request
      * @param month
@@ -486,21 +487,24 @@ public class AccountBookBudgetRestController extends BaseController {
             //查询当前账本类型  1:普通日常账本 2:场景账本(即需设置预算起始时间)
             int status = accountBookBudgetRestService.getABTypeByABId(abId);
             JSONArray jsonArray = new JSONArray();
-            if(status==1){
-                jsonArray = accountBookBudgetRestService.getBudgetCompletionRatev2(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"));
+            if (status == 1) {
+                jsonArray = accountBookBudgetRestService.getBudgetCompletionRatev2(userInfoId, abId, jsonObject.getString("month"), jsonObject.getString("range"));
                 return new ResultBean(ApiResultType.OK, jsonArray);
-            }else{
+            } else {
                 //场景账本  查看是否设置预算及起止时间
                 SceneABBudgetRestDTO sceneABBudget = accountBookBudgetRestService.getSceneABBudget(abId);
-                if(sceneABBudget!=null){
-                    if(sceneABBudget.getBudgetMoney()!=null && sceneABBudget.getBeginTime()!=null && sceneABBudget.getEndTime()!=null){
-                        Map<String,Object> map = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId,abId,sceneABBudget);
-                        return new ResultBean(ApiResultType.OK,map);
-                    }else{
-                        return new ResultBean(ApiResultType.OK,jsonArray);
+                if (sceneABBudget != null) {
+                    if (sceneABBudget.getBudgetMoney().intValue() == -1) {
+                        sceneABBudget.setBudgetMoney(null);
                     }
-                }else{
-                    return new ResultBean(ApiResultType.OK,jsonArray);
+                    if (sceneABBudget.getBudgetMoney() != null && sceneABBudget.getBeginTime() != null && sceneABBudget.getEndTime() != null) {
+                        Map<String, Object> map = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId, abId, sceneABBudget);
+                        return new ResultBean(ApiResultType.OK, map);
+                    } else {
+                        return new ResultBean(ApiResultType.OK, jsonArray);
+                    }
+                } else {
+                    return new ResultBean(ApiResultType.OK, jsonArray);
                 }
             }
         } catch (Exception e) {
@@ -553,21 +557,21 @@ public class AccountBookBudgetRestController extends BaseController {
             JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
             //查询当前账本类型  1:普通日常账本 2:场景账本(即需设置预算起始时间)
             int status = accountBookBudgetRestService.getABTypeByABId(abId);
-            if(status==1){
-                Map<String,Object> all = accountBookBudgetRestService.getStatisticAnalysisv2(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"));
+            if (status == 1) {
+                Map<String, Object> all = accountBookBudgetRestService.getStatisticAnalysisv2(userInfoId, abId, jsonObject.getString("month"), jsonObject.getString("range"));
                 return new ResultBean(ApiResultType.OK, all);
-            }else{
+            } else {
                 //场景账本  查看是否设置预算及起止时间
                 SceneABBudgetRestDTO sceneABBudget = accountBookBudgetRestService.getSceneABBudget(abId);
-                if(sceneABBudget.getBudgetMoney()!=null && sceneABBudget.getBeginTime()!=null && sceneABBudget.getEndTime()!=null){
-                    Map<String,Object> all = accountBookBudgetRestService.getStatisticAnalysisv2ForScene(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"),sceneABBudget);
-                    return new ResultBean(ApiResultType.OK,all);
-                }else{
-                    Map<String,Object> all = accountBookBudgetRestService.getStatisticAnalysisv2ForNoScene(userInfoId,abId, jsonObject.getString("month"), jsonObject.getString("range"),sceneABBudget);
-                    return new ResultBean(ApiResultType.OK,all);
+                if (sceneABBudget.getBudgetMoney() != null && sceneABBudget.getBeginTime() != null && sceneABBudget.getEndTime() != null) {
+                    Map<String, Object> all = accountBookBudgetRestService.getStatisticAnalysisv2ForScene(userInfoId, abId, jsonObject.getString("month"), jsonObject.getString("range"), sceneABBudget);
+                    return new ResultBean(ApiResultType.OK, all);
+                } else {
+                    Map<String, Object> all = accountBookBudgetRestService.getStatisticAnalysisv2ForNoScene(userInfoId, abId, jsonObject.getString("month"), jsonObject.getString("range"), sceneABBudget);
+                    return new ResultBean(ApiResultType.OK, all);
                 }
             }
-           // return new ResultBean(ApiResultType.OK, null);
+            // return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -688,9 +692,9 @@ public class AccountBookBudgetRestController extends BaseController {
             JSONObject jsonObject = (JSONObject) resultBean.getResult();
             //todo   此sql重复调用了  待优化
             int status = accountBookBudgetRestService.getABTypeByABId(abId);
-            if(status==2){
+            if (status == 2) {
                 return CommonUtils.returnIndex(jsonObject, new JSONObject());
-            }else {
+            } else {
                 //记账天数加载
                 ResultBean countByYearMonth = getCountByYearMonth(request, time, abId);
                 return CommonUtils.returnIndex(jsonObject, (JSONObject) countByYearMonth.getResult());
@@ -758,7 +762,7 @@ public class AccountBookBudgetRestController extends BaseController {
     @RequestMapping(value = "/getbudgetcompletionratev2", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean getbudgetcompletionratev2(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range, @RequestParam(value = "abId", required = false) Integer abId) {
-        return this.getbudgetcompletionratev2(null, request, month, range,abId);
+        return this.getbudgetcompletionratev2(null, request, month, range, abId);
     }
 
     @RequestMapping(value = "/getstatisticanalysis", method = RequestMethod.GET)
@@ -770,7 +774,7 @@ public class AccountBookBudgetRestController extends BaseController {
     @RequestMapping(value = "/getStatisticAnalysisv2", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean getStatisticAnalysisv2(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range, @RequestParam(value = "abId", required = false) Integer abId) {
-        return this.getStatisticAnalysisv2(null, request, month, range,abId);
+        return this.getStatisticAnalysisv2(null, request, month, range, abId);
     }
 
     @RequestMapping(value = "/getcountbyyearmonth", method = RequestMethod.GET)
@@ -799,7 +803,7 @@ public class AccountBookBudgetRestController extends BaseController {
 
     @RequestMapping(value = "/setFixedSpend", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean setFixedSpend(HttpServletRequest request,@RequestBody AccountBookBudgetRestEntity budget) {
-        return this.setFixedSpend(null,budget,request);
+    public ResultBean setFixedSpend(HttpServletRequest request, @RequestBody AccountBookBudgetRestEntity budget) {
+        return this.setFixedSpend(null, budget, request);
     }
 }

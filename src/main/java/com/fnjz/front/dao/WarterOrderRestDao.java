@@ -460,7 +460,7 @@ public interface WarterOrderRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT count(*) FROM ( SELECT id FROM hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id WHERE update_by = :userInfoId AND charge_date BETWEEN :begin and :end AND base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id GROUP BY charge_date ) AS base1;")
+    @Sql("SELECT count(*) FROM ( SELECT base1.id FROM hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id WHERE update_by = :userInfoId AND charge_date BETWEEN :begin and :end AND base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id GROUP BY charge_date ) AS base1;")
     Integer countChargeDaysByChargeDaysv2(@Param("begin") String begin,@Param("end") String end,@Param("userInfoId") String userInfoId);
 
     /**

@@ -16,6 +16,8 @@ import com.fnjz.front.service.api.accountbook.AccountBookRestServiceI;
 import com.fnjz.front.service.api.message.MessageServiceI;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import com.fnjz.front.service.api.userprivatelabel.UserPrivateLabelRestService;
+import com.fnjz.front.utils.RedisTemplateUtils;
+import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,9 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
 
     @Autowired
     private OfflineSynchronizedRestDao offlineSynchronizedRestDao;
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     @Override
     public JSONArray checkABMembers(String userInfoId) {
@@ -153,6 +158,8 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                     offlineSynchronizedRestDao.insert(map.get("mobileDevice"), userInfoId);
                 }
             }
+            //记账总笔数置为0
+            redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT+ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)),"chargeTotal",0);
         }
     }
 

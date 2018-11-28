@@ -1,5 +1,6 @@
 package com.fnjz.front.service.impl.api.offlineSynchronized;
 
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.OfflineSynchronizedRestDao;
 import com.fnjz.front.dao.UserAccountBookRestDao;
 import com.fnjz.front.dao.UserPrivateLabelRestDao;
@@ -13,6 +14,7 @@ import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
 import com.fnjz.front.utils.CreateTokenUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.junit.Test;
@@ -43,6 +45,9 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
 
     @Autowired
     private UserAccountBookRestDao userAccountBookRestDao;
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     /**
      * 获取最新同步时间
@@ -144,12 +149,13 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
         offlineSynchronizedRestDao.insert(mobileDevice, userInfoId);
         if (list != null) {
             if (list.size() > 0) {
+                String shareCode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
                 //list排序  正序
                 list.sort(Comparator.naturalOrder());
                 if (list.get(list.size() - 1).getCreateDate() != null) {
                     if (LocalDateTime.ofInstant(list.get(list.size() - 1).getCreateDate().toInstant(), ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now())) {
                         //引入当日任务
-                        createTokenUtils.integralTask(userInfoId, ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+                        createTokenUtils.integralTask(userInfoId, shareCode, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
                     }
                 }
                 for (WarterOrderRestNewLabel warter : list) {
@@ -159,6 +165,8 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 }
                 //修改账本更新时间
                 createTokenUtils.updateABtime(list.get(0).getAccountBookId());
+                //记账总笔数置为0
+                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT+shareCode,"chargeTotal",0);
             }
         }
     }

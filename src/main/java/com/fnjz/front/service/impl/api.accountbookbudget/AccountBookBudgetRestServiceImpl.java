@@ -106,7 +106,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @date: 2018/11/16 17:41
      */
     @Override
-    public void reviseBudgetNotification(Integer userInfoId, AccountBookBudgetRestEntity budget,BigDecimal preBudgetMoney) {
+    public void reviseBudgetNotification(Integer userInfoId, AccountBookBudgetRestEntity budget, BigDecimal preBudgetMoney) {
         int totalMember = accountBookRestDao.getTotalMember(budget.getAccountBookId() + "");
         if (totalMember > 1) {
             //修改账本名称
@@ -403,46 +403,46 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     }
 
     @Override
-    public Map<String,Object> getStatisticAnalysisv2(String userInfoId,Integer abId, String month, String range) {
+    public Map<String, Object> getStatisticAnalysisv2(String userInfoId, Integer abId, String month, String range) {
         //TODO 三条sql是不是可以优化
         //存钱效率
         JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range);
         //消费结构比
         List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month);
         //预算完成率  日常账本
-        JSONArray budgetCompletionRate = getBudgetCompletionRatev2(userInfoId,abId, month, range);
-        Map<String,Object> map = new HashMap<>();
-        map.put("listSavingEfficiency",savingEfficiency);
-        map.put("listConsumptionStructureRatio",consumptionStructureRatio);
-        map.put("listBudgetCompletionRate",budgetCompletionRate);
+        JSONArray budgetCompletionRate = getBudgetCompletionRatev2(userInfoId, abId, month, range);
+        Map<String, Object> map = new HashMap<>();
+        map.put("listSavingEfficiency", savingEfficiency);
+        map.put("listConsumptionStructureRatio", consumptionStructureRatio);
+        map.put("listBudgetCompletionRate", budgetCompletionRate);
         return map;
     }
 
     @Override
-    public Map<String, Object> getStatisticAnalysisv2ForScene(String userInfoId, Integer abId, String month, String range,SceneABBudgetRestDTO sceneABBudget) {
+    public Map<String, Object> getStatisticAnalysisv2ForScene(String userInfoId, Integer abId, String month, String range, SceneABBudgetRestDTO sceneABBudget) {
         //存钱效率
         JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range);
         //消费结构比
         List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month);
         //预算完成率  场景账本
         Map<String, Object> budgetCompletionRatev2ForScene = getBudgetCompletionRatev2ForScene(userInfoId, abId, sceneABBudget);
-        Map<String,Object> map = new HashMap<>();
-        map.put("listSavingEfficiency",savingEfficiency);
-        map.put("listConsumptionStructureRatio",consumptionStructureRatio);
-        map.put("listBudgetCompletionRate",budgetCompletionRatev2ForScene);
+        Map<String, Object> map = new HashMap<>();
+        map.put("listSavingEfficiency", savingEfficiency);
+        map.put("listConsumptionStructureRatio", consumptionStructureRatio);
+        map.put("listBudgetCompletionRate", budgetCompletionRatev2ForScene);
         return map;
     }
 
     @Override
-    public Map<String, Object> getStatisticAnalysisv2ForNoScene(String userInfoId, Integer abId, String month, String range,SceneABBudgetRestDTO sceneABBudget) {
+    public Map<String, Object> getStatisticAnalysisv2ForNoScene(String userInfoId, Integer abId, String month, String range, SceneABBudgetRestDTO sceneABBudget) {
         //存钱效率
         JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range);
         //消费结构比
         List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month);
-        Map<String,Object> map = new HashMap<>();
-        map.put("listSavingEfficiency",savingEfficiency);
-        map.put("listConsumptionStructureRatio",consumptionStructureRatio);
-        map.put("listBudgetCompletionRate",new Map[0]);
+        Map<String, Object> map = new HashMap<>();
+        map.put("listSavingEfficiency", savingEfficiency);
+        map.put("listConsumptionStructureRatio", consumptionStructureRatio);
+        map.put("listBudgetCompletionRate", new Map[0]);
         return map;
     }
 
@@ -590,7 +590,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         if (fixedSpend == null) {
             return null;
         }
-        if(!((fixedSpend.getFixedLargeExpenditure()!=null && fixedSpend.getFixedLargeExpenditure().intValue()!=-1) || (fixedSpend.getFixedLifeExpenditure()!=null && fixedSpend.getFixedLifeExpenditure().intValue()!=-1))){
+        if (!((fixedSpend.getFixedLargeExpenditure() != null && fixedSpend.getFixedLargeExpenditure().intValue() != -1) || (fixedSpend.getFixedLifeExpenditure() != null && fixedSpend.getFixedLifeExpenditure().intValue() != -1))) {
             return null;
         }
         LocalDate localDate = LocalDate.of(LocalDate.now().getYear(), Integer.valueOf(month), 1);
@@ -699,7 +699,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @return
      */
     @Override
-    public Map<String,Object> getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, SceneABBudgetRestDTO budget) {
+    public Map<String, Object> getBudgetCompletionRatev2ForScene(String userInfoId, Integer abId, SceneABBudgetRestDTO budget) {
         //按照3周21天 3周~5个月按照每周  5个月~24个月按照月 24个月以上按照年
         if (budget.getSceneType() == null) {
             Integer setSceneType = setSceneType(budget.getBeginTime(), budget.getEndTime());
@@ -709,30 +709,30 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         //根据统计类型 执行不同sql
         if (StringUtils.equals(budget.getSceneType() + "", StatisticsEnum.STATISTICS_FOR_DAY.getIndex())) {
             //日统计
-            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneDays(abId,LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(),LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneDays(abId, LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(), LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
 
         } else if (StringUtils.equals(budget.getSceneType() + "", StatisticsEnum.STATISTICS_FOR_WEEK.getIndex())) {
             //统计周
-            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneWeeks(abId,LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(),LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneWeeks(abId, LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(), LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
         } else if (StringUtils.equals(budget.getSceneType() + "", StatisticsEnum.STATISTICS_FOR_MONTH.getIndex())) {
             //统计月
-            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneMonths(abId,LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(),LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneMonths(abId, LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(), LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
         } else {
             //统计年
-            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneYears(abId,LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(),LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
+            list = accountBookBudgetRestDao.getBudgetCompletionRatev2ForSceneYears(abId, LocalDateTime.ofInstant(budget.getBeginTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString(), LocalDateTime.ofInstant(budget.getEndTime().toInstant(), ZoneId.systemDefault()).toLocalDate().toString());
         }
         //数据累加
         list = sumSpend(list);
-        Map<String,Object> jsonObject = new HashMap<>();
-        jsonObject.put("arrays",list);
-        jsonObject.put("sceneBudget",budget);
+        Map<String, Object> jsonObject = new HashMap<>();
+        jsonObject.put("arrays", list);
+        jsonObject.put("sceneBudget", budget);
         return jsonObject;
     }
 
-    private List<SceneBaseDTO> sumSpend(List<SceneBaseDTO> list){
-        for(int i = 1; i<list.size();i++){
+    private List<SceneBaseDTO> sumSpend(List<SceneBaseDTO> list) {
+        for (int i = 1; i < list.size(); i++) {
             //第二位元素追加前一位数据
-            list.get(i).setMoney(list.get(i).getMoney().add(list.get(i-1).getMoney()));
+            list.get(i).setMoney(list.get(i).getMoney().add(list.get(i - 1).getMoney()));
         }
         return list;
     }
