@@ -146,28 +146,6 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 if ((Integer.valueOf(map.get("signInDays") + "") + 1) % 29 == 0) {
                     //达到周期上限
                     map.put("signInDays", 1);
-                    //重新置灰周期内奖励
-                    //获取自己的签到领取情况
-                    Map<String, Integer> map2 = redisTemplateUtils.getForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode);
-                    //重新置为3
-                    if(map2!=null){
-                        if(map2.size()>0){
-                            if(map2.get("signIn_" + IntegralEnum.SIGNIN_7.getIndex())!=null){
-                                map2.put("signIn_" + IntegralEnum.SIGNIN_7.getIndex(),3);
-                            }
-                            if(map2.get("signIn_" + IntegralEnum.SIGNIN_14.getIndex())!=null){
-                                map2.put("signIn_" + IntegralEnum.SIGNIN_14.getIndex(),3);
-                            }
-                            if(map2.get("signIn_" + IntegralEnum.SIGNIN_21.getIndex())!=null){
-                                map2.put("signIn_" + IntegralEnum.SIGNIN_21.getIndex(),3);
-                            }
-                            if(map2.get("signIn_" + IntegralEnum.SIGNIN_28.getIndex())!=null){
-                                map2.put("signIn_" + IntegralEnum.SIGNIN_28.getIndex(),3);
-                            }
-                            //重置缓存
-                            redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, map2, RedisPrefix.VALID_TIME_28);
-                        }
-                    }
                 } else {
                     map.put("signInDays", (Integer.valueOf(map.get("signInDays") + "") + 1));
                 }
@@ -179,6 +157,31 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             } else {
                 //已签到情况下
                 map.put("hasSigned", true);
+            }
+            //只要连签日期为1情况下  重置周期奖励情况
+            if(StringUtils.equals(map.get("signInDays")+"","1")){
+                //重新置灰周期内奖励
+                //获取自己的签到领取情况
+                Map<String, Integer> map2 = redisTemplateUtils.getForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode);
+                //重新置为3
+                if(map2!=null){
+                    if(map2.size()>0){
+                        if(map2.get("signIn_" + IntegralEnum.SIGNIN_7.getIndex())!=null){
+                            map2.put("signIn_" + IntegralEnum.SIGNIN_7.getIndex(),3);
+                        }
+                        if(map2.get("signIn_" + IntegralEnum.SIGNIN_14.getIndex())!=null){
+                            map2.put("signIn_" + IntegralEnum.SIGNIN_14.getIndex(),3);
+                        }
+                        if(map2.get("signIn_" + IntegralEnum.SIGNIN_21.getIndex())!=null){
+                            map2.put("signIn_" + IntegralEnum.SIGNIN_21.getIndex(),3);
+                        }
+                        if(map2.get("signIn_" + IntegralEnum.SIGNIN_28.getIndex())!=null){
+                            map2.put("signIn_" + IntegralEnum.SIGNIN_28.getIndex(),3);
+                        }
+                        //重置缓存
+                        redisTemplateUtils.updateForHash(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, map2, RedisPrefix.VALID_TIME_28);
+                    }
+                }
             }
             return map;
         } else {
