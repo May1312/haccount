@@ -8,7 +8,6 @@ import com.fnjz.front.dao.AccountBookRestDao;
 import com.fnjz.front.dao.FengFengTicketRestDao;
 import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
-import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
@@ -63,8 +62,8 @@ public class CreateTokenUtils {
 
         //离线增加返回 userinfoid  accountbookid
         map.put("userInfoId", task.getUserInfoId() + "");
-        UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(task.getUserInfoId(), shareCode);
-        map.put("accountBookId", userAccountBookRestEntityCache.getAccountBookId() + "");
+        //UserAccountBookRestEntity userAccountBookRestEntityCache = redisTemplateUtils.getUserAccountBookRestEntityCache(task.getUserInfoId(), shareCode);
+        //map.put("accountBookId", userAccountBookRestEntityCache.getAccountBookId() + "");
         return new ResultBean(ApiResultType.OK, map);
     }
 

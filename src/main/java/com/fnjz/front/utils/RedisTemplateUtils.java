@@ -463,5 +463,14 @@ public class RedisTemplateUtils {
     public long getSetSize(String wxappletChannel,String keyName) {
         return redisTemplate.opsForSet().size(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + "_" + wxappletChannel + ":" + keyName);
     }
+
+    /**
+     * 获取剩余缓存时间
+     * @param prefix
+     * @return
+     */
+    public long getExpire(String prefix) {
+        return redisTemplate.getExpire(prefix);
+    }
 }
 

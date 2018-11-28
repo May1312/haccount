@@ -58,6 +58,13 @@ public class WeChatUtils {
         return jsonObject_user_info;
     }
 
+    public static String getRefreshToken(String accessToken){
+        //刷新refresh_token  生效时间7100s
+        String hur2 = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + AppId + "&grant_type=refresh_token&refresh_token=" + accessToken;
+        JSONObject refreshToken = http(hur2);
+        return refreshToken.getString("access_token");
+    }
+
     public static JSONObject http(String hurl) {
         try {
             URL url = new URL(hurl);
@@ -100,6 +107,6 @@ public class WeChatUtils {
 
     @Test
     public void run() {
-        getUser("023o6EiE1Izze10y6TjE1BbDiE1o6Eii");
+        getUser("011poj2m0yBCpk1kzd4m0taD2m0poj28");
     }
 }
