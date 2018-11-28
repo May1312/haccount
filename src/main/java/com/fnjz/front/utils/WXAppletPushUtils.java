@@ -11,6 +11,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,7 +38,17 @@ public class WXAppletPushUtils {
     public void wxappletPush(String templateId,String openId){
         //获取accessToken
         String accessToken = this.checkAccessToken();
-        sendPostMessage(accessToken,"omJ3M0RZ02W7zohlwxzeROBJOd2E","GM-VzmyHmQtfHh4_YOWFDDJjnySksazVGVbDfcSel-k","","","","");
+        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject1 = new JSONObject();
+        jsonObject1.put("value","测试服务通知");
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("value",LocalDateTime.now().toString());
+        JSONObject jsonObject3 = new JSONObject();
+        jsonObject3.put("value","此事必有蹊跷");
+        jsonObject.put("keyword1",jsonObject1);
+        jsonObject.put("keyword2",jsonObject2);
+        jsonObject.put("keyword3",jsonObject3);
+        sendPostMessage(accessToken,"omJ3M0RZ02W7zohlwxzeROBJOd2E","GM-VzmyHmQtfHh4_YOWFDDJjnySksazVGVbDfcSel-k","","",jsonObject.toString(),"");
     }
 
     /**

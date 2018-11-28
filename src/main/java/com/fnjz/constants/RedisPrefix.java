@@ -170,4 +170,9 @@ public class RedisPrefix {
      * 小程序活动统计
      */
     public static final String PREFIX_WXAPPLET_ACTIVITY = "wxapplet_activity_statistics";
+
+    /**
+     * 小程序服务推送  formid前缀
+     */
+    public static final String PREFIX_WXAPPLET_PUSH = "wxapplet_openid_formid:";
 }
