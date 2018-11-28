@@ -212,11 +212,11 @@ public class ShareCodeUtil {
 
     @Test
     public void  main(){
-        String str2 = id2sharecode(3433);
+        String str2 = id2sharecode(198);
         System.out.println(str2);
         int str3 = sharecode2id("99977630");
         System.out.println(str3);
-        int str4 = sharecode2id("99993433");
+        int str4 = sharecode2id("99993459");
         System.out.println(str4);
     }
 
