@@ -353,7 +353,7 @@ public interface WarterOrderRestDao {
      * @param orderType
      * @return
      */
-    @Sql("select sum(money) as money,charge_date as time from hbird_water_order where update_by= :userInfoId AND charge_date between :beginTime AND :endTime and order_type = :orderType and delflag = 0 group by charge_date order by charge_date;")
+    @Sql("select sum(money) as money,charge_date as time from hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id where update_by= :userInfoId AND charge_date between :beginTime AND :endTime and order_type = :orderType and base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id group by charge_date order by charge_date;")
     List<StatisticsDaysRestDTO> statisticsForDaysv2(@Param("beginTime") Date beginTime,@Param("endTime") Date endTime,@Param("userInfoId") String userInfoId,@Param("orderType") int orderType);
 
     /**
@@ -371,7 +371,7 @@ public interface WarterOrderRestDao {
      * @param orderType
      * @return
      */
-    @Sql("SELECT sum(wo.money) AS money, DATE_FORMAT( wo.charge_date, '%u' ) AS WEEK, DATE_FORMAT( wo.charge_date, '%Y-%u' ) AS yearweek FROM hbird_water_order AS wo WHERE wo.update_by = :userInfoId AND wo.charge_date between :beginTime and :endTime AND wo.order_type = :orderType AND wo.delflag = 0 GROUP BY yearweek ORDER BY yearweek;")
+    @Sql("SELECT sum(wo.money) AS money, DATE_FORMAT( wo.charge_date, '%u' ) AS WEEK, DATE_FORMAT( wo.charge_date, '%Y-%u' ) AS yearweek FROM hbird_water_order AS wo LEFT JOIN hbird_user_account_book AS base2 ON wo.update_by = base2.user_info_id WHERE wo.update_by = :userInfoId AND wo.charge_date between :beginTime and :endTime AND wo.order_type = :orderType AND wo.delflag = 0 AND base2.delflag = 0 AND wo.account_book_id = base2.account_book_id GROUP BY yearweek ORDER BY yearweek;")
     List<StatisticsWeeksRestDTO> statisticsForWeeksv2(@Param("beginTime") String beginTime,@Param("endTime") String endTime,@Param("userInfoId") String userInfoId,@Param("orderType") int orderType);
 
     /**
@@ -389,7 +389,7 @@ public interface WarterOrderRestDao {
      * @param orderType
      * @return
      */
-    @Sql("SELECT sum( money ) AS money,wo.charge_date as time,DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth FROM hbird_water_order AS wo WHERE wo.update_by = :userInfoId AND wo.charge_date between :beginTime and :endTime AND wo.order_type = :orderType AND wo.delflag = 0 GROUP BY yearmonth ORDER BY yearmonth;")
+    @Sql("SELECT sum( money ) AS money,wo.charge_date as time,DATE_FORMAT( wo.charge_date, '%Y-%m' ) AS yearmonth FROM hbird_water_order AS wo LEFT JOIN hbird_user_account_book AS base2 ON wo.update_by = base2.user_info_id WHERE wo.update_by = :userInfoId AND wo.charge_date between :beginTime and :endTime AND wo.order_type = :orderType AND wo.delflag = 0 AND base2.delflag = 0 AND wo.account_book_id = base2.account_book_id GROUP BY yearmonth ORDER BY yearmonth;")
     List<StatisticsDaysRestDTO> statisticsForMonthsv2(@Param("beginTime") String beginTime,@Param("endTime") String endTime,@Param("userInfoId") String userInfoId,@Param("orderType") int orderType);
 
     /**
@@ -407,7 +407,7 @@ public interface WarterOrderRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT sum( money ) AS money, count( money ) AS moneytimes, type_name, spend_happiness, count( spend_happiness ) AS count, icon FROM hbird_water_order WHERE update_by = :userInfoId AND charge_date = :date AND order_type = 1 AND delflag = 0 GROUP BY user_private_label_id, spend_happiness ORDER BY money DESC;")
+    @Sql("SELECT sum( money ) AS money, count( money ) AS moneytimes, type_name, spend_happiness, count( spend_happiness ) AS count, icon FROM hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id WHERE update_by = :userInfoId AND charge_date = :date AND order_type = 1 AND base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id GROUP BY user_private_label_id, spend_happiness ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForDaysByTimev2(@Param("date") String date,@Param("userInfoId") String userInfoId);
 
     /**
@@ -417,7 +417,7 @@ public interface WarterOrderRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT SUM(money ) AS money, COUNT( money ) AS moneytimes, type_name, spend_happiness,COUNT( spend_happiness ) AS count, icon FROM hbird_water_order WHERE update_by = :userInfoId AND charge_date between :beginTime and :endTime AND order_type = 1 AND delflag = 0 GROUP BY user_private_label_id ,spend_happiness ORDER BY money DESC;")
+    @Sql("SELECT SUM(money ) AS money, COUNT( money ) AS moneytimes, type_name, spend_happiness,COUNT( spend_happiness ) AS count, icon FROM hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id WHERE update_by = :userInfoId AND charge_date between :beginTime and :endTime AND order_type = 1 AND base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id GROUP BY user_private_label_id ,spend_happiness ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForWeeksByTimev2(@Param("beginTime") String beginTime,@Param("endTime") String endTime,@Param("userInfoId") String userInfoId);
 
     /**
@@ -425,7 +425,7 @@ public interface WarterOrderRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT SUM( money ) AS money, COUNT( money ) AS moneytimes, type_name, spend_happiness, COUNT( spend_happiness ) AS count, icon FROM hbird_water_order WHERE update_by = :userInfoId AND charge_date BETWEEN :beginTime AND :endTime AND order_type = 1 AND delflag = 0 GROUP BY user_private_label_id, spend_happiness ORDER BY money DESC;")
+    @Sql("SELECT SUM( money ) AS money, COUNT( money ) AS moneytimes, type_name, spend_happiness, COUNT( spend_happiness ) AS count, icon FROM hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id WHERE update_by = :userInfoId AND charge_date BETWEEN :beginTime AND :endTime AND order_type = 1 AND base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id GROUP BY user_private_label_id, spend_happiness ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForMonthsByTimev2(@Param("beginTime") String beginTime,@Param("endTime") String endTime,@Param("userInfoId") String userInfoId);
 
     /**
@@ -434,7 +434,7 @@ public interface WarterOrderRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT sum( money ) AS money, count( money ) AS moneytimes, type_name, icon FROM hbird_water_order WHERE update_by = :userInfoId AND charge_date = :date AND order_type = 2 AND delflag = 0 GROUP BY user_private_label_id ORDER BY money DESC;")
+    @Sql("SELECT sum( money ) AS money, count( money ) AS moneytimes, type_name, icon FROM hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id WHERE update_by = :userInfoId AND charge_date = :date AND order_type = 2 AND base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id GROUP BY user_private_label_id ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForDaysByTimeOfIncomev2(@Param("date") String date,@Param("userInfoId") String userInfoId);
 
     /**
@@ -444,7 +444,7 @@ public interface WarterOrderRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT SUM( money ) AS money, COUNT( money ) AS moneytimes, type_name, icon FROM hbird_water_order WHERE update_by=:userInfoId AND order_type = 2 AND delflag = 0 AND charge_date between :beginTime AND :endTime GROUP BY user_private_label_id ORDER BY money DESC;")
+    @Sql("SELECT SUM( money ) AS money, COUNT( money ) AS moneytimes, type_name, icon FROM hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id WHERE update_by=:userInfoId AND order_type = 2 AND base1.delflag = 0 AND base2.delflag = 0 AND charge_date between :beginTime AND :endTime AND base1.account_book_id = base2.account_book_id GROUP BY user_private_label_id ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForWeeksByTimeOfIncomev2(@Param("beginTime") String beginTime,@Param("endTime") String endTime,@Param("userInfoId") String userInfoId);
 
     /**
@@ -452,7 +452,7 @@ public interface WarterOrderRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT SUM( money ) AS money, COUNT( money ) AS moneytimes, type_name, icon FROM hbird_water_order WHERE update_by = :userInfoId AND charge_date between :beginTime and :endTime AND order_type = 2 AND delflag = 0 GROUP BY user_private_label_id ORDER BY money DESC;")
+    @Sql("SELECT SUM( money ) AS money, COUNT( money ) AS moneytimes, type_name, icon FROM hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id WHERE update_by = :userInfoId AND charge_date between :beginTime and :endTime AND order_type = 2 AND base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id GROUP BY user_private_label_id ORDER BY money DESC;")
     List<Map<String,Object>> statisticsForMonthsByTimeOfIncomev2(@Param("beginTime") String beginTime,@Param("endTime") String endTime,@Param("userInfoId") String userInfoId);
 
     /**
@@ -460,7 +460,7 @@ public interface WarterOrderRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT count(*) FROM ( SELECT id FROM hbird_water_order WHERE update_by = :userInfoId AND charge_date BETWEEN :begin and :end AND delflag = 0 GROUP BY charge_date ) AS base1;")
+    @Sql("SELECT count(*) FROM ( SELECT id FROM hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id WHERE update_by = :userInfoId AND charge_date BETWEEN :begin and :end AND base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id GROUP BY charge_date ) AS base1;")
     Integer countChargeDaysByChargeDaysv2(@Param("begin") String begin,@Param("end") String end,@Param("userInfoId") String userInfoId);
 
     /**
@@ -468,6 +468,6 @@ public interface WarterOrderRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("select count(*) from hbird_water_order where update_by=:userInfoId AND delflag = 0;")
+    @Sql("select count(*) from hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id where update_by=:userInfoId AND base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id;")
     int chargeTotalv2(@Param("userInfoId")String userInfoId);
 }
