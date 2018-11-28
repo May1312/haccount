@@ -35,6 +35,9 @@ public class WXAppletPushController {
     @Autowired
     private UserInfoAddFieldRestService userInfoAddFieldRestService;
 
+    @Autowired
+    private WXAppletPushUtils wxAppletPushUtils;
+
     @RequestMapping(value = "/uploadFormId", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean checkGestureType(HttpServletRequest request, @RequestBody Map<String,String> map) {
@@ -52,7 +55,7 @@ public class WXAppletPushController {
                 //将formid存入redis   以openid为key
                 redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+opendId,map.get("formId"));
                 //发送测试
-                new WXAppletPushUtils().wxappletPush(null,opendId);
+                wxAppletPushUtils.wxappletPush(null,opendId,map.get("formId")+"");
                 return new ResultBean(ApiResultType.OK,null);
             }
         } catch (Exception e) {

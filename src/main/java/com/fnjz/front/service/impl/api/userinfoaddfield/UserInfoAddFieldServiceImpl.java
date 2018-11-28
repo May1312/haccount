@@ -18,10 +18,10 @@ public class UserInfoAddFieldServiceImpl implements UserInfoAddFieldRestService 
     private UserInfoAddFieldRestDao userInfoAddFieldRestDao;
 
     @Override
-    public void checkExists(String userInfoId, String opendId) {
-        String openId = userInfoAddFieldRestDao.getByUserInfoId(userInfoId);
-        if(StringUtils.isEmpty(openId)){
-            userInfoAddFieldRestDao.insert(userInfoId,opendId);
+    public void checkExists(String userInfoId, String openId) {
+        String openId2= userInfoAddFieldRestDao.getByUserInfoId(userInfoId);
+        if(StringUtils.isEmpty(openId2)){
+            userInfoAddFieldRestDao.insert(userInfoId,openId);
         }
     }
 }

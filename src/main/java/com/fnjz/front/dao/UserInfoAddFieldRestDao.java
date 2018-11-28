@@ -20,5 +20,5 @@ public interface UserInfoAddFieldRestDao {
     String getByUserInfoId(@Param("userInfoId") String userInfoId);
 
     @Sql("insert into hbird_user_info_add_field (user_info_id,open_id,type,create_date) values (:userInfoId,:openId,1,now());")
-    void insert(@Param("userInfoId") String userInfoId, @Param("opendId") String opendId);
+    void insert(@Param("userInfoId") String userInfoId, @Param("openId") String openId);
 }
