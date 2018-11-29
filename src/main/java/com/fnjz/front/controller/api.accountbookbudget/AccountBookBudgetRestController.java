@@ -230,10 +230,15 @@ public class AccountBookBudgetRestController extends BaseController {
      */
     @RequestMapping(value = "/getbudgetv2/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getbudgetv2(@PathVariable("type") String type, @RequestParam(required = false) String time, @RequestParam(required = false) Integer abId) {
+    public ResultBean getbudgetv2(@PathVariable("type") String type,HttpServletRequest request, @RequestParam(required = false) String time, @RequestParam(required = false) Integer abId) {
         System.out.println("登录终端：" + type);
         if (abId == null) {
             return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
+        }
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        //判断权限
+        if (!createTokenUtils.checkByABIdAndUserInfoId(abId,userInfoId)) {
+            return new ResultBean(ApiResultType.NOT_ALLOW_VISIT,null);
         }
         try {
             //判断预算是否存在
@@ -693,7 +698,7 @@ public class AccountBookBudgetRestController extends BaseController {
                 return new ResultBean(ApiResultType.TIME_IS_ERROR, null);
             }
             //预算
-            ResultBean resultBean = getbudgetv2(time, abId);
+            ResultBean resultBean = getbudgetv2(request,time, abId);
             JSONObject jsonObject = (JSONObject) resultBean.getResult();
             //todo   此sql重复调用了  待优化
             int status = accountBookBudgetRestService.getABTypeByABId(abId);
@@ -730,8 +735,8 @@ public class AccountBookBudgetRestController extends BaseController {
 
     @RequestMapping(value = "/getbudgetv2", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getbudgetv2(@RequestParam(required = false) String time, @RequestParam(required = false) Integer abId) {
-        return this.getbudgetv2(null, time, abId);
+    public ResultBean getbudgetv2(HttpServletRequest request,@RequestParam(required = false) String time, @RequestParam(required = false) Integer abId) {
+        return this.getbudgetv2(null,request, time, abId);
     }
 
     @RequestMapping(value = "/getsavingefficiency", method = RequestMethod.GET)
