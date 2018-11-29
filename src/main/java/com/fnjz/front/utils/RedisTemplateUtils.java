@@ -1,11 +1,11 @@
 package com.fnjz.front.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
-import com.alibaba.fastjson.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,6 +14,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -462,6 +463,24 @@ public class RedisTemplateUtils {
 
     public long getSetSize(String wxappletChannel,String keyName) {
         return redisTemplate.opsForSet().size(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + "_" + wxappletChannel + ":" + keyName);
+    }
+
+    /**
+     * 获取剩余缓存时间
+     * @param prefix
+     * @return
+     */
+    public long getExpire(String prefix) {
+        return redisTemplate.getExpire(prefix);
+    }
+
+    /**
+     * 模糊匹配获取keys
+     * @param prefix
+     * @return
+     */
+    public Set getKeys(String prefix) {
+        return redisTemplate.keys(prefix+"*");
     }
 }
 

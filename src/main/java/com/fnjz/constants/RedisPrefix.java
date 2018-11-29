@@ -40,6 +40,10 @@ public class RedisPrefix {
      */
     public static final String PREFIX_WXAPPLET_SESSION_KEY = "user_wxapplet_sessionkey:";
     /**
+     * 小程序access token缓存前缀
+     */
+    public static final String PREFIX_WXAPPLET_ACCESS_TOKEN = "wxapplet_access_token";
+    /**
      * 用户-账本关联表前缀
      */
     public static final String PREFIX_USER_ACCOUNT_BOOK = "user_account_book:";
@@ -166,4 +170,9 @@ public class RedisPrefix {
      * 小程序活动统计
      */
     public static final String PREFIX_WXAPPLET_ACTIVITY = "wxapplet_activity_statistics";
+
+    /**
+     * 小程序服务推送  formid前缀
+     */
+    public static final String PREFIX_WXAPPLET_PUSH = "wxapplet_openid_formid:";
 }
