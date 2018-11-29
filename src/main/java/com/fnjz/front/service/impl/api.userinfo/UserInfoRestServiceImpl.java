@@ -324,7 +324,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                         bean.getKeyword4().put("value", inviteUsers + "");
                         //温馨提示
                         bean.getKeyword5().put("value", "愿共同监督，知识永不枯竭。");
-                        wxAppletPushUtils.wxappletPush(WXAppletPushUtils.removeMemberId, openId, formId, bean);
+                        wxAppletPushUtils.wxappletPush(WXAppletPushUtils.inviteFriendId, openId, formId,"pages/mine/index/main", bean);
                         //删除key
                         redisTemplateUtils.deleteKey(key);
                     }

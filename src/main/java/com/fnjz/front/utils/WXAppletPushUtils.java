@@ -40,11 +40,11 @@ public class WXAppletPushUtils {
      * @param templateId
      * @param openId
      */
-    public void wxappletPush(String templateId, String openId, String formId, WXAppletMessageBean bean) {
+    public void wxappletPush(String templateId, String openId, String formId,String page, WXAppletMessageBean bean) {
         //获取accessToken
         String accessToken = this.checkAccessToken();
         //发送消息
-        sendPostMessage(accessToken, openId, templateId, "", formId, bean, "");
+        sendPostMessage(accessToken, openId, templateId, page, formId, bean, "");
     }
 
     /**

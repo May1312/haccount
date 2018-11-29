@@ -13,15 +13,15 @@
 
 
 	<!-- 定时任务配置 scheduler 方式 注解 -->
-	<!--<context:component-scan base-package="org.jeecgframework.core.timer" />
+	<context:component-scan base-package="org.jeecgframework.core.timer" />
 	<task:executor id="executor" pool-size="5" />
 	<task:scheduler id="scheduler" pool-size="10" />
-	<task:annotation-driven executor="executor" scheduler="scheduler" />-->
+	<task:annotation-driven executor="executor" scheduler="scheduler" />
 	<!-- 定时任务调度器 -->
-	<!--<bean id="schedulerFactory" lazy-init="false" autowire="no" class="org.jeecgframework.core.timer.DataBaseSchedulerFactoryBean">
+	<bean id="schedulerFactory" lazy-init="false" autowire="no" class="org.jeecgframework.core.timer.DataBaseSchedulerFactoryBean">
 		<property name="jobFactory" ref="jQuartzJobFactory"></property>  
-	</bean>	-->
+	</bean>
 	<!-- 定时任务业务类  配置loadTask随系统启动，以加载初始启动的定时任务 -->
-	<!--<bean id="dynamicTask" class="org.jeecgframework.core.timer.DynamicTask" init-method="loadTask"/>-->
-	
+	<bean id="dynamicTask" class="org.jeecgframework.core.timer.DynamicTask" init-method="loadTask"/>
+
 </beans>
