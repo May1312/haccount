@@ -6,7 +6,6 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.service.api.userinfoaddfield.UserInfoAddFieldRestService;
 import com.fnjz.front.utils.RedisTemplateUtils;
-import com.fnjz.front.utils.WXAppletPushUtils;
 import com.fnjz.front.utils.WXAppletUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +34,6 @@ public class WXAppletPushController {
     @Autowired
     private UserInfoAddFieldRestService userInfoAddFieldRestService;
 
-    @Autowired
-    private WXAppletPushUtils wxAppletPushUtils;
-
     @RequestMapping(value = "/uploadFormId", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean checkGestureType(HttpServletRequest request, @RequestBody Map<String,String> map) {
@@ -53,9 +49,7 @@ public class WXAppletPushController {
                 //判断是否已绑定openid
                 userInfoAddFieldRestService.checkExists(userInfoId,opendId);
                 //将formid存入redis   以openid为key
-                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+opendId,map.get("formId"));
-                //发送测试
-                wxAppletPushUtils.wxappletPush(null,opendId,map.get("formId")+"");
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+opendId+"_"+System.currentTimeMillis(),map.get("formId"),7L);
                 return new ResultBean(ApiResultType.OK,null);
             }
         } catch (Exception e) {

@@ -3,6 +3,7 @@ package com.fnjz.front.service.impl.api.accountbook;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fnjz.commonbean.WXAppletMessageBean;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.controller.api.message.MessageContentFactory;
 import com.fnjz.front.controller.api.message.MessageType;
@@ -18,6 +19,7 @@ import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import com.fnjz.front.service.api.userprivatelabel.UserPrivateLabelRestService;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
+import com.fnjz.front.utils.WXAppletPushUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service("accountBookRestService")
@@ -57,6 +60,15 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
 
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+
+    @Autowired
+    private WXAppletPushUtils wxAppletPushUtils;
+
+    @Autowired
+    private UserInfoAddFieldRestDao userInfoAddFieldRestDao;
+
+    @Autowired
+    private UserInfoRestDao userInfoRestDao;
 
     @Override
     public JSONArray checkABMembers(String userInfoId) {
@@ -159,7 +171,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                 }
             }
             //记账总笔数置为0
-            redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT+ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)),"chargeTotal",0);
+            redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT + ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), "chargeTotal", 0);
         }
     }
 
@@ -288,6 +300,32 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         String ABtypeName = accountBookRestDao.getTypeNameByABId(Integer.valueOf(map.get("abId") + ""));
         String messageContent = MessageContentFactory.getMessageContent(MessageType.removeTheNotification, ABtypeName, "管理员", null, null);
         messageService.addUserMessage(messageContent, Integer.parseInt(userInfoId), integers);
+        //小程序 ---> 服务通知
+        //获取被删除用户openId
+        memberIds.forEach(v -> {
+            String openId = userInfoAddFieldRestDao.getByUserInfoId(v.toString());
+            if (StringUtils.isNotEmpty(openId)) {
+                //获取formId
+                Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH+openId + "*");
+                if (keys.size() > 0) {
+                    Iterator<String> it = keys.iterator();
+                    String key = it.next();
+                    String formId = redisTemplateUtils.getForString(key);
+                    WXAppletMessageBean bean = new WXAppletMessageBean();
+                    //设置账本名称
+                    bean.getKeyword1().put("value",ABtypeName);
+                    //设置操作人昵称
+                    bean.getKeyword2().put("value",userInfoRestDao.getUserNameByUserId(Integer.valueOf(userInfoId)));
+                    //设置移除时间
+                    bean.getKeyword3().put("value",LocalDate.now().toString());
+                    //设置备注
+                    bean.getKeyword4().put("value",messageContent);
+                    wxAppletPushUtils.wxappletPush(WXAppletPushUtils.removeMemberId, openId, formId,bean);
+                    //删除key
+                    redisTemplateUtils.deleteKey(key);
+                }
+            }
+        });
     }
 
     @Override

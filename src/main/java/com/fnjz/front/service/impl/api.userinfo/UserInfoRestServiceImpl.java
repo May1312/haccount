@@ -1,8 +1,11 @@
 package com.fnjz.front.service.impl.api.userinfo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fnjz.commonbean.WXAppletMessageBean;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
+import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.incometype.IncomeTypeLabelIdRestDTO;
 import com.fnjz.front.entity.api.spendtype.SpendTypeLabelIdRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
@@ -13,20 +16,17 @@ import com.fnjz.front.entity.api.userprivatelabel.UserPrivateLabelRestEntity;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
-import com.fnjz.front.utils.CreateTokenUtils;
-import com.fnjz.front.utils.DateUtils;
-import com.fnjz.front.utils.FilterCensorWordsUtils;
-import com.fnjz.front.utils.ShareCodeUtil;
+import com.fnjz.front.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service("userInfoRestService")
 @Transactional
@@ -46,9 +46,19 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     private UserInviteRestDao userInviteRestDao;
     @Autowired
     private UserPrivateLabelRestDao userPrivateLabelRestDao;
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
+    @Autowired
+    private UserInfoAddFieldRestDao userInfoAddFieldRestDao;
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
+    @Autowired
+    private FengFengTicketRestDao fengFengTicketRestDao;
+    @Autowired
+    private WXAppletPushUtils wxAppletPushUtils;
 
     @Override
-    public int insert(UserInfoRestEntity userInfoRestEntity,String type) {
+    public int insert(UserInfoRestEntity userInfoRestEntity, String type) {
         int insertId = userInfoRestDao.insert(userInfoRestEntity);
         //获取主键,insert-->user login 表
         UserLoginRestEntity userLogin = new UserLoginRestEntity();
@@ -92,22 +102,23 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         uabre.setDefaultFlag(1);
         int insert3 = userAccountBookRestDao.insert(uabre);
         //移动端注册  分配默认账本标签
-        if(StringUtils.equals("android",type) || StringUtils.equals("ios",type)){
-            insertDefaultLabel(insertId,insertId2);
+        if (StringUtils.equals("android", type) || StringUtils.equals("ios", type)) {
+            insertDefaultLabel(insertId, insertId2);
         }
         return insert3;
     }
 
     /**
      * 分配默认账本标签
+     *
      * @param userInfoId
      * @param abId
      */
-    private void insertDefaultLabel(int userInfoId,int abId){
+    private void insertDefaultLabel(int userInfoId, int abId) {
         List<IncomeTypeLabelIdRestDTO> incomeTypeRestDTOS = userPrivateLabelRestDao.listMarkLabelByDefaultForIncome();
-        if(incomeTypeRestDTOS!=null){
-            if(incomeTypeRestDTOS.size()>0){
-                incomeTypeRestDTOS.forEach(v ->{
+        if (incomeTypeRestDTOS != null) {
+            if (incomeTypeRestDTOS.size() > 0) {
+                incomeTypeRestDTOS.forEach(v -> {
                     UserPrivateLabelRestEntity userPrivateLabelRestEntity = new UserPrivateLabelRestEntity();
                     //设置三级类目id
                     userPrivateLabelRestEntity.setTypeId(v.getId());
@@ -139,9 +150,9 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
 
         List<SpendTypeLabelIdRestDTO> spendTypeRestDTOS = userPrivateLabelRestDao.listMarkLabelByDefaultForSpend();
-        if(spendTypeRestDTOS!=null){
-            if(spendTypeRestDTOS.size()>0){
-                spendTypeRestDTOS.forEach(v ->{
+        if (spendTypeRestDTOS != null) {
+            if (spendTypeRestDTOS.size() > 0) {
+                spendTypeRestDTOS.forEach(v -> {
                     UserPrivateLabelRestEntity userPrivateLabelRestEntity = new UserPrivateLabelRestEntity();
                     //设置三级类目id
                     userPrivateLabelRestEntity.setTypeId(v.getId());
@@ -171,6 +182,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             }
         }
     }
+
     //微信注册用户
     @Override
     public int wechatinsert(JSONObject jsonObject, Map<String, String> map, String type) {
@@ -234,7 +246,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
 
         //判断是否是从邀请多人记账页面过来，如果是带手机号  设置手机号
-        if(StringUtils.isNotEmpty(jsonObject.getString("mobile"))){
+        if (StringUtils.isNotEmpty(jsonObject.getString("mobile"))) {
             userInfoRestEntity.setMobile(map.get("mobile"));
         }
 
@@ -246,7 +258,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         userLogin.setWechatAuth(userInfoRestEntity.getWechatAuth());
         userLogin.setUserInfoId(insertId);
         //判断是否是从邀请多人记账页面过来，如果是带手机号  设置手机号
-        if(StringUtils.isNotEmpty(jsonObject.getString("mobile"))){
+        if (StringUtils.isNotEmpty(jsonObject.getString("mobile"))) {
             userLogin.setMobile(map.get("mobile"));
         }
         userLoginRestDao.insert(userLogin);
@@ -275,19 +287,50 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             uabre.setCreateName(userLogin.getMobile());
         }
         uabre.setUserType(0);
-
         int insert3 = userAccountBookRestDao.insert(uabre);
-        //判断是否为受邀用户
-        if(StringUtils.isNotEmpty(map.get("inviteCode"))){
-            int userInfoId = ShareCodeUtil.sharecode2id(map.get("inviteCode"));
-            userInviteRestDao.insert(userInfoId,insertId);
-            //引入当日任务
-            createTokenUtils.integralTask(userInfoId+"",ShareCodeUtil.id2sharecode(userInfoId), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
-        }
         //移动端注册  分配默认账本标签
-        if(StringUtils.equals("android",type) || StringUtils.equals("ios",type)){
-            insertDefaultLabel(insertId,insertId2);
+        if (StringUtils.equals("android", type) || StringUtils.equals("ios", type)) {
+            insertDefaultLabel(insertId, insertId2);
         }
+        //处理当日任务  发送小程序服务通知
+        taskExecutor.execute(() -> {
+            //判断是否为受邀用户
+            if (StringUtils.isNotEmpty(map.get("inviteCode"))) {
+                int userInfoId = ShareCodeUtil.sharecode2id(map.get("inviteCode"));
+                userInviteRestDao.insert(userInfoId, insertId);
+                //引入当日任务
+                createTokenUtils.integralTask(userInfoId + "", ShareCodeUtil.id2sharecode(userInfoId), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
+                //小程序----->服务通知
+                String openId = userInfoAddFieldRestDao.getByUserInfoId(userInfoId + "");
+                if (StringUtils.isNotEmpty(openId)) {
+                    //获取formId
+                    Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH+openId + "*");
+                    if (keys.size() > 0) {
+                        Iterator<String> it = keys.iterator();
+                        String key = it.next();
+                        String formId = redisTemplateUtils.getForString(key);
+                        WXAppletMessageBean bean = new WXAppletMessageBean();
+                        //设置好友昵称
+                        bean.getKeyword1().put("value", userInfoRestEntity.getNickName() == null ? "蜂鸟用户" : userInfoRestEntity.getNickName());
+                        //设置邀请时间
+                        bean.getKeyword2().put("value", LocalDate.now().toString());
+                        //设置获得奖励
+                        FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(null, AcquisitionModeEnum.Inviting_friends.getName(), null);
+                        if(fengFengTicket!=null){
+                            bean.getKeyword3().put("value", fengFengTicket.getBehaviorTicketValue()==null?"0":fengFengTicket.getBehaviorTicketValue() + "积分");
+                        }
+                        //设置已邀请人数
+                        int inviteUsers = userInviteRestDao.getCount(userInfoId + "");
+                        bean.getKeyword4().put("value", inviteUsers + "");
+                        //温馨提示
+                        bean.getKeyword5().put("value", "愿共同监督，知识永不枯竭。");
+                        wxAppletPushUtils.wxappletPush(WXAppletPushUtils.removeMemberId, openId, formId, bean);
+                        //删除key
+                        redisTemplateUtils.deleteKey(key);
+                    }
+                }
+            }
+        });
         return insert3;
     }
 
@@ -374,7 +417,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     @Override
     public int updateMobile(String userInfoId, String mobile) {
         //引入新手任务
-        createTokenUtils.integralTask(userInfoId,ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
+        createTokenUtils.integralTask(userInfoId, ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
         int i = commonDao.updateBySqlString("UPDATE `hbird_user_login` SET `mobile` = '" + mobile + "' , `update_date` = NOW() WHERE `user_info_id` = " + userInfoId + ";");
         if (i > 0) {
             //更新info表
@@ -398,7 +441,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     @Override
     public int updateWeChat(String userInfoId, String code, String unionid) {
         //引入新手任务
-        createTokenUtils.integralTask(userInfoId, ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)),CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
+        createTokenUtils.integralTask(userInfoId, ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.binding_phone_or_wx);
         if (StringUtils.isNotEmpty(unionid)) {
             int i = commonDao.updateBySqlString("UPDATE `hbird_user_login` SET `wechat_auth` = '" + unionid + "', `update_date` = NOW() WHERE `mobile` = '" + code + "';");
             if (i > 0) {
@@ -419,7 +462,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     }
 
     @Override
-    public void updateUserInfo(UserInfoRestEntity userInfoRestEntity,UserInfoRestDTO task) {
+    public void updateUserInfo(UserInfoRestEntity userInfoRestEntity, UserInfoRestDTO task) {
         if (userInfoRestEntity.getBirthday() != null) {
             //计算年龄+星座
             int ageByBirth = DateUtils.getAgeByBirth(userInfoRestEntity.getBirthday());
@@ -431,19 +474,19 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             String constellation = getConstellation(month, day);
             userInfoRestEntity.setConstellation(constellation);
         }
-        if(task!=null){
+        if (task != null) {
             //小程序用户
             if (StringUtils.isNotEmpty(task.getSex()) && task.getBirthday() != null && StringUtils.isNotEmpty(task.getProvinceName()) && StringUtils.isNotEmpty(task.getProfession()) && StringUtils.isNotEmpty(task.getPosition())) {
-                if(!StringUtils.equals(task.getSex(),"0")){
+                if (!StringUtils.equals(task.getSex(), "0")) {
                     //引入新手任务
-                    createTokenUtils.integralTask(userInfoRestEntity.getId() + "",ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
+                    createTokenUtils.integralTask(userInfoRestEntity.getId() + "", ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
                 }
             }
-        }else{
+        } else {
             if (StringUtils.isNotEmpty(userInfoRestEntity.getSex()) && userInfoRestEntity.getBirthday() != null && StringUtils.isNotEmpty(userInfoRestEntity.getProvinceName()) && StringUtils.isNotEmpty(userInfoRestEntity.getProfession()) && StringUtils.isNotEmpty(userInfoRestEntity.getPosition())) {
-                if(!StringUtils.equals(userInfoRestEntity.getSex(),"0")){
+                if (!StringUtils.equals(userInfoRestEntity.getSex(), "0")) {
                     //引入新手任务
-                    createTokenUtils.integralTask(userInfoRestEntity.getId() + "",ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
+                    createTokenUtils.integralTask(userInfoRestEntity.getId() + "", ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);
                 }
             }
         }

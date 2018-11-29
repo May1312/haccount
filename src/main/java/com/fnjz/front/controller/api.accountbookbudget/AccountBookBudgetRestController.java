@@ -501,10 +501,10 @@ public class AccountBookBudgetRestController extends BaseController {
                         Map<String, Object> map = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId, abId, sceneABBudget);
                         return new ResultBean(ApiResultType.OK, map);
                     } else {
-                        return new ResultBean(ApiResultType.OK, jsonArray);
+                        return new ResultBean(ApiResultType.OK, null);
                     }
                 } else {
-                    return new ResultBean(ApiResultType.OK, jsonArray);
+                    return new ResultBean(ApiResultType.OK, null);
                 }
             }
         } catch (Exception e) {
