@@ -6,6 +6,7 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.AccountBookRestDao;
 import com.fnjz.front.dao.FengFengTicketRestDao;
+import com.fnjz.front.dao.UserAccountBookRestDao;
 import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
@@ -39,6 +40,9 @@ public class CreateTokenUtils {
 
     @Autowired
     private AccountBookRestDao accountBookRestDao;
+
+    @Autowired
+    private UserAccountBookRestDao userAccountBookRestDao;
 
     public String createToken(String code) {
         //使用sharcode作为源token
@@ -164,5 +168,14 @@ public class CreateTokenUtils {
      */
     public void updateABtime(Integer abId){
         accountBookRestDao.updateABtime(abId);
+    }
+
+    /**
+     * 判断当前用户是否具有对传入abId权限
+     * @param abId
+     */
+    public boolean checkByABIdAndUserInfoId(Integer abId,String userInfoId){
+        Integer status = userAccountBookRestDao.checkByABIdAndUserInfoId(abId,userInfoId);
+        return status==0?true:false;
     }
 }

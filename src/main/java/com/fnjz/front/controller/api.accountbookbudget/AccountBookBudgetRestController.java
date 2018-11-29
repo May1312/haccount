@@ -15,10 +15,7 @@ import com.fnjz.front.entity.api.accountbookbudget.SceneABBudgetRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
 import com.fnjz.front.service.api.accountbookbudget.AccountBookBudgetRestServiceI;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
-import com.fnjz.front.utils.CommonUtils;
-import com.fnjz.front.utils.DateUtils;
-import com.fnjz.front.utils.ParamValidateUtils;
-import com.fnjz.front.utils.RedisTemplateUtils;
+import com.fnjz.front.utils.*;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -56,6 +53,9 @@ public class AccountBookBudgetRestController extends BaseController {
 
     @Autowired
     private WarterOrderRestServiceI warterOrderRestServiceI;
+
+    @Autowired
+    private CreateTokenUtils createTokenUtils;
 
     /**
      * 设置或修改 预算/固定支出
@@ -680,6 +680,11 @@ public class AccountBookBudgetRestController extends BaseController {
         System.out.println("登录终端：" + type);
         if (abId == null) {
             return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
+        }
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        //判断权限
+        if (!createTokenUtils.checkByABIdAndUserInfoId(abId,userInfoId)) {
+            return new ResultBean(ApiResultType.NOT_ALLOW_VISIT,null);
         }
         try {
             try {

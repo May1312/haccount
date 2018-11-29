@@ -77,4 +77,13 @@ public interface UserAccountBookRestDao {
      */
     @Sql("UPDATE `hbird_user_account_book` SET `bind_flag` = 2 WHERE user_info_id=:userInfoId and bind_flag=1;")
     void updateBindABFlag(@Param("userInfoId") String userInfoId);
+
+    /**
+     * 判断当前用户是否具有对传入abId权限
+     * @param abId
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select delflag from hbird_user_account_book where user_info_id=:userInfoId and account_book_id=:abId;")
+    Integer checkByABIdAndUserInfoId(@Param("abId") Integer abId,@Param("userInfoId") String userInfoId);
 }

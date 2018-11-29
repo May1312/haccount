@@ -11,6 +11,7 @@ import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.CommonUtils;
+import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import io.swagger.annotations.ApiOperation;
@@ -49,6 +50,8 @@ public class WarterOrderRestController extends BaseController {
     private RedisTemplateUtils redisTemplateUtils;
     @Autowired
     private ClockInDays clockInDays;
+    @Autowired
+    private CreateTokenUtils createTokenUtils;
 
     /**
      * 账本流水表相关列表 页面跳转
@@ -245,12 +248,16 @@ public class WarterOrderRestController extends BaseController {
     @ResponseBody
     public ResultBean warterOrderListv2(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type,
                                         HttpServletRequest request, @RequestParam(value = "year", required = false) String year, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "curPage", required = false) Integer curPage, @RequestParam(value = "pageSize", required = false) Integer pageSize, @RequestParam(value = "abId", required = false) Integer abId) {
-        System.out.println("登录终端：" + type);
         logger.info("获取流水分页列表接口: year-->" + year + "  month-->" + month);
+        String shareCode = (String) request.getAttribute("shareCode");
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        //判断权限
+        if (abId!=null && !createTokenUtils.checkByABIdAndUserInfoId(abId,userInfoId)) {
+            return new ResultBean(ApiResultType.NOT_ALLOW_VISIT,null);
+        }
         String time = ParamValidateUtils.getTime(year, month);
         try {
-            String shareCode = (String) request.getAttribute("shareCode");
-            String userInfoId = (String) request.getAttribute("userInfoId");
+
             //连续打卡统计
             clockInDays.clockInDays(shareCode);
             Map<String, Object> json = warterOrderRestService.findListForPagev2(time, null, curPage, pageSize, abId, userInfoId);

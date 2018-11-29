@@ -1,6 +1,7 @@
 package com.fnjz.front.timer;
 
 import com.fnjz.front.utils.RedisTemplateUtils;
+import com.fnjz.front.utils.WXAppletPushUtils;
 import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -19,6 +20,9 @@ public class AccountNotifyTimer implements Job {
 
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+
+    @Autowired
+    private WXAppletPushUtils wxAppletPushUtils;
 
     public void accountNotify(){
             //获取formId
