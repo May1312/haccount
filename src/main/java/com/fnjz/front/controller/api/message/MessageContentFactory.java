@@ -21,7 +21,13 @@ public class MessageContentFactory {
             messageContent="被移除通知：您已被管理员从 ["+accountType+"] 中移除。";
         }//修改预算通知
         else if (messageType.equals(MessageType.reviseBudgetNotification)){
-            messageContent = "提示: ["+accountType+"] 账本的预算已被  {"+createName+"} 由之前的 "+beforeMoney+" 元修改为 "+nowMoney+" 元" ;
+
+            if (nowMoney.equals("-1")){
+                messageContent = "提示: ["+accountType+"] 账本的预算已被  {"+createName+"} 删除 ";
+            }else {
+                messageContent = "提示: ["+accountType+"] 账本的预算已被  {"+createName+"} 由之前的 "+beforeMoney+" 元修改为 "+nowMoney+" 元" ;
+            }
+
         }
         return  messageContent;
     }
