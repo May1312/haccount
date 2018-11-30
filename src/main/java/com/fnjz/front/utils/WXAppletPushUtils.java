@@ -25,13 +25,19 @@ public class WXAppletPushUtils {
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
 
-    //移除成员
+    /**
+     * 移除成员
+     */
     public final static String removeMemberId = "OFyL4qOVfddM5tsgvslEugsmimukPITIhXHSzJS_G_M";
 
-    //邀请成功
+    /**
+     * 邀请成功
+     */
     public final static String inviteFriendId = "IxvkgOzU5F8TXM7_EBc_J1guWk14M64g0TzX_M1-zFA";
 
-    //账单通知
+    /**
+     * 账单通知
+     */
     public final static String accountNotifyId = "XKZJ-8QcULHJAeujplQiQmy_MpWxFUKXQMKsJjjqzIE";
 
     /**
@@ -128,7 +134,7 @@ public class WXAppletPushUtils {
             while ((l = buffer.readLine()) != null) {
                 bs.append(l);
             }
-            logger.info("--------服务通知---------"+bs.toString());
+            logger.info("--------服务通知结果---------"+bs.toString());
         } catch (IOException e) {
             logger.error(e.toString());
         }

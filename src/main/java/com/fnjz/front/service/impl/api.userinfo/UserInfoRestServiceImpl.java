@@ -304,7 +304,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                 String openId = userInfoAddFieldRestDao.getByUserInfoId(userInfoId + "");
                 if (StringUtils.isNotEmpty(openId)) {
                     //获取formId
-                    Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH+openId + "*");
+                    Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "*");
                     if (keys.size() > 0) {
                         Iterator<String> it = keys.iterator();
                         String key = it.next();
@@ -316,15 +316,15 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                         bean.getKeyword2().put("value", LocalDate.now().toString());
                         //设置获得奖励
                         FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(null, AcquisitionModeEnum.Inviting_friends.getName(), null);
-                        if(fengFengTicket!=null){
-                            bean.getKeyword3().put("value", fengFengTicket.getBehaviorTicketValue()==null?"0":fengFengTicket.getBehaviorTicketValue() + "积分");
+                        if (fengFengTicket != null) {
+                            bean.getKeyword3().put("value", fengFengTicket.getBehaviorTicketValue() == null ? "0" : fengFengTicket.getBehaviorTicketValue() + "积分");
                         }
                         //设置已邀请人数
                         int inviteUsers = userInviteRestDao.getCount(userInfoId + "");
                         bean.getKeyword4().put("value", inviteUsers + "");
                         //温馨提示
                         bean.getKeyword5().put("value", "愿共同监督，知识永不枯竭。");
-                        wxAppletPushUtils.wxappletPush(WXAppletPushUtils.inviteFriendId, openId, formId,"pages/mine/index/main", bean);
+                        wxAppletPushUtils.wxappletPush(WXAppletPushUtils.inviteFriendId, openId, formId, "pages/mine/index/main", bean);
                         //删除key
                         redisTemplateUtils.deleteKey(key);
                     }

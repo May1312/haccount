@@ -82,15 +82,15 @@ public class AccountNotifyTimer implements Job {
     private void wxappletPush(String templateId,String openId,String formId,String page,String time,Map<String,BigDecimal> map){
         WXAppletMessageBean bean = new WXAppletMessageBean();
         //设置账单名称
-        bean.getKeyword1().put("value",time+"账单");
+        bean.getKeyword1().put("value",time+"账单统计");
         //设置本月支出
-        bean.getKeyword2().put("value",map.get("spend")+"");
+        bean.getKeyword2().put("value",map.get("spend")+"元");
         //设置本月收入
-        bean.getKeyword3().put("value",map.get("income")+"");
+        bean.getKeyword3().put("value",map.get("income")+"元");
         //设置备注
-        bean.getKeyword4().put("value","结账啦！ 各位");
+        bean.getKeyword4().put("value","越记账越清晰，记账就能领现金→");
         //设置账单详情
-        bean.getKeyword5().put("value","账单详情");
+        bean.getKeyword5().put("value","想了解本月支出排行榜第1位？请点击~");
         wxAppletPushUtils.wxappletPush(templateId,openId,formId,"pages/chart/index/main",bean);
     }
 }

@@ -60,6 +60,8 @@ public class WXAppletPushController {
                 userInfoAddFieldRestService.checkExists(userInfoId,opendId);
                 //将formid存入redis   以openid_userinfoid_时间戳为key
                 redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+opendId+"_"+System.currentTimeMillis(),map.get("formId"),7L);
+                //cache openId   以user_info_id 为key
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+userInfoId,opendId,7L);
             }
         });
         return new ResultBean(ApiResultType.OK,null);
