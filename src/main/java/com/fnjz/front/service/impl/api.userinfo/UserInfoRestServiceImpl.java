@@ -317,14 +317,14 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                         //设置获得奖励
                         FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(null, AcquisitionModeEnum.Inviting_friends.getName(), null);
                         if (fengFengTicket != null) {
-                            bean.getKeyword3().put("value", fengFengTicket.getBehaviorTicketValue() == null ? "0" : fengFengTicket.getBehaviorTicketValue() + "积分");
+                            bean.getKeyword3().put("value", fengFengTicket.getBehaviorTicketValue() == null ? "0" : fengFengTicket.getBehaviorTicketValue() + "积分（价值0.4元）");
                         }
                         //设置已邀请人数
                         int inviteUsers = userInviteRestDao.getCount(userInfoId + "");
                         bean.getKeyword4().put("value", inviteUsers + "");
                         //温馨提示
-                        bean.getKeyword5().put("value", "愿共同监督，知识永不枯竭。");
-                        wxAppletPushUtils.wxappletPush(WXAppletPushUtils.inviteFriendId, openId, formId, "pages/mine/index/main", bean);
+                        bean.getKeyword5().put("value", "邀请好友赚现金，马上去提现！");
+                        wxAppletPushUtils.wxappletPush(WXAppletPushUtils.inviteFriendId, openId, formId, WXAppletPushUtils.inviteFriendPage, bean);
                         //删除key
                         redisTemplateUtils.deleteKey(key);
                     }

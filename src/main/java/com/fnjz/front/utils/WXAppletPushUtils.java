@@ -39,7 +39,12 @@ public class WXAppletPushUtils {
      * 账单通知
      */
     public final static String accountNotifyId = "XKZJ-8QcULHJAeujplQiQmy_MpWxFUKXQMKsJjjqzIE";
-
+    //账单统计页
+    public final static String accountNotifyPage="pages/chart/index/main";
+    //移除成员页
+    public final static String removeMemberPage="pages/mine/index/main";
+    //邀请成功页
+    public final static String inviteFriendPage="pages/mine/index/main";
     /**
      * 推送
      *

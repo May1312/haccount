@@ -327,7 +327,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                     bean.getKeyword3().put("value",LocalDate.now().toString());
                     //设置备注
                     bean.getKeyword4().put("value",messageContent);
-                    wxAppletPushUtils.wxappletPush(WXAppletPushUtils.removeMemberId, openId, formId,"pages/mine/index/main",bean);
+                    wxAppletPushUtils.wxappletPush(WXAppletPushUtils.removeMemberId, openId, formId,WXAppletPushUtils.removeMemberPage,bean);
                     //删除key
                     redisTemplateUtils.deleteKey(key);
                 }
