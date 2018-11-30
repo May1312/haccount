@@ -9,6 +9,7 @@ import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.WXAppletUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,28 +35,33 @@ public class WXAppletPushController {
     @Autowired
     private UserInfoAddFieldRestService userInfoAddFieldRestService;
 
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
+
+    /**
+     * 上传formId
+     * @param request
+     * @param map
+     * @return
+     */
     @RequestMapping(value = "/uploadFormId", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean checkGestureType(HttpServletRequest request, @RequestBody Map<String,String> map) {
-        try {
-            String userInfoId = (String) request.getAttribute("userInfoId");
+    public ResultBean uploadFormId(HttpServletRequest request, @RequestBody Map<String,String> map) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        taskExecutor.execute(()->{
             //根据code解密 opendid
             String code = WXAppletUtils.getUser(map.get("code"));
             JSONObject user = JSONObject.parseObject(code);
             if (user.getString("errcode") != null) {
-                return new ResultBean(ApiResultType.WXAPPLET_LOGIN_ERROR, null);
+                logger.error("/uploadFormId   ----code解密异常-----");
             }else{
                 String opendId = user.getString("openid");
                 //判断是否已绑定openid
                 userInfoAddFieldRestService.checkExists(userInfoId,opendId);
-                //将formid存入redis   以openid为key
+                //将formid存入redis   以openid_userinfoid_时间戳为key
                 redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+opendId+"_"+System.currentTimeMillis(),map.get("formId"),7L);
-                return new ResultBean(ApiResultType.OK,null);
             }
-        } catch (Exception e) {
-            logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR, null);
-        }
+        });
+        return new ResultBean(ApiResultType.OK,null);
     }
-
 }

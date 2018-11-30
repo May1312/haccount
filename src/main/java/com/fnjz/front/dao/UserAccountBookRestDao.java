@@ -84,6 +84,6 @@ public interface UserAccountBookRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("select delflag from hbird_user_account_book where user_info_id=:userInfoId and account_book_id=:abId;")
+    @Sql("select delflag from hbird_user_account_book where user_info_id=:userInfoId and account_book_id=:abId and delflag=0;")
     Integer checkByABIdAndUserInfoId(@Param("abId") Integer abId,@Param("userInfoId") String userInfoId);
 }

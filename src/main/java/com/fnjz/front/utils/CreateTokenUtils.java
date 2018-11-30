@@ -176,6 +176,6 @@ public class CreateTokenUtils {
      */
     public boolean checkByABIdAndUserInfoId(Integer abId,String userInfoId){
         Integer status = userAccountBookRestDao.checkByABIdAndUserInfoId(abId,userInfoId);
-        return status==0?true:false;
+        return status==null?false:true;
     }
 }
