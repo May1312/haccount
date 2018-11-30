@@ -5,17 +5,20 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ValidateUtils;
 import io.swagger.annotations.*;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 通用方法
@@ -67,5 +70,51 @@ public class CommonMethod extends BaseController {
     @ResponseBody
     public ResultBean checkMobile(@RequestBody Map<String, String> map) {
         return this.checkMobile(null,map);
+    }
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
+
+    @RequestMapping(value = "/redis" , method = RequestMethod.POST)
+    @ResponseBody
+    public void redis() {
+        taskExecutor.execute(()->{
+            for(int i = 0;i<3000;i++){
+                String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+                for(int j = 0;j<10;j++){
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+uuid+System.currentTimeMillis(),uuid,7L);
+                }
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+i,uuid,7L);
+            }
+        });
+        taskExecutor.execute(()->{
+            for(int i = 3000;i<6000;i++){
+                String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+                for(int j = 0;j<10;j++){
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+uuid+System.currentTimeMillis(),uuid,7L);
+                }
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+i,uuid,7L);
+            }
+        });
+        taskExecutor.execute(()->{
+            for(int i = 6000;i<9000;i++){
+                String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+                for(int j = 0;j<10;j++){
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+uuid+System.currentTimeMillis(),uuid,7L);
+                }
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+i,uuid,7L);
+            }
+        });
+        taskExecutor.execute(()->{
+            for(int i = 9000;i<10000;i++){
+                String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+                for(int j = 0;j<10;j++){
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+uuid+System.currentTimeMillis(),uuid,7L);
+                }
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+i,uuid,7L);
+            }
+        });
     }
 }

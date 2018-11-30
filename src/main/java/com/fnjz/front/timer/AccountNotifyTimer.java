@@ -1,6 +1,5 @@
 package com.fnjz.front.timer;
 
-import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.WXAppletMessageBean;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.WarterOrderRestDao;
@@ -17,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -49,26 +50,36 @@ public class AccountNotifyTimer implements Job {
     private final StampedLock lock = new StampedLock();
 
     public void accountNotify() {
+        LocalDateTime localDateTime = LocalDateTime.now();
         //读取用户id--->对应openId  所有可以推送通知的用户
         Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID + "*");
+        LocalDateTime localDateTime2 = LocalDateTime.now();
+        logger.info("==========读取到推送用户id set集合耗时:"+(localDateTime2.toInstant(ZoneOffset.of("+8")).toEpochMilli()-localDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli()));
         LocalDate date = LocalDate.now();
         date = date.minusMonths(1);
         LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
         DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy年MM月");
         String time = date.format(formatters);
-        if (keys.size() > 0) {
+        if (keys.size() > 100) {
+            LocalDateTime localDateTime3 = LocalDateTime.now();
             List<String> list = new ArrayList<>(keys);
+            logger.info("==========set集合转list集合耗时:"+(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-localDateTime3.toInstant(ZoneOffset.of("+8")).toEpochMilli()));
             keys = null;
             //当需要推送的用户数大于100 多线程 开启2个线程处理
             taskExecutor.execute(() -> {
                 for (int i = 0; i < list.size() / 2; i++) {
+                    LocalDateTime localDateTime4 = LocalDateTime.now();
                     getFormId(list.get(i) + "", first.toString(), end.toString(), time);
+                    logger.info("==========完成一条消息发送开销耗时::"+(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-localDateTime4.toInstant(ZoneOffset.of("+8")).toEpochMilli()));
+
                 }
             });
             taskExecutor.execute(() -> {
                 for (int i = list.size() - 1; i >= list.size() / 2; i--) {
+                    LocalDateTime localDateTime4 = LocalDateTime.now();
                     getFormId(list.get(i) + "", first.toString(), end.toString(), time);
+                    logger.info("==========完成一条消息发送开销耗时::"+(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-localDateTime4.toInstant(ZoneOffset.of("+8")).toEpochMilli()));
                 }
             });
         } else {
@@ -110,18 +121,23 @@ public class AccountNotifyTimer implements Job {
 
     private void getFormId(String userInfoId, String first, String end, String time) {
         //统计此用户总账本月支出情况
+        LocalDateTime localDateTime = LocalDateTime.now();
         Map<String, BigDecimal> monthStatistics = getMonthStatistics(StringUtils.substringAfterLast(userInfoId + "",":"), first, end);
-        logger.info("统计到月开支:"+ JSON.toJSONString(monthStatistics));
+        logger.info("==========统计一条用户月开销耗时:"+(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-localDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli()));
+        LocalDateTime localDateTime2 = LocalDateTime.now();
         String openId = redisTemplateUtils.getForString(userInfoId + "");
+        logger.info("==========根据userinfoid 获取openId开销耗时:"+(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-localDateTime2.toInstant(ZoneOffset.of("+8")).toEpochMilli()));
         //根据openId获取一条有效formid
+        LocalDateTime localDateTime3 = LocalDateTime.now();
         Set keys2 = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH +openId+ "*");
         if (keys2.size() > 0) {
             Iterator<String> it = keys2.iterator();
             String key = it.next();
             String formId = redisTemplateUtils.getForString(key);
+            logger.info("==========获取一条formId开销耗时::"+(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-localDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli()));
             wxappletPush(WXAppletPushUtils.accountNotifyId, openId, formId, time, monthStatistics);
             //删除key
-            redisTemplateUtils.deleteKey(key);
+            //redisTemplateUtils.deleteKey(key);
         }
     }
     @Test

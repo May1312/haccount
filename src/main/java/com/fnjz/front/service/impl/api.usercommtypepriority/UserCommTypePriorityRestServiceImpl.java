@@ -80,7 +80,7 @@ public class UserCommTypePriorityRestServiceImpl extends CommonServiceImpl imple
         String hql = "from UserCommTypePriorityRestEntity where userInfoId = " + userCommTypePriorityRestEntity.getUserInfoId() + " AND abTypeId = "+userCommTypePriorityRestEntity.getAbTypeId()+" AND type = " + userCommTypePriorityRestEntity.getType() + "";
         UserCommTypePriorityRestEntity o = commonDao.singleResult(hql);
         if (o != null) {
-            String sql = "UPDATE `hbird_account`.`hbird_user_comm_type_priority` SET `type` = " + userCommTypePriorityRestEntity.getType() + ", `relation` = '" + userCommTypePriorityRestEntity.getRelation() + "', `update_date` = NOW() WHERE `id` = " + o.getId() + ";";
+            String sql = "UPDATE `hbird_user_comm_type_priority` SET `type` = " + userCommTypePriorityRestEntity.getType() + ", `relation` = '" + userCommTypePriorityRestEntity.getRelation() + "', `update_date` = NOW() WHERE `id` = " + o.getId() + ";";
             commonDao.updateBySqlString(sql);
         } else {
             userCommTypePriorityRestEntity.setCreateDate(new Date());
