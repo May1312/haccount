@@ -57,7 +57,7 @@ public class AccountNotifyTimer implements Job {
         LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
         DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy年MM月");
         String time = date.format(formatters);
-        if (keys.size() > 100) {
+        if (keys.size() > 0) {
             List<String> list = new ArrayList<>(keys);
             keys = null;
             //当需要推送的用户数大于100 多线程 开启2个线程处理
@@ -114,7 +114,7 @@ public class AccountNotifyTimer implements Job {
         logger.info("统计到月开支:"+ JSON.toJSONString(monthStatistics));
         String openId = redisTemplateUtils.getForString(userInfoId + "");
         //根据openId获取一条有效formid
-        Set keys2 = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + "*");
+        Set keys2 = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH +openId+ "*");
         if (keys2.size() > 0) {
             Iterator<String> it = keys2.iterator();
             String key = it.next();
