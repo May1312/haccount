@@ -8,6 +8,7 @@ import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.WXAppletPushUtils;
 import org.apache.commons.lang.xwork.StringUtils;
 import org.apache.log4j.Logger;
+import org.junit.Test;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,17 +63,17 @@ public class AccountNotifyTimer implements Job {
             //当需要推送的用户数大于100 多线程 开启2个线程处理
             taskExecutor.execute(() -> {
                 for (int i = 0; i < list.size() / 2; i++) {
-                    getFormId(StringUtils.substringAfterLast(list.get(i) + "",":"), first.toString(), end.toString(), time);
+                    getFormId(list.get(i) + "", first.toString(), end.toString(), time);
                 }
             });
             taskExecutor.execute(() -> {
                 for (int i = list.size() - 1; i >= list.size() / 2; i--) {
-                    getFormId(StringUtils.substringAfterLast(list.get(i) + "",":"), first.toString(), end.toString(), time);
+                    getFormId(list.get(i) + "", first.toString(), end.toString(), time);
                 }
             });
         } else {
             for (Object userInfoId : keys) {
-                getFormId(StringUtils.substringAfterLast(userInfoId+"",":"), first.toString(), end.toString(), time);
+                getFormId(userInfoId+"", first.toString(), end.toString(), time);
             }
         }
     }
@@ -109,7 +110,7 @@ public class AccountNotifyTimer implements Job {
 
     private void getFormId(String userInfoId, String first, String end, String time) {
         //统计此用户总账本月支出情况
-        Map<String, BigDecimal> monthStatistics = getMonthStatistics(userInfoId + "", first, end);
+        Map<String, BigDecimal> monthStatistics = getMonthStatistics(StringUtils.substringAfterLast(userInfoId + "",":"), first, end);
         logger.info("统计到月开支:"+ JSON.toJSONString(monthStatistics));
         String openId = redisTemplateUtils.getForString(userInfoId + "");
         //根据openId获取一条有效formid
@@ -122,5 +123,10 @@ public class AccountNotifyTimer implements Job {
             //删除key
             redisTemplateUtils.deleteKey(key);
         }
+    }
+    @Test
+    public void run(){
+        String a="aaa:123";
+        System.out.println(StringUtils.substringAfterLast(a,":"));
     }
 }
