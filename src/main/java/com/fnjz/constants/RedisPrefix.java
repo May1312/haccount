@@ -175,4 +175,9 @@ public class RedisPrefix {
      * 小程序服务推送  formid前缀
      */
     public static final String PREFIX_WXAPPLET_PUSH = "wxapplet_openid_formid:";
+
+    /**
+     * 小程序端服务推送 userinfoid  openid
+     */
+    public static final String PREFIX_WXAPPLET_USERINFOID_OPENID = "wxapplet_userinfoid_openid:";
 }

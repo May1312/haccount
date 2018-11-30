@@ -5,7 +5,6 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.WXAppletPushUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -39,29 +38,27 @@ public class AccountNotifyTimer implements Job {
     private WarterOrderRestDao warterOrderRestDao;
 
     public void accountNotify(){
-        //读取用户id--->对应openId
-            //获取有效的formId
-            Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH+ "*");
-            if(keys!=null){
-                if (keys.size() > 0) {
-                    LocalDate date = LocalDate.now();
-                    date = date.minusMonths(1);
-                    LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
-                    LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
-                    DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy年MM月");
-                    String time = date.format(formatters);
-                    for (Object str : keys) {
-                        //切分出user_info_id
-                        String[] split = StringUtils.split(str + "", "_");
-                        //统计此用户总账本月支出情况
-                        Map<String, BigDecimal> monthStatistics = getMonthStatistics(split[1],first.toString(),end.toString());
-                        String formId = redisTemplateUtils.getForString(str+"");
-                        wxappletPush(WXAppletPushUtils.accountNotifyId, split[0], formId,"pages/mine/index/main",time, monthStatistics);
-                        //删除key
-                        //redisTemplateUtils.deleteKey(key);
-                    }
-                }
+        //读取用户id--->对应openId  所有可以推送通知的用户
+        Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+ "*");
+        LocalDate date = LocalDate.now();
+        date = date.minusMonths(1);
+        LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
+        DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy年MM月");
+        String time = date.format(formatters);
+        if(keys.size()>100){
+            //当需要推送的用户数大于100 多线程开启
+        }else{
+            for (Object userInfoId : keys) {
+                //统计此用户总账本月支出情况
+                Map<String, BigDecimal> monthStatistics = getMonthStatistics(userInfoId+"",first.toString(),end.toString());
+                String openId = redisTemplateUtils.getForString(userInfoId+"");
+                //根据openId
+                //wxappletPush(WXAppletPushUtils.accountNotifyId, split[0], formId,"pages/mine/index/main",time, monthStatistics);
+                //删除key
+                //redisTemplateUtils.deleteKey(key);
             }
+        }
     }
 
     @Override

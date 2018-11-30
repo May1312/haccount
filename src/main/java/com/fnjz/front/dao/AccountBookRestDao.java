@@ -73,7 +73,7 @@ public interface AccountBookRestDao {
      * @param abId
      * @return
      */
-    @Sql("select user_type from hbird_user_account_book where user_info_id=:userInfoId and account_book_id=:abId;")
+    @Sql("select user_type from hbird_user_account_book where user_info_id=:userInfoId and account_book_id=:abId AND delflag=0;")
     Integer checkUserType(@Param("userInfoId") String userInfoId,@Param("abId") Integer abId);
 
     /**
