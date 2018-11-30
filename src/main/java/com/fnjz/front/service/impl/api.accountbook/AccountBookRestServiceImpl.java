@@ -300,16 +300,16 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         String ABtypeName = accountBookRestDao.getTypeNameByABId(Integer.valueOf(map.get("abId") + ""));
         String messageContent = MessageContentFactory.getMessageContent(MessageType.removeTheNotification, ABtypeName, "管理员", null, null);
         //引入小程序服务通知
-        wxappletPush(memberIds,ABtypeName,userInfoId,messageContent);
+        wxappletPush(integers,ABtypeName,userInfoId,messageContent);
         messageService.addUserMessage(messageContent, Integer.parseInt(userInfoId), integers);
     }
 
     /**
      * 移除组员小程序服务通知
      */
-    private void wxappletPush(JSONArray memberIds,String abName,String userInfoId,String messageContent){
+    private void wxappletPush(List<Integer> list,String abName,String userInfoId,String messageContent){
         //获取被删除用户openId
-        memberIds.forEach(v -> {
+        list.forEach(v -> {
             String openId = userInfoAddFieldRestDao.getByUserInfoId(v.toString());
             if (StringUtils.isNotEmpty(openId)) {
                 //获取formId

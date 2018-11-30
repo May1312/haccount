@@ -128,7 +128,6 @@ public class WXAppletPushUtils {
             while ((l = buffer.readLine()) != null) {
                 bs.append(l);
             }
-            System.out.println(bs.toString());
             logger.info("--------服务通知---------"+bs.toString());
         } catch (IOException e) {
             logger.error(e.toString());
