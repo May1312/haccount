@@ -6,6 +6,7 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.WXAppletPushUtils;
+import org.apache.commons.lang.xwork.StringUtils;
 import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -61,17 +62,17 @@ public class AccountNotifyTimer implements Job {
             //当需要推送的用户数大于100 多线程 开启2个线程处理
             taskExecutor.execute(() -> {
                 for (int i = 0; i < list.size() / 2; i++) {
-                    getFormId(list.get(i) + "", first.toString(), end.toString(), time);
+                    getFormId(StringUtils.substringAfterLast(list.get(i) + "",":"), first.toString(), end.toString(), time);
                 }
             });
             taskExecutor.execute(() -> {
                 for (int i = list.size() - 1; i >= list.size() / 2; i--) {
-                    getFormId(list.get(i) + "", first.toString(), end.toString(), time);
+                    getFormId(StringUtils.substringAfterLast(list.get(i) + "",":"), first.toString(), end.toString(), time);
                 }
             });
         } else {
             for (Object userInfoId : keys) {
-                getFormId(userInfoId + "", first.toString(), end.toString(), time);
+                getFormId(StringUtils.substringAfterLast(userInfoId+"",":"), first.toString(), end.toString(), time);
             }
         }
     }
