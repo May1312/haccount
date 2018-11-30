@@ -1,5 +1,6 @@
 package com.fnjz.front.timer;
 
+import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.WXAppletMessageBean;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.WarterOrderRestDao;
@@ -108,6 +109,7 @@ public class AccountNotifyTimer implements Job {
     private void getFormId(String userInfoId, String first, String end, String time) {
         //统计此用户总账本月支出情况
         Map<String, BigDecimal> monthStatistics = getMonthStatistics(userInfoId + "", first, end);
+        logger.info("统计到月开支:"+ JSON.toJSONString(monthStatistics));
         String openId = redisTemplateUtils.getForString(userInfoId + "");
         //根据openId获取一条有效formid
         Set keys2 = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + "*");
