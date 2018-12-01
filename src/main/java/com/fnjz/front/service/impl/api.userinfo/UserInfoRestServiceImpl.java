@@ -306,9 +306,9 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                     //获取formId
                     Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "*");
                     if (keys.size() > 0) {
-                        String[] arrays = (String[])keys.toArray();
+                        Object[] arrays = keys.toArray();
                         Arrays.sort(arrays,Collections.reverseOrder());
-                        String formId =(String) redisTemplateUtils.popListRight(arrays[0]);
+                        String formId =(String) redisTemplateUtils.popListRight(arrays[0]+"");
                         WXAppletMessageBean bean = new WXAppletMessageBean();
                         //设置好友昵称
                         bean.getKeyword1().put("value", userInfoRestEntity.getNickName() == null ? "蜂鸟用户" : userInfoRestEntity.getNickName());
