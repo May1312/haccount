@@ -1,6 +1,5 @@
 package com.fnjz.front.controller.api.common;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,11 +65,14 @@ public class WXAppletPushController {
                 LocalDate date = LocalDate.now();
                 DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyyMMdd");
                 String time = date.format(formatters);
-                JSONArray jsonArray = JSONArray.parseArray(map.get("relation")+"");
-                Long status = redisTemplateUtils.setListRightIfPresent(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time, jsonArray);
-                if(status==0){
+            List<String> arrays=(List<String>)map.get("formIds");
+
+            boolean status = redisTemplateUtils.hasKey(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time);
+                if(!status){
                     //当天首次上传
-                     redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time, jsonArray);
+                     redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time, arrays,1);
+                }else{
+                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time, arrays,2);
                 }
                 //cache openId   以user_info_id 为key
                 redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+userInfoId,opendId,7L);

@@ -484,20 +484,17 @@ public class RedisTemplateUtils {
     }
 
     /**
-     * 往list中添加元素（list存在时）
-     * 0--->list不存在
-     */
-    public Long setListRightIfPresent(String prefix,JSONArray value) {
-        return redisTemplate.opsForList().rightPushIfPresent(prefix,value);
-    }
-
-    /**
      * 往list中添加元素,不存在list 创建
+     * flag 1:设置缓存时间   2:不设置缓存时间
      */
-    public void setListRight(String prefix,JSONArray value) {
-        redisTemplate.opsForList().rightPushAll(prefix,value);
-        //设置缓存时间
-        redisTemplate.expire(prefix,7L,TimeUnit.DAYS);
+    public void setListRight(String prefix,List<String> value,int flag) {
+        if(1==flag){
+            redisTemplate.opsForList().rightPushAll(prefix,value);
+            //设置缓存时间
+            redisTemplate.expire(prefix,7L,TimeUnit.DAYS);
+        }else{
+            redisTemplate.opsForList().rightPushAll(prefix,value);
+        }
     }
 
     /**
@@ -505,6 +502,18 @@ public class RedisTemplateUtils {
      */
     public Object popListRight(String prefix) {
         return redisTemplate.opsForList().rightPop(prefix);
+    }
+
+    /**
+     * 判断是否有key
+     * @param prefix
+     * @return
+     */
+    public boolean hasKey(String prefix) {
+        if(redisTemplate.hasKey(prefix)){
+            return true;
+        }
+        return false;
     }
 }
 
