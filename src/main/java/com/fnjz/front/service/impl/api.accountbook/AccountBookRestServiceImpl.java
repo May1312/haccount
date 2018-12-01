@@ -315,9 +315,9 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                 //获取formId
                 Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH+openId + "*");
                 if (keys.size() > 0) {
-                    Iterator<String> it = keys.iterator();
-                    String key = it.next();
-                    String formId = redisTemplateUtils.getForString(key);
+                    String[] arrays = (String[])keys.toArray();
+                    Arrays.sort(arrays,Collections.reverseOrder());
+                    String formId =(String) redisTemplateUtils.popListRight(arrays[0]);
                     WXAppletMessageBean bean = new WXAppletMessageBean();
                     //设置账本名称
                     bean.getKeyword1().put("value",abName);
@@ -328,8 +328,6 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                     //设置备注
                     bean.getKeyword4().put("value",messageContent);
                     wxAppletPushUtils.wxappletPush(WXAppletPushUtils.removeMemberId, openId, formId,WXAppletPushUtils.removeMemberPage,bean);
-                    //删除key
-                    redisTemplateUtils.deleteKey(key);
                 }
             }
         });
