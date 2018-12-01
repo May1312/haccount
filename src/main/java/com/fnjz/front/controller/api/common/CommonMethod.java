@@ -17,6 +17,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.UUID;
 
@@ -116,5 +118,14 @@ public class CommonMethod extends BaseController {
                 redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+i,uuid,7L);
             }
         });
+    }
+    @RequestMapping(value = "/redis2" , method = RequestMethod.POST)
+    @ResponseBody
+    public void redis2() {
+        for(int i =0;i<10;i++){
+        LocalDateTime localDateTime= LocalDateTime.now();
+        redisTemplateUtils.getForString("wxapplet_openid_formid:000837cdd5b644729f3a4456e310234c1543579647389");
+        logger.info("==========单条get开销耗时:"+(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-localDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli()));
+        }
     }
 }

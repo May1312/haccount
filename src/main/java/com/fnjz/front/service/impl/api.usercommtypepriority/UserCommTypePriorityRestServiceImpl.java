@@ -1,21 +1,22 @@
 package com.fnjz.front.service.impl.api.usercommtypepriority;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.UserCommUseTypeOfflineCheckRestDao;
+import com.fnjz.front.dao.UserPrivateLabelRestDao;
 import com.fnjz.front.entity.api.usercommtypepriority.UserCommTypePriorityRestEntity;
+import com.fnjz.front.entity.api.userprivatelabel.UserPrivateIncomeLabelRestDTO;
+import com.fnjz.front.entity.api.userprivatelabel.UserPrivateSpendLabelRestDTO;
 import com.fnjz.front.service.api.usercommtypepriority.UserCommTypePriorityRestServiceI;
 import com.fnjz.front.service.api.usercommuseincome.UserCommUseIncomeRestServiceI;
-import com.fnjz.front.service.api.userprivatelabel.UserPrivateLabelRestService;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("userCommTypePriorityRestService")
 @Transactional
@@ -28,7 +29,7 @@ public class UserCommTypePriorityRestServiceImpl extends CommonServiceImpl imple
     private UserCommUseIncomeRestServiceI userCommUseIncomeRestService;
 
     @Autowired
-    private UserPrivateLabelRestService userPrivateLabelRestService;
+    private UserPrivateLabelRestDao userPrivateLabelRestDao;
 
     @Override
     public String saveOrUpdateRelation(int accountBookId, String userInfoId, UserCommTypePriorityRestEntity userCommTypePriorityRestEntity) {
@@ -92,17 +93,51 @@ public class UserCommTypePriorityRestServiceImpl extends CommonServiceImpl imple
             String version = getTypeVersion(userCommTypePriorityRestEntity.getUserInfoId()+"");
             //支出
             //获取离线-用户常用类目
-            List<?> userCommUseType = userPrivateLabelRestService.getUserCommUseType(userCommTypePriorityRestEntity.getUserInfoId() + "", RedisPrefix.SPEND, userCommTypePriorityRestEntity.getAbTypeId());
+            //List<?> userCommUseType = userPrivateLabelRestService.getUserCommUseType(userCommTypePriorityRestEntity.getUserInfoId() + "", RedisPrefix.SPEND, userCommTypePriorityRestEntity.getAbTypeId());
+            //用户常用类目获取
+            List<UserPrivateSpendLabelRestDTO> spendList = userPrivateLabelRestDao.selectLabelByAbId(userCommTypePriorityRestEntity.getUserInfoId()+"",userCommTypePriorityRestEntity.getAbTypeId(), 1);
+            JSONArray jsonArray = JSONArray.parseArray(userCommTypePriorityRestEntity.getRelation());
+            for (int i = 0; i < jsonArray.size(); i++) {
+                Map array_map = (Map) jsonArray.get(i);
+                for (int j = 0; j < spendList.size(); j++) {
+                    if (StringUtils.equals(array_map.get("id") + "", spendList.get(j).getId() + "")) {
+                        try {
+                            spendList.get(j).setPriority(Integer.valueOf(array_map.get("priority") + ""));
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                            continue;
+                        }
+                    }
+                }
+            }//list排序
+            Collections.sort(spendList, Comparator.comparing(UserPrivateSpendLabelRestDTO::getPriority));
             jsonObject.put("version", version);
-            jsonObject.put("commonList", userCommUseType);
+            jsonObject.put("commonList", spendList);
             return jsonObject;
         }else{
             String version = getTypeVersion(userCommTypePriorityRestEntity.getUserInfoId()+"");
             //收入
             //获取离线-用户常用类目
-            List<?> userCommUseType = userPrivateLabelRestService.getUserCommUseType(userCommTypePriorityRestEntity.getUserInfoId() + "", RedisPrefix.INCOME, userCommTypePriorityRestEntity.getAbTypeId());
+            //List<?> userCommUseType = userPrivateLabelRestService.getUserCommUseType(userCommTypePriorityRestEntity.getUserInfoId() + "", RedisPrefix.INCOME, userCommTypePriorityRestEntity.getAbTypeId());
+            //json字符串转数组
+            List<UserPrivateIncomeLabelRestDTO> incomeList = userPrivateLabelRestDao.selectLabelByAbId2(userCommTypePriorityRestEntity.getUserInfoId()+"",userCommTypePriorityRestEntity.getAbTypeId(), 1);
+            JSONArray jsonArray = JSONArray.parseArray(userCommTypePriorityRestEntity.getRelation());
+            for (int i = 0; i < jsonArray.size(); i++) {
+                Map array_map = (Map) jsonArray.get(i);
+                for (int j = 0; j < incomeList.size(); j++) {
+                    if (StringUtils.equals(array_map.get("id") + "", incomeList.get(j).getId() + "")) {
+                        try {
+                            incomeList.get(j).setPriority(Integer.valueOf(array_map.get("priority") + ""));
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                            continue;
+                        }
+                    }
+                }
+            }//list排序
+            Collections.sort(incomeList, Comparator.comparing(UserPrivateIncomeLabelRestDTO::getPriority));
             jsonObject.put("version", version);
-            jsonObject.put("commonList", userCommUseType);
+            jsonObject.put("commonList", incomeList);
             return jsonObject;
         }
     }
