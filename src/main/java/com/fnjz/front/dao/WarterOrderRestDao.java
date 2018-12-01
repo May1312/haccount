@@ -202,7 +202,7 @@ public interface WarterOrderRestDao {
      * @return
      */
     //@IdAutoGenerator(generator = "native")
-    @Sql("INSERT INTO `hbird_water_order` ( `id`, `account_book_id`, `money`, `order_type`, `is_staged`, `spend_happiness`, `type_pid`, `type_id`, `type_name`, `create_date`, `charge_date`, `delflag`, `create_by`, `update_by`, `create_name`, `remark`, `user_private_label_id`,`icon` ) VALUES ( UUID( ), :charge.accountBookId, :charge.money, :charge.orderType, :charge.isStaged, :charge.spendHappiness, :charge.typePid, :charge.typeId, :charge.typeName, NOW(), :charge.chargeDate, :charge.delflag, :charge.createBy,:charge.updateBy, :charge.createName, :charge.remark, :charge.userPrivateLabelId,:charge.icon);")
+    @Sql("INSERT INTO `hbird_water_order` ( `id`, `account_book_id`, `money`, `order_type`, `is_staged`, `spend_happiness`, `type_pid`, `type_id`, `type_name`, `create_date`, `charge_date`, `delflag`, `create_by`, `update_by`, `create_name`, `remark`, `user_private_label_id`,`icon`,`update_date` ) VALUES ( UUID( ), :charge.accountBookId, :charge.money, :charge.orderType, :charge.isStaged, :charge.spendHappiness, :charge.typePid, :charge.typeId, :charge.typeName, NOW(), :charge.chargeDate, :charge.delflag, :charge.createBy,:charge.updateBy, :charge.createName, :charge.remark, :charge.userPrivateLabelId,:charge.icon,:charge.update_date);")
     void insert(@Param("charge") WarterOrderRestNewLabel charge);
 
     /**

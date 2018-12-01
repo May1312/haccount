@@ -43,41 +43,41 @@ public class WXAppletPushController {
 
     /**
      * 上传formId
+     *
      * @param request
      * @param map
      * @return
      */
     @RequestMapping(value = "/uploadFormId", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean uploadFormId(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+    public ResultBean uploadFormId(HttpServletRequest request, @RequestBody Map<String, Object> map) {
         String userInfoId = (String) request.getAttribute("userInfoId");
-        taskExecutor.execute(()->{
+        taskExecutor.execute(() -> {
             //根据code解密 opendid
-            String code = WXAppletUtils.getUser(map.get("code")+"");
+            String code = WXAppletUtils.getUser(map.get("code") + "");
             JSONObject user = JSONObject.parseObject(code);
             if (user.getString("errcode") != null) {
                 logger.error("/uploadFormId   ----code解密异常-----");
-            }else{
+            } else {
                 String opendId = user.getString("openid");
                 //判断是否已绑定openid
-                userInfoAddFieldRestService.checkExists(userInfoId,opendId);
+                userInfoAddFieldRestService.checkExists(userInfoId, opendId);
                 //将formid存入redis   按日区分
                 LocalDate date = LocalDate.now();
                 DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyyMMdd");
                 String time = date.format(formatters);
-            List<String> arrays=(List<String>)map.get("formIds");
-
-            boolean status = redisTemplateUtils.hasKey(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time);
-                if(!status){
+                List<String> arrays = (List<String>) map.get("formIds");
+                boolean status = redisTemplateUtils.hasKey(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time);
+                if (!status) {
                     //当天首次上传
-                     redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time, arrays,1);
-                }else{
-                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time, arrays,2);
+                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time, arrays, 1);
+                } else {
+                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time, arrays, 2);
                 }
                 //cache openId   以user_info_id 为key
-                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+userInfoId,opendId,7L);
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID + userInfoId, opendId, 7L);
             }
         });
-        return new ResultBean(ApiResultType.OK,null);
+        return new ResultBean(ApiResultType.OK, null);
     }
 }

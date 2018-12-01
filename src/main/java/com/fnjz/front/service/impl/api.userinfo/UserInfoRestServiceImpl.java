@@ -26,7 +26,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service("userInfoRestService")
 @Transactional
@@ -306,9 +309,9 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                     //获取formId
                     Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "*");
                     if (keys.size() > 0) {
-                        Iterator<String> it = keys.iterator();
-                        String key = it.next();
-                        String formId = redisTemplateUtils.getForString(key);
+                       // List<String> list = new ArrayList<>(keys);
+                        //Collections.sort(list, Comparator.comparing(UserPrivateIncomeLabelRestDTO::getPriority));
+                        String formId = redisTemplateUtils.getForString(null);
                         WXAppletMessageBean bean = new WXAppletMessageBean();
                         //设置好友昵称
                         bean.getKeyword1().put("value", userInfoRestEntity.getNickName() == null ? "蜂鸟用户" : userInfoRestEntity.getNickName());
@@ -326,7 +329,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                         bean.getKeyword5().put("value", "邀请好友赚现金，马上去提现！");
                         wxAppletPushUtils.wxappletPush(WXAppletPushUtils.inviteFriendId, openId, formId, WXAppletPushUtils.inviteFriendPage, bean);
                         //删除key
-                        redisTemplateUtils.deleteKey(key);
+                        redisTemplateUtils.deleteKey(null);
                     }
                 }
             }
