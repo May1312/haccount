@@ -482,5 +482,29 @@ public class RedisTemplateUtils {
     public Set getKeys(String prefix) {
         return redisTemplate.keys(prefix+"*");
     }
+
+    /**
+     * 往list中添加元素（list存在时）
+     * 0--->list不存在
+     */
+    public Long setListRightIfPresent(String prefix,JSONArray value) {
+        return redisTemplate.opsForList().rightPushIfPresent(prefix,value);
+    }
+
+    /**
+     * 往list中添加元素,不存在list 创建
+     */
+    public void setListRight(String prefix,JSONArray value) {
+        redisTemplate.opsForList().rightPushAll(prefix,value);
+        //设置缓存时间
+        redisTemplate.expire(prefix,7L,TimeUnit.DAYS);
+    }
+
+    /**
+     * 弹出list最右边元素
+     */
+    public Object popListRight(String prefix) {
+        return redisTemplate.opsForList().rightPop(prefix);
+    }
 }
 
