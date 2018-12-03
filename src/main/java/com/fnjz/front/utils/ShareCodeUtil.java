@@ -16,21 +16,22 @@ public class ShareCodeUtil {
 
     /**
      * 获取一个随机码表（0~9）
+     *
      * @return
      */
-    public static String getCodeTable(){
+    public static String getCodeTable() {
         HashMap hm = new HashMap();
         Random ran1 = new Random(10);
         System.out.println("使用种子为10的Random对象生成[0,10)内随机整数序列: ");
         String strRandom = "";
         for (int i = 0; i < 10; i++) {
-            strRandom = ran1.nextInt(10)+"";
-            if (hm.containsKey(strRandom)){
+            strRandom = ran1.nextInt(10) + "";
+            if (hm.containsKey(strRandom)) {
                 i--;
                 continue;
             }
-            hm.put(strRandom,strRandom);
-            System.out.print(strRandom+" ");
+            hm.put(strRandom, strRandom);
+            System.out.print(strRandom + " ");
         }
         return strRandom;
     }
@@ -47,24 +48,23 @@ public class ShareCodeUtil {
 
     /**
      * 通过9进制对用户id进行7位数字编码，不足7位首位补9
+     *
      * @param id
      * @return
      */
-    public static String id2sharecode(int id)
-    {
+    public static String id2sharecode(int id) {
         //获取一个随机码表
         //String codeTable = getCodeTable();
         String sharecode = "";
         int num = id;
         int mod = 0;
-        while (num > 0)
-        {
+        while (num > 0) {
             mod = num % XDecimal;
             num = num / XDecimal;
             sharecode = sharecode + CodeTable_NineDecimal.charAt(mod);
         }
         //不足7位进行补位，首位补9
-        while(sharecode.length() < ShareCodeLength){
+        while (sharecode.length() < ShareCodeLength) {
             sharecode = ShareCodePatch + sharecode;
         }
         return sharecode;
@@ -74,22 +74,21 @@ public class ShareCodeUtil {
      * @param shareCode 邀请码
      * @return id
      */
-    public static int sharecode2id(String shareCode)
-    {
-        if (shareCode==null || shareCode.length()<=0){
+    public static int sharecode2id(String shareCode) {
+        if (shareCode == null || shareCode.length() <= 0) {
             return 0;
         }
         //去除首位可能的补位符
-        while(shareCode.charAt(0) == ShareCodePatch){
+        while (shareCode.charAt(0) == ShareCodePatch) {
             shareCode = shareCode.substring(1, shareCode.length());
         }
         //
         int len = shareCode.length();
         int num = 0;
-        for (int i=0; i<len; i++) {
+        for (int i = 0; i < len; i++) {
             char charAt = shareCode.charAt(i);
             int indexOf = CodeTable_NineDecimal.lastIndexOf(charAt);//码表位置，表示数字 0 1 2 3 4 5 6 7 8
-            int value = (int)pow(XDecimal, i);
+            int value = (int) pow(XDecimal, i);
             num += indexOf * value;
         }
 
@@ -198,9 +197,7 @@ public class ShareCodeUtil {
 //    }
 
 
-
-
-    public static void test(){
+    public static void test() {
 //        String str0 = getRandom();
 //        String str1 = createCode(10028);
         //String str2 = createCode2(10028);
@@ -211,9 +208,11 @@ public class ShareCodeUtil {
     }
 
     @Test
-    public void  main(){
-        String str2 = id2sharecode(3433);        System.out.println(str2);
-        int str4 = sharecode2id("99990248");        System.out.println(str4);
+    public void main() {
+        String str2 = id2sharecode(3433);
+        System.out.println(str2);
+        int str4 = sharecode2id("99993458");
+        System.out.println(str4);
     }
 
 }

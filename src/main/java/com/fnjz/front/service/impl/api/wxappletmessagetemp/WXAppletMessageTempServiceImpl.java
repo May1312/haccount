@@ -1,6 +1,7 @@
 package com.fnjz.front.service.impl.api.wxappletmessagetemp;
 
 import com.fnjz.front.dao.WXAppletMessageTempRestDao;
+import com.fnjz.front.entity.api.wxappletmessagetemp.WXAppletAccountNotifyTempRestEntity;
 import com.fnjz.front.entity.api.wxappletmessagetemp.WXAppletMessageTempRestEntity;
 import com.fnjz.front.service.api.wxappletmessagetemp.WXAppletMessageTempService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,22 @@ public class WXAppletMessageTempServiceImpl implements WXAppletMessageTempServic
         list.forEach(v->{
             wxappletMessageTempRestDao.insert(v);
         });
+    }
+
+    @Override
+    @Transactional(rollbackFor=Exception.class)
+    public void foreachInsert2ForMonth(String first,String end) {
+        wxappletMessageTempRestDao.insert2ForMonth(first,end);
+    }
+
+    @Override
+    public List<WXAppletAccountNotifyTempRestEntity> getAccountNotifyData() {
+        return wxappletMessageTempRestDao.getAccountNotifyData();
+    }
+
+    @Override
+    public void deleteDate() {
+        wxappletMessageTempRestDao.deleteDate1();
+        wxappletMessageTempRestDao.deleteDate2();
     }
 }
