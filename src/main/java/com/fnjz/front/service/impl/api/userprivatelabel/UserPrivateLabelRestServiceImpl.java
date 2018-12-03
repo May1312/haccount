@@ -21,6 +21,7 @@ import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  * Created by yhang on 2018/11/7.
  */
 @Service("userPrivateLabelRestService")
+@Transactional
 public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implements UserPrivateLabelRestService {
 
     @Autowired
