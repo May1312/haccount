@@ -321,7 +321,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                         }
                         //设置已邀请人数
                         int inviteUsers = userInviteRestDao.getCount(userInfoId + "");
-                        bean.getKeyword4().put("value", inviteUsers + "");
+                        bean.getKeyword4().put("value", inviteUsers + "人");
                         //温馨提示
                         bean.getKeyword5().put("value", "邀请好友赚现金，马上去提现！");
                         wxAppletPushUtils.wxappletPush(WXAppletPushUtils.inviteFriendId, openId, formId, WXAppletPushUtils.inviteFriendPage, bean);
