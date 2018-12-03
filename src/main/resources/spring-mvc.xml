@@ -222,6 +222,7 @@
                         <value>/rest/api/wxActivity/sum</value>
                         <value>/rest/api/wxActivity/statisticsNewVisitor</value>
                         <value>/rest/api/v1/soouucallback</value>
+                        <value>/rest/api/v1/updateRelationData</value>
                     </list>
                 </property>
                 <property name="excludeContainUrls">
@@ -248,6 +249,7 @@
                         <value>/rest/api/v1/wxUnionidIsExist/</value>
                         <value>/rest/api/v1/completeMobile/</value>
                         <value>/rest/api/v1/getMobileVerifycode/</value>
+                        <!--数据更新-->
                         <value>/rest/api/v1/updateRelationData/</value>
                     </list>
                 </property>
