@@ -12,6 +12,7 @@ import java.util.Date;
 @Table(name = "hbird_wxapplet_message_temp")
 public class WXAppletMessageTempRestEntity implements Serializable {
 
+    WXAppletMessageTempRestEntity(){};
     public WXAppletMessageTempRestEntity(Integer userInfoId, String openId, String formId) {
         this.userInfoId = userInfoId;
         this.openId = openId;

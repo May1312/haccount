@@ -17,8 +17,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -82,38 +86,20 @@ public class CommonMethod extends BaseController {
     @RequestMapping(value = "/redis" , method = RequestMethod.POST)
     @ResponseBody
     public void redis() {
+        List<String> arrays = new ArrayList<>();
+        arrays.add("aaaaa");
+        arrays.add("bbbbb");
+        arrays.add("ccccc");
+        arrays.add("dddddd");
         taskExecutor.execute(()->{
-            for(int i = 0;i<3000;i++){
+            for(int i = 1;i<105;i++){
                 String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-                for(int j = 0;j<10;j++){
-                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+uuid+System.currentTimeMillis(),uuid,7L);
-                }
-                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+i,uuid,7L);
-            }
-        });
-        taskExecutor.execute(()->{
-            for(int i = 3000;i<6000;i++){
-                String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-                for(int j = 0;j<10;j++){
-                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+uuid+System.currentTimeMillis(),uuid,7L);
-                }
-                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+i,uuid,7L);
-            }
-        });
-        taskExecutor.execute(()->{
-            for(int i = 6000;i<9000;i++){
-                String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-                for(int j = 0;j<10;j++){
-                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+uuid+System.currentTimeMillis(),uuid,7L);
-                }
-                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+i,uuid,7L);
-            }
-        });
-        taskExecutor.execute(()->{
-            for(int i = 9000;i<10000;i++){
-                String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-                for(int j = 0;j<10;j++){
-                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_PUSH+uuid+System.currentTimeMillis(),uuid,7L);
+                for(int j = 0;j<7;j++){
+                    LocalDate localDate = LocalDate.now();
+                    localDate = localDate.minusDays(j);
+                    DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    String time = localDate.format(formatters);
+                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + uuid + "_" + time, arrays, 1);
                 }
                 redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+i,uuid,7L);
             }

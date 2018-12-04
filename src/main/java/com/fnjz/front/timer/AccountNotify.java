@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.StampedLock;
 
 /**
  * 账单通知定时任务
@@ -39,6 +41,13 @@ public class AccountNotify implements Job {
      */
     private int threadNum = 5;
 
+    /**
+     * 锁
+     */
+    private final StampedLock lock = new StampedLock();
+
+    private List<Integer> lockList = new ArrayList<>();
+
     public void accountNotify() {
 
         List<WXAppletAccountNotifyTempRestEntity> list = wxAppletMessageTempService.getAccountNotifyData();
@@ -57,7 +66,11 @@ public class AccountNotify implements Job {
                     //创建线程
                     for (int i = 0; i < threadNum; i++) {
                         taskExecutor.execute(() -> {
-                            for (int j = (list.size() - 1); j > (list.size() - len); j--) {
+                            long stamp = lock.writeLock();
+                            int thread = lockList.size();
+                            lockList.add(1);
+                            lock.unlockWrite(stamp);
+                            for (int j = (list.size() - 1 - (len * thread)); j > (list.size() - len - (len * thread)); j--) {
                                 //发送推送
                                 wxappletPush(WXAppletPushUtils.accountNotifyId, time, list.get(j));
                             }
@@ -68,7 +81,7 @@ public class AccountNotify implements Job {
                     //阻塞线程
                     try {
                         countDownLatch.await();
-                        logger.info("======发送完毕===== 耗时:"+(System.currentTimeMillis()-start));
+                        logger.info("======发送完毕===== 耗时:" + (System.currentTimeMillis() - start));
                         wxAppletMessageTempService.deleteDate();
                     } catch (InterruptedException e) {
                         logger.error("accountNotify 异常:" + e.toString());
@@ -78,6 +91,8 @@ public class AccountNotify implements Job {
                         //发送推送
                         wxappletPush(WXAppletPushUtils.accountNotifyId, time, list.get(j));
                     }
+                    logger.info("======发送完毕===== 耗时:" + (System.currentTimeMillis() - start));
+                    wxAppletMessageTempService.deleteDate();
                 }
             }
         }

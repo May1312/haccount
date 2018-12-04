@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -44,12 +43,15 @@ public class PrepareAccountNotify implements Job {
      */
     private final StampedLock lock = new StampedLock();
 
+    private List<Integer> lockList = new ArrayList<>();
+
     /**
      * 线程数定义
      */
     private int threadNum = 5;
 
     public void accountNotify() {
+        Long start = System.currentTimeMillis();
         LocalDateTime localDateTime = LocalDateTime.now();
         //读取用户id--->对应openId  所有可以推送通知的用户
         Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID + "*");
@@ -59,8 +61,6 @@ public class PrepareAccountNotify implements Job {
         date = date.minusMonths(1);
         LocalDate first = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
-        DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy年MM月");
-        String time = date.format(formatters);
         //当需要推送的用户数大于100   启用多线程
         if (keys.size() > 100) {
             LocalDateTime localDateTime3 = LocalDateTime.now();
@@ -74,19 +74,26 @@ public class PrepareAccountNotify implements Job {
             for (int i = 0; i < threadNum; i++) {
                 taskExecutor.execute(() -> {
                     List<WXAppletMessageTempRestEntity> list = new ArrayList<>(len);
-                    for (int j = (obj.length - 1); j > (obj.length - len); j--) {
+                    //加锁
+                    long stamp = lock.writeLock();
+                    int thread = lockList.size();
+                    lockList.add(1);
+                    lock.unlockWrite(stamp);
+                    for (int j = (obj.length - 1 - (len * thread)); j > (obj.length - len - (len * thread)); j--) {
                         //获取openId
                         String openId = redisTemplateUtils.getForString(obj[j] + "");
                         //获取一条有效formId
                         Set keys1 = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "*");
-                        Object[] obj2 = keys1.toArray();
-                        //倒序
-                        Arrays.sort(obj2, Collections.reverseOrder());
-                        //获取最新日期一条formId
-                        String formId = (String) redisTemplateUtils.popListRight(obj2[0] + "");
-                        //封装数据
-                        WXAppletMessageTempRestEntity bean = new WXAppletMessageTempRestEntity(Integer.valueOf(StringUtils.substringAfterLast(obj[j] + "", ":")), openId, formId);
-                        list.add(bean);
+                        if (keys1.size() > 0) {
+                            Object[] obj2 = keys1.toArray();
+                            //倒序
+                            Arrays.sort(obj2, Collections.reverseOrder());
+                            //获取最新日期一条formId
+                            String formId = (String) redisTemplateUtils.popListRight(obj2[0] + "");
+                            //封装数据
+                            WXAppletMessageTempRestEntity bean = new WXAppletMessageTempRestEntity(Integer.valueOf(StringUtils.substringAfterLast(obj[j] + "", ":")), openId, formId);
+                            list.add(bean);
+                        }
                     }
                     //插入mysql
                     try {
@@ -94,7 +101,7 @@ public class PrepareAccountNotify implements Job {
                     } finally {
                         //线程执行完
                         countDownLatch.countDown();
-                        list=null;
+                        list = null;
                     }
                 });
             }
@@ -103,6 +110,7 @@ public class PrepareAccountNotify implements Job {
                 countDownLatch.await();
                 //统计月支出收入
                 wxAppletMessageTempService.foreachInsert2ForMonth(first.toString(), end.toString());
+                logger.info("======账单数据整合完成===== 耗时:" + (System.currentTimeMillis() - start));
             } catch (InterruptedException e) {
                 logger.error("accountNotify 异常:" + e.toString());
             }
@@ -115,21 +123,26 @@ public class PrepareAccountNotify implements Job {
                 String openId = redisTemplateUtils.getForString(key);
                 //获取一条有效formId
                 Set keys1 = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "*");
-                Object[] obj2 = keys1.toArray();
-                //倒序
-                Arrays.sort(obj2, Collections.reverseOrder());
-                //获取最新日期一条formId
-                String formId = (String) redisTemplateUtils.popListRight(obj2[0] + "");
-                //封装数据
-                WXAppletMessageTempRestEntity bean = new WXAppletMessageTempRestEntity(Integer.valueOf(StringUtils.substringAfterLast(key, ":")), openId, formId);
-                list.add(bean);
+                if (keys1.size() > 0) {
+                    Object[] obj2 = keys1.toArray();
+                    //倒序
+                    Arrays.sort(obj2, Collections.reverseOrder());
+                    //获取最新日期一条formId
+                    String formId = (String) redisTemplateUtils.popListRight(obj2[0] + "");
+                    //封装数据
+                    WXAppletMessageTempRestEntity bean = new WXAppletMessageTempRestEntity(Integer.valueOf(StringUtils.substringAfterLast(key, ":")), openId, formId);
+                    list.add(bean);
+                }
             }
-            keys=null;
+            keys = null;
             //插入mysql
-            wxAppletMessageTempService.foreachInsert(list);
-            //统计月支出收入
-            wxAppletMessageTempService.foreachInsert2ForMonth(first.toString(), end.toString());
-            list=null;
+            if (list.size() > 0) {
+                wxAppletMessageTempService.foreachInsert(list);
+                //统计月支出收入
+                wxAppletMessageTempService.foreachInsert2ForMonth(first.toString(), end.toString());
+                logger.info("======账单数据整合完成===== 耗时:" + (System.currentTimeMillis() - start));
+                list = null;
+            }
         }
     }
 

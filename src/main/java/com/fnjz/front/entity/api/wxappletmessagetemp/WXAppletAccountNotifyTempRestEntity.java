@@ -1,15 +1,13 @@
 package com.fnjz.front.entity.api.wxappletmessagetemp;
 
+import java.io.Serializable;
+
 /**
  * 小程序服务通知发送数据临时表
  * Created by yhang on 2018/12/3.
  */
 
-public class WXAppletAccountNotifyTempRestEntity extends  WXAppletMessageTempRestEntity {
-
-    WXAppletAccountNotifyTempRestEntity(Integer userInfoId, String openId, String formId) {
-        super(userInfoId, openId, formId);
-    }
+public class WXAppletAccountNotifyTempRestEntity extends  WXAppletMessageTempRestEntity implements Serializable {
 
     private double spend;
 
