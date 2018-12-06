@@ -89,7 +89,7 @@ public class UserWXQrCodeRestController extends BaseController {
 			//重新获取access token
 			String accessToken1 = WXAppletUtils.getAccessToken();
 			net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject.fromObject(accessToken1);
-			if (jsonObject.getString("errcode") != null) {
+			if (jsonObject.get("errcode") != null) {
 				logger.error("小程序 消息模板 服务通知:   ----获取access token异常-----");
 				return null;
 			}
