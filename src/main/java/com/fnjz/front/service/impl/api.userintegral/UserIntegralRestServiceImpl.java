@@ -714,6 +714,17 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
         return jsonObject;
     }
 
+    @Override
+    public JSONObject integralTop10(String userInfoId) {
+        //获取top10
+        List<UserIntegralTopRestDTO> top = userIntegralRestDao.integralTop(10);
+        UserIntegralTopRestDTO mySelf = userIntegralRestDao.integralForMySelf(userInfoId);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("top10", top);
+        jsonObject.put("mySelf", mySelf);
+        return jsonObject;
+    }
+
     /**
      * 获取用户总积分数
      * @param userInfoId

@@ -58,6 +58,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
      * @param userInfoId
      */
     @Override
+    @Deprecated
     public Integer signIn(String userInfoId, String shareCode) {
         Map map = signInForCache(shareCode);
         FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_1.getIndex());

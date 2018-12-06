@@ -37,7 +37,7 @@ public class ShoppingMallIntegralExchangeRestDTO implements java.io.Serializable
 	private Integer fengfengTicketValue;
 	/**列表图片（453*327）*/
 	private String listPicture;
-	/**兑换类型*/
+	/**虚拟物品兑换类型*/
 	private Integer type;
 
 	/**

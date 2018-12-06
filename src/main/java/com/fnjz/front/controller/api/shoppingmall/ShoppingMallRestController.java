@@ -1,5 +1,6 @@
 package com.fnjz.front.controller.api.shoppingmall;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
@@ -7,8 +8,10 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
-import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestDTO;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
+import com.fnjz.front.entity.api.userinfo.ConsigneeAddressRestDTO;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
+import com.fnjz.front.service.api.userinfoaddfield.UserInfoAddFieldRestService;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +38,9 @@ public class ShoppingMallRestController {
 
     @Autowired
     private UserIntegralRestServiceI userIntegralRestServiceI;
+
+    @Autowired
+    private UserInfoAddFieldRestService userInfoAddFieldRestService;
 
     /**
      * 获取所有商品
@@ -90,7 +97,7 @@ public class ShoppingMallRestController {
     }
 
     /**
-     * 积分兑换
+     * 积分兑换  map扩展加入地址信息
      * @param map
      * @param request
      * @return
@@ -112,7 +119,7 @@ public class ShoppingMallRestController {
             if(integralTotal<goodsRestEntity.getFengfengTicketValue()){
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW,null);
             }
-            JSONObject jsonObject = shoppingMallRestService.toExchange(map.get("exchangeMobile"),goodsRestEntity,userInfoId);
+            JSONObject jsonObject = shoppingMallRestService.toExchange(map,goodsRestEntity,userInfoId);
             return new ResultBean(ApiResultType.OK,jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -128,7 +135,6 @@ public class ShoppingMallRestController {
     @RequestMapping(value = {"/soouucallback"}, method = RequestMethod.POST)
     @ResponseBody
     public ResultBean soouucallback(HttpServletRequest request) {
-        logger.info("----------树鱼回调触发----------");
         try {
             //获取到回调地址传回的参数
             String OrderNo = request.getParameter("OrderNo"); // 福禄订单号
@@ -155,11 +161,66 @@ public class ShoppingMallRestController {
     public ResultBean historyIntegralExchange(HttpServletRequest request) {
         String userInfoId = (String)request.getAttribute("userInfoId");
         try {
-            List<ShoppingMallIntegralExchangeRestDTO> list = shoppingMallRestService.historyIntegralExchange(userInfoId);
+            List<ShoppingMallIntegralExchangePhysicalRestDTO> list = shoppingMallRestService.historyIntegralExchange(userInfoId);
             return new ResultBean(ApiResultType.OK,list);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
+    }
+
+    /**
+     * 获取收货地址
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/consigneeAddress/{type}"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean consigneeAddress(@PathVariable("type") String type,HttpServletRequest request) {
+        logger.info("访问终端:"+type);
+        String userInfoId = (String)request.getAttribute("userInfoId");
+        try {
+            ConsigneeAddressRestDTO bean = userInfoAddFieldRestService.getConsigneeAddress(userInfoId);
+            Map map = new HashMap();
+            map.put("aaa",bean);
+            System.out.println(JSON.toJSON(map).toString());
+            return new ResultBean(ApiResultType.OK,bean);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * save or update 收货地址
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/consigneeAddress/{type}"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean consigneeAddress(@PathVariable("type") String type,HttpServletRequest request,@RequestBody ConsigneeAddressRestDTO bean) {
+        logger.info("访问终端:"+type);
+        String userInfoId = (String)request.getAttribute("userInfoId");
+        try {
+            if(bean!=null){
+                userInfoAddFieldRestService.updateConsigneeAddress(userInfoId,bean);
+            }
+            return new ResultBean(ApiResultType.OK,null);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    @RequestMapping(value = {"/consigneeAddress"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean consigneeAddress(HttpServletRequest request) {
+        return this.consigneeAddress(null, request);
+    }
+
+    @RequestMapping(value = {"/consigneeAddress"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean consigneeAddress(HttpServletRequest request,@RequestBody ConsigneeAddressRestDTO bean) {
+        return this.consigneeAddress(null, request,bean);
     }
 }
