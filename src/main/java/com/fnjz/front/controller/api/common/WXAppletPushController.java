@@ -62,7 +62,7 @@ public class WXAppletPushController {
                     //根据code解密 opendid
                     String code = WXAppletUtils.getUser(map.get("code") + "");
                     JSONObject user = JSONObject.parseObject(code);
-                    if (user.getString("errcode") != null) {
+                    if (user.get("errcode") != null) {
                         logger.error("/uploadFormId   ----code解密异常-----");
                     } else {
                         openId = user.getString("openid");
@@ -75,6 +75,8 @@ public class WXAppletPushController {
                             userInfoAddFieldRestService.insertOpenId(userInfoId, openId, 1);
                         }
                     }
+                }else{
+                    openId =(String) map1.get("openid");
                 }
             } else {
                 //根据code解密 opendid
