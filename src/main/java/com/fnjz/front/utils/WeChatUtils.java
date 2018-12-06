@@ -47,23 +47,23 @@ public class WeChatUtils {
             return null;
         }
         //刷新refresh_token  生效时间7100s
-        String hur2 = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + AppId + "&grant_type=refresh_token&refresh_token=" + jsonObject.getString("refresh_token") + "";
+        /*String hur2 = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + AppId + "&grant_type=refresh_token&refresh_token=" + jsonObject.getString("refresh_token") + "";
         JSONObject jsonObject_refresh_token = http(hur2);
         if(jsonObject_refresh_token==null){
             return null;
-        }
+        }*/
         //根据openid获取用户信息
-        String hur3 = "https://api.weixin.qq.com/sns/userinfo?access_token=" + jsonObject_refresh_token.getString("access_token") + "&openid=" + jsonObject_refresh_token.getString("openid") + "";
+        String hur3 = "https://api.weixin.qq.com/sns/userinfo?access_token=" + jsonObject.getString("access_token") + "&openid=" + jsonObject.getString("openid") + "";
         JSONObject jsonObject_user_info = http(hur3);
         return jsonObject_user_info;
     }
 
-    public static String getRefreshToken(String accessToken){
+    /*public static String getRefreshToken(String accessToken){
         //刷新refresh_token  生效时间7100s
         String hur2 = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + AppId + "&grant_type=refresh_token&refresh_token=" + accessToken;
         JSONObject refreshToken = http(hur2);
         return refreshToken.getString("access_token");
-    }
+    }*/
 
     public static JSONObject http(String hurl) {
         try {
