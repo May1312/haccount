@@ -42,7 +42,7 @@ public class UpdateData {
                     jsonArray = JSONArray.fromObject(relation);
                     for (int i = 0; i < jsonArray.size(); i++) {
                         Map array_map = (Map) jsonArray.get(i);
-                        String typeId = (String) array_map.get("id");
+                        String typeId = String.valueOf(array_map.get("id")) ;
                         //根据userinfoid,typeid 确定唯一记录
                         String sql = "select id from hbird_user_private_label where user_info_id =" + currentUserInfoId + "  AND type_id = '" + typeId + "'";
                         List<Object> listbySql = userPrivateLabelRestService.findListbySql(sql);
