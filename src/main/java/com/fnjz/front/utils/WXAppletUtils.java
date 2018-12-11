@@ -4,7 +4,6 @@ import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import javax.imageio.stream.FileImageInputStream;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -134,7 +133,6 @@ public class WXAppletUtils {
             //jsonObject.put("page","pages/details/index/main");
             jsonObject.put("page","pages/eventpage/lovemoneyduck/registerpage/main");
             jsonObject.put("width",280);
-            //jsonObject.put("scene",shareCode);
             jsonObject.put("scene",shareCode);
             String param =JSONObject.fromObject(jsonObject).toString();//转化成json
             //建立输入流，向指向的URL传入参数
@@ -166,7 +164,6 @@ public class WXAppletUtils {
         return outStream.toByteArray();
 
     }
-
 
     @Test
     public void run(){
