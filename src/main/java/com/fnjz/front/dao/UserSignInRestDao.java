@@ -70,6 +70,13 @@ public interface UserSignInRestDao {
     @Sql("SELECT * FROM hbird_user_sign_in WHERE user_info_id = :userInfoId AND sign_in_date BETWEEN(SELECT date_sub( curdate( ), INTERVAL WEEKDAY( curdate( ) ) DAY)) and CURRENT_DATE ORDER BY sign_in_date ASC;")
     List<UserSignInRestEntity> getSignInForCurrentWeek(@Param("userInfoId") String userInfoId);
 
+    /**
+     * 获取指定范围内签到数据
+     * @return
+     */
+    @Sql("SELECT * FROM hbird_user_sign_in WHERE user_info_id = :userInfoId AND sign_in_date BETWEEN :first AND :end ORDER BY sign_in_date;")
+    List<UserSignInRestEntity> getSignInByTime(@Param("first") String first,@Param("end") String end,@Param("userInfoId")String userInfoId);
+
     @Sql("SELECT sign_in_date FROM hbird_user_sign_in WHERE user_info_id = :userInfoId AND sign_in_date like concat(:time,'%');")
     List<UserSignInRestDTO> getSignInForMonth(@Param("userInfoId") String userInfoId, @Param("time") String time);
 
@@ -89,4 +96,36 @@ public interface UserSignInRestDao {
      */
     @Sql("UPDATE `hbird_user_sign_in` set `status` = if(:status is null,null,:status) WHERE `user_info_id` = :userInfoId and sign_in_date=:signInDate;")
     void updateSignInStatusBySignInDate(@Param("userInfoId") String userInfoId,@Param("status") Integer status, @Param("signInDate") String localDate);
+
+    /**
+     * 获取指定日期往前最近一天的签到记录
+     * @param userInfoId
+     * @param signInDate
+     * @return
+     */
+    @Sql("SELECT UNIX_TIMESTAMP(sign_in_date)*1000 FROM `hbird_user_sign_in` WHERE `user_info_id` = :userInfoId AND `sign_in_date` < :signInDate order by sign_in_date desc limit 1;")
+    String getBeforeBySignInDate(@Param("userInfoId") String userInfoId, @Param("signInDate") String signInDate);
+
+    /**
+     * 获取指定日期往后最近一天的签到记录
+     * @param userInfoId
+     * @param signInDate
+     * @return
+     */
+    @Sql("SELECT UNIX_TIMESTAMP(sign_in_date)*1000 FROM `hbird_user_sign_in` WHERE `user_info_id` = :userInfoId AND `sign_in_date` > :signInDate order by sign_in_date limit 1;")
+    String getAfterBySignInDate(@Param("userInfoId") String userInfoId, @Param("signInDate") String signInDate);
+
+    /**
+     * 获取指定日期 往前最近一次标记日期
+     * @param userInfoId
+     * @return
+     */
+    @Sql("SELECT UNIX_TIMESTAMP(sign_in_date)*1000 FROM `hbird_user_sign_in` WHERE `user_info_id` = :userInfoId AND STATUS = 1 and sign_in_date<:signInDate ORDER BY sign_in_date DESC LIMIT 1;")
+    String getSignInForFisrtDesc(@Param("userInfoId") String userInfoId, @Param("signInDate") String signInDate);
+
+    /**
+     * 获取指定日期 往后标记次数
+     */
+    @Sql("SELECT COUNT(id) FROM `hbird_user_sign_in ` WHERE `user_info_id ` = userInfoId AND STATUS = 1 AND sign_in_date > :signInDate ;")
+    Integer getCountForAfterDate(@Param("userInfoId") String userInfoId, @Param("signInDate") String signInDate);
 }

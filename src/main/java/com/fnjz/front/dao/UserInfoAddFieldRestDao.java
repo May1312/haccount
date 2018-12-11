@@ -24,6 +24,24 @@ public interface UserInfoAddFieldRestDao {
     String getByUserInfoId(@Param("userInfoId") String userInfoId);
 
     /**
+     * 获取移动端 openId
+     *
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select wechat_open_id as openid from hbird_user_info_add_field where user_info_id=:userInfoId;")
+    String getWechatOpenId(@Param("userInfoId") String userInfoId);
+
+    /**
+     * 获取公众号 openId
+     *
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select official_open_id as openid from hbird_user_info_add_field where user_info_id=:userInfoId;")
+    String getOfficialOpenId(@Param("userInfoId") String userInfoId);
+
+    /**
      * 添加小程序openid
      * @param userInfoId
      * @param openId

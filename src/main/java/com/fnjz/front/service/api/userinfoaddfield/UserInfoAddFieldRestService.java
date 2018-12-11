@@ -32,4 +32,12 @@ public interface UserInfoAddFieldRestService {
     void insertOpenId(String userInfoId, String openId, int i);
 
     void updateOpenId(String userInfoId, String openId, Integer id, int i);
+
+    /**
+     * 检查openid 是否存在
+     * @param userInfoId
+     * @param type
+     * @return
+     */
+    Integer checkExistsOpenId(String userInfoId, Integer type);
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.sharewords.ShareWordsRestDTO;
 import com.fnjz.front.service.api.usersignin.UserSignInRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
 import org.apache.log4j.Logger;
@@ -47,10 +48,8 @@ public class UserSignInRestController extends BaseController {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         try {
-            Integer integer = userSignInRestServiceI.signIn(userInfoId, shareCode);
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("signInAware", integer);
-            return new ResultBean(ApiResultType.OK, jsonObject);
+            ShareWordsRestDTO bean = userSignInRestServiceI.signIn(userInfoId, shareCode);
+            return new ResultBean(ApiResultType.OK, bean);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -68,19 +67,20 @@ public class UserSignInRestController extends BaseController {
     public ResultBean reSignIn(HttpServletRequest request, @RequestBody Map<String, Date> map) {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
-        //周一
-        LocalDateTime monday = LocalDate.now().with(DayOfWeek.MONDAY).atTime(0, 0, 0);
-        //昨天
-        LocalDateTime yesterday = LocalDate.now().atTime(0, 0, 0);
+        LocalDate localDate = LocalDate.now();
+        LocalDateTime localDateTime = localDate.atTime(0, 0, 0);
+        LocalDateTime first = localDate.minusDays(6).atTime(0, 0, 0);
         LocalDateTime signInDate = LocalDateTime.ofInstant(map.get("signInDate").toInstant(), ZoneId.systemDefault());
         //校验日期是否在本周
-        if (signInDate.isAfter(monday) && signInDate.isBefore(yesterday)) {
+        if (signInDate.isAfter(first) && signInDate.isBefore(localDateTime)) {
             try {
                 userSignInRestServiceI.reSignIn(userInfoId, shareCode, signInDate);
             } catch (Exception e) {
                 logger.error(e.toString());
                 return new ResultBean(ApiResultType.SERVER_ERROR, null);
             }
+        }else{
+            return new ResultBean(ApiResultType.NOT_ALLOW_RESIGN, null);
         }
         return new ResultBean(ApiResultType.OK, null);
     }

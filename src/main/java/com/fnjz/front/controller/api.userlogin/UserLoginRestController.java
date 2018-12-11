@@ -154,6 +154,7 @@ public class UserLoginRestController extends BaseController {
             return rb;
         }
         JSONObject user = WeChatUtils.getUser(map.get("code"));
+        logger.info("移动端微信登录:"+user.toJSONString());
         if (user == null) {
             return new ResultBean(ApiResultType.WECHAT_LOGIN_ERROR, null);
         }

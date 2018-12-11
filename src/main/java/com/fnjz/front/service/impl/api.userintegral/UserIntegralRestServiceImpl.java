@@ -6,11 +6,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.FengFengTicketRestDao;
 import com.fnjz.front.dao.UserIntegralRestDao;
+import com.fnjz.front.dao.UserSignInAwardRestDao;
 import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestDTO;
 import com.fnjz.front.entity.api.userintegral.UserIntegralRestEntity;
 import com.fnjz.front.entity.api.userintegral.UserIntegralTopRestDTO;
+import com.fnjz.front.entity.api.usersigninaward.UserSignInAwardRestEntity;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.IntegralEnum;
@@ -40,49 +42,27 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
 
+    @Autowired
+    private UserSignInAwardRestDao userSignInAwardRestDao;
+
     @Override
     public void signInIntegral(String userInfoId, String shareCode, Map<String, String> map) {
         //根据cycle 判断周数
         String cycle = map.get("cycle");
         if (StringUtils.isNotEmpty(cycle)) {
-            //判断签到天数是否达标
-            int signInDays = redisTemplateUtils.getForHashKey(RedisPrefix.PREFIX_SIGN_IN + shareCode, "signInDays");
-            if (StringUtils.equals(cycle, IntegralEnum.SIGNIN_7.getIndex() + "")) {
-                //判断领取状态
-                int signIn_7 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_7");
-                if (signIn_7 != 2 && signInDays >= IntegralEnum.SIGNIN_7.getIndex()) {
-                    FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_7.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_7.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
+            //判断是否取到资格
+            Integer getTImes = userSignInAwardRestDao.getGetTimes(userInfoId,cycle);
+            if(getTImes!=null){
+                if(getTImes>0){
+                    FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), Integer.valueOf(cycle));
+                    //用户连签奖励领取情况表 times-1
+                    getTImes = getTImes-1;
+                    UserSignInAwardRestEntity bean = new UserSignInAwardRestEntity(Integer.valueOf(userInfoId),CategoryOfBehaviorEnum.SignIn.getName(),Integer.valueOf(cycle),getTImes==0?2:1,getTImes,0);
+                    userSignInAwardRestDao.update(bean);
+                    //添加到积分记录表
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), Integer.valueOf(cycle), CategoryOfBehaviorEnum.SignIn.getIndex());
+                    //修改总积分数
                     userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
-                    //标记本次领取状态
-                    redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_7", 2);
-                }
-            } else if (StringUtils.equals(cycle, IntegralEnum.SIGNIN_14.getIndex() + "")) {
-                int signIn_14 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_14");
-                if (signIn_14 != 2 && signInDays >= IntegralEnum.SIGNIN_14.getIndex()) {
-                    FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_14.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_14.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
-                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
-                    //标记本次领取状态
-                    redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_14", 2);
-                }
-            } else if (StringUtils.equals(cycle, IntegralEnum.SIGNIN_21.getIndex() + "")) {
-                int signIn_21 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_21");
-                if (signIn_21 != 2 && signInDays >= IntegralEnum.SIGNIN_21.getIndex()) {
-                    FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_21.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_21.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
-                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
-                    //标记本次领取状态
-                    redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_21", 2);
-                }
-            } else if (StringUtils.equals(cycle, IntegralEnum.SIGNIN_28.getIndex() + "")) {
-                int signIn_28 = redisTemplateUtils.getForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_28");
-                if (signIn_28 != 2 && signInDays >= IntegralEnum.SIGNIN_28.getIndex()) {
-                    FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_28.getIndex());
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_28.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
-                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
-                    //标记本次领取状态
-                    redisTemplateUtils.updateForHashKey(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + shareCode, "signIn_28", 2);
                 }
             }
         }

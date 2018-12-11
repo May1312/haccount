@@ -99,9 +99,9 @@ public class WXAppletPushController {
                 boolean status = redisTemplateUtils.hasKey(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "_" + time);
                 if (!status) {
                     //当天首次上传
-                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "_" + time, arrays, 1);
+                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "_" + time, arrays, 1,7L);
                 } else {
-                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "_" + time, arrays, 2);
+                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "_" + time, arrays, 2,null);
                 }
                 //cache openId   以user_info_id 为key
                 redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID + userInfoId, openId, 7L);

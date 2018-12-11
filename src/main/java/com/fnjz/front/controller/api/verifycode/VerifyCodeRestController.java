@@ -134,6 +134,17 @@ public class VerifyCodeRestController {
     }
 
     /**
+     * 商城 现金兑换 验证码
+     * @param map
+     * @return
+     */
+    @RequestMapping(value = "/verifycodeToCash", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean verifycodeToCash(@RequestBody @ApiIgnore Map<String, String> map) {
+        return this.sendVerifyCode(map, VerifyCodeEnum.VERIFYCODE_CASH_MOBILE);
+    }
+
+    /**
      * 公共方法抽取
      *
      * @param verifycode
@@ -263,6 +274,22 @@ public class VerifyCodeRestController {
                     return new ResultBean(ApiResultType.SEND_VERIFYCODE_ERROR, null);
                 }*/
                 else {
+                    logger.error(smsSingleResponse.getErrorMsg());
+                    ResultBean rb = new ResultBean();
+                    rb.setFailMsg(smsSingleResponse.getCode(),smsSingleResponse.getErrorMsg());
+                    return rb;
+                }
+            } else if (verifycode.getIndex() == 6) {
+                if (task == null) {
+                    return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
+                }
+                SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.CL_CASH_MOBILE.getTemplateContent(),map.get("exchangeMobile"),true);
+                if(StringUtil.equals(smsSingleResponse.getCode(), "0")){
+                    //验证码存放redis
+                    redisTemplateUtils.cacheVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"),random);
+                    logger.info("生成商城现金兑换验证码:" + random);
+                    return new ResultBean(ApiResultType.OK, null);
+                } else {
                     logger.error(smsSingleResponse.getErrorMsg());
                     ResultBean rb = new ResultBean();
                     rb.setFailMsg(smsSingleResponse.getCode(),smsSingleResponse.getErrorMsg());

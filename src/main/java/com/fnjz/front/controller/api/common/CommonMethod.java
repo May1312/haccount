@@ -1,5 +1,6 @@
 package com.fnjz.front.controller.api.common;
 
+import com.alibaba.fastjson.JSON;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -18,13 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 通用方法
@@ -99,7 +95,7 @@ public class CommonMethod extends BaseController {
                     localDate = localDate.minusDays(j);
                     DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyyMMdd");
                     String time = localDate.format(formatters);
-                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + uuid + "_" + time, arrays, 1);
+                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + uuid + "_" + time, arrays, 1,7L);
                 }
                 redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID+i,uuid,7L);
             }
@@ -108,10 +104,19 @@ public class CommonMethod extends BaseController {
     @RequestMapping(value = "/redis2" , method = RequestMethod.POST)
     @ResponseBody
     public void redis2() {
-        for(int i =0;i<10;i++){
-        LocalDateTime localDateTime= LocalDateTime.now();
-        redisTemplateUtils.getForString("wxapplet_openid_formid:000837cdd5b644729f3a4456e310234c1543579647389");
-        logger.info("==========单条get开销耗时:"+(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli()-localDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli()));
-        }
+        List<String> list = new ArrayList<>();
+        Map<String,Integer> map1 = new HashMap<>();
+        map1.put("7",5);
+        Map<String,Integer> map2 = new HashMap<>();
+        map2.put("14",10);
+        Map<String,Integer> map3 = new HashMap<>();
+        map3.put("21",15);
+        Map<String,Integer> map4 = new HashMap<>();
+        map4.put("28",20);
+        list.add(JSON.toJSON(map1).toString());
+        list.add(JSON.toJSON(map2).toString());
+        list.add(JSON.toJSON(map3).toString());
+        list.add(JSON.toJSON(map4).toString());
+        redisTemplateUtils.setListRight(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD,list,2,null);
     }
 }

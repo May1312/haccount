@@ -3,6 +3,7 @@ package com.fnjz.front.service.impl.api.shoppingmall;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.dao.ShoppingMallRestDao;
+import com.fnjz.front.dao.UserInfoAddFieldRestDao;
 import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
@@ -13,9 +14,11 @@ import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegr
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.ShoppingMallExchangeEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
+import com.fnjz.front.utils.WeChatPayUtils;
 import com.fnjz.utils.sms.TemplateCode;
 import com.fnjz.utils.sms.chuanglan.sms.util.ChuangLanSmsUtil;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jeecgframework.core.util.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,11 +50,16 @@ import java.util.*;
 @Transactional
 public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
 
+    private static final Logger logger = Logger.getLogger(ShoppingMallRestServiceImpl.class);
+
     @Autowired
     private ShoppingMallRestDao shoppingMallRestDao;
 
     @Autowired
     private UserIntegralRestDao userIntegralRestDao;
+
+    @Autowired
+    private UserInfoAddFieldRestDao userInfoAddFieldRestDao;
 
     /**
      * 获取可用商品
@@ -102,12 +110,17 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
      * @return
      */
     @Override
-    public JSONObject toExchange(Map<String,String> map, GoodsRestEntity goodsRestEntity, String userInfoId) throws Exception {
+    public JSONObject toExchange(Map<String, String> map, GoodsRestEntity goodsRestEntity, String userInfoId) throws Exception {
         JSONObject result2 = new JSONObject();
         //加入实物兑换
-        if(goodsRestEntity.getGoodsType()==2){
-            exchangePhysical(map,goodsRestEntity,userInfoId);
+        if (goodsRestEntity.getGoodsType() == 2) {
+            exchangePhysical(map, goodsRestEntity, userInfoId);
             return null;
+        } else if (goodsRestEntity.getGoodsType() == 3) {
+            //现金红包类兑换
+            boolean b = exchangeCash(map, goodsRestEntity, userInfoId);
+            result2.put("status", b == true ? 2 : 3);
+            return result2;
         }
         HttpHeaders headers = new HttpHeaders();
         MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
@@ -129,7 +142,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         if (ShoppingMallExchangeEnum.TELEPHONE_CHARGE.getIndex() == goodsRestEntity.getType()) {
             jsonObject.put("method", "kamenwang.phoneorder.add");
             //充值面值
-            jsonObject.put("chargeparvalue", Double.valueOf(goodsRestEntity.getFaceValue()+"").intValue()+"");
+            jsonObject.put("chargeparvalue", Double.valueOf(goodsRestEntity.getFaceValue() + "").intValue() + "");
             //充值手机号
             jsonObject.put("chargephone", map.get("exchangeMobile"));
             //回调地址
@@ -138,7 +151,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             //流量兑换类型
             jsonObject.put("method", "kamenwang.trafficgoods.add");
             //流量大小(注：单位为MB，1GB=1024MB)
-            jsonObject.put("chargeparvalue", Double.valueOf(goodsRestEntity.getFaceValue()+"").intValue()+"");
+            jsonObject.put("chargeparvalue", Double.valueOf(goodsRestEntity.getFaceValue() + "").intValue() + "");
             //充值手机号
             jsonObject.put("chargephone", map.get("exchangeMobile"));
             //流量类型(注：1.全国  0.省内)
@@ -209,11 +222,11 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                             //记录积分消耗表
                             userIntegralRestDao.insertShoppingMallIntegral(userInfoId, shoppingMallId, "-" + goodsRestEntity.getFengfengTicketValue(), goodsRestEntity.getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex());
                             //修改总积分值
-                            userIntegralRestDao.updateForTotalIntegral(userInfoId,Integer.valueOf("-" + goodsRestEntity.getFengfengTicketValue()));
+                            userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + goodsRestEntity.getFengfengTicketValue()));
                             result2.put("cardDeadline", Date.from(instant));
                             result2.put("cardCode", decryCardPwd);
                             result2.put("status", 2);
-                            ChuangLanSmsUtil.sendSmsByPost(goodsRestEntity.getGoodsName(),decryCardPwd,ldt.toLocalDate().toString(),TemplateCode.SEND_EXCHANGE_GOODS.getTemplateContent(),map.get("exchangeMobile"),true);
+                            ChuangLanSmsUtil.sendSmsByPost(goodsRestEntity.getGoodsName(), decryCardPwd, ldt.toLocalDate().toString(), TemplateCode.SEND_EXCHANGE_GOODS.getTemplateContent(), map.get("exchangeMobile"), true);
                             return result2;
                         }
                     }
@@ -230,7 +243,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             //下架操作
             if (jsonObject1.getInteger("MessageCode") == 2100 || jsonObject1.getInteger("MessageCode") == 2101 || jsonObject1.getInteger("MessageCode") == 2103 || jsonObject1.getInteger("MessageCode") == 2104 || jsonObject1.getInteger("MessageCode") == 2106 || jsonObject1.getInteger("MessageCode") == 2108) {
                 shoppingMallRestDao.downGoods(Integer.valueOf(goodsRestEntity.getId()));
-                ChuangLanSmsUtil.sendSmsByPost(jsonObject1.getString("MessageInfo"),TemplateCode.DOWN_GOODS.getTemplateContent(),"13552570975",true);
+                ChuangLanSmsUtil.sendSmsByPost(jsonObject1.getString("MessageInfo"), TemplateCode.DOWN_GOODS.getTemplateContent(), "13552570975", true);
             }
             //兑换失败
             shoppingMall.setStatus(3);
@@ -246,11 +259,11 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
     /**
      * 实物兑换流程
      */
-    private void exchangePhysical(Map<String,String> map, GoodsRestEntity goodsRestEntity, String userInfoId){
+    private void exchangePhysical(Map<String, String> map, GoodsRestEntity goodsRestEntity, String userInfoId) {
         //订单号
         String shoppingMallId = userInfoId + System.currentTimeMillis();
         //插入积分兑换记录
-        ShoppingMallIntegralExchangePhysicalRestEntity shoppingMall = JSON.parseObject(map.get("consigneeAddress"),ShoppingMallIntegralExchangePhysicalRestEntity.class);
+        ShoppingMallIntegralExchangePhysicalRestEntity shoppingMall = JSON.parseObject(map.get("consigneeAddress"), ShoppingMallIntegralExchangePhysicalRestEntity.class);
         //设置订单号
         shoppingMall.setId(Long.valueOf(shoppingMallId));
         //设置id
@@ -264,7 +277,87 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         //记录积分消耗表
         userIntegralRestDao.insertShoppingMallIntegral(userInfoId, shoppingMallId, "-" + goodsRestEntity.getFengfengTicketValue(), goodsRestEntity.getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex());
         //修改总积分值
-        userIntegralRestDao.updateForTotalIntegral(userInfoId,Integer.valueOf("-" + goodsRestEntity.getFengfengTicketValue()));
+        userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + goodsRestEntity.getFengfengTicketValue()));
+    }
+
+    /**
+     * 现金红包兑换流程
+     */
+    private boolean exchangeCash(Map<String, String> map, GoodsRestEntity goodsRestEntity, String userInfoId) {
+        //订单号
+        String shoppingMallId = userInfoId + System.currentTimeMillis();
+        boolean flag = false;
+        //小程序公众号兑换
+        //if (StringUtils.equals(map.get("channel"), "1")) {
+
+
+        //} else if (StringUtils.equals(map.get("channel"), "2")) {
+        //移动端零钱提现
+        String wechatOpenId = userInfoAddFieldRestDao.getWechatOpenId(userInfoId);
+        Map<String, String> stringStringMap;
+        if (StringUtils.isNotEmpty(wechatOpenId)) {
+            double money = goodsRestEntity.getFaceValue().doubleValue();
+            stringStringMap = WeChatPayUtils.wechatPay(money, wechatOpenId, shoppingMallId, "现金红包兑换" + money + "元", 2, Integer.valueOf(map.get("channel")));
+            if (StringUtils.equals(stringStringMap.get("return_code"), "SUCCESS") && StringUtils.equals(stringStringMap.get("result_code"), "SUCCESS")) {
+                //成功
+                flag = true;
+            } else {
+                //失败重试一次  系统繁忙，请稍后再试
+                if (StringUtils.equals(stringStringMap.get("err_code"), "SYSTEMERROR")) {
+                    stringStringMap = WeChatPayUtils.wechatPay(money, wechatOpenId, shoppingMallId, "现金红包兑换" + money + "元", 2, Integer.valueOf(map.get("channel")));
+                    if (StringUtils.equals(stringStringMap.get("return_code"), "SUCCESS") && StringUtils.equals(stringStringMap.get("result_code"), "SUCCESS")) {
+                        //成功
+                        flag = true;
+                    } else {
+                        //仍然失败 ---->兑换失败
+                        logger.error("--------微信支付失败---------:" + JSON.toJSON(stringStringMap).toString());
+                    }
+                } else if (StringUtils.equals(stringStringMap.get("err_code"), "NOTENOUGH")) {
+                    shoppingMallRestDao.downGoods(Integer.valueOf(goodsRestEntity.getId()));
+                    //余额不足  下架
+                    ChuangLanSmsUtil.sendSmsByPost(stringStringMap.get("return_msg") + "[微信支付]", TemplateCode.DOWN_GOODS.getTemplateContent(), "13552570975", true);
+                } else {
+                    logger.error("--------微信支付失败---------" + JSON.toJSON(stringStringMap).toString());
+                }
+            }
+        }
+
+        // }
+        if (flag) {
+            //插入积分兑换记录
+            ShoppingMallIntegralExchangePhysicalRestEntity shoppingMall = new ShoppingMallIntegralExchangePhysicalRestEntity();
+            //设置订单号
+            shoppingMall.setId(Long.valueOf(shoppingMallId));
+            //设置id
+            shoppingMall.setGoodsId(Integer.valueOf(goodsRestEntity.getId()));
+            //设置数量
+            shoppingMall.setCount(1);
+            //设置兑换状态
+            shoppingMall.setStatus(2);
+            //设置兑换手机号
+            shoppingMall.setExchangeMobile(map.get("exchangeMobile"));
+            //添加兑换记录
+            shoppingMallRestDao.insertPhysical(shoppingMall, userInfoId);
+            //记录积分消耗表
+            userIntegralRestDao.insertShoppingMallIntegral(userInfoId, shoppingMallId, "-" + goodsRestEntity.getFengfengTicketValue(), goodsRestEntity.getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex());
+            //修改总积分值
+            userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + goodsRestEntity.getFengfengTicketValue()));
+            return flag;
+        } else {
+            //插入积分兑换记录
+            ShoppingMallIntegralExchangePhysicalRestEntity shoppingMall = new ShoppingMallIntegralExchangePhysicalRestEntity();
+            //设置订单号
+            shoppingMall.setId(Long.valueOf(shoppingMallId));
+            //设置id
+            shoppingMall.setGoodsId(Integer.valueOf(goodsRestEntity.getId()));
+            //设置数量
+            shoppingMall.setCount(1);
+            //设置兑换状态
+            shoppingMall.setStatus(3);
+            //添加兑换记录
+            shoppingMallRestDao.insertPhysical(shoppingMall, userInfoId);
+            return flag;
+        }
     }
 
     /**
@@ -376,7 +469,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                 //记录积分消耗表
                 userIntegralRestDao.insertShoppingMallIntegral(shopping.getUserInfoId() + "", customerOrderNo, "-" + goodsById.getFengfengTicketValue(), goodsById.getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex());
                 //修改总积分值
-                userIntegralRestDao.updateForTotalIntegral(shopping.getUserInfoId() + "",Integer.valueOf("-" + goodsById.getFengfengTicketValue()));
+                userIntegralRestDao.updateForTotalIntegral(shopping.getUserInfoId() + "", Integer.valueOf("-" + goodsById.getFengfengTicketValue()));
             }
         } else {
             //兑换失败
@@ -394,7 +487,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
     public List<ShoppingMallIntegralExchangePhysicalRestDTO> historyIntegralExchange(String userInfoId) {
         List<ShoppingMallIntegralExchangePhysicalRestDTO> list = shoppingMallRestDao.historyIntegralExchange(userInfoId);
         if (list.size() > 0) {
-            if (list.get(0).getStatus() == 1 && list.get(0).getGoodsType()==1) {
+            if (list.get(0).getStatus() == 1 && list.get(0).getGoodsType() == 1) {
                 //兑换中状态----->rpc查询树鱼
                 HttpHeaders headers = new HttpHeaders();
                 MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
@@ -410,7 +503,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                 jsonObject.put("v", "1.0");
                 jsonObject.put("method", "kamenwang.order.get");
                 //订单号
-                jsonObject.put("customerorderno", list.get(0).getId()+"");
+                jsonObject.put("customerorderno", list.get(0).getId() + "");
                 String param = MaptoString(jsonObject);
                 // 将秘钥拼接到URL参数对后
                 String postData = param + secret;
@@ -428,13 +521,13 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                         //记录积分消耗表
                         userIntegralRestDao.insertShoppingMallIntegral(userInfoId, list.get(0).getId() + "", "-" + list.get(0).getFengfengTicketValue(), list.get(0).getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex());
                         //修改总积分值
-                        userIntegralRestDao.updateForTotalIntegral(userInfoId,Integer.valueOf("-" + list.get(0).getFengfengTicketValue()));
+                        userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + list.get(0).getFengfengTicketValue()));
                         list.get(0).setStatus(2);
                     } else if (StringUtils.equals(jsonObject1.getString("Status"), "失败")) {
                         shoppingMallRestDao.update(list.get(0).getId() + "", 3);
                         list.get(0).setStatus(3);
                     }
-                }else{
+                } else {
                     shoppingMallRestDao.update(list.get(0).getId() + "", 3);
                     list.get(0).setStatus(3);
                 }
@@ -446,9 +539,9 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
     @Override
     public boolean checkExchangeStatus(String userInfoId) {
         int count = shoppingMallRestDao.checkExchangeStatus(userInfoId);
-        if(count>0){
+        if (count > 0) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
