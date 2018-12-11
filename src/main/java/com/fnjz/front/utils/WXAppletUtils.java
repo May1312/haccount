@@ -1,10 +1,12 @@
 package com.fnjz.front.utils;
 
-import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -105,64 +107,6 @@ public class WXAppletUtils {
             logger.error(e.toString());
         }
         return null;
-    }
-
-    /**
-     * 获取微信二维码
-     * @return
-     */
-    public static byte[] getWXACode(String accessToken,String shareCode){
-        String hurl = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token="+accessToken;
-        try {
-            URL url = new URL(hurl);
-            HttpURLConnection  conn = (HttpURLConnection) url.openConnection();
-            //设置本次请求的方式 ， 默认是GET方式， 参数要求都是大写字母
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            //设置连接超时
-            conn.setConnectTimeout(5000);
-            //是否打开输入流 ， 此方法默认为true
-            conn.setDoInput(true);
-            //是否打开输出流， 此方法默认为false
-            conn.setDoOutput(true);
-            //表示连接
-            conn.connect();
-            //设置参数
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("is_hyaline",false);
-            //jsonObject.put("page","pages/details/index/main");
-            jsonObject.put("page","pages/eventpage/lovemoneyduck/registerpage/main");
-            jsonObject.put("width",280);
-            jsonObject.put("scene",shareCode);
-            String param =JSONObject.fromObject(jsonObject).toString();//转化成json
-            //建立输入流，向指向的URL传入参数
-            DataOutputStream dos=new DataOutputStream(conn.getOutputStream());
-            dos.writeBytes(param);
-            dos.flush();
-            dos.close();
-
-            InputStream inStream = conn.getInputStream();// 通过输入流获取图片数据
-            byte[] btImg = readInputStream(inStream);
-            return btImg;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            logger.error(e.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.error(e.toString());
-        }
-        return null;
-    }
-    private static byte[] readInputStream(InputStream inStream) throws IOException {
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[10240];
-        int len = 0;
-        while ((len = inStream.read(buffer)) != -1) {
-            outStream.write(buffer, 0, len);
-        }
-        inStream.close();
-        return outStream.toByteArray();
-
     }
 
     @Test
