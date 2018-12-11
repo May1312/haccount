@@ -55,7 +55,9 @@ public class WXAppletPushUtils {
         //获取accessToken
         String accessToken = this.checkAccessToken();
         //发送消息
-        sendPostMessage(accessToken, openId, templateId, page, formId, bean, "");
+        if(StringUtils.isNotEmpty(accessToken)){
+            sendPostMessage(accessToken, openId, templateId, page, formId, bean, "");
+        }
     }
 
     /**
@@ -69,22 +71,13 @@ public class WXAppletPushUtils {
             //重新获取access token
             String accessToken1 = WXAppletUtils.getAccessToken();
             JSONObject jsonObject = JSONObject.fromObject(accessToken1);
+            if (jsonObject.get("errcode") != null) {
+                logger.error("小程序 消息模板 服务通知:   ----获取access token异常-----");
+                return null;
+            }
             accessToken = jsonObject.getString("access_token");
             //缓存2小时
-            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN, accessToken, 7200L, TimeUnit.SECONDS);
-        } else {
-            //判断剩余时间间隔
-            long expire = redisTemplateUtils.getExpire(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN);
-            //判断缓存小于10分钟刷新缓存
-            if (expire <= 600) {
-                accessToken = WeChatUtils.getRefreshToken(accessToken);
-                if (StringUtils.isEmpty(accessToken)) {
-                    accessToken = WXAppletUtils.getAccessToken();
-                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN, accessToken, 7200L, TimeUnit.SECONDS);
-                } else {
-                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN, accessToken, 7200L, TimeUnit.SECONDS);
-                }
-            }
+            redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN, accessToken, Long.valueOf(jsonObject.getString("expires_in")), TimeUnit.SECONDS);
         }
         return accessToken;
     }

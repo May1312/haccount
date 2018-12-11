@@ -7,6 +7,7 @@ import com.fnjz.constants.DomainEnum;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.service.api.userwxqrcode.UserWXQrCodeRestServiceI;
 import com.fnjz.front.utils.CommonUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.WXAppletUtils;
 import com.fnjz.utils.upload.QiNiuUploadFileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.TimeUnit;
 
 /**   
  * @Title: Controller
@@ -39,6 +41,9 @@ public class UserWXQrCodeRestController extends BaseController {
 	@Autowired
 	private UserWXQrCodeRestServiceI userWXQrCodeServiceI;
 
+	@Autowired
+	private RedisTemplateUtils redisTemplateUtils;
+
 	/**
 	 * 获取邀请小程序码
 	 * @param request
@@ -55,7 +60,7 @@ public class UserWXQrCodeRestController extends BaseController {
 			if(StringUtils.isNotEmpty(url)){
 				return new ResultBean(ApiResultType.OK,url);
 			}else{
-				String accessToken = WXAppletUtils.getAccessToken();
+				String accessToken = checkAccessToken();
 				JSONObject jsonObject = JSONObject.parseObject(accessToken);
 				if (jsonObject.getString("errcode")==null) {
 					byte[] result = WXAppletUtils.getWXACode(jsonObject.getString("access_token"),shareCode);
@@ -71,5 +76,27 @@ public class UserWXQrCodeRestController extends BaseController {
 			logger.error(e.toString());
 			return new ResultBean(ApiResultType.SERVER_ERROR, null);
 		}
+	}
+
+	/**
+	 * 获取accessToken
+	 *
+	 * @return
+	 */
+	private String checkAccessToken() {
+		String accessToken = redisTemplateUtils.getForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN);
+		if (StringUtils.isEmpty(accessToken)) {
+			//重新获取access token
+			String accessToken1 = WXAppletUtils.getAccessToken();
+			net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject.fromObject(accessToken1);
+			if (jsonObject.get("errcode") != null) {
+				logger.error("小程序 消息模板 服务通知:   ----获取access token异常-----");
+				return null;
+			}
+			accessToken = jsonObject.getString("access_token");
+			//缓存2小时
+			redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN, accessToken, Long.valueOf(jsonObject.getString("expires_in")), TimeUnit.SECONDS);
+		}
+		return accessToken;
 	}
 }
