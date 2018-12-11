@@ -140,8 +140,20 @@ public class WXAppletUtils {
             dos.writeBytes(param);
             dos.flush();
             dos.close();
-
-            InputStream inStream = conn.getInputStream();// 通过输入流获取图片数据
+            // 通过输入流获取图片数据
+            InputStream inStream = conn.getInputStream();
+            //==========新增部分===========
+            BufferedReader buffer = new BufferedReader(new InputStreamReader(inStream));
+            StringBuffer bs = new StringBuffer();
+            String str;
+            while ((str = buffer.readLine()) != null) {
+                bs.append(str);
+            }
+            JSONObject jsonObject1 = JSONObject.fromObject(bs.toString());
+            if(jsonObject1.get("errcode")!=null){
+                logger.error("获取小程序二维码异常:"+jsonObject1.getString("errmsg"));
+                return null;
+            }
             byte[] btImg = readInputStream(inStream);
             return btImg;
         } catch (MalformedURLException e) {

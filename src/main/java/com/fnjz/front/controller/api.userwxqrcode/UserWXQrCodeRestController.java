@@ -61,10 +61,15 @@ public class UserWXQrCodeRestController extends BaseController {
             } else {
                 String accessToken = checkAccessToken();
                 byte[] result = WXAppletUtils.getWXACode(accessToken, shareCode);
-                //上传七牛云
-                url = new QiNiuUploadFileUtils().bytesUpload(DomainEnum.WXAPPLET_QR_CODE_DOMAIN.getDomainUrl(), result, DomainEnum.WXAPPLET_QR_CODE_DOMAIN.getDomainName(), "wxqrcode_" + CommonUtils.getAccountOrder());
-                userWXQrCodeServiceI.insert(userInfoId, url);
-                return new ResultBean(ApiResultType.OK, url);
+                if(result!=null){
+                    //上传七牛云
+                    url = new QiNiuUploadFileUtils().bytesUpload(DomainEnum.WXAPPLET_QR_CODE_DOMAIN.getDomainUrl(), result, DomainEnum.WXAPPLET_QR_CODE_DOMAIN.getDomainName(), "wxqrcode_" + CommonUtils.getAccountOrder());
+                    userWXQrCodeServiceI.insert(userInfoId, url);
+                    return new ResultBean(ApiResultType.OK, url);
+                }else{
+                    //人格测试二维码获取不到情况下返回url
+                    return new ResultBean(ApiResultType.OK, "https://head.image.fengniaojizhang.cn/loveMoneyDefaultPage.jpg");
+                }
             }
         } catch (Exception e) {
             logger.error(e.toString());
