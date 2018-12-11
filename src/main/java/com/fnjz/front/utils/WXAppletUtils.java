@@ -133,8 +133,7 @@ public class WXAppletUtils {
             //jsonObject.put("page","pages/details/index/main");
             jsonObject.put("page","pages/eventpage/lovemoneyduck/registerpage/main");
             jsonObject.put("width",280);
-            //jsonObject.put("scene",shareCode);
-            jsonObject.put("loveMoneyDuckInviteCode",shareCode);
+            jsonObject.put("scene",shareCode);
             String param =JSONObject.fromObject(jsonObject).toString();//转化成json
             //建立输入流，向指向的URL传入参数
             DataOutputStream dos=new DataOutputStream(conn.getOutputStream());
