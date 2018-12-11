@@ -634,7 +634,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             String signInForBefore = userSignInRestDao.getSignInForFisrtDesc(userInfoId, signInDate.toLocalDate().toString());
                             LocalDate first = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(signInForBefore)), ZoneId.systemDefault()).toLocalDate();
                             //判断后续天数
-                            LocalDateTime end = LocalDateTime.ofInstant(signInForAfter.get(1).getSignInDate().toInstant(), ZoneId.systemDefault());
+                            LocalDate end = LocalDateTime.ofInstant(signInForAfter.get(1).getSignInDate().toInstant(), ZoneId.systemDefault()).toLocalDate();
                             Period period = Period.between(first, end);
                             int days = period.getDays();
                             int interval;
