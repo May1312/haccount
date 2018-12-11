@@ -130,7 +130,8 @@ public class WXAppletUtils {
             //设置参数
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("is_hyaline",false);
-            jsonObject.put("page","pages/details/index/main");
+            //jsonObject.put("page","pages/details/index/main");
+            jsonObject.put("page","pages/eventpage/lovemoneyduck/registerpage/main");
             jsonObject.put("width",280);
             jsonObject.put("scene",shareCode);
             String param =JSONObject.fromObject(jsonObject).toString();//转化成json
