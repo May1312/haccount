@@ -62,7 +62,7 @@ public class UserWXQrCodeRestController extends BaseController {
 			}else{
 				String accessToken = checkAccessToken();
 				JSONObject jsonObject = JSONObject.parseObject(accessToken);
-				if (jsonObject.getString("errcode")==null) {
+				if (jsonObject.get("errcode")==null) {
 					byte[] result = WXAppletUtils.getWXACode(jsonObject.getString("access_token"),shareCode);
 					//上传七牛云
 					url = new QiNiuUploadFileUtils().bytesUpload(DomainEnum.WXAPPLET_QR_CODE_DOMAIN.getDomainUrl(),result,DomainEnum.WXAPPLET_QR_CODE_DOMAIN.getDomainName(),"wxqrcode_"+ CommonUtils.getAccountOrder());
