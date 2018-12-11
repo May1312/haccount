@@ -628,17 +628,15 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             }
                         }else{
                             //后续连签 不需要修改cache
-                            //获取最新 周期内开始时间
-                            List<UserSignInRestEntity> signInForSecondDesc = userSignInRestDao.getSignInForSecondDesc(userInfoId);
-                            //中间情况  关联上下
+                            //获取后序连签天数
+                            List<UserSignInRestEntity> signInForAfter = userSignInRestDao.getSignInForAfterSecond(userInfoId,signInDate.toLocalDate().toString());
                             //判断上次连签天数
-                            LocalDateTime list1SignInDate = LocalDateTime.ofInstant(signInForSecondDesc.get(1).getSignInDate().toInstant(), ZoneId.systemDefault());
-                            Period period = Period.between(list1SignInDate.toLocalDate(), signInDate.toLocalDate());
-                            int days = period.getDays();
+                            String signInForBefore = userSignInRestDao.getSignInForFisrtDesc(userInfoId, signInDate.toLocalDate().toString());
+                            LocalDate first = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(signInForBefore)), ZoneId.systemDefault()).toLocalDate();
                             //判断后续天数
-                            LocalDateTime list1SignInDate2 = LocalDateTime.ofInstant(signInForSecondDesc.get(0).getSignInDate().toInstant(), ZoneId.systemDefault());
-                            Period period2 = Period.between(signInDate.toLocalDate(), list1SignInDate2.toLocalDate());
-                            int days2 = period2.getDays();
+                            LocalDateTime end = LocalDateTime.ofInstant(signInForAfter.get(1).getSignInDate().toInstant(), ZoneId.systemDefault());
+                            Period period = Period.between(first, end);
+                            int days = period.getDays();
                             int interval;
                             //判断此刻的连签天数   ---->    校验
                             //读取签到奖励规则

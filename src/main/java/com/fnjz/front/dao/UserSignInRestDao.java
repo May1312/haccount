@@ -128,4 +128,12 @@ public interface UserSignInRestDao {
      */
     @Sql("SELECT COUNT(id) FROM `hbird_user_sign_in ` WHERE `user_info_id ` = userInfoId AND STATUS = 1 AND sign_in_date > :signInDate ;")
     Integer getCountForAfterDate(@Param("userInfoId") String userInfoId, @Param("signInDate") String signInDate);
+
+    /**
+     * 获取指定日期 往后后最近一次标记日期  --->不好理解 取list第二位
+     * @param userInfoId
+     * @return
+     */
+    @Sql("SELECT * FROM `hbird_user_sign_in` WHERE `user_info_id` = :userInfoId AND STATUS = 1 AND sign_in_date > :signInDate ORDER BY sign_in_date LIMIT 2;")
+    List<UserSignInRestEntity> getSignInForAfterSecond(@Param("userInfoId") String userInfoId, @Param("signInDate") String signInDate);
 }
