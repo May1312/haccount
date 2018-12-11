@@ -61,16 +61,16 @@ public class UserWXQrCodeRestController extends BaseController {
 				return new ResultBean(ApiResultType.OK,url);
 			}else{
 				String accessToken = checkAccessToken();
-				JSONObject jsonObject = JSONObject.parseObject(accessToken);
-				if (jsonObject.get("errcode")==null) {
-					byte[] result = WXAppletUtils.getWXACode(jsonObject.getString("access_token"),shareCode);
+				//JSONObject jsonObject = JSONObject.parseObject(accessToken);
+				//if (jsonObject.get("errcode")==null) {
+					byte[] result = WXAppletUtils.getWXACode(accessToken,shareCode);
 					//上传七牛云
 					url = new QiNiuUploadFileUtils().bytesUpload(DomainEnum.WXAPPLET_QR_CODE_DOMAIN.getDomainUrl(),result,DomainEnum.WXAPPLET_QR_CODE_DOMAIN.getDomainName(),"wxqrcode_"+ CommonUtils.getAccountOrder());
 					userWXQrCodeServiceI.insert(userInfoId,url);
 					return new ResultBean(ApiResultType.OK,url);
-				} else {
-					return new ResultBean(ApiResultType.SERVER_ERROR, null);
-				}
+				//} else {
+					//return new ResultBean(ApiResultType.SERVER_ERROR, null);
+				//}
 			}
 		} catch (Exception e) {
 			logger.error(e.toString());
