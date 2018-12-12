@@ -133,6 +133,16 @@ public class WXAppletPushUtils {
                 bs.append(l);
             }
             logger.info("--------服务通知结果---------"+bs.toString());
+            jsonObject = JSONObject.fromObject(bs.toString());
+            //access token 失效
+            if (StringUtils.equals(jsonObject.get("errcode") + "", "40001")) {
+                //重新获取access token
+                jsonObject = JSONObject.fromObject(WXAppletUtils.getAccessToken());
+                accessToken =jsonObject.getString("access_token");
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN, accessToken, Long.valueOf(jsonObject.getString("expires_in")), TimeUnit.SECONDS);
+                //重新调用
+                sendPostMessage(accessToken, openId, templateId, page, formId, bean, emphasisKeyword);
+            }
         } catch (IOException e) {
             logger.error(e.toString());
         }
