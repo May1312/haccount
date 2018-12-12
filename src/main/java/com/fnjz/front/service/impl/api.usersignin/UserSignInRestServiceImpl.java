@@ -130,11 +130,11 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             } else {
                 map.put("signInDays", (Integer.valueOf(map.get("signInDays") + "") + 1));
             }
-            map.put("signInDate", (System.currentTimeMillis() + ""));
+            map.put("signInDate", System.currentTimeMillis());
         } else if (now > dateOfEnd.getTime()) {
             //置空
             map.put("signInDays", 1);
-            map.put("signInDate", System.currentTimeMillis() + "");
+            map.put("signInDate", System.currentTimeMillis());
         } else {
             //已签到情况下
             map.put("hasSigned", true);
@@ -251,48 +251,21 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
      */
     @Override
     public JSONObject getSignIn(String userInfoId, String shareCode) {
+        LocalDate localDate = LocalDate.now();
         Map map = redisTemplateUtils.getForHash(PREFIX_SIGN_IN + shareCode);
         if (map.size() < 1) {
             //redis未缓存签到记录  mysql查询
-            int count = userSignInRestDao.checkSignInForBeforeCurrentDay(userInfoId);
-            map = new HashMap(3);
-            if (count > 0) {
-                //统计最近一次标记时间
-                UserSignInRestEntity userSignInRestEntity = userSignInRestDao.getSignInForFisrtDesc(userInfoId);
-                if (userSignInRestEntity != null) {
-                    //计算签到日期间隔 获取当天签到状态
-                    count = userSignInRestDao.checkSignInForCurrentDay(userInfoId);
-                    //当天已签到
-                    String[] args = StringUtils.split(DateUtils.convert2String(userSignInRestEntity.getSignInDate()), "-");
-                    Period period = Period.between(LocalDate.of(Integer.valueOf(args[0]), Integer.valueOf(args[1]), Integer.valueOf(args[2])), LocalDate.now());
-                    int days = period.getDays();
-                    if (count > 0) {
-                        ++days;
-                        map.put("signInDate", System.currentTimeMillis());
-                    } else {
-                        map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
-                    }
-                    map.put("signInDays", days);
-                }
-            } else {
-                //昨日未签到
-                //计算签到日期间隔 获取当天签到状态
-                count = userSignInRestDao.checkSignInForCurrentDay(userInfoId);
-                //当天已签到
-                int days = 0;
-                if (count > 0) {
-                    ++days;
-                    map.put("signInDate", System.currentTimeMillis());
-                } else {
-                    map.put("signInDate", DateUtils.getBeforeDay(new Date()).getTime() + "");
-                }
-                map.put("signInDays", days);
-            }
+            LocalDate localDate1 = localDate.plusDays(1);
+            String signInForFisrtDesc = userSignInRestDao.getSignInForFisrtDesc(userInfoId, localDate1.toString());
+            String beforeBySignInDate = userSignInRestDao.getBeforeBySignInDate(userInfoId, localDate1.toString());
+            Period period = Period.between(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(signInForFisrtDesc)), ZoneId.systemDefault()).toLocalDate(),LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(beforeBySignInDate)), ZoneId.systemDefault()).toLocalDate());
+            map.put("signInDays",period.getDays()+1);
+            map.put("signInDate",beforeBySignInDate);
             //cache
             redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map, RedisPrefix.USER_VALID_TIME);
         }
         //获取到连续签到天数---->获取当前往前递推6天签到情况
-        LocalDate localDate = LocalDate.now();
+
         LocalDate first = localDate.minusDays(6);
         List<UserSignInRestEntity> list = userSignInRestDao.getSignInByTime(first.toString(), localDate.toString(), userInfoId);
         int[] result = new int[7];
@@ -425,8 +398,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
     }
 
     /**
-     * 补签
-     *
+     * 补签 分四种情况判断  每种情况中在判断是否超过最大周数
      * @param userInfoId
      * @param shareCode
      */
@@ -458,28 +430,24 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                         if (flag) {
                             //更新cache
                             Map map = redisTemplateUtils.getForHash(RedisPrefix.PREFIX_SIGN_IN + shareCode);
-                            map.put("signInDate", signInDate.toEpochSecond(ZoneOffset.of("+8")));
+                            map.put("signInDate", (signInDate.toEpochSecond(ZoneOffset.of("+8")))*1000);
                             Integer signInDays = Integer.valueOf(map.get("signInDays") + "") + 1;
                             map.put("signInDays", signInDays);
-                            //判断此刻的连签天数   ---->    校验
                             //读取签到奖励规则
                             List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
-                            //获取最大周数
-                            JSONObject jsonObject = JSONObject.parseObject(list.get(list.size() - 1));
-                            Iterator iterator = jsonObject.keySet().iterator();
-                            int value = Integer.valueOf(iterator.next() + "");
-                            Integer num = (Integer.valueOf(map.get("signInDays") + "")) % (value + 1);
-                            if (num >= 0) {
+                            Integer value = getMaxCycle(list);
+                            //判断连签天数
+                            if (signInDays>value) {
                                 //达到周期上限
-                                map.put("signInDays", 1);
+                                map.put("signInDays", signInDays % (value + 1)+1);
                                 //重置为新周期
                                 userSignInRestDao.reSignIn(userInfoId, 1, signInDate.toLocalDate().toString());
                             } else {
                                 //需要追加上次连签记录 ---->直接追加签到记录
                                 userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
-                                //修改奖励领取状态
-                                reSignResetSignInAward(Integer.valueOf(userInfoId), signInDays - 1, 1, list);
                             }
+                            //修改奖励领取状态
+                            reSignResetSignInAward(Integer.valueOf(userInfoId), signInDays - 1, 1, list);
                             redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map, RedisPrefix.USER_VALID_TIME);
                             //补签积分记录
                             if (fengFengTicket.getBehaviorTicketValue() != null) {
@@ -489,30 +457,25 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                         } else {
                             //获取指定日期往前最近一次标记的时间
                             String signInForFisrtDesc = userSignInRestDao.getSignInForFisrtDesc(userInfoId, signInDate.toLocalDate().toString());
-                            Instant instant = Instant.ofEpochMilli(Long.valueOf(signInForFisrtDesc));
-                            ZoneId zone = ZoneId.systemDefault();
                             //获取开始标记日期 localdate
-                            LocalDate first = LocalDateTime.ofInstant(instant, zone).toLocalDate();
+                            LocalDate first = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(signInForFisrtDesc)), ZoneId.systemDefault()).toLocalDate();
                             //获取加上到补签日期的 连签天数
                             Period period = Period.between(first, signInDate.toLocalDate());
                             int days = period.getDays();
                             days = days + 1;
-                            //判断此刻的连签天数   ---->    校验
                             //读取签到奖励规则
                             List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
-                            //获取最大周数
-                            JSONObject jsonObject = JSONObject.parseObject(list.get(list.size() - 1));
-                            Iterator iterator = jsonObject.keySet().iterator();
-                            int value = Integer.valueOf(iterator.next() + "");
-                            if (days % (value + 1) >= 0) {
+                            Integer value = getMaxCycle(list);
+                            //判断连签天数
+                            if (days>value) {
                                 //达到周期上限 重置为新周期  不修改cache
                                 userSignInRestDao.reSignIn(userInfoId, 1, signInDate.toLocalDate().toString());
                             } else {
                                 //需要追加上次连签记录 ---->直接追加签到记录
                                 userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
-                                //修改奖励领取状态
-                                reSignResetSignInAward(Integer.valueOf(userInfoId), days-1,1, list);
                             }
+                            //修改奖励领取状态
+                            reSignResetSignInAward(Integer.valueOf(userInfoId), days - 1, 1, list);
                             //补签积分记录
                             if (fengFengTicket.getBehaviorTicketValue() != null) {
                                 userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
@@ -521,19 +484,12 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                         }
                         //不存在前序连签(不考虑)  存在后续连签(需考虑  后续连签--->有几部分  1改变缓存  2 不能修改缓存)
                     } else if (after > 0 && before < 1) {
-                        boolean flag;
+                        boolean flag =true;
                         Integer count = userSignInRestDao.getCountForAfterDate(userInfoId, signInDate.toLocalDate().toString());
                         if (count != null) {
-                            if (count == 1) {
-                                flag = true;
-                            } else {
-                                flag = false;
-                            }
-                        } else {
-                            flag = true;
+                            boolean b = count == 1 ? (flag = true) : (flag = false);
                         }
                         if (flag) {
-                            //=============================判断周数重写================================
                             //需要追加下次连签记录
                             userSignInRestDao.reSignIn(userInfoId, 1, signInDate.toLocalDate().toString());
                             //将下一连续签到标识置null
@@ -560,117 +516,108 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                                 userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
                                 userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
                             }
+                            //后序连签存在多段时 不会触发因为补签解锁新奖励  后期如果补签范围大于7天  需要判断连签天数 todo
                         }
                         //存在前序连签   也存在后续连签(同上  分两种情况判断)
                     } else if (before > 0 && after > 0) {
-                        boolean flag;
+                        boolean flag = true;
                         Integer count = userSignInRestDao.getCountForAfterDate(userInfoId, signInDate.toLocalDate().toString());
                         if (count != null) {
-                            if (count == 1) {
-                                flag = true;
-                            } else {
-                                flag = false;
-                            }
-                        } else {
-                            flag = true;
+                            boolean b = count == 1 ? (flag = true) : (flag = false);
                         }
                         if (flag) {
                             //获取最新 周期内开始时间
                             List<UserSignInRestEntity> signInForSecondDesc = userSignInRestDao.getSignInForSecondDesc(userInfoId);
-                            //中间情况  关联上下
-                            //判断上次连签天数
-                            LocalDateTime list1SignInDate = LocalDateTime.ofInstant(signInForSecondDesc.get(1).getSignInDate().toInstant(), ZoneId.systemDefault());
-                            Period period = Period.between(list1SignInDate.toLocalDate(), signInDate.toLocalDate());
+                            //判断前序连签天数
+                            LocalDateTime first = LocalDateTime.ofInstant(signInForSecondDesc.get(1).getSignInDate().toInstant(), ZoneId.systemDefault());
+                            LocalDateTime endFlag =LocalDateTime.ofInstant(signInForSecondDesc.get(0).getSignInDate().toInstant(), ZoneId.systemDefault());
+                            Period period = Period.between(first.toLocalDate(), signInDate.toLocalDate());
                             int days = period.getDays();
                             //判断后续天数
-                            LocalDateTime list1SignInDate2 = LocalDateTime.ofInstant(signInForSecondDesc.get(0).getSignInDate().toInstant(), ZoneId.systemDefault());
-                            Period period2 = Period.between(signInDate.toLocalDate(), list1SignInDate2.toLocalDate());
+                            //连签天数修改
+                            Map map = redisTemplateUtils.getForHash(RedisPrefix.PREFIX_SIGN_IN + shareCode);
+                            LocalDate end = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(map.get("signInDate") + "")), ZoneId.systemDefault()).toLocalDate();
+                            Period period2 = Period.between(signInDate.toLocalDate(),end);
                             int days2 = period2.getDays();
                             int interval;
                             //判断此刻的连签天数   ---->    校验
                             //读取签到奖励规则
                             List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
-                            //获取最大周数
-                            JSONObject jsonObject = JSONObject.parseObject(list.get(list.size() - 1));
-                            Iterator iterator = jsonObject.keySet().iterator();
-                            int value = Integer.valueOf(iterator.next() + "");
-                            if ((days + days2 + 1) % (value + 1) >= 0) {
+                            Integer value = getMaxCycle(list);
+                            //判断连签天数
+                            if ((days + days2 + 1)>value) {
                                 //超过最大周期数情况
                                 interval = value - days;
                                 //补签
                                 userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
                                 //清掉原标记
-                                userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, list1SignInDate2.toLocalDate().toString());
+                                userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, endFlag.toString());
                                 //重新设置标记
                                 LocalDate localDate = signInDate.plusDays(interval).toLocalDate();
                                 userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, 1, localDate.toString());
-                                //连签天数修改
-                                Map map = redisTemplateUtils.getForHash(RedisPrefix.PREFIX_SIGN_IN + shareCode);
-                                Period period3 = Period.between(localDate, LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(map.get("signInDate")+"")), ZoneId.systemDefault()).toLocalDate());
-                                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_SIGN_IN+shareCode,"signInDays",period3.getDays()+1);
+                                Period period3 = Period.between(localDate, end);
+                                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_SIGN_IN + shareCode, "signInDays", period3.getDays() + 1);
                                 //修改奖励领取状态
-                                reSignResetSignInAward(Integer.valueOf(userInfoId), days,days2+1, list);
+                                reSignResetSignInAward(Integer.valueOf(userInfoId), days, days2 + 1, list);
                             } else {
-                                //未超过最大周期数
-                                //补签
+                                //未超过最大周期数  补签
                                 userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
                                 //清掉原标记
-                                userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, list1SignInDate2.toLocalDate().toString());
+                                userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, endFlag.toString());
                                 //连签天数修改
-                                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_SIGN_IN+shareCode,"signInDays",days + days2 + 1);
+                                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_SIGN_IN + shareCode, "signInDays", days + days2 + 1);
                                 //修改奖励领取状态
-                                reSignResetSignInAward(Integer.valueOf(userInfoId), days,days2+1, list);
+                                reSignResetSignInAward(Integer.valueOf(userInfoId), days, days2 + 1, list);
                             }
                             //补签积分记录
                             if (fengFengTicket.getBehaviorTicketValue() != null) {
                                 userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
                                 userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
                             }
-                        }else{
-                            //后续连签 不需要修改cache
+                        } else {
+                            //后续连签存在多段 不需要修改cache
                             //获取后序连签天数
-                            List<UserSignInRestEntity> signInForAfter = userSignInRestDao.getSignInForAfterSecond(userInfoId,signInDate.toLocalDate().toString());
+                            String signInForAfterEnd = userSignInRestDao.getSignInForAfterEnd(userInfoId, signInDate.toLocalDate().toString());
                             //判断上次连签天数
                             String signInForBefore = userSignInRestDao.getSignInForFisrtDesc(userInfoId, signInDate.toLocalDate().toString());
                             LocalDate first = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(signInForBefore)), ZoneId.systemDefault()).toLocalDate();
                             //判断后续天数
-                            LocalDate end = LocalDateTime.ofInstant(signInForAfter.get(1).getSignInDate().toInstant(), ZoneId.systemDefault()).toLocalDate();
+                            LocalDate end = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(signInForAfterEnd)), ZoneId.systemDefault()).toLocalDate();
                             Period period = Period.between(first, end);
                             int days = period.getDays();
                             int interval;
                             //判断此刻的连签天数   ---->    校验
                             //读取签到奖励规则
                             List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
-                            //获取最大周数
-                            JSONObject jsonObject = JSONObject.parseObject(list.get(list.size() - 1));
-                            Iterator iterator = jsonObject.keySet().iterator();
-                            int value = Integer.valueOf(iterator.next() + "");
-                            if ((days + days2 + 1) % (value + 1) >= 0) {
+                            Integer value = getMaxCycle(list);
+                            if ((days + 1) > value ) {
                                 //超过最大周期数情况
-                                interval = value - days;
+                                Period period1 = Period.between(first,signInDate.toLocalDate());
+                                interval = value - period1.getDays();
                                 //补签
                                 userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
+                                //获取补签日期 后序最近标记日期
+                                String afterSignInForFisrtDesc = userSignInRestDao.getAfterSignInForFisrtDesc(userInfoId, signInDate.toLocalDate().toString());
                                 //清掉原标记
-                                userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, list1SignInDate2.toLocalDate().toString());
+                                userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(afterSignInForFisrtDesc)), ZoneId.systemDefault()).toLocalDate().toString());
                                 //重新设置标记
                                 LocalDate localDate = signInDate.plusDays(interval).toLocalDate();
                                 userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, 1, localDate.toString());
-                                //连签天数修改
-                                Map map = redisTemplateUtils.getForHash(RedisPrefix.PREFIX_SIGN_IN + shareCode);
-                                Period period3 = Period.between(localDate, LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(map.get("signInDate")+"")), ZoneId.systemDefault()).toLocalDate());
-                                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_SIGN_IN+shareCode,"signInDays",period3.getDays()+1);
                                 //修改奖励领取状态
-                                reSignResetSignInAward(Integer.valueOf(userInfoId), days,days2+1, list);
+                                Period period3 = Period.between(signInDate.toLocalDate(), end);
+                                reSignResetSignInAward(Integer.valueOf(userInfoId), period1.getDays(), period3.getDays()+1, list);
                             } else {
                                 //未超过最大周期数
                                 //补签
                                 userSignInRestDao.reSignIn(userInfoId, null, signInDate.toLocalDate().toString());
+                                //获取补签日期 后序最近标记日期
+                                String afterSignInForFisrtDesc = userSignInRestDao.getAfterSignInForFisrtDesc(userInfoId, signInDate.toLocalDate().toString());
                                 //清掉原标记
-                                userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, list1SignInDate2.toLocalDate().toString());
-                                //连签天数修改
-                                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_SIGN_IN+shareCode,"signInDays",days + days2 + 1);
+                                userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(afterSignInForFisrtDesc)), ZoneId.systemDefault()).toLocalDate().toString());
                                 //修改奖励领取状态
-                                reSignResetSignInAward(Integer.valueOf(userInfoId), days,days2+1, list);
+                                Period period2 = Period.between(first, signInDate.toLocalDate());
+                                Period period3 = Period.between(signInDate.toLocalDate(), end);
+                                reSignResetSignInAward(Integer.valueOf(userInfoId), period2.getDays(), period3.getDays()+1, list);
                             }
                             //补签积分记录
                             if (fengFengTicket.getBehaviorTicketValue() != null) {
@@ -690,5 +637,16 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 }
             }
         }
+    }
+
+    /**
+     * 获取连签周期cache
+     * @return
+     */
+    private Integer getMaxCycle(List<String> list){
+        //获取最大周数
+        JSONObject jsonObject = JSONObject.parseObject(list.get(list.size() - 1));
+        Iterator iterator = jsonObject.keySet().iterator();
+        return Integer.valueOf(iterator.next() + "");
     }
 }
