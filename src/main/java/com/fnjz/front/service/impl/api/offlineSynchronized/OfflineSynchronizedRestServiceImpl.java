@@ -155,7 +155,9 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 if (list.get(list.size() - 1).getCreateDate() != null) {
                     if (LocalDateTime.ofInstant(list.get(list.size() - 1).getCreateDate().toInstant(), ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now())) {
                         //引入当日任务
-                        createTokenUtils.integralTask(userInfoId, shareCode, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+                        createTokenUtils.integralTask(userInfoId, null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+                        //引入当日任务 ---->记账达3笔
+                        createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
                     }
                 }
                 for (WarterOrderRestNewLabel warter : list) {

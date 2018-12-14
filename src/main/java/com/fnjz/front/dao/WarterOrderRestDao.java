@@ -470,4 +470,12 @@ public interface WarterOrderRestDao {
      */
     @Sql("select count(*) from hbird_water_order AS base1 LEFT JOIN hbird_user_account_book AS base2 ON base1.update_by = base2.user_info_id where update_by=:userInfoId AND base1.delflag = 0 AND base2.delflag = 0 AND base1.account_book_id = base2.account_book_id;")
     int chargeTotalv2(@Param("userInfoId")String userInfoId);
+
+    /**
+     * 统计当天记账笔数 ------->每日任务  记账达3笔调用
+     * @param userInfoId
+     * @return
+     */
+    @Sql("SELECT COALESCE ( count( id ), 0 ) FROM hbird_water_order WHERE create_by=:userInfoId AND create_date like CONCAT(DATE_FORMAT( now( ), '%Y-%m-%d' ),'%');")
+    int getCountForCurrentDay(@Param("userInfoId")String userInfoId);
 }

@@ -152,6 +152,11 @@ public class RedisPrefix {
      */
     public static final String USER_INVITE_COUNT = "user_invite_count:";
 
+    /**
+     * 用户注册成功奖励积分数
+     */
+    public static final String USER_REGISTER_INTEGRAL = "user_register_integral:";
+
     public static final String SPEND = "SPEND";
 
     public static final String INCOME = "INCOME";

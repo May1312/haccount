@@ -22,7 +22,7 @@ public interface FengFengTicketRestDao {
      * @return
      */
     @ResultType(Map.class)
-    @Sql("SELECT cycle,behavior_ticket_value as cycleAware,UNIX_TIMESTAMP(downtime)*1000 as downtime FROM `hbird_fengfeng_ticket` where category_of_behavior = :categoryOfBehavior and acquisition_mode=:acquisitionMode and status=1 and if(uptime is null,1=1,uptime<=CURRENT_TIMESTAMP) and if(uptime is null,1=1,downtime>=CURRENT_TIMESTAMP) order by CAST(cycle AS SIGNED) ASC;")
+    @Sql("SELECT cycle,behavior_ticket_value as cycleAware,UNIX_TIMESTAMP(downtime)*1000 as downtime FROM `hbird_fengfeng_ticket` where category_of_behavior = :categoryOfBehavior and acquisition_mode=:acquisitionMode and status=1 and if(downtime is null,1=1,downtime>=CURRENT_TIMESTAMP) order by CAST(cycle AS SIGNED) ASC;")
     List<Map<String,Object>> getSignInCycle(@Param("categoryOfBehavior")String categoryOfBehavior, @Param("acquisitionMode")String acquisitionMode);
 
     /**
@@ -31,7 +31,7 @@ public interface FengFengTicketRestDao {
      * @return
      */
     @ResultType(Map.class)
-    @Sql("SELECT acquisition_mode as acquisitionMode, behavior_ticket_value as integralTaskAware,UNIX_TIMESTAMP(downtime)*1000 as downtime FROM `hbird_fengfeng_ticket` where category_of_behavior = :categoryOfBehavior and status=1 and if(uptime is null,1=1,uptime<=CURRENT_TIMESTAMP) and if(uptime is null,1=1,downtime>=CURRENT_TIMESTAMP);")
+    @Sql("SELECT acquisition_mode as acquisitionMode, behavior_ticket_value as integralTaskAware,UNIX_TIMESTAMP(downtime)*1000 as downtime FROM `hbird_fengfeng_ticket` where category_of_behavior = :categoryOfBehavior and status=1 and if(downtime is null,1=1,downtime>=CURRENT_TIMESTAMP);")
     List<Map<String,Object>> getIntegralTaskAware(@Param("categoryOfBehavior")String categoryOfBehavior);
 
     /**
@@ -41,6 +41,6 @@ public interface FengFengTicketRestDao {
      * @param cycle
      * @return
      */
-    @Sql("SELECT * FROM `hbird_fengfeng_ticket` where if(:categoryOfBehavior is null,1=1,category_of_behavior=:categoryOfBehavior) and acquisition_mode=:acquisitionMode and if(:cycle is null,1=1,cycle=:cycle) and status=1 and if(uptime is null,1=1,uptime<=CURRENT_TIMESTAMP) and if(uptime is null,1=1,downtime>=CURRENT_TIMESTAMP);")
+    @Sql("SELECT * FROM `hbird_fengfeng_ticket` where if(:categoryOfBehavior is null,1=1,category_of_behavior=:categoryOfBehavior) and acquisition_mode=:acquisitionMode and if(:cycle is null,1=1,cycle=:cycle) and status=1 and if(downtime is null,1=1,downtime>=CURRENT_TIMESTAMP);")
     FengFengTicketRestEntity getFengFengTicket(@Param("categoryOfBehavior")String categoryOfBehavior, @Param("acquisitionMode")String acquisitionMode, @Param("cycle")Integer cycle);
 }

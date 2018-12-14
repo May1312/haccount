@@ -43,13 +43,13 @@ public interface UserSignInAwardRestDao {
      * @param cycle
      * @return
      */
-    @Sql("select get_times from hbird_user_sign_in_award where user_info_id=:userInfoId and cycle=:cycle and delflag=0;")
-    Integer getGetTimes(@Param("userInfoId") String userInfoId,@Param("cycle") String cycle);
+    @Sql("select get_times,cycle_award_status from hbird_user_sign_in_award where user_info_id=:userInfoId and cycle=:cycle and delflag=0;")
+    UserSignInAwardRestEntity getGetTimesAndAwardStatus(@Param("userInfoId") String userInfoId,@Param("cycle") String cycle);
 
     /**
      * 周期结束 重置全部领取状态
      * @param userInfoId
      */
-    @Sql("update hbird_user_sign_in_award set cycle_award_status=3 where user_info_id=:userInfoId and category_of_behavior=:behave and get_times=0 and delflag = 0;")
+    @Sql("update hbird_user_sign_in_award set cycle_award_status=3 where user_info_id=:userInfoId and category_of_behavior=:behave and delflag = 0;")
     void updateAllForReset(@Param("userInfoId") Integer userInfoId,@Param("behave")String behave);
 }

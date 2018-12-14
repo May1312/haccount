@@ -105,6 +105,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         if (StringUtils.equals("android", type) || StringUtils.equals("ios", type)) {
             insertDefaultLabel(insertId, insertId2);
         }
+        taskExecutor.execute(()->{
+            //引入当日任务---->注册成功送积分
+            createTokenUtils.integralTask(insertId + "", null, CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Become_hbird_user);
+        });
         return insert3;
     }
 
@@ -145,7 +149,6 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                     //insert
                     userPrivateLabelRestDao.insert(userPrivateLabelRestEntity);
                 });
-
             }
         }
 
@@ -294,12 +297,16 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
         //处理当日任务  发送小程序服务通知
         taskExecutor.execute(() -> {
+            //引入当日任务---->注册成功送积分
+            createTokenUtils.integralTask(insertId + "", null, CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Become_hbird_user);
             //判断是否为受邀用户
             if (StringUtils.isNotEmpty(map.get("inviteCode"))) {
                 int userInfoId = ShareCodeUtil.sharecode2id(map.get("inviteCode"));
                 userInviteRestDao.insert(userInfoId, insertId);
-                //引入当日任务
-                createTokenUtils.integralTask(userInfoId + "", ShareCodeUtil.id2sharecode(userInfoId), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
+                //引入当日任务---->邀请好友
+                createTokenUtils.integralTask(userInfoId + "", map.get("inviteCode"), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
+                //引入当日任务---->邀请达5人
+                createTokenUtils.integralTask(userInfoId + "", null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_invitation_came_to_five);
                 //小程序----->服务通知
                 String openId = userInfoAddFieldRestDao.getByUserInfoId(userInfoId + "");
                 if (StringUtils.isNotEmpty(openId)) {
@@ -307,8 +314,8 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                     Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "*");
                     if (keys.size() > 0) {
                         Object[] arrays = keys.toArray();
-                        Arrays.sort(arrays,Collections.reverseOrder());
-                        String formId =(String) redisTemplateUtils.popListRight(arrays[0]+"");
+                        Arrays.sort(arrays, Collections.reverseOrder());
+                        String formId = (String) redisTemplateUtils.popListRight(arrays[0] + "");
                         WXAppletMessageBean bean = new WXAppletMessageBean();
                         //设置好友昵称
                         bean.getKeyword1().put("value", userInfoRestEntity.getNickName() == null ? "蜂鸟用户" : userInfoRestEntity.getNickName());
@@ -320,7 +327,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                             bean.getKeyword3().put("value", fengFengTicket.getBehaviorTicketValue() == null ? "0" : fengFengTicket.getBehaviorTicketValue() + "积分（价值0.4元）");
                         }
                         //设置已邀请人数
-                        int inviteUsers = userInviteRestDao.getCount(userInfoId + "");
+                        int inviteUsers = userInviteRestDao.getCountForInvitedUsers(userInfoId + "");
                         bean.getKeyword4().put("value", inviteUsers + "人");
                         //温馨提示
                         bean.getKeyword5().put("value", "邀请好友赚现金，马上去提现！");

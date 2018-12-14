@@ -5,13 +5,15 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fnjz.front.dao.AccountBookRestDao;
-import com.fnjz.front.dao.UserAccountBookRestDao;
 import com.fnjz.front.dao.UserPrivateLabelRestDao;
 import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.statistics.*;
 import com.fnjz.front.entity.api.userprivatelabel.UserPrivateLabelRestEntity;
-import com.fnjz.front.entity.api.warterorder.*;
+import com.fnjz.front.entity.api.warterorder.WXAppletWarterOrderRestBaseDTO;
+import com.fnjz.front.entity.api.warterorder.WXAppletWarterOrderRestInfoDTO;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
@@ -22,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +52,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     private AccountBookRestDao accountBookRestDao;
 
     @Autowired
-    private UserAccountBookRestDao userAccountBookRestDao;
+    private ThreadPoolTaskExecutor taskExecutor;
 
     @Test
     public void run() {
@@ -324,12 +327,17 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Override
     public void insertv2(WarterOrderRestNewLabel charge) {
-        //引入当日任务 判断当前时间是否为
-        createTokenUtils.integralTask(charge.getCreateBy() + "", ShareCodeUtil.id2sharecode(Integer.valueOf(charge.getCreateBy())), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
         charge = addLabelInfo(charge);
         warterOrderRestDao.insert(charge);
         //修改账本更新时间
         createTokenUtils.updateABtime(charge.getAccountBookId());
+        String userInfoId = charge.getCreateBy()+"";
+        taskExecutor.execute(()->{
+            //引入当日任务 ---->记一笔账
+            createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+            //引入当日任务 ---->记账达3笔
+            createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
+        });
         //commonDao.save(charge);
     }
 

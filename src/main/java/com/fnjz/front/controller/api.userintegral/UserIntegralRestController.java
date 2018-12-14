@@ -86,7 +86,7 @@ public class UserIntegralRestController extends BaseController {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         try {
-            JSONObject jsonObject = userIntegralRestServiceI.integralTask(userInfoId,shareCode);
+            JSONObject jsonObject = userIntegralRestServiceI.integralTask2(userInfoId,shareCode);
             return new ResultBean(ApiResultType.OK,jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());
