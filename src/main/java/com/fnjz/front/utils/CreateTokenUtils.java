@@ -216,4 +216,19 @@ public class CreateTokenUtils {
         Integer status = userAccountBookRestDao.checkByABIdAndUserInfoId(abId, userInfoId);
         return status == null ? false : true;
     }
+
+    /**
+     *
+     */
+    private static String beginTime="2018-12-14";
+
+    /**
+     * 受邀用户积分红利
+     * @param userInfoId 用户id
+     * @param ff 奖励积分数  返利20%
+     */
+    private void addIntegralByInvitedUser(String userInfoId, FengFengTicketRestEntity ff,CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum){
+        //查看当前用户是否存在被邀请用户
+        this.insertInIntegral(userInfoId, ff, acquisitionModeEnum, categoryOfBehaviorEnum);
+    }
 }
