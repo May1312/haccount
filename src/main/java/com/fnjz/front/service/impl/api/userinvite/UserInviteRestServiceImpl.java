@@ -48,7 +48,7 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
         }
         List<UserInviteRestDTO> listForPage = userInviteRestDao.listForPage(userInfoId,pageRest.getStartIndex(),pageRest.getPageSize());
         //获取总条数
-        Integer count = userInviteRestDao.getCount(userInfoId);
+        Integer count = userInviteRestDao.getCountForInvitedUsers(userInfoId);
         //设置总记录数
         pageRest.setTotalCount(count);
         //设置返回结果

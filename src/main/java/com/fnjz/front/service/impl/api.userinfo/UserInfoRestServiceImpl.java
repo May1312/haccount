@@ -320,7 +320,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                             bean.getKeyword3().put("value", fengFengTicket.getBehaviorTicketValue() == null ? "0" : fengFengTicket.getBehaviorTicketValue() + "积分（价值0.4元）");
                         }
                         //设置已邀请人数
-                        int inviteUsers = userInviteRestDao.getCount(userInfoId + "");
+                        int inviteUsers = userInviteRestDao.getCountForInvitedUsers(userInfoId + "");
                         bean.getKeyword4().put("value", inviteUsers + "人");
                         //温馨提示
                         bean.getKeyword5().put("value", "邀请好友赚现金，马上去提现！");
