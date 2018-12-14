@@ -108,7 +108,7 @@ public class WXAppletUtils {
         }
         return null;
     }
-    
+
     @Test
     public void run(){
         getUser("023o6EiE1Izze10y6TjE1BbDiE1o6Eii");
