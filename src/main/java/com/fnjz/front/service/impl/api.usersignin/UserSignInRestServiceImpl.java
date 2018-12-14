@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
 
@@ -84,8 +85,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 }
                 //签到积分记录
                 if (ff.getBehaviorTicketValue() != null) {
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex());
-                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(ff.getBehaviorTicketValue()+""));
+                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue(),new BigDecimal(ff.getBehaviorTicketValue()));
                 }
             }
         }
@@ -258,9 +259,15 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             LocalDate localDate1 = localDate.plusDays(1);
             String signInForFisrtDesc = userSignInRestDao.getSignInForFisrtDesc(userInfoId, localDate1.toString());
             String beforeBySignInDate = userSignInRestDao.getBeforeBySignInDate(userInfoId, localDate1.toString());
-            Period period = Period.between(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(signInForFisrtDesc)), ZoneId.systemDefault()).toLocalDate(),LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(beforeBySignInDate)), ZoneId.systemDefault()).toLocalDate());
-            map.put("signInDays",period.getDays()+1);
-            map.put("signInDate",beforeBySignInDate);
+            if(StringUtils.isNotEmpty(signInForFisrtDesc)&&StringUtils.isNotEmpty(signInForFisrtDesc)){
+                Period period = Period.between(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(signInForFisrtDesc)), ZoneId.systemDefault()).toLocalDate(),LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(beforeBySignInDate)), ZoneId.systemDefault()).toLocalDate());
+                map.put("signInDays",period.getDays()+1);
+                map.put("signInDate",beforeBySignInDate);
+            }else{
+                map.put("signInDays",0);
+                map.put("signInDate",LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+            }
+
             //cache
             redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map, RedisPrefix.USER_VALID_TIME);
         }
@@ -368,7 +375,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         });
         jsonObject.put("signInAward", listForSignInAward);
         //总积分数统计
-        int total = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
+        double total = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
         jsonObject.put("reSignInAware", fengFengTicket == null ? null : fengFengTicket.getBehaviorTicketValue());
         jsonObject.put("totalIntegral", total);
         return jsonObject;
@@ -405,7 +412,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
     @Override
     public void reSignIn(String userInfoId, String shareCode, LocalDateTime signInDate) {
         //总积分数统计
-        int total = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
+        double total = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
         //获取补签消耗积分数
         FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), AcquisitionModeEnum.Check_in.getName(), null);
         if (fengFengTicket != null) {
@@ -451,8 +458,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map, RedisPrefix.USER_VALID_TIME);
                             //补签积分记录
                             if (fengFengTicket.getBehaviorTicketValue() != null) {
-                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(fengFengTicket.getBehaviorTicketValue()+""));
+                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue(),new BigDecimal(fengFengTicket.getBehaviorTicketValue()));
                             }
                         } else {
                             //获取指定日期往前最近一次标记的时间
@@ -478,8 +485,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             reSignResetSignInAward(Integer.valueOf(userInfoId), days - 1, 1, list);
                             //补签积分记录
                             if (fengFengTicket.getBehaviorTicketValue() != null) {
-                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(fengFengTicket.getBehaviorTicketValue()+""));
+                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue(),new BigDecimal(fengFengTicket.getBehaviorTicketValue()));
                             }
                         }
                         //不存在前序连签(不考虑)  存在后续连签(需考虑  后续连签--->有几部分  1改变缓存  2 不能修改缓存)
@@ -496,8 +503,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, signInDate.plusDays(1).toLocalDate().toString());
                             //补签积分记录
                             if (fengFengTicket.getBehaviorTicketValue() != null) {
-                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(fengFengTicket.getBehaviorTicketValue()+""));
+                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue(),new BigDecimal(fengFengTicket.getBehaviorTicketValue()));
                             }
                             //更新redis中连续签到天数
                             redisTemplateUtils.incrementForHashKey(RedisPrefix.PREFIX_SIGN_IN + shareCode, "signInDays", 1);
@@ -513,8 +520,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             userSignInRestDao.updateSignInStatusBySignInDate(userInfoId, null, signInDate.plusDays(1).toLocalDate().toString());
                             //补签积分记录
                             if (fengFengTicket.getBehaviorTicketValue() != null) {
-                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(fengFengTicket.getBehaviorTicketValue()+""));
+                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue(),new BigDecimal(fengFengTicket.getBehaviorTicketValue()));
                             }
                             //后序连签存在多段时 不会触发因为补签解锁新奖励  后期如果补签范围大于7天  需要判断连签天数 todo
                         }
@@ -571,8 +578,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             }
                             //补签积分记录
                             if (fengFengTicket.getBehaviorTicketValue() != null) {
-                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(fengFengTicket.getBehaviorTicketValue()+""));
+                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue(),new BigDecimal(fengFengTicket.getBehaviorTicketValue()));
                             }
                         } else {
                             //后续连签存在多段 不需要修改cache
@@ -621,8 +628,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             }
                             //补签积分记录
                             if (fengFengTicket.getBehaviorTicketValue() != null) {
-                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                                userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(fengFengTicket.getBehaviorTicketValue()+""));
+                                userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue(),new BigDecimal(fengFengTicket.getBehaviorTicketValue()));
                             }
                         }
                     } else {
@@ -630,8 +637,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                         userSignInRestDao.reSignIn(userInfoId, 1, signInDate.toLocalDate().toString());
                         //补签积分记录
                         if (fengFengTicket.getBehaviorTicketValue() != null) {
-                            userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex());
-                            userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue());
+                            userIntegralRestDao.insertSignInIntegral(userInfoId, fengFengTicket.getId() + "", fengFengTicket.getBehaviorTicketValue(), AcquisitionModeEnum.Check_in.getDescription(), null, CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(fengFengTicket.getBehaviorTicketValue()+""));
+                            userIntegralRestDao.updateForTotalIntegral(userInfoId, fengFengTicket.getBehaviorTicketValue(),new BigDecimal(fengFengTicket.getBehaviorTicketValue()));
                         }
                     }
                 }

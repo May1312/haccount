@@ -22,8 +22,10 @@ public enum AcquisitionModeEnum {
     Check_in(11,"Check_in","补签到",""),
     SignIn(12,"SignIn","签到",""),
     Add_to_my_applet(13,"Add_to_my_applet","添加到我的小程序","add2wxapplet"),
-    Become_hbird_user(14,"Become_hbird_user","成为蜂鸟记账用户","beUser");
+    Become_hbird_user(14,"Become_hbird_user","成为蜂鸟记账用户","beUser"),
     //Record_keeping_mood(13,"Record_keeping_mood","记录记账心情","");
+    //话术描述  返给您丰丰票红利
+    BONUS(17,null,"返给您丰丰票红利",null);
 
     private int index;
     private String name;

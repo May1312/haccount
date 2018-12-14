@@ -43,7 +43,7 @@ public interface UserIntegralRestServiceI extends CommonService{
      * @param userInfoId
      * @return
      */
-    Integer getUserTotalIntegral(String userInfoId);
+    double getUserTotalIntegral(String userInfoId);
 
     /**
      * 积分排行榜top10

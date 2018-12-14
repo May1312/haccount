@@ -15,6 +15,7 @@ import org.jeecgframework.jwt.def.JwtConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,8 +140,8 @@ public class CreateTokenUtils {
      * @param acquisitionModeEnum
      */
     public void insertInIntegral(String userInfoId, FengFengTicketRestEntity ff, AcquisitionModeEnum acquisitionModeEnum, CategoryOfBehaviorEnum categoryOfBehaviorEnum) {
-        userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), acquisitionModeEnum.getDescription(), acquisitionModeEnum.getIndex(), categoryOfBehaviorEnum.getIndex());
-        userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
+        userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), acquisitionModeEnum.getDescription(), acquisitionModeEnum.getIndex(), categoryOfBehaviorEnum.getIndex(),Double.parseDouble(ff.getBehaviorTicketValue()+""));
+        userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue(),new BigDecimal(ff.getBehaviorTicketValue()+""));
 
     }
 
@@ -194,6 +195,8 @@ public class CreateTokenUtils {
                         redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
                     }
                 }
+                //加入积分返利
+                addIntegralByInvitedUser(userInfoId,fengFengTicketRestEntity,categoryOfBehaviorEnum);
             }
         }
     }
@@ -218,17 +221,31 @@ public class CreateTokenUtils {
     }
 
     /**
-     *
+     * 积分红利活动开始时间
      */
     private static String beginTime="2018-12-14";
+
+    /**
+     * 红利返点  20%
+     */
+    private static double percentage=0.2;
 
     /**
      * 受邀用户积分红利
      * @param userInfoId 用户id
      * @param ff 奖励积分数  返利20%
      */
-    private void addIntegralByInvitedUser(String userInfoId, FengFengTicketRestEntity ff,CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum){
+    private void addIntegralByInvitedUser(String userInfoId, FengFengTicketRestEntity ff,CategoryOfBehaviorEnum categoryOfBehaviorEnum){
         //查看当前用户是否存在被邀请用户
-        this.insertInIntegral(userInfoId, ff, acquisitionModeEnum, categoryOfBehaviorEnum);
+        Map<String,Object> map = userInviteRestDao.getInvitedUserNickName(userInfoId,beginTime,1);
+        if(map!=null){
+            if(map.size()>0){
+                BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
+                BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
+                String desc = "["+(map.get("nickname")==null?"蜂鸟记账":map.get("nickname"))+"]";
+                userIntegralRestDao.insertSignInIntegral(map.get("userinfoid")+"", ff.getId() + "", null, desc+AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(),multiply.doubleValue());
+                userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid")+"", ff.getBehaviorTicketValue(),new BigDecimal(ff.getBehaviorTicketValue()+""));
+            }
+        }
     }
 }

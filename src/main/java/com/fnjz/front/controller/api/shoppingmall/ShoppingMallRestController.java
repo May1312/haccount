@@ -135,7 +135,7 @@ public class ShoppingMallRestController {
                 }
             }
             //总积分数统计
-            int integralTotal = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
+            double integralTotal = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
             //判断用户积分数
             if(integralTotal<goodsRestEntity.getFengfengTicketValue()){
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW,null);

@@ -19,6 +19,8 @@ public class UserIntegralRestDTO implements java.io.Serializable {
 	private String description;
 	/**创建日期*/
 	private java.util.Date createDate;
+	/**double 积分数*/
+	private double integralNumDouble;
 
 	/**
 	 *方法: 取得java.lang.Integer
@@ -69,4 +71,14 @@ public class UserIntegralRestDTO implements java.io.Serializable {
 	public void setCreateDate(java.util.Date createDate){
 		this.createDate = createDate;
 	}
+
+	@Column(name ="INTEGRAL_NUM_DOUBLE",nullable=true)
+	public double getIntegralNumDouble() {
+		return integralNumDouble;
+	}
+
+	public void setIntegralNumDouble(double integralNumDouble) {
+		this.integralNumDouble = integralNumDouble;
+	}
+
 }

@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.*;
 import java.util.HashMap;
 import java.util.List;
@@ -68,9 +69,9 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     }
                     userSignInAwardRestDao.update(bean);
                     //添加到积分记录表
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), Integer.valueOf(cycle), CategoryOfBehaviorEnum.SignIn.getIndex());
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), Integer.valueOf(cycle), CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(ff.getBehaviorTicketValue()+""));
                     //修改总积分数
-                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue());
+                    userIntegralRestDao.updateForTotalIntegral(userInfoId,ff.getBehaviorTicketValue() ,new BigDecimal(ff.getBehaviorTicketValue()+""));
                 }
             }
         }
@@ -720,15 +721,15 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
      * @return
      */
     @Override
-    public Integer getUserTotalIntegral(String userInfoId) {
-        Integer totalIntegral = userIntegralRestDao.getTotalIntegral(userInfoId);
+    public double getUserTotalIntegral(String userInfoId) {
+        String totalIntegral = userIntegralRestDao.getTotalIntegral(userInfoId);
         if (totalIntegral == null) {
-            int sum = userIntegralRestDao.getTotalIntegralBySum(userInfoId);
+            double sum = userIntegralRestDao.getTotalIntegralBySum(userInfoId);
             //赋值总积分表
-            userIntegralRestDao.insertForTotalIntegral(userInfoId, sum, 1);
+            userIntegralRestDao.insertForTotalIntegral(userInfoId, new BigDecimal(sum), 1);
             return sum;
         } else {
-            return totalIntegral;
+            return Double.parseDouble(totalIntegral);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.fnjz.front.entity.api.userintegral;
 
 import javax.persistence.Column;
+import java.math.BigDecimal;
 
 /**
  * @Title: Entity
@@ -21,6 +22,8 @@ public class UserIntegralTopRestDTO implements java.io.Serializable {
 	private String avatarUrl;
 	/**排名**/
 	private Integer rank;
+	/**decimal 总积分数*/
+	private BigDecimal integralNumDecimal;
 
 	@Column(name ="INTEGRAL_NUM")
 	public Integer getIntegralNum() {
@@ -53,5 +56,13 @@ public class UserIntegralTopRestDTO implements java.io.Serializable {
 
 	public void setRank(Integer rank) {
 		this.rank = rank;
+	}
+	@Column(name ="INTEGRAL_NUM_DECIMAL")
+	public BigDecimal getIntegralNumDecimal() {
+		return integralNumDecimal;
+	}
+
+	public void setIntegralNumDecimal(BigDecimal integralNumDecimal) {
+		this.integralNumDecimal = integralNumDecimal;
 	}
 }
