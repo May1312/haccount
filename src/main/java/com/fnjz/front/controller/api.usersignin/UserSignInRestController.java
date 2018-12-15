@@ -4,9 +4,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.dao.UserSignInAwardRestDao;
 import com.fnjz.front.entity.api.sharewords.ShareWordsRestDTO;
+import com.fnjz.front.entity.api.usersigninaward.UserSignInAwardRestEntity;
+import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.usersignin.UserSignInRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
+import com.fnjz.front.utils.ShareCodeUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.junit.Test;
@@ -14,9 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author zhangdaihao
@@ -35,6 +46,9 @@ public class UserSignInRestController extends BaseController {
 
     @Autowired
     private UserSignInRestServiceI userSignInRestServiceI;
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     /**
      * 签到
@@ -129,5 +143,33 @@ public class UserSignInRestController extends BaseController {
     public void run(){
         LocalDateTime yesterday = LocalDate.now().atTime(23, 59, 59);
         System.out.println(yesterday.toEpochSecond(ZoneOffset.of("+8"))-LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
+    }
+
+    @Autowired
+    private UserSignInAwardRestDao userSignInAwardRestDao;
+
+    /**
+     * 徽章版 ---->redis中缓存的连签奖励记录同步到 mysql
+     * @return
+     */
+    @RequestMapping(value = {"/copySignInData"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean copySignInData(){
+        //获取用户连签的keys
+        Set keys = redisTemplateUtils.getKeys(RedisPrefix.USER_INTEGRAL_SIGN_IN_CYCLE_AWARE + "*");
+        Iterator iterator = keys.iterator();
+        while(iterator.hasNext()){
+            String key = iterator.next()+"";
+            Integer userInfoId= ShareCodeUtil.sharecode2id(StringUtils.substringAfterLast(key,":"));
+            //从cache中获取连签领取情况
+            Map forHash = redisTemplateUtils.getForHash(key);
+            //遍历map
+            forHash.forEach((i,v)->{
+                String cycle = StringUtils.substringAfterLast(i + "", "_");
+                UserSignInAwardRestEntity entity = new UserSignInAwardRestEntity(userInfoId, CategoryOfBehaviorEnum.SignIn.getName(),Integer.valueOf(cycle),Integer.valueOf(v+""),0,0);
+                userSignInAwardRestDao.insert(entity);
+            });
+        }
+        return new ResultBean(ApiResultType.OK,null);
     }
 }

@@ -152,14 +152,6 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 String shareCode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
                 //list排序  正序
                 list.sort(Comparator.naturalOrder());
-                if (list.get(list.size() - 1).getCreateDate() != null) {
-                    if (LocalDateTime.ofInstant(list.get(list.size() - 1).getCreateDate().toInstant(), ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now())) {
-                        //引入当日任务
-                        createTokenUtils.integralTask(userInfoId, null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
-                        //引入当日任务 ---->记账达3笔
-                        createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
-                    }
-                }
                 for (WarterOrderRestNewLabel warter : list) {
                     warter = addLabelInfo(warter);
                     //同步数据
@@ -169,6 +161,14 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 createTokenUtils.updateABtime(list.get(0).getAccountBookId());
                 //记账总笔数置为0
                 redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT+shareCode,"chargeTotal",0);
+                if (list.get(list.size() - 1).getCreateDate() != null) {
+                    if (LocalDateTime.ofInstant(list.get(list.size() - 1).getCreateDate().toInstant(), ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now())) {
+                        //引入当日任务
+                        createTokenUtils.integralTask(userInfoId, null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+                        //引入当日任务 ---->记账达3笔
+                        createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
+                    }
+                }
             }
         }
     }
