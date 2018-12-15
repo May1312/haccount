@@ -1,6 +1,9 @@
 package com.fnjz.front.utils;
 
+
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -11,6 +14,7 @@ import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecgframework.jwt.def.JwtConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * token生成工具类
@@ -162,24 +167,14 @@ public class CreateTokenUtils {
                     int countForInvitedUsers = userInviteRestDao.getCountForInvitedUsers(userInfoId);
                     if (countForInvitedUsers >= 5) {
                         this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
-                        //删除缓存
-                        if (categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.NewbieTask)) {
-                            redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode);
-                        } else if (categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.TodayTask)) {
-                            redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
-                        }
+                        updateTaskStatus(shareCode,categoryOfBehaviorEnum,acquisitionModeEnum);
                     }
                 } else if (acquisitionModeEnum.equals(AcquisitionModeEnum.The_bookkeeping_came_to_three)) {
                     //当日记账达3笔
                     int count = warterOrderRestDao.getCountForCurrentDay(userInfoId);
                     if (count >= 3) {
                         this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
-                        //删除缓存
-                        if (categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.NewbieTask)) {
-                            redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode);
-                        } else if (categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.TodayTask)) {
-                            redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
-                        }
+                        updateTaskStatus(shareCode,categoryOfBehaviorEnum,acquisitionModeEnum);
                     }
                 } else if (acquisitionModeEnum.equals(AcquisitionModeEnum.Become_hbird_user)) {
                     //成为蜂鸟记账用户
@@ -188,12 +183,7 @@ public class CreateTokenUtils {
                     redisTemplateUtils.cacheForString(RedisPrefix.USER_REGISTER_INTEGRAL + shareCode, fengFengTicketRestEntity.getBehaviorTicketValue()+"",RedisPrefix.USER_VALID_TIME);
                 }else {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
-                    //删除缓存
-                    if (categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.NewbieTask)) {
-                        redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode);
-                    } else if (categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.TodayTask)) {
-                        redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
-                    }
+                    updateTaskStatus(shareCode,categoryOfBehaviorEnum,acquisitionModeEnum);
                 }
                 //加入积分返利
                 addIntegralByInvitedUser(userInfoId,fengFengTicketRestEntity,categoryOfBehaviorEnum);
@@ -245,6 +235,48 @@ public class CreateTokenUtils {
                 String desc = "["+(map.get("nickname")==null?"蜂鸟记账":map.get("nickname"))+"]";
                 userIntegralRestDao.insertSignInIntegral(map.get("userinfoid")+"", ff.getId() + "", null, desc+AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(),multiply.doubleValue());
                 userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid")+"", ff.getBehaviorTicketValue(),new BigDecimal(ff.getBehaviorTicketValue()+""));
+            }
+        }
+    }
+
+    /**
+     * 修改任务状态
+     * @param shareCode
+     * @param categoryOfBehaviorEnum
+     */
+    private void updateTaskStatus(String shareCode,CategoryOfBehaviorEnum categoryOfBehaviorEnum,AcquisitionModeEnum acquisitionModeEnum){
+        String cacheTask;
+        if (categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.NewbieTask)) {
+            cacheTask = redisTemplateUtils.getForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode);
+            if(StringUtils.isNotEmpty(cacheTask)){
+                JSONArray todayTask = JSONArray.parseArray(cacheTask);
+                for(int i = 0;i<todayTask.size();i++){
+                    JSONObject jsonObject = JSONObject.parseObject(todayTask.get(i)+"");
+                    if(StringUtils.equals(acquisitionModeEnum.getForUser(),jsonObject.getString("name"))){
+                        //重置状态--->已获取
+                        jsonObject.put("status",2);
+                        todayTask.add(i,jsonObject);
+                        long expire = redisTemplateUtils.getExpire(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode);
+                        redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode,todayTask.toJSONString(),expire,TimeUnit.SECONDS);
+                        break;
+                    }
+                }
+            }
+        } else if (categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.TodayTask)) {
+            cacheTask = redisTemplateUtils.getForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
+            if(StringUtils.isNotEmpty(cacheTask)){
+                JSONArray todayTask = JSONArray.parseArray(cacheTask);
+                for(int i = 0;i<todayTask.size();i++){
+                    JSONObject jsonObject = JSONObject.parseObject(todayTask.get(i)+"");
+                    if(StringUtils.equals(acquisitionModeEnum.getForUser(),jsonObject.getString("name"))){
+                        //重置状态--->已获取
+                        jsonObject.put("status",2);
+                        todayTask.add(i,jsonObject);
+                        long expire = redisTemplateUtils.getExpire(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
+                        redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode,todayTask.toJSONString(),expire,TimeUnit.SECONDS);
+                        break;
+                    }
+                }
             }
         }
     }
