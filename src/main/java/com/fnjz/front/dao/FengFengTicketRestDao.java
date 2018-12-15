@@ -22,7 +22,7 @@ public interface FengFengTicketRestDao {
      * @return
      */
     @ResultType(Map.class)
-    @Sql("SELECT cycle,behavior_ticket_value as cycleAware,UNIX_TIMESTAMP(downtime)*1000 as downtime FROM `hbird_fengfeng_ticket` where category_of_behavior = :categoryOfBehavior and acquisition_mode=:acquisitionMode and status=1 and if(downtime is null,1=1,downtime>=CURRENT_TIMESTAMP) order by CAST(cycle AS SIGNED) ASC;")
+    @Sql("SELECT cycle,behavior_ticket_value as cycleAware,UNIX_TIMESTAMP(downtime)*1000 as downtime FROM `hbird_fengfeng_ticket` where category_of_behavior = :categoryOfBehavior and acquisition_mode=:acquisitionMode and status=1 and if(downtime is null,1=1,downtime>=CURRENT_TIMESTAMP) order by cycle;")
     List<Map<String,Object>> getSignInCycle(@Param("categoryOfBehavior")String categoryOfBehavior, @Param("acquisitionMode")String acquisitionMode);
 
     /**

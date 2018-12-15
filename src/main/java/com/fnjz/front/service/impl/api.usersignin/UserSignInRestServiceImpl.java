@@ -272,7 +272,6 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map, RedisPrefix.USER_VALID_TIME);
         }
         //获取到连续签到天数---->获取当前往前递推6天签到情况
-
         LocalDate first = localDate.minusDays(6);
         List<UserSignInRestEntity> list = userSignInRestDao.getSignInByTime(first.toString(), localDate.toString(), userInfoId);
         int[] result = new int[7];
@@ -373,6 +372,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         listForSignInAward.forEach(v -> {
             v.setCycleAward(Integer.valueOf(cycleAward.get(v.getCycle() + "")));
         });
+        Collections.sort(listForSignInAward, Comparator.comparing(UserSignInAwardRestDTO::getCycle));
         jsonObject.put("signInAward", listForSignInAward);
         //总积分数统计
         double total = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);

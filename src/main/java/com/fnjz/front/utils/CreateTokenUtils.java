@@ -162,6 +162,7 @@ public class CreateTokenUtils {
             //获取需要绑定的积分数
             FengFengTicketRestEntity fengFengTicketRestEntity = this.getFengFengTicket(acquisitionModeEnum);
             if (fengFengTicketRestEntity != null) {
+                shareCode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
                 if (acquisitionModeEnum.equals(AcquisitionModeEnum.The_invitation_came_to_five)) {
                     //当日邀请达5人  判断人数
                     int countForInvitedUsers = userInviteRestDao.getCountForInvitedUsers(userInfoId);
@@ -250,33 +251,28 @@ public class CreateTokenUtils {
             cacheTask = redisTemplateUtils.getForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode);
             if(StringUtils.isNotEmpty(cacheTask)){
                 JSONArray todayTask = JSONArray.parseArray(cacheTask);
-                for(int i = 0;i<todayTask.size();i++){
-                    JSONObject jsonObject = JSONObject.parseObject(todayTask.get(i)+"");
-                    if(StringUtils.equals(acquisitionModeEnum.getForUser(),jsonObject.getString("name"))){
-                        //重置状态--->已获取
-                        jsonObject.put("status",2);
-                        todayTask.add(i,jsonObject);
-                        long expire = redisTemplateUtils.getExpire(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode);
-                        redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode,todayTask.toJSONString(),expire,TimeUnit.SECONDS);
-                        break;
-                    }
-                }
+                arrayForEach(acquisitionModeEnum, todayTask);
+                long expire = redisTemplateUtils.getExpire(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode);
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode,todayTask.toJSONString(),expire,TimeUnit.SECONDS);
             }
         } else if (categoryOfBehaviorEnum.equals(CategoryOfBehaviorEnum.TodayTask)) {
             cacheTask = redisTemplateUtils.getForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
             if(StringUtils.isNotEmpty(cacheTask)){
                 JSONArray todayTask = JSONArray.parseArray(cacheTask);
-                for(int i = 0;i<todayTask.size();i++){
-                    JSONObject jsonObject = JSONObject.parseObject(todayTask.get(i)+"");
-                    if(StringUtils.equals(acquisitionModeEnum.getForUser(),jsonObject.getString("name"))){
-                        //重置状态--->已获取
-                        jsonObject.put("status",2);
-                        todayTask.add(i,jsonObject);
-                        long expire = redisTemplateUtils.getExpire(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
-                        redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode,todayTask.toJSONString(),expire,TimeUnit.SECONDS);
-                        break;
-                    }
-                }
+                arrayForEach(acquisitionModeEnum, todayTask);
+                long expire = redisTemplateUtils.getExpire(RedisPrefix.PREFIX_TODAY_TASK + shareCode);
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode,todayTask.toJSONString(),expire,TimeUnit.SECONDS);
+            }
+        }
+    }
+
+    private void arrayForEach(AcquisitionModeEnum acquisitionModeEnum, JSONArray todayTask) {
+        for(int i = 0;i<todayTask.size();i++){
+            JSONObject jsonObject = JSONObject.parseObject(todayTask.get(i)+"");
+            if(StringUtils.equals(acquisitionModeEnum.getForUser(),jsonObject.getString("name"))){
+                jsonObject.put("status",2);
+                todayTask.set(i,jsonObject);
+                break;
             }
         }
     }
