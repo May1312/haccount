@@ -5,10 +5,14 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.PageRest;
+import com.fnjz.front.enums.AcquisitionModeEnum;
+import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
+import com.fnjz.front.utils.CreateTokenUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +36,12 @@ public class UserIntegralRestController extends BaseController {
 
     @Autowired
     private UserIntegralRestServiceI userIntegralRestServiceI;
+
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
+
+    @Autowired
+    private CreateTokenUtils createTokenUtils;
 
     /**
      * 领取签到积分接口
@@ -128,5 +138,20 @@ public class UserIntegralRestController extends BaseController {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
+    }
+
+    /**
+     * 小程序添加到我的小程序
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/add2wxapplet"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean add2wxapplet(HttpServletRequest request) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        taskExecutor.execute(()->{
+            createTokenUtils.integralTask(userInfoId,null, CategoryOfBehaviorEnum.NewbieTask,AcquisitionModeEnum.Add_to_my_applet);
+        });
+        return new ResultBean(ApiResultType.OK,null);
     }
 }
