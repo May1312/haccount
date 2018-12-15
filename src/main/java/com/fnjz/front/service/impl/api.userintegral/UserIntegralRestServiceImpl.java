@@ -1054,9 +1054,10 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     Long expire = redisTemplateUtils.getExpireForSeconds(RedisPrefix.SYS_INTEGRAL_NEWBIE_TASK);
                     redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_NEWBIE_TASK + shareCode, newbieTask.toJSONString(), expire, TimeUnit.SECONDS);
                 } else {
-                    //重新缓存  获取系统缓存有效期
-                    Long expire = redisTemplateUtils.getExpireForSeconds(RedisPrefix.SYS_INTEGRAL_TODAY_TASK);
-                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, newbieTask.toJSONString(), expire, TimeUnit.SECONDS);
+                    LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
+                    //凌晨时间戳-当前时间戳
+                    long cacheTime = time.toEpochSecond(ZoneOffset.of("+8")) - LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, newbieTask.toJSONString(), cacheTime, TimeUnit.SECONDS);
                 }
             }
             return newbieTask;
