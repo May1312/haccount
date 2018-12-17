@@ -190,6 +190,8 @@ public class WarterOrderRestController extends BaseController {
         }
         //设置创建时间
         charge.setCreateDate(new Date());
+        //设置更新时间
+        charge.setUpdateDate(new Date());
         //绑定创建者id
         charge.setCreateBy(Integer.valueOf(userInfoId));
         //初始修改者id
