@@ -10,11 +10,13 @@ import com.fnjz.front.entity.api.goods.GoodsRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
 import com.fnjz.front.entity.api.userinfo.ConsigneeAddressRestDTO;
+import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
 import com.fnjz.front.service.api.userinfoaddfield.UserInfoAddFieldRestService;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
 import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
+import com.fnjz.front.utils.WeChatUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -273,6 +275,49 @@ public class ShoppingMallRestController {
         }
     }
 
+    /**
+     * 移动端上传code ---> 获取openid
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/uploadCode/{type}"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean uploadCode(@PathVariable("type") String type,HttpServletRequest request,@RequestBody Map<String, String> map) {
+       logger.info("登录终端：" + type);
+        ResultBean rb = ParamValidateUtils.checkeLoginByWechat(map, LoginEnum.LOGIN_BY_WECHAT);
+        //判断CODE
+        if (rb != null) {
+            return rb;
+        }
+        String userInfoId = (String)request.getAttribute("userInfoId");
+        //判断是否已绑定openid
+        Map<String, Object> map1 = userInfoAddFieldRestService.checkExistsOpenIdByUserInfoIdForWeChat(userInfoId,2);
+        String openId;
+        if (map1 != null) {
+            if (map1.get("openid") == null) {
+                //根据code解密 opendid
+                JSONObject user = WeChatUtils.getUser(map.get("code") + "");
+                    openId = user.getString("openId");
+                try {
+                    //保存openId
+                    if (map1.get("id") != null) {
+                        //已存在  更新
+                        userInfoAddFieldRestService.updateOpenId(userInfoId, openId, Integer.valueOf(map1.get("id") + ""), 2);
+                    } else {
+                        //insert
+                        userInfoAddFieldRestService.insertOpenId(userInfoId, openId, 2);
+                    }
+                    return new ResultBean(ApiResultType.OK,null);
+                } catch (Exception e) {
+                    logger.error(e.toString());
+                    return new ResultBean(ApiResultType.SERVER_ERROR, null);
+                }
+
+            }
+        }
+        return new ResultBean(ApiResultType.OK,null);
+    }
+
     @RequestMapping(value = {"/consigneeAddress"}, method = RequestMethod.GET)
     @ResponseBody
     public ResultBean consigneeAddress(HttpServletRequest request) {
@@ -289,5 +334,17 @@ public class ShoppingMallRestController {
     @ResponseBody
     public ResultBean toExchange(@RequestBody Map<String,String> map,HttpServletRequest request) {
         return this.toExchange(null, map,request);
+    }
+
+    @RequestMapping(value = {"/checkExistsOpenId"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean checkExistsOpenId(HttpServletRequest request) {
+        return this.checkExistsOpenId(null,request);
+    }
+
+    @RequestMapping(value = {"/uploadCode"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean uploadCode(HttpServletRequest request, @RequestBody Map<String, String> map) {
+        return this.uploadCode(null,request,map);
     }
 }

@@ -88,4 +88,9 @@ public class UserInfoAddFieldServiceImpl implements UserInfoAddFieldRestService 
             return 1;
         }
     }
+
+    @Override
+    public Map<String, Object> checkExistsOpenIdByUserInfoIdForWeChat(String userInfoId, int flag) {
+        return userInfoAddFieldRestDao.checkExistsOpenIdByUserInfoIdForWeChat(userInfoId,flag);
+    }
 }

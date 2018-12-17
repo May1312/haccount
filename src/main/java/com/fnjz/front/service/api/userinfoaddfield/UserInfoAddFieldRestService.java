@@ -40,4 +40,11 @@ public interface UserInfoAddFieldRestService {
      * @return
      */
     Integer checkExistsOpenId(String userInfoId, Integer type);
+
+    /**
+     * 检查是否存在
+     * @param userInfoId
+     * @return
+     */
+    Map<String,Object> checkExistsOpenIdByUserInfoIdForWeChat(String userInfoId,int flag);
 }

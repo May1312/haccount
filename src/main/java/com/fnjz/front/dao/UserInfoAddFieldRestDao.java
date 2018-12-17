@@ -83,12 +83,21 @@ public interface UserInfoAddFieldRestDao {
     Integer checkExistsByUserInfoId(@Param("userInfoId")String userInfoId);
 
     /**
-     * 判断是否存在小程序openId
+     * 判断是否存在小程序openId+id
      * @param userInfoId
      * @return
      */
     @Sql("select id,wxapplet_open_id as openid from hbird_user_info_add_field where user_info_id=:userInfoId;")
     Map<String,Object> checkExistsOpenIdByUserInfoId(@Param("userInfoId")String userInfoId);
+
+    /**
+     * 判断是否存在移动应用openId+id
+     * flag 1小程序    2移动应用
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select id,if(:flag=1,wxapplet_open_id,wechat_open_id) as openid from hbird_user_info_add_field where user_info_id=:userInfoId;")
+    Map<String,Object> checkExistsOpenIdByUserInfoIdForWeChat(@Param("userInfoId")String userInfoId,@Param("flag")int flag);
 
     /**
      * 创建 收货地址

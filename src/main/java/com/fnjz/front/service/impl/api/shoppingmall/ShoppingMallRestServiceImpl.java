@@ -115,7 +115,8 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         //加入实物兑换
         if (goodsRestEntity.getGoodsType() == 2) {
             exchangePhysical(map, goodsRestEntity, userInfoId);
-            return null;
+            result2.put("status", 1);
+            return result2;
         } else if (goodsRestEntity.getGoodsType() == 3) {
             //现金红包类兑换
             boolean b = exchangeCash(map, goodsRestEntity, userInfoId);
@@ -288,12 +289,13 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         String shoppingMallId = userInfoId + System.currentTimeMillis();
         boolean flag = false;
         //小程序公众号兑换
-        //if (StringUtils.equals(map.get("channel"), "1")) {
+        String wechatOpenId = null;
+        if (StringUtils.equals(map.get("channel"), "1")) {
+            wechatOpenId=userInfoAddFieldRestDao.getByUserInfoId(userInfoId);
 
-
-        //} else if (StringUtils.equals(map.get("channel"), "2")) {
-        //移动端零钱提现
-        String wechatOpenId = userInfoAddFieldRestDao.getWechatOpenId(userInfoId);
+        } else if (StringUtils.equals(map.get("channel"), "2")) {
+            wechatOpenId =userInfoAddFieldRestDao.getWechatOpenId(userInfoId);
+        }
         Map<String, String> stringStringMap;
         if (StringUtils.isNotEmpty(wechatOpenId)) {
             double money = goodsRestEntity.getFaceValue().doubleValue();

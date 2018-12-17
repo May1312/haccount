@@ -152,9 +152,6 @@ public class VerifyCodeRestController {
      */
     private ResultBean sendVerifyCode(Map<String, String> map, VerifyCodeEnum verifycode) {
         try {
-            if (ParamValidateUtils.checkeMobile(map) != null) {
-                return ParamValidateUtils.checkeMobile(map);
-            }
             //生成六位随机验证码
             String random = CreateVerifyCodeUtils.createRandom(6);
             //验证手机号是否存在
@@ -280,9 +277,6 @@ public class VerifyCodeRestController {
                     return rb;
                 }
             } else if (verifycode.getIndex() == 6) {
-                if (task == null) {
-                    return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
-                }
                 SmsSendResponse smsSingleResponse = ChuangLanSmsUtil.sendSmsByPost(random,TemplateCode.CL_CASH_MOBILE.getTemplateContent(),map.get("exchangeMobile"),true);
                 if(StringUtil.equals(smsSingleResponse.getCode(), "0")){
                     //验证码存放redis
