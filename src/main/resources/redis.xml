@@ -27,7 +27,7 @@
     </bean>
 
     <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-          p:host-name="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}"
+          p:host-name="${redis.host}"  p:port="${redis.port}" p:database="${redis.database}"  p:password="${redis.pass}"
           p:pool-config-ref="jedisPoolConfig"/>
 
     <!--     <bean id="sentinelConfig"
