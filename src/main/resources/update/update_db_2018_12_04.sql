@@ -287,7 +287,12 @@ INSERT INTO `hbird_user_private_label` ( `user_info_id`, `type_pid`, `type_pname
 	FROM
 	hbird_user_comm_use_income 
 	);
-	
+
+-- 赋值 流水表中  update_date update_by 与 create_date create_by 一致 ok
+update hbird_water_order set update_by = create_by where update_by is null;
+update hbird_water_order set update_date=create_date where update_date is null;
+
+
 -- 补全用户上一版删除的自有标签，用户流水关联显示
 
 -- 237
@@ -355,12 +360,6 @@ update hbird_user_private_label t inner join hbird_income_type t1 on t.type_id =
 update hbird_user_private_label t inner join hbird_account_book_type_label t1 
 on  t.ab_type_id = t1.ab_type_id and t.type_id = t1.sys_label_id
 set ab_type_label_id = t1.id;
-
-	
-
--- 赋值 流水表中  update_date update_by 与 create_date create_by 一致 ok
-update hbird_water_order set update_by = create_by where update_by is null;
-update hbird_water_order set update_date=create_date where update_date is null;
 
 
 
