@@ -349,7 +349,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                 if (userAccountBook.getUserType() == 0) {
                     //当前账本人数是否小于五人
                     int totalMember = accountBookRestDao.getTotalMember(accountBookId);
-                    if (totalMember <= 5) {
+                    if (totalMember < 5) {
                         UserAccountBookRestEntity userAccountBookRestEntity = new UserAccountBookRestEntity();
                         userAccountBookRestEntity.setAccountBookId(Integer.parseInt(accountBookId));
                         userAccountBookRestEntity.setUserInfoId(Integer.parseInt(invitedId));
