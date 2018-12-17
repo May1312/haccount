@@ -4,6 +4,7 @@ import com.fnjz.front.controller.api.push.JgPushExampls;
 import com.fnjz.front.entity.api.message.MessageEntity;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.ShareCodeUtil;
+import org.jeecgframework.core.util.PropertiesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,7 @@ public class MessageServiceImpl extends CommonServiceImpl implements MessageServ
 
 
     @Override
-    public Boolean addUserMessage(String messageContent, Integer creatId, List<Integer> noticeUserIdList) {
+    public Boolean addUserMessage(String messageContent, Integer creatId, List<Integer> noticeUserIdList,String type) {
 
         ArrayList<MessageEntity> messageEntities = new ArrayList<>();
 
@@ -42,7 +43,7 @@ public class MessageServiceImpl extends CommonServiceImpl implements MessageServ
         //异步线程推送
         new Thread() {
             public void run() {
-                sendPush(messageContent, creatId, noticeUserIdList);
+                sendPush(messageContent, creatId, noticeUserIdList,type);
             }
         }.start();
 
@@ -106,16 +107,28 @@ public class MessageServiceImpl extends CommonServiceImpl implements MessageServ
      * @auther: yonghuizhao
      * @date: 2018/11/13 11:27
      */
-    public void sendPush(String messageContent, Integer creatId, List<Integer> noticeUserIdList) {
+    public void sendPush(String messageContent, Integer creatId, List<Integer> noticeUserIdList,String type) {
 
         String jumpPage = "fftz";
         if (messageContent.length() > 20) {
             messageContent = messageContent.substring(0, 20);
         }
+
+        //根据type来源选择推送环境
+        PropertiesUtil propertiesUtil = new PropertiesUtil("jgpush.properties");
+        String jg_app_key ="";
+        String JG_MASTER_SECRET ="";
+
+        if (type.equals("android")){
+             jg_app_key =String.valueOf(propertiesUtil.getProperties().get("JG_APP_KEY")) ;
+             JG_MASTER_SECRET =String.valueOf(propertiesUtil.getProperties().get("JG_MASTER_SECRET")) ;
+        }else if (type.equals("ios")){
+            jg_app_key =String.valueOf(propertiesUtil.getProperties().get("IOS_JG_APP_KEY")) ;
+            JG_MASTER_SECRET =String.valueOf(propertiesUtil.getProperties().get("IOS_JG_MASTER_SECRET")) ;
+        }
         for (Integer noticeUserId : noticeUserIdList) {
             String sharecode = ShareCodeUtil.id2sharecode(noticeUserId);
-            //分环境
-            JgPushExampls.sendPushObject_android_and_ios(sharecode,messageContent,jumpPage);
+            JgPushExampls.sendPushObject_android_and_ios(sharecode,messageContent,jumpPage,jg_app_key,JG_MASTER_SECRET);
         }
     }
 }

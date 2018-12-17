@@ -106,7 +106,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @date: 2018/11/16 17:41
      */
     @Override
-    public void reviseBudgetNotification(Integer userInfoId, AccountBookBudgetRestEntity budget, BigDecimal preBudgetMoney) {
+    public void reviseBudgetNotification(Integer userInfoId, AccountBookBudgetRestEntity budget, BigDecimal preBudgetMoney,String type) {
         int totalMember = accountBookRestDao.getTotalMember(budget.getAccountBookId() + "");
         if (totalMember > 1) {
             //修改账本名称
@@ -123,7 +123,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             //组合消息内容
             String messageContent = MessageContentFactory.getMessageContent(MessageType.reviseBudgetNotification, ABtypeName, creatName, preBudgetMoney.toString(), budget.getBudgetMoney().toString());
             //添加消息，发送通知
-            messageService.addUserMessage(messageContent, userInfoId, integers);
+            messageService.addUserMessage(messageContent, userInfoId, integers,type);
         }
     }
 

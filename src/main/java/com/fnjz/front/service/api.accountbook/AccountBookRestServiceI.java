@@ -72,7 +72,7 @@ public interface AccountBookRestServiceI extends CommonService{
      * @auther: yonghuizhao
      * @date: 2018/11/16 20:52
      */
-    void removeTheNotification(Map<String, Object> map,String userInfoId);
+    void removeTheNotification(Map<String, Object> map,String userInfoId,String type);
     /**
      * 功能描述:邀请记账
      *

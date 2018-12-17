@@ -153,12 +153,15 @@ public class AccountBookBudgetRestController extends BaseController {
                 }
 
                 //更新流程执行成功之后发送消息推送
-                new Thread() {
-                    public void run() {
-                        BigDecimal prebudgetMoney = budgetResult.getBudgetMoney();
-                        accountBookBudgetRestService.reviseBudgetNotification(Integer.parseInt(userInfoId), budget, prebudgetMoney);
-                    }
-                }.start();
+                if (type!=null && type != "wxapplet"){
+                    new Thread() {
+                        public void run() {
+                            BigDecimal prebudgetMoney = budgetResult.getBudgetMoney();
+                            accountBookBudgetRestService.reviseBudgetNotification(Integer.parseInt(userInfoId), budget, prebudgetMoney,type);
+                        }
+                    }.start();
+                }
+
 
                 return new ResultBean(ApiResultType.OK, null);
             } else {

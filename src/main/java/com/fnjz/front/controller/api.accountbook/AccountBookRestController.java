@@ -235,13 +235,15 @@ public class AccountBookRestController extends BaseController {
         try {
             accountBookRestService.deleteMembers(map, userInfoId);
 
-            //移除流程执行成功之后发送消息推送
-            new Thread() {
-                @Override
-                public void run() {
-                    accountBookRestService.removeTheNotification(map, userInfoId);
-                }
-            }.start();
+            if (type!=null && type != "wxapplet"){
+                //移除流程执行成功之后发送消息推送
+                new Thread() {
+                    @Override
+                    public void run() {
+                        accountBookRestService.removeTheNotification(map, userInfoId,type);
+                    }
+                }.start();
+            }
 
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
