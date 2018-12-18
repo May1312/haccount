@@ -1,5 +1,6 @@
 package com.fnjz.front.service.api.userbadge;
 
+import com.fnjz.front.entity.api.userbadge.UserBadgeInfoRestDTO;
 import com.fnjz.front.entity.api.userbadge.UserBadgeRestDTO;
 
 import java.util.List;
@@ -15,4 +16,11 @@ public interface UserBadgeRestService {
      * @return
      */
     List<UserBadgeRestDTO> getMyBadges(String userInfoId);
+
+    /**
+     * 获取某一具体徽章类型完成情况
+     * @param btId
+     * @return
+     */
+    List<UserBadgeInfoRestDTO> getMyBadgeInfo(String userInfoId,Integer btId);
 }

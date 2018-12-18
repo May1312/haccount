@@ -1,16 +1,15 @@
 package com.fnjz.front.controller.api.userbadge;
 
 import com.fnjz.commonbean.ResultBean;
+import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.userbadge.UserBadgeInfoRestDTO;
 import com.fnjz.front.entity.api.userbadge.UserBadgeRestDTO;
 import com.fnjz.front.service.api.userbadge.UserBadgeRestService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -30,21 +29,34 @@ public class UserBadgeRestController {
 
     /**
      * 获取我的------>徽章获取情况
+     *
+     * @param btId    徽章类型id
      * @param request
      * @return
      */
     @RequestMapping(value = {"/myBadges/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean myBadges(@PathVariable("type")String type, HttpServletRequest request) {
-        logger.info("访问终端:"+type);
+    public ResultBean myBadges(@PathVariable("type") String type, HttpServletRequest request, @RequestParam Integer btId) {
+        logger.info("访问终端:" + type);
         String userInfoId = (String) request.getAttribute("userInfoId");
-        List<UserBadgeRestDTO> list = userBadgeRestService.getMyBadges(userInfoId);
-        return null;
+        if (btId == null) {
+            try {
+                List<UserBadgeRestDTO> list = userBadgeRestService.getMyBadges(userInfoId);
+                return new ResultBean(ApiResultType.OK, list);
+            } catch (Exception e) {
+                logger.error(e.toString());
+                return new ResultBean(ApiResultType.SERVER_ERROR, null);
+            }
+        } else {
+            List<UserBadgeInfoRestDTO> list = userBadgeRestService.getMyBadgeInfo(userInfoId,btId);
+            return new ResultBean(ApiResultType.OK, list);
+        }
     }
+
 
     @RequestMapping(value = {"/myBadges"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean myBadges(HttpServletRequest request) {
-        return this.myBadges(null,request);
+    public ResultBean myBadges(HttpServletRequest request, @RequestParam Integer btId) {
+        return this.myBadges(null, request, btId);
     }
 }
