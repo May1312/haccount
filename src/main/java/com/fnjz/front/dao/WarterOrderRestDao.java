@@ -306,8 +306,8 @@ public interface WarterOrderRestDao {
      * @param accountBookId
      * @return
      */
-    @Sql("SELECT SUM( money ) AS spend FROM `hbird_water_order` WHERE account_book_id = :accountBookId and order_type=1 AND delflag = 0;")
-    Map<String,BigDecimal> getAccountv2(@Param("accountBookId") Integer accountBookId);
+    @Sql("SELECT SUM( money ) AS spend FROM `hbird_water_order` WHERE account_book_id = :accountBookId and order_type=:orderType AND delflag = 0;")
+    Map<String,BigDecimal> getAccountv2(@Param("accountBookId") Integer accountBookId,@Param("orderType") int type);
 
     @ResultType(WXAppletWarterOrderRestBaseDTO.class)
     @Sql("SELECT id, money, order_type, spend_happiness, type_name, remark, icon, user_private_label_id, charge_date FROM hbird_water_order WHERE account_book_id =:accountBookId AND charge_date BETWEEN :first AND :end AND delflag = 0 ORDER BY charge_date DESC, create_date DESC LIMIT :startIndex,:pageSize")
