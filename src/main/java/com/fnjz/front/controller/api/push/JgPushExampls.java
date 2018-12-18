@@ -68,12 +68,12 @@ public class JgPushExampls {
      * @auther: yonghuizhao
      * @date: 2018/11/14 11:53
      */
-    public static void sendPushObject_android_and_ios(String alias, String alertContent, String jumpPage) {
+    public static void sendPushObject_android_and_ios(String alias, String alertContent, String jumpPage,String jg_app_key,String JG_MASTER_SECRET) {
 
         //根据运行环境获取key和秘钥
-        PropertiesUtil propertiesUtil = new PropertiesUtil("jgpush.properties");
+       /* PropertiesUtil propertiesUtil = new PropertiesUtil("jgpush.properties");
         String jg_app_key =String.valueOf(propertiesUtil.getProperties().get("JG_APP_KEY")) ;
-        String JG_MASTER_SECRET =String.valueOf(propertiesUtil.getProperties().get("JG_MASTER_SECRET")) ;
+        String JG_MASTER_SECRET =String.valueOf(propertiesUtil.getProperties().get("JG_MASTER_SECRET")) ;*/
         //获取客户端实例
         ClientConfig clientConfig = ClientConfig.getInstance();
         final JPushClient jpushClient = new JPushClient(JG_MASTER_SECRET, jg_app_key, null, clientConfig);

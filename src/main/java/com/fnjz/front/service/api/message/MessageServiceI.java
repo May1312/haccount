@@ -14,7 +14,7 @@ public interface MessageServiceI extends CommonService{
      * @auther: yonghuizhao
      * @date: 2018/11/13 10:24
      */
-    public Boolean addUserMessage(String messageContent, Integer creatId, List<Integer> noticeUserIdList);
+    public Boolean addUserMessage(String messageContent, Integer creatId, List<Integer> noticeUserIdList,String type);
     /**
      * 功能描述: 根据用户id获取消息列表
      *

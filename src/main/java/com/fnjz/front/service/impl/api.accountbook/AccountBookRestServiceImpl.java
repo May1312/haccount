@@ -289,7 +289,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
      * @date: 2018/11/16 20:41
      */
     @Override
-    public void removeTheNotification(Map<String, Object> map, String userInfoId) {
+    public void removeTheNotification(Map<String, Object> map, String userInfoId,String type) {
         ArrayList<Integer> integers = new ArrayList<>();
         JSONArray memberIds = JSONArray.parseArray(JSON.toJSONString(map.get("memberIds")));
         for (Object memberId : memberIds) {
@@ -301,7 +301,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         String messageContent = MessageContentFactory.getMessageContent(MessageType.removeTheNotification, ABtypeName, "管理员", null, null);
         //引入小程序服务通知
         wxappletPush(integers,ABtypeName,userInfoId,messageContent);
-        messageService.addUserMessage(messageContent, Integer.parseInt(userInfoId), integers);
+        messageService.addUserMessage(messageContent, Integer.parseInt(userInfoId), integers,type);
     }
 
     /**
@@ -349,7 +349,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                 if (userAccountBook.getUserType() == 0) {
                     //当前账本人数是否小于五人
                     int totalMember = accountBookRestDao.getTotalMember(accountBookId);
-                    if (totalMember <= 5) {
+                    if (totalMember < 5) {
                         UserAccountBookRestEntity userAccountBookRestEntity = new UserAccountBookRestEntity();
                         userAccountBookRestEntity.setAccountBookId(Integer.parseInt(accountBookId));
                         userAccountBookRestEntity.setUserInfoId(Integer.parseInt(invitedId));

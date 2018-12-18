@@ -158,17 +158,19 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             //需要读取头像
             listForPage = warterOrderRestDao.findListForPagev2(first.toString(), end.toString(), abId + "", pageRest.getStartIndex(), pageRest.getPageSize());
             //获取总条数
-            count = warterOrderRestDao.getCount(first.toString(), end.toString(), abId+"");
+            count = warterOrderRestDao.getCount(first.toString(), end.toString(), abId + "");
             //判断是否为场景账本 1:普通日常账本 2:场景账本
             int status = accountBookRestDao.getABTypeByABId(abId);
             if (status == 2) {
                 //2:场景账本  计算支出总金额
-                Map<String, BigDecimal> account = warterOrderRestDao.getAccountv2(abId);
-                if (account.get("spend")!=null) {
-                    ja.put("sceneSpend", account.get("spend"));
-                }
-            }else{
-                account2 = warterOrderRestDao.getAccount(first.toString(), end.toString(), abId+"");
+                Map<String, BigDecimal> account1 = warterOrderRestDao.getAccountv2(abId, 1);
+                Map<String, BigDecimal> account3 = warterOrderRestDao.getAccountv2(abId, 2);
+                ja.put("sceneSpend", account1.get("spend") == null ? 0 : account1.get("spend"));
+                ja.put("monthIncome", account3.get("spend") == null ? 0 : account3.get("spend"));
+            } else {
+                account2 = warterOrderRestDao.getAccount(first.toString(), end.toString(), abId + "");
+                ja.put("monthSpend", account2.get("spend"));
+                ja.put("monthIncome", account2.get("income"));
             }
         } else {
             //读取总账本
@@ -176,6 +178,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             //获取总条数
             count = warterOrderRestDao.getCountv2(first.toString(), end.toString(), userInfoId);
             account2 = warterOrderRestDao.getAccountForAll(first.toString(), end.toString(), userInfoId);
+            ja.put("monthSpend", account2.get("spend"));
+            ja.put("monthIncome", account2.get("income"));
         }
         //设置总记录数
         pageRest.setTotalCount(count);
@@ -183,9 +187,9 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         Map<Date, Object> map = new HashMap<>();
         for (Iterator<WXAppletWarterOrderRestBaseDTO> it = listForPage.iterator(); it.hasNext(); ) {
             WXAppletWarterOrderRestBaseDTO warter = it.next();
-            if(StringUtils.equals(warter.getIsYour()+"",userInfoId)){
+            if (StringUtils.equals(warter.getIsYour() + "", userInfoId)) {
                 warter.setIsYour(1);
-            }else{
+            } else {
                 warter.setIsYour(2);
             }
             //判断是否包含日期
@@ -236,8 +240,6 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 }
             }
             ja.put("arrays", array2);
-            ja.put("monthSpend", account2.get("spend"));
-            ja.put("monthIncome", account2.get("income"));
             ja.put("totalPage", pageRest.getTotalPage());
             return ja;
         }
@@ -776,7 +778,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         LocalDate localDate1 = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
         //获取月末时间
         LocalDate localDate2 = localDate1.with(TemporalAdjusters.lastDayOfMonth());
-        return warterOrderRestDao.countChargeDaysByChargeDaysv2(localDate1.toString(),localDate2.toString(), userInfoId);
+        return warterOrderRestDao.countChargeDaysByChargeDaysv2(localDate1.toString(), localDate2.toString(), userInfoId);
     }
 
     @Override
