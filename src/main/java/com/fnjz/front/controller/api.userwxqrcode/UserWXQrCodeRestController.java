@@ -140,6 +140,7 @@ public class UserWXQrCodeRestController extends BaseController {
             dos.close();
             // 通过输入流获取图片数据
             InputStream inStream = conn.getInputStream();
+            byte[] btImg = readInputStream(inStream);
             //==========新增部分===========
             BufferedReader buffer = new BufferedReader(new InputStreamReader(inStream));
             StringBuffer bs = new StringBuffer();
@@ -147,7 +148,6 @@ public class UserWXQrCodeRestController extends BaseController {
             while ((str = buffer.readLine()) != null) {
                 bs.append(str);
             }
-            byte[] btImg = readInputStream(inStream);
             try {
                 JSONObject jsonObject1 = JSONObject.fromObject(bs.toString());
                 if (jsonObject1.get("errcode") != null) {
@@ -164,7 +164,6 @@ public class UserWXQrCodeRestController extends BaseController {
                     return null;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 return btImg;
             }
             return btImg;
@@ -186,8 +185,6 @@ public class UserWXQrCodeRestController extends BaseController {
         while ((len = inStream.read(buffer)) != -1) {
             outStream.write(buffer, 0, len);
         }
-        inStream.close();
         return outStream.toByteArray();
-
     }
 }
