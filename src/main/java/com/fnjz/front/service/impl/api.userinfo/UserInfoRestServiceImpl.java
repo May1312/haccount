@@ -15,6 +15,7 @@ import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.entity.api.userprivatelabel.UserPrivateLabelRestEntity;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
+import com.fnjz.front.service.api.registerchannel.RegisterChannelRestServiceI;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.*;
 import org.apache.commons.lang.StringUtils;
@@ -56,6 +57,8 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     private FengFengTicketRestDao fengFengTicketRestDao;
     @Autowired
     private WXAppletPushUtils wxAppletPushUtils;
+    @Autowired
+    private RegisterChannelRestServiceI registerChannelRestServiceI;
 
     @Override
     public int insert(UserInfoRestEntity userInfoRestEntity, String type) {
@@ -335,10 +338,22 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                     }
                 }
             }
+            String wxappletChannel = map.get("wxappletChannel");
+            statisticsForRegister(wxappletChannel,insertId);
         });
         return insert3;
     }
 
+    /**
+     * 统计从其他渠道进来的用户数据
+     */
+    private void statisticsForRegister(String channel,int userInfoId){
+        //统计从游戏渠道注册成功的人数
+        if (StringUtils.isNotEmpty(channel)) {
+            redisTemplateUtils.incrementNewRegister(channel, "sumNewRegister");
+        }
+        registerChannelRestServiceI.insert(channel,userInfoId,1);
+    }
     /**
      * 根据userInfoId更新密码
      *

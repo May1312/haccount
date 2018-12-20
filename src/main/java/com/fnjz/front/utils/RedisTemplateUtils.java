@@ -408,6 +408,14 @@ public class RedisTemplateUtils {
 
     }
 
+    public void incrementNewVisitor(String key, String field,int flag) {
+        redisTemplate.opsForHash().increment(key, field, 1);
+        if(1==flag){
+            //设置缓存时间
+            redisTemplate.expire(key,RedisPrefix.USER_VALID_TIME,TimeUnit.DAYS);
+        }
+    }
+
     /**
      * 统计游戏进入的有效注册用户数
      * @param wxappletChannel
@@ -415,6 +423,14 @@ public class RedisTemplateUtils {
      */
     public void addNewVisitorToSet(String wxappletChannel,String shareCode){
         redisTemplate.opsForSet().add(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY +"_"+ wxappletChannel+":newVisitorSet",shareCode);
+    }
+
+    public void addNewVisitorToSet(String key,String value,int flag){
+        redisTemplate.opsForSet().add(key,value);
+        if(1==flag){
+            //设置缓存时间
+            redisTemplate.expire(key,RedisPrefix.USER_VALID_TIME,TimeUnit.DAYS);
+        }
     }
 
     /**
