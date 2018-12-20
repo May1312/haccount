@@ -13,6 +13,7 @@ import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
+import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
@@ -48,6 +49,9 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
 
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+
+    @Autowired
+    private WarterOrderRestServiceI warterOrderRestServiceI;
 
     /**
      * 获取最新同步时间
@@ -165,8 +169,9 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 }
                 //修改账本更新时间
                 createTokenUtils.updateABtime(list.get(0).getAccountBookId());
-                //记账总笔数置为0
-                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT+shareCode,"chargeTotal",0);
+                //记账总笔数置
+                int chargeTotal = warterOrderRestServiceI.chargeTotalv2(userInfoId);
+                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT+shareCode,"chargeTotal",chargeTotal);
             }
         }
     }

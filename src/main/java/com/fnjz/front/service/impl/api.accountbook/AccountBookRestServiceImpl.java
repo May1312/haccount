@@ -17,6 +17,7 @@ import com.fnjz.front.service.api.accountbook.AccountBookRestServiceI;
 import com.fnjz.front.service.api.message.MessageServiceI;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import com.fnjz.front.service.api.userprivatelabel.UserPrivateLabelRestService;
+import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
 import com.fnjz.front.utils.WXAppletPushUtils;
@@ -69,6 +70,9 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
 
     @Autowired
     private UserInfoRestDao userInfoRestDao;
+
+    @Autowired
+    private WarterOrderRestServiceI warterOrderRestServiceI;
 
     @Override
     public JSONArray checkABMembers(String userInfoId) {
@@ -170,8 +174,9 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
                     offlineSynchronizedRestDao.insert(map.get("mobileDevice"), userInfoId);
                 }
             }
-            //记账总笔数置为0
-            redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT + ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), "chargeTotal", 0);
+            //记账总笔数
+            int chargeTotal = warterOrderRestServiceI.chargeTotalv2(userInfoId);
+            redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT + ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), "chargeTotal", chargeTotal);
         }
     }
 

@@ -343,10 +343,6 @@ public class UserLoginRestController extends BaseController {
                 int insert = userInfoRestServiceI.wechatinsert(user, map, null);
                 if (insert > 0) {
                     UserLoginRestEntity task2 = userLoginRestService.findUniqueByProperty(UserLoginRestEntity.class, "wechatAuth", user.getString("unionId"));
-                    //统计从游戏渠道注册成功的人数
-                    if (StringUtils.isNotEmpty(map.get("wxappletChannel"))) {
-                        redisTemplateUtils.incrementNewRegister(map.get("wxappletChannel"), "sumNewRegister");
-                    }
                     return createTokenUtils.wxappletLoginSuccess(task2, ShareCodeUtil.id2sharecode(task2.getUserInfoId()));
                 } else {
                     return new ResultBean(ApiResultType.REGISTER_IS_ERROR, null);
