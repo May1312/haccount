@@ -141,15 +141,8 @@ public class UserWXQrCodeRestController extends BaseController {
             // 通过输入流获取图片数据
             InputStream inStream = conn.getInputStream();
             byte[] btImg = readInputStream(inStream);
-            //==========新增部分===========
-            BufferedReader buffer = new BufferedReader(new InputStreamReader(inStream));
-            StringBuffer bs = new StringBuffer();
-            String str;
-            while ((str = buffer.readLine()) != null) {
-                bs.append(str);
-            }
             try {
-                JSONObject jsonObject1 = JSONObject.fromObject(bs.toString());
+                JSONObject jsonObject1 = JSONObject.fromObject(new String(btImg));
                 if (jsonObject1.get("errcode") != null) {
                     //access token 失效
                     if (StringUtils.equals(jsonObject1.get("errcode") + "", "40001")) {
