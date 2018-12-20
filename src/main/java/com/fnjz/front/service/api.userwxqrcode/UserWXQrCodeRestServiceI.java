@@ -10,12 +10,12 @@ public interface UserWXQrCodeRestServiceI extends CommonService{
      * @param userInfoId
      * @param url
      */
-    void insert(String userInfoId, String url);
+    void insert(String userInfoId, String url,String type);
 
     /**
      * 获取邀请小程序码
      * @param userInfoId
      * @return
      */
-    String getInviteQrCode(String userInfoId);
+    String getInviteQrCode(String userInfoId,String type);
 }

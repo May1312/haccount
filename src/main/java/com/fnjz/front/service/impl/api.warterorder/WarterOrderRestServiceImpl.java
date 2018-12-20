@@ -19,6 +19,7 @@ import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.DateUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -53,6 +55,9 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Autowired
     private ThreadPoolTaskExecutor taskExecutor;
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     @Test
     public void run() {
@@ -334,18 +339,52 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         //修改账本更新时间
         createTokenUtils.updateABtime(charge.getAccountBookId());
         String userInfoId = charge.getCreateBy()+"";
+        String sharecode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
         taskExecutor.execute(()->{
             //引入当日任务 ---->记一笔账
             createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
             //引入当日任务 ---->记账达3笔
             createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
+            //打卡统计
+            myCount(sharecode,userInfoId);
         });
-        //commonDao.save(charge);
+    }
+
+    /**
+     * 记账笔数统计 累计记账天数
+     */
+    private void myCount(String shareCode,String userInfoId) {
+        //统计记账总笔数+1
+        Map s = redisTemplateUtils.getMyCount(shareCode);
+        if (s.size() > 0) {
+            if (s.containsKey("chargeTotal")) {
+                //直接递增
+                redisTemplateUtils.incrementMyCountTotal(shareCode, "chargeTotal", 1);
+            }
+            //设置当前时间戳 为时间标识   累计记账天数
+            if (s.containsKey("chargeDays")) {
+                if(s.containsKey("chargeTime")){
+                    String chargeTime = s.get("chargeTime")+"";
+                    LocalDateTime signInDate = LocalDateTime.ofEpochSecond(Long.valueOf(chargeTime), 0, ZoneOffset.ofHours(8));
+                    //获取当前日期
+                    LocalDateTime end = LocalDate.now().atTime(23, 59, 59);
+                    LocalDateTime begin = LocalDate.now().atTime(0, 0, 0);
+                    if(!(signInDate.isAfter(begin) && begin.isBefore(end))){
+                        redisTemplateUtils.incrementMyCountTotal(shareCode, "chargeDays", 1);
+                        redisTemplateUtils.updateForHashKey(shareCode, "chargeTime", System.currentTimeMillis());
+                    }
+                }
+                redisTemplateUtils.incrementMyCountTotal(shareCode, "chargeTotal", 1);
+            }else{
+                //查询累计记账天数
+                int totalChargeDays = warterOrderRestDao.getTotalChargeDays(userInfoId);
+                redisTemplateUtils.updateForHashKey(shareCode, "chargeDays", totalChargeDays);
+                redisTemplateUtils.updateForHashKey(shareCode, "chargeTime", System.currentTimeMillis());
+            }
+        }
     }
 
     //记账流程加入
-    //{"chargeDate":1541548800000,"isStaged":1,"money":7,"orderType":1,"remark":"","spendHappiness":0,
-    // "typeId":"2c91dbe363f81ded0163f83d33320016","typeName":"饮食","typePid":"2c91dbe363f72fec0163f818eea4001b","typePname":"饮食"}
     private WarterOrderRestNewLabel addLabelInfo(WarterOrderRestNewLabel charge) {
         //追加标签信息
         if (charge.getUserPrivateLabelId() != null) {

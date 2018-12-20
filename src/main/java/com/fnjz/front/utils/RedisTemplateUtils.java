@@ -232,6 +232,10 @@ public class RedisTemplateUtils {
         redisTemplate.opsForHash().put(key,mapKey, value);
     }
 
+    public void updateForHashKey(String key,String mapKey, Object value) {
+        redisTemplate.opsForHash().put(key,mapKey, value);
+    }
+
     /**
      * 获取map中的指定key的value
      * @param key

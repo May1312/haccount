@@ -478,4 +478,12 @@ public interface WarterOrderRestDao {
      */
     @Sql("SELECT COALESCE ( count( id ), 0 ) FROM hbird_water_order WHERE create_by=:userInfoId AND create_date like CONCAT(DATE_FORMAT( now( ), '%Y-%m-%d' ),'%');")
     int getCountForCurrentDay(@Param("userInfoId")String userInfoId);
+
+    /**
+     * 获取累计记账天数
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select count(*) from (select update_by from hbird_water_order where update_by=:userInfoId group by DATE_FORMAT(create_date,'%Y-%m-%d')) as base1;")
+    int getTotalChargeDays(@Param("userInfoId")String userInfoId);
 }

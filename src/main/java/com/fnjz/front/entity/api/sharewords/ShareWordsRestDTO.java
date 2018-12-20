@@ -32,6 +32,30 @@ public class ShareWordsRestDTO{
      */
     private Integer signInAware;
 
+    /**
+     * 昵称
+     */
+    private String nickName;
+    /**
+     * 头像
+     */
+    private String avatarUrl;
+    /**
+     * 累计记账天数
+     */
+    private int chargeDays;
+    /**
+     * 注册时间
+     * @return
+     */
+    private Date registerDate;
+
+    /**
+     * 小程序二维码
+     * @return
+     */
+    private String qrCodeUrl;
+
     public String getFestival() {
         return festival;
     }
@@ -70,5 +94,45 @@ public class ShareWordsRestDTO{
 
     public void setSignInAware(Integer signInAware) {
         this.signInAware = signInAware;
+    }
+
+    public Date getRegisterDate() {
+        return registerDate;
+    }
+
+    public void setRegisterDate(Date registerDate) {
+        this.registerDate = registerDate;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public int getChargeDays() {
+        return chargeDays;
+    }
+
+    public void setChargeDays(int chargeDays) {
+        this.chargeDays = chargeDays;
+    }
+
+    public String getQrCodeUrl() {
+        return qrCodeUrl;
+    }
+
+    public void setQrCodeUrl(String qrCodeUrl) {
+        this.qrCodeUrl = qrCodeUrl;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

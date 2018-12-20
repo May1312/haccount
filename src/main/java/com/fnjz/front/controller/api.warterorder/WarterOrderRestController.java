@@ -94,8 +94,6 @@ public class WarterOrderRestController extends BaseController {
             charge.setDelflag(0);
             charge.setId(CommonUtils.getAccountOrder());
             warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
-            //打卡统计
-            myCount(shareCode, userLoginRestEntity);
             return CommonUtils.returnCharge(charge.getId());
         } else if (charge.getOrderType() == 1 && charge.getIsStaged() == 2) {
             Map map = new HashMap<>();
@@ -129,8 +127,6 @@ public class WarterOrderRestController extends BaseController {
         charge.setId(CommonUtils.getAccountOrder());
         try {
             warterOrderRestService.insert(charge, code, userLoginRestEntity.getAccountBookId());
-            //打卡统计
-            myCount(shareCode, userLoginRestEntity);
             //返回记账id
             return CommonUtils.returnCharge(charge.getId());
         } catch (Exception e) {
@@ -171,8 +167,6 @@ public class WarterOrderRestController extends BaseController {
             charge.setDelflag(0);
             charge.setId(CommonUtils.getAccountOrder());
             warterOrderRestService.insertv2(charge);
-            //打卡统计
-            myCount(shareCode, null);
             return CommonUtils.returnCharge(charge.getId());
         } else if (charge.getOrderType() == 1 && charge.getIsStaged() == 2) {
             Map map = new HashMap<>();
@@ -203,8 +197,6 @@ public class WarterOrderRestController extends BaseController {
         charge.setId(CommonUtils.getAccountOrder());
         try {
             warterOrderRestService.insertv2(charge);
-            //打卡统计
-            myCount(shareCode, null);
             //返回记账id
             return CommonUtils.returnCharge(null);
         } catch (Exception e) {
@@ -413,27 +405,6 @@ public class WarterOrderRestController extends BaseController {
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
-        }
-    }
-
-    /**
-     * 记账笔数统计公用方法
-     */
-    private void myCount(String shareCode, UserAccountBookRestEntity userAccountBookRestEntity) {
-        //统计记账总笔数+1
-        Map s = redisTemplateUtils.getMyCount(shareCode);
-        if (s.size() > 0) {
-            if (s.containsKey("chargeTotal")) {
-                //直接递增
-                redisTemplateUtils.incrementMyCountTotal(shareCode, "chargeTotal", 1);
-            }//else {
-            //为空情况 TODO 存在高并发记账不准确情况 不做缓存修改
-            //统计记账总笔数
-            //int chargeTotal = warterOrderRestService.chargeTotal(userAccountBookRestEntity.getAccountBookId());
-            //myCountRestDTO.setChargeTotal(chargeTotal);
-            //s.put("chargeTotal",chargeTotal+"");
-            //重新设置redis
-            //redisTemplateUtils.updateMyCount(shareCode, s);
         }
     }
 
