@@ -30,7 +30,7 @@ public interface RegisterChannelRestDao {
      * @param time
      * @return
      */
-    @Sql("select count(base2.user_info_id) from hbird_register_channel as base1 INNER JOIN hbird_user_invite as base2 on base1.user_info_id=base2.user_info_id where base1.channel=:channel and base1.type=1 and base2.create_date like concat(:time,'%');")
+    @Sql("select COALESCE(count(base2.user_info_id),0) from hbird_register_channel as base1 INNER JOIN hbird_user_invite as base2 on base1.user_info_id=base2.user_info_id where base1.channel=:channel and base1.type=1 and base2.create_date like concat(:time,'%');")
     Integer getTodayStatisticsForInvite(@Param("channel") String channel, @Param("time") String time);
 
     /**
@@ -38,22 +38,22 @@ public interface RegisterChannelRestDao {
      * @param channel
      * @return
      */
-    @Sql("SELECT sum( base2.integral_num ) FROM hbird_register_channel AS base1 INNER JOIN hbird_user_total_integrals AS base2 ON base1.user_info_id = base2.user_info_id WHERE base1.channel =:channel AND base1.type = 1;")
-    Integer getStatisticsForIntegral(@Param("channel") String channel);
+    @Sql("SELECT COALESCE(sum( base2.integral_num ),0) FROM hbird_register_channel AS base1 INNER JOIN hbird_user_total_integrals AS base2 ON base1.user_info_id = base2.user_info_id WHERE base1.channel =:channel AND base1.type = 1;")
+    int getStatisticsForIntegral(@Param("channel") String channel);
 
     /**
      * 统计记过账的人数
      * @param channel
      * @return
      */
-    @Sql("select count(*) from (select base2.update_by from hbird_register_channel as base1 INNER JOIN hbird_water_order as base2 on base1.user_info_id=base2.update_by where base1.channel=:channel and base1.type=1 group by base2.update_by) as base3;")
-    Integer getTotalStatisticsForCharge(@Param("channel") String channel);
+    @Sql("select COALESCE(count(*),0) from (select base2.update_by from hbird_register_channel as base1 INNER JOIN hbird_water_order as base2 on base1.user_info_id=base2.update_by where base1.channel=:channel and base1.type=1 group by base2.update_by) as base3;")
+    int getTotalStatisticsForCharge(@Param("channel") String channel);
 
     /**
      * 统计邀请好友数
      * @param channel
      * @return
      */
-    @Sql("select count(base2.user_info_id) from hbird_register_channel as base1 INNER JOIN hbird_user_invite as base2 on base1.user_info_id=base2.user_info_id where base1.channel=:channel and base1.type=1;")
-    Integer getTotalStatisticsForInvite(@Param("channel") String channel);
+    @Sql("select COALESCE(count(base2.user_info_id),0) from hbird_register_channel as base1 INNER JOIN hbird_user_invite as base2 on base1.user_info_id=base2.user_info_id where base1.channel=:channel and base1.type=1;")
+    int getTotalStatisticsForInvite(@Param("channel") String channel);
 }

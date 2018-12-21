@@ -122,7 +122,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         shareWords.setAvatarUrl(nkAndAUById.get("avatarurl")+"");
         shareWords.setRegisterDate((Date)nkAndAUById.get("registerdate"));
         //获取累计记账天数
-        shareWords.setChargeDays(getChargeDays(ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)),userInfoId));
+        shareWords.setChargeDays(getChargeDays(RedisPrefix.PREFIX_MY_COUNT+ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)),userInfoId));
         //获取小程序分享二维码
         String inviteQrCode = userWXQrCodeRestServiceI.getInviteQrCode(userInfoId, "2");
         shareWords.setQrCodeUrl(inviteQrCode);

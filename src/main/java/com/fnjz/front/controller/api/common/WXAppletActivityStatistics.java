@@ -70,7 +70,7 @@ public class WXAppletActivityStatistics {
 
     private static int sumNewRegister2=0;
     //统计小游戏引导到小程序访问量统计
-    @RequestMapping(value = "sum", method = RequestMethod.GET)
+    @RequestMapping(value = "totalSum", method = RequestMethod.GET)
     @ResponseBody
     public ResultBean teacherDay(@RequestParam String wxappletChannel) {
         //获取活动注册成功人数+老用户访问量总量+老用户有效访问量+新用户访问总量+新用户有效访问量
