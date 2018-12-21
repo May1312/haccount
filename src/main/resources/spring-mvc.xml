@@ -219,7 +219,7 @@
                         <value>/rest/api/admin/sendVerifyCode</value>
                         <value>/rest/api/admin/createRobot</value>
                         <value>/rest/api/v1/appCheck</value>
-                        <value>/rest/api/wxActivity/sum</value>
+                        <value>/rest/api/wxActivity/totalSum</value>
                         <value>/rest/api/wxActivity/statisticsNewVisitor</value>
                         <value>/rest/api/v1/soouucallback</value>
                         <value>/rest/api/v1/updateRelationData</value>
@@ -241,7 +241,7 @@
                         <value>/rest/api/admin/sendVerifyCode</value>
                         <value>/rest/api/admin/createRobot</value>
                         <value>/rest/api/v1/appCheck</value>
-                        <value>/rest/api/wxActivity/sum</value>
+                        <value>/rest/api/wxActivity/totalSum</value>
                         <value>/rest/api/wxActivity/statisticsNewVisitor</value>
                         <value>/rest/api/v1/soouucallback</value>
                         <!--多账本邀请-->
