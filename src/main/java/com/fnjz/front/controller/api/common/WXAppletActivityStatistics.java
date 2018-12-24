@@ -68,7 +68,8 @@ public class WXAppletActivityStatistics {
         return new ResultBean(ApiResultType.OK, null);
     }
 
-    private static int sumNewRegister2=0;
+    private static int sumNewRegister2 = 0;
+
     //统计小游戏引导到小程序访问量统计
     @RequestMapping(value = "totalSum", method = RequestMethod.GET)
     @ResponseBody
@@ -90,40 +91,42 @@ public class WXAppletActivityStatistics {
         map.put("新用户访问总量", sumNewVisitor);
         map.put("新用户有效访问量", newVisitorSet);
         map.put("微信授权用户人数", sumNewRegister);
-        sumNewRegister2=sumNewRegister;
+        sumNewRegister2 = sumNewRegister;
         //今日数据
-        Map<String, Object> todayStatistics = getTodayStatistics(wxappletChannel, LocalDate.now(),sumNewRegister2);
-        Map<String, Object> result = new TreeMap<>();
-        result.put("日统计", todayStatistics);
+        Map<String, Object> todayStatistics = getTodayStatistics(wxappletChannel, LocalDate.now(), sumNewRegister2);
+        Map<String, Object> result = new TreeMap<>(Comparator.reverseOrder());
         //累计数据
         Map<String, Object> totalStatistics = registerChannelRestServiceI.getTotalStatistics(wxappletChannel);
         Map<String, Object> total = new TreeMap<>();
         total.put("访问量统计", map);
         total.put("用户数据统计", totalStatistics);
         result.put("累加统计", total);
-            return new ResultBean(ApiResultType.OK, result);
+        result.put("日统计", todayStatistics);
+        return new ResultBean(ApiResultType.OK, result);
     }
 
     /**
      * 【今日新增数据】：5个数据，首次记账人数(查看当天是否为首次记账)、记账笔数分布（0.1.2.）3，邀请好友数、丰丰票数
      */
-    private Map<String, Object> getTodayStatistics(String channel, LocalDate now,int sumNewRegister2) {
+    private Map<String, Object> getTodayStatistics(String channel, LocalDate now, int sumNewRegister2) {
         DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyyMMdd");
         Map<String, Object> total = new TreeMap<>(Comparator.reverseOrder());
-        for (int i = 1; i <= 7; i++) {
+        for (int i = 0; i <= 7; i++) {
             Map<String, Object> total2;
-            now = now.minusDays(1);
+            if(i!=0){
+                now = now.minusDays(1);
+            }
             String time = now.format(formatters);
-            //获取活动注册成功人数
-            int sumNewRegister = redisTemplateUtils.getHashValue(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":sumNewRegister" + "_" + time, "sumNewRegister");
+            //获取活动注册成功人数                                                               wxapplet_activity_statistics:menu_bar_zhijie:sumNewVisitor_20181222
+            int sumNewRegister = redisTemplateUtils.getHashValueV3(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":sumNewRegister" + "_" + time, "sumNewRegister");
             //老用户访问量总量
-            int sumOldVisitor = redisTemplateUtils.getHashValue(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":sumOldVisitor" + "_" + time, "sumOldVisitor");
+            int sumOldVisitor = redisTemplateUtils.getHashValueV3(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":sumOldVisitor" + "_" + time, "sumOldVisitor");
             //老用户有效访问量
-            long oldVisitorSet = redisTemplateUtils.getSetSize(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":oldVisitorSet" + "_" + time, "oldVisitorSet");
+            long oldVisitorSet = redisTemplateUtils.getSetSize(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":oldVisitorSet" + "_" + time);
             //新用户访问总量
-            int sumNewVisitor = redisTemplateUtils.getHashValue(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":sumNewVisitor" + "_" + time, "sumNewVisitor");
+            int sumNewVisitor = redisTemplateUtils.getHashValueV3(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":sumNewVisitor" + "_" + time, "sumNewVisitor");
             //新用户有效访问量
-            long newVisitorSet = redisTemplateUtils.getSetSize(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":newVisitorSet" + "_" + time, "newVisitorSet");
+            long newVisitorSet = redisTemplateUtils.getSetSize(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":newVisitorSet" + "_" + time);
             Map<String, Object> map = new TreeMap<>();
             map.put("[" + now.toString() + "]微信授权用户人数", sumNewRegister);
             map.put("[" + now.toString() + "]新用户有效访问量", newVisitorSet);
@@ -132,7 +135,7 @@ public class WXAppletActivityStatistics {
             map.put("[" + now.toString() + "]老用户访问总量", sumOldVisitor);
             //统计7天的数据
             //统计当天记账人数    记账笔数分布  0  未记账    1记账    2 记账两笔   3笔及以上
-            total2 = registerChannelRestServiceI.getTodayStatistics(channel, now.toString(),sumNewRegister2);
+            total2 = registerChannelRestServiceI.getTodayStatistics(channel, now.toString(), sumNewRegister2);
             ((Map) total2.get("日新增数据")).put("[" + now.toString() + "]访问量", map);
             total.put("[" + now.toString() + "]日访问量统计", total2);
         }

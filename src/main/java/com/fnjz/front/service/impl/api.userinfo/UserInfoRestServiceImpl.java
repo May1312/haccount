@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service("userInfoRestService")
@@ -351,6 +352,11 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         //统计从游戏渠道注册成功的人数
         if (StringUtils.isNotEmpty(channel)) {
             redisTemplateUtils.incrementNewRegister(channel, "sumNewRegister");
+            //按日区分
+            DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyyMMdd");
+            String time = LocalDate.now().format(formatters);
+            //统计有效注册人数
+            redisTemplateUtils.incrementNewRegisterV2(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":sumNewRegister" + "_" + time, "sumNewRegister");
         }
         registerChannelRestServiceI.insert(channel,userInfoId,1);
     }
