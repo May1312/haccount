@@ -398,6 +398,11 @@ public class RedisTemplateUtils {
 
     }
 
+    public void incrementNewRegisterV2(String key, String field) {
+        redisTemplate.opsForHash().increment(key, field, 1);
+
+    }
+
     /**
      * 小程序活动新用户引导到记账小程序总访问量
      * @param wxappletChannel
@@ -446,6 +451,14 @@ public class RedisTemplateUtils {
         return entries.get(keyName);
     }
 
+    public int getHashValueV3(String wxappletChannel,String keyName) {
+        Map<String,Integer> entries = redisTemplate.opsForHash().entries(wxappletChannel);
+        if(entries.get(keyName)==null){
+            return 0;
+        }
+        return entries.get(keyName);
+    }
+
     /**
      * 获取hash中的值
      * @return
@@ -479,6 +492,10 @@ public class RedisTemplateUtils {
 
     public long getSetSize(String wxappletChannel,String keyName) {
         return redisTemplate.opsForSet().size(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + "_" + wxappletChannel + ":" + keyName);
+    }
+
+    public long getSetSize(String key) {
+        return redisTemplate.opsForSet().size(key);
     }
 
     /**
