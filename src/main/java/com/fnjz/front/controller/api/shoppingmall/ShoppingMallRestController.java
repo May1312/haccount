@@ -300,12 +300,11 @@ public class ShoppingMallRestController {
         String userInfoId = (String) request.getAttribute("userInfoId");
         //判断是否已绑定openid
         Map<String, Object> map1 = userInfoAddFieldRestService.checkExistsOpenIdByUserInfoIdForWeChat(userInfoId, 2);
-        String openId;
+        //根据code解密 opendid
+        JSONObject user = WeChatUtils.getUser(map.get("code") + "");
+        String openId = user.getString("openid");
         if (map1 != null) {
             if (map1.get("openid") == null) {
-                //根据code解密 opendid
-                JSONObject user = WeChatUtils.getUser(map.get("code") + "");
-                openId = user.getString("openid");
                 try {
                     //保存openId
                     if (map1.get("id") != null) {
@@ -320,8 +319,10 @@ public class ShoppingMallRestController {
                     logger.error(e.toString());
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
                 }
-
             }
+        }else{
+            //insert
+            userInfoAddFieldRestService.insertOpenId(userInfoId, openId, 2);
         }
         return new ResultBean(ApiResultType.OK, null);
     }
