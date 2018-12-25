@@ -41,36 +41,43 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
      * @return
      */
     @Override
-    public JSONObject getAssets(String userInfoId,String shareCode) {
-        //定义 type 1为资产类 2为初始时间
-        //查询资产
-        List<UserAssetsRestDTO> assets = userAssetsRestDao.getAssetsAllForDTO(userInfoId,1);
-        //查询初始时间
-        List<UserAssetsRestEntity> initDate = userAssetsRestDao.getAssetsAll(userInfoId, 2);
-        UserAssetsRestEntity userAssetsRestEntity = new UserAssetsRestEntity();
-        if(initDate.size()==0){
-            //未设置初始时间 取用户注册时间开始计算
-            String user = redisTemplateUtils.getForString(RedisPrefix.PREFIX_USER_LOGIN + shareCode);
-            UserLoginRestEntity login = JSONObject.parseObject(user,UserLoginRestEntity.class);
-            if(login!=null){
-                userAssetsRestEntity.setInitDate(login.getRegisterDate());
-                userAssetsRestDao.insertInitDate(login.getRegisterDate(),userInfoId);
+    public JSONObject getAssets(String userInfoId,String shareCode,String flag) {
+        JSONObject jsonObject = new JSONObject();
+        if(StringUtils.isEmpty(flag)){
+            //定义 type 1为资产类 2为初始时间
+            //查询资产
+            List<UserAssetsRestDTO> assets = userAssetsRestDao.getAssetsAllForDTO(userInfoId,1);
+            //查询初始时间
+            List<UserAssetsRestEntity> initDate = userAssetsRestDao.getAssetsAll(userInfoId, 2);
+            UserAssetsRestEntity userAssetsRestEntity = new UserAssetsRestEntity();
+            if(initDate.size()==0){
+                //未设置初始时间 取用户注册时间开始计算
+                String user = redisTemplateUtils.getForString(RedisPrefix.PREFIX_USER_LOGIN + shareCode);
+                UserLoginRestEntity login = JSONObject.parseObject(user,UserLoginRestEntity.class);
+                if(login!=null){
+                    userAssetsRestEntity.setInitDate(login.getRegisterDate());
+                    userAssetsRestDao.insertInitDate(login.getRegisterDate(),userInfoId);
+                }
+            }else{
+                userAssetsRestEntity=initDate.get(0);
             }
+            //统计记账收支 余额
+            String chargeTotal = warterOrderRestDao.getTotalByDate(userAssetsRestEntity.getInitDate(),userInfoId);
+            //统计资产 总额
+            String assetsTotal = userAssetsRestDao.getAssetsTotal(userInfoId);
+            jsonObject.put("assets",assets);
+            BigDecimal charge = new BigDecimal (chargeTotal==null?"0":chargeTotal);
+            BigDecimal asset = new BigDecimal (assetsTotal==null?"0":assetsTotal);
+            jsonObject.put("netAssets",charge.add(asset));
+            jsonObject.put("initDate",userAssetsRestEntity.getInitDate());
+            return jsonObject;
         }else{
-            userAssetsRestEntity=initDate.get(0);
+            //查询资产
+            List<UserAssetsRestDTO> assets = userAssetsRestDao.getAssetsAllForDTO(userInfoId,1);
+            jsonObject.put("assets",assets);
+            return null;
         }
 
-        //统计记账收支 余额
-        String chargeTotal = warterOrderRestDao.getTotalByDate(userAssetsRestEntity.getInitDate(),userInfoId);
-        //统计资产 总额
-        String assetsTotal = userAssetsRestDao.getAssetsTotal(userInfoId);
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("assets",assets);
-        BigDecimal charge = new BigDecimal (chargeTotal==null?"0":chargeTotal);
-        BigDecimal asset = new BigDecimal (assetsTotal==null?"0":assetsTotal);
-        jsonObject.put("netAssets",charge.add(asset));
-        jsonObject.put("initDate",userAssetsRestEntity.getInitDate());
-        return jsonObject;
     }
 
     /**

@@ -35,17 +35,17 @@ public class UserAssetsRestController extends BaseController {
 
     /**
      * 获取用户资产接口
-     *
+     * @flag  flag=1 获取账户列表
      * @param request
      * @return
      */
     @RequestMapping(value = {"/assets", "/assets/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getAssets(HttpServletRequest request, @RequestParam String flag) {
+    public ResultBean getAssets(HttpServletRequest request, @RequestParam(required = false) String flag) {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
         try {
-            JSONObject jsonObject = userAssetsRestServiceI.getAssets(userInfoId,shareCode);
+            JSONObject jsonObject = userAssetsRestServiceI.getAssets(userInfoId,shareCode,flag);
             return new ResultBean(ApiResultType.OK, jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());

@@ -12,7 +12,7 @@ public interface UserAssetsRestServiceI extends CommonService{
      * @param userInfoId
      * @return
      */
-    JSONObject getAssets(String userInfoId,String shareCode);
+    JSONObject getAssets(String userInfoId,String shareCode,String flag);
 
     void saveOrUpdateAssets(String userInfoId, Map<String,Object> map);
 
