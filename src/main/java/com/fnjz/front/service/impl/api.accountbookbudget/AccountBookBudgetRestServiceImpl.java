@@ -322,7 +322,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @return
      */
     @Override
-    public List<ConsumptionStructureRatioDTO> getConsumptionStructureRatiov2(Integer userInfoId, String month) {
+    public List<ConsumptionStructureRatioDTO> getConsumptionStructureRatiov2(Integer userInfoId, String month,Integer abId) {
         //传入三对时间段  当月  上月  去年同月
         //获取传入月份初末范围
         LocalDate date = LocalDate.of(LocalDate.now().getYear(), Integer.valueOf(month), 1);
@@ -342,7 +342,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         lastYear = lastYear.minusDays(lastYear.getDayOfMonth() - 1);
         //月末一天
         LocalDate lastYearend = lastYear.with(TemporalAdjusters.lastDayOfMonth());
-        List<ConsumptionStructureRatioDTO> list = accountBookBudgetRestDao.getConsumptionStructureRatiov2(userInfoId, date.toString(), end.toString(), lastMonth.toString(), lastMonthend.toString(), lastYear.toString(), lastYearend.toString(), RedisPrefix.CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE);
+        List<ConsumptionStructureRatioDTO> list = accountBookBudgetRestDao.getConsumptionStructureRatiov2(userInfoId, date.toString(), end.toString(), lastMonth.toString(), lastMonthend.toString(), lastYear.toString(), lastYearend.toString(), RedisPrefix.CONSUMPTION_STRUCTURE_RATIO_FOOD_TYPE,abId);
         if (list.size() < 3) {
             Map containMap = new HashMap<String, Object>();
             DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy-MM");
@@ -406,9 +406,9 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     public Map<String, Object> getStatisticAnalysisv2(String userInfoId, Integer abId, String month, String range) {
         //TODO 三条sql是不是可以优化
         //存钱效率
-        JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range);
+        JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range,abId);
         //消费结构比
-        List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month);
+        List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month,abId);
         //预算完成率  日常账本
         JSONArray budgetCompletionRate = getBudgetCompletionRatev2(userInfoId, abId, month, range);
         Map<String, Object> map = new HashMap<>();
@@ -421,9 +421,9 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     @Override
     public Map<String, Object> getStatisticAnalysisv2ForScene(String userInfoId, Integer abId, String month, String range, SceneABBudgetRestDTO sceneABBudget) {
         //存钱效率
-        JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range);
+        JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range,abId);
         //消费结构比
-        List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month);
+        List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month,abId);
         //预算完成率  场景账本
         Map<String, Object> budgetCompletionRatev2ForScene = getBudgetCompletionRatev2ForScene(userInfoId, abId, sceneABBudget);
         Map<String, Object> map = new HashMap<>();
@@ -436,9 +436,9 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
     @Override
     public Map<String, Object> getStatisticAnalysisv2ForNoScene(String userInfoId, Integer abId, String month, String range, SceneABBudgetRestDTO sceneABBudget) {
         //存钱效率
-        JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range);
+        JSONObject savingEfficiency = getSavingEfficiencyv2(userInfoId, month, range,abId);
         //消费结构比
-        List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month);
+        List<ConsumptionStructureRatioDTO> consumptionStructureRatio = getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), month,abId);
         Map<String, Object> map = new HashMap<>();
         map.put("listSavingEfficiency", savingEfficiency);
         map.put("listConsumptionStructureRatio", consumptionStructureRatio);
@@ -583,7 +583,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
      * @return
      */
     @Override
-    public JSONObject getSavingEfficiencyv2(String userInfoId, String month, String range) {
+    public JSONObject getSavingEfficiencyv2(String userInfoId, String month, String range,Integer abId) {
         //获取到固定大额支出
         AccountBookBudgetRestEntity fixedSpend = accountBookBudgetRestDao.getFixedSpend(userInfoId);
         //无可支配金额  结束
@@ -600,8 +600,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         LocalDate localDate8 = localDate.with(TemporalAdjusters.lastDayOfMonth());
         JSONObject jsonObject = new JSONObject();
         //在区级内查找
-        List<SavingEfficiencyDTO> savingEfficiencyDTOS = accountBookBudgetRestDao.listSavingEfficiencyStatisticsByMonthsv2(localDate1.toString(), localDate8.toString(), userInfoId);
-
+        List<SavingEfficiencyDTO> savingEfficiencyDTOS = accountBookBudgetRestDao.listSavingEfficiencyStatisticsByMonthsv2(localDate1.toString(), localDate8.toString(), userInfoId,abId);
         JSONArray jsonArray = new JSONArray();
         savingEfficiencyDTOS.forEach(v -> {
             JSONObject jsonObject1 = new JSONObject();

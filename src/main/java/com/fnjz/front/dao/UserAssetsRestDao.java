@@ -10,6 +10,7 @@ import org.jeecgframework.minidao.annotation.Sql;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户固定资产
@@ -19,14 +20,14 @@ import java.util.List;
 public interface UserAssetsRestDao {
 
     @ResultType(UserAssetsRestDTO.class)
-    @Sql("SELECT * FROM hbird_user_assets WHERE user_info_id=:userInfoId and if(:type=1,type=:type,type=:type);")
+    @Sql("SELECT * FROM hbird_user_assets WHERE user_info_id=:userInfoId and if(:type=1,type=:type and money is not null,type=:type);")
     List<UserAssetsRestDTO> getAssetsAllForDTO(@Param("userInfoId") String userInfoId,@Param("type") Integer type);
 
-    @Sql("SELECT assets_type FROM hbird_user_assets WHERE user_info_id =: userInfoId AND IF ( : type = 1, type =: type, type =: type ) and mark=1;")
-    List<Integer> getMarkAssets(@Param("userInfoId") String userInfoId,@Param("type") Integer type);
+    @Sql("SELECT assets_type as at FROM hbird_user_assets WHERE user_info_id =:userInfoId AND type =:type and mark=1;")
+    List<Map<String,Integer>> getMarkAssets(@Param("userInfoId") String userInfoId, @Param("type") Integer type);
 
     @ResultType(UserAssetsRestEntity.class)
-    @Sql("SELECT * FROM hbird_user_assets WHERE user_info_id=:userInfoId and if(:type=1,type=:type,type=:type);")
+    @Sql("SELECT * FROM hbird_user_assets WHERE user_info_id=:userInfoId and type=:type;")
     List<UserAssetsRestEntity> getAssetsAll(@Param("userInfoId") String userInfoId,@Param("type") Integer type);
 
     @Sql("UPDATE `hbird_user_assets` SET `money`=:money where user_info_id = :userInfoId and assets_type=:assetstype;")
@@ -53,7 +54,7 @@ public interface UserAssetsRestDao {
     /**
      * 添加到用户默认账户类型
      */
-    @Sql("insert into hbird_user_assets (`user_info_id`,`assets_type`,`type`,`create_date`,`mark`) values(:userInfoId,:at,:money,1,NOW(),1);")
+    @Sql("insert into hbird_user_assets (`user_info_id`,`assets_type`,`type`,`create_date`,`mark`) values(:userInfoId,:at,1,NOW(),1);")
     void addAT2Mark(@Param("userInfoId") String userInfoId,@Param("at") String at);
 
     @Sql("UPDATE `hbird_user_assets` SET `mark`=:mark where user_info_id = :userInfoId and assets_type=:at;")

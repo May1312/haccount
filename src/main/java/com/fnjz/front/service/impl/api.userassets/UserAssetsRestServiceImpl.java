@@ -75,8 +75,12 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
             return jsonObject;
         } else {
             //查询资产
-            List<Integer> assets = userAssetsRestDao.getMarkAssets(userInfoId, 1);
-            jsonObject.put("assets", assets);
+            List<Map<String, Integer>> assets = userAssetsRestDao.getMarkAssets(userInfoId, 1);
+            int[] arrays = new int[assets.size()];
+             for(int i = 0;i<assets.size();i++){
+                 arrays[i]=assets.get(i).get("at");
+             }
+            jsonObject.put("ats", arrays);
             return jsonObject;
         }
     }

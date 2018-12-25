@@ -381,12 +381,12 @@ public class AccountBookBudgetRestController extends BaseController {
      */
     @RequestMapping(value = "/getsavingefficiencyv2/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getsavingefficiencyv2(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
+    public ResultBean getsavingefficiencyv2(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range, @RequestParam(value = "abId", required = false) Integer abId) {
         System.out.println("登录终端：" + type);
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, range);
-            JSONObject list = accountBookBudgetRestService.getSavingEfficiencyv2(userInfoId, jsonObject.getString("month"), jsonObject.getString("range"));
+            JSONObject list = accountBookBudgetRestService.getSavingEfficiencyv2(userInfoId, jsonObject.getString("month"), jsonObject.getString("range"),abId);
             return new ResultBean(ApiResultType.OK, list);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -433,12 +433,12 @@ public class AccountBookBudgetRestController extends BaseController {
      */
     @RequestMapping(value = "/getconsumptionstructureratiov2/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getconsumptionstructureratiov2(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "month", required = false) String month) {
+    public ResultBean getconsumptionstructureratiov2(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "abId", required = false) Integer abId) {
         System.out.println("登录终端：" + type);
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
             JSONObject jsonObject = ParamValidateUtils.checkSavingEfficiency(month, null);
-            List<ConsumptionStructureRatioDTO> list = accountBookBudgetRestService.getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), jsonObject.getString("month"));
+            List<ConsumptionStructureRatioDTO> list = accountBookBudgetRestService.getConsumptionStructureRatiov2(Integer.valueOf(userInfoId), jsonObject.getString("month"),abId);
             return new ResultBean(ApiResultType.OK, list);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -571,10 +571,15 @@ public class AccountBookBudgetRestController extends BaseController {
             } else {
                 //场景账本  查看是否设置预算及起止时间
                 SceneABBudgetRestDTO sceneABBudget = accountBookBudgetRestService.getSceneABBudget(abId);
-                if (sceneABBudget.getBudgetMoney() != null && sceneABBudget.getBeginTime() != null && sceneABBudget.getEndTime() != null) {
-                    Map<String, Object> all = accountBookBudgetRestService.getStatisticAnalysisv2ForScene(userInfoId, abId, jsonObject.getString("month"), jsonObject.getString("range"), sceneABBudget);
-                    return new ResultBean(ApiResultType.OK, all);
-                } else {
+                if(sceneABBudget!=null){
+                    if (sceneABBudget.getBudgetMoney() != null && sceneABBudget.getBeginTime() != null && sceneABBudget.getEndTime() != null) {
+                        Map<String, Object> all = accountBookBudgetRestService.getStatisticAnalysisv2ForScene(userInfoId, abId, jsonObject.getString("month"), jsonObject.getString("range"), sceneABBudget);
+                        return new ResultBean(ApiResultType.OK, all);
+                    } else {
+                        Map<String, Object> all = accountBookBudgetRestService.getStatisticAnalysisv2ForNoScene(userInfoId, abId, jsonObject.getString("month"), jsonObject.getString("range"), sceneABBudget);
+                        return new ResultBean(ApiResultType.OK, all);
+                    }
+                }else{
                     Map<String, Object> all = accountBookBudgetRestService.getStatisticAnalysisv2ForNoScene(userInfoId, abId, jsonObject.getString("month"), jsonObject.getString("range"), sceneABBudget);
                     return new ResultBean(ApiResultType.OK, all);
                 }
@@ -750,8 +755,8 @@ public class AccountBookBudgetRestController extends BaseController {
 
     @RequestMapping(value = "/getsavingefficiencyv2", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getsavingefficiencyv2(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range) {
-        return this.getsavingefficiencyv2(null, request, month, range);
+    public ResultBean getsavingefficiencyv2(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "range", required = false) String range, @RequestParam(value = "abId", required = false) Integer abId) {
+        return this.getsavingefficiencyv2(null, request, month, range,abId);
     }
 
     @RequestMapping(value = "/getconsumptionstructureratio", method = RequestMethod.GET)
@@ -762,8 +767,8 @@ public class AccountBookBudgetRestController extends BaseController {
 
     @RequestMapping(value = "/getconsumptionstructureratiov2", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getconsumptionstructureratiov2(HttpServletRequest request, @RequestParam(value = "month", required = false) String month) {
-        return this.getconsumptionstructureratiov2(null, request, month);
+    public ResultBean getconsumptionstructureratiov2(HttpServletRequest request, @RequestParam(value = "month", required = false) String month, @RequestParam(value = "abId", required = false) Integer abId) {
+        return this.getconsumptionstructureratiov2(null, request, month,abId);
     }
 
     @RequestMapping(value = "/getbudgetcompletionrate", method = RequestMethod.GET)

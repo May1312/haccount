@@ -129,7 +129,7 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @param range
      * @return
      */
-    JSONObject getSavingEfficiencyv2(String userInfoId, String month, String range);
+    JSONObject getSavingEfficiencyv2(String userInfoId, String month, String range,Integer abId);
 
     /**
      * v2 多账本
@@ -138,7 +138,7 @@ public interface AccountBookBudgetRestServiceI extends CommonService {
      * @param month
      * @return
      */
-    List<ConsumptionStructureRatioDTO> getConsumptionStructureRatiov2(Integer userInfoId, String month);
+    List<ConsumptionStructureRatioDTO> getConsumptionStructureRatiov2(Integer userInfoId, String month,Integer abId);
 
     /**
      * v2 日常账本 预算完成率

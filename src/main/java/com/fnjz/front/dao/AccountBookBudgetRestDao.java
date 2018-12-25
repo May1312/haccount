@@ -143,8 +143,8 @@ public interface AccountBookBudgetRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS monthSpend, SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END ) AS monthIncome, DATE_FORMAT( charge_date, '%Y-%m' ) AS time FROM `hbird_water_order` WHERE update_by = :userInfoId and charge_date between :beginTime and :endTime AND delflag = 0 GROUP BY time;")
-    List<SavingEfficiencyDTO> listSavingEfficiencyStatisticsByMonthsv2(@Param("beginTime") String beginTime,@Param("endTime") String endTime,@Param("userInfoId") String userInfoId);
+    @Sql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END ) AS monthSpend, SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END ) AS monthIncome, DATE_FORMAT( charge_date, '%Y-%m' ) AS time FROM `hbird_water_order` WHERE update_by = :userInfoId and charge_date between :beginTime and :endTime AND delflag = 0 and if(:abId=null,1=1,account_book_id=:abId) GROUP BY time;")
+    List<SavingEfficiencyDTO> listSavingEfficiencyStatisticsByMonthsv2(@Param("beginTime") String beginTime,@Param("endTime") String endTime,@Param("userInfoId") String userInfoId,@Param("abId")Integer abId);
 
     /**
      * v2 获取消费结构比
@@ -152,8 +152,8 @@ public interface AccountBookBudgetRestDao {
      * @param consumptionStructureRatioFoodType
      * @return
      */
-    @Sql("SELECT SUM( money) AS monthSpend, SUM( CASE WHEN type_pid = :foodType THEN money ELSE 0 END ) AS foodSpend, DATE_FORMAT( charge_date, '%Y-%m' ) AS time FROM `hbird_water_order` WHERE update_by = :userInfoId AND ((charge_date between :monthBegin and :monthEnd) or (charge_date between :lastMonthBegin and :lastMonthEnd) or (charge_date between :lastYearBegin and :lastYearEnd)) and order_type = 1 AND delflag = 0 GROUP BY time DESC;")
-    List<ConsumptionStructureRatioDTO> getConsumptionStructureRatiov2(@Param("userInfoId") Integer userInfoId,@Param("monthBegin") String s,@Param("monthEnd") String s1,@Param("lastMonthBegin") String s2,@Param("lastMonthEnd") String s3,@Param("lastYearBegin") String s4,@Param("lastYearEnd") String s5,@Param("foodType") String consumptionStructureRatioFoodType);
+    @Sql("SELECT SUM( money) AS monthSpend, SUM( CASE WHEN type_pid = :foodType THEN money ELSE 0 END ) AS foodSpend, DATE_FORMAT( charge_date, '%Y-%m' ) AS time FROM `hbird_water_order` WHERE update_by = :userInfoId AND ((charge_date between :monthBegin and :monthEnd) or (charge_date between :lastMonthBegin and :lastMonthEnd) or (charge_date between :lastYearBegin and :lastYearEnd)) and order_type = 1 AND delflag = 0 and if(:abId=null,1=1,account_book_id=:abId) GROUP BY time DESC;")
+    List<ConsumptionStructureRatioDTO> getConsumptionStructureRatiov2(@Param("userInfoId") Integer userInfoId,@Param("monthBegin") String s,@Param("monthEnd") String s1,@Param("lastMonthBegin") String s2,@Param("lastMonthEnd") String s3,@Param("lastYearBegin") String s4,@Param("lastYearEnd") String s5,@Param("foodType") String consumptionStructureRatioFoodType,@Param("abId")Integer abId);
 
     /**
      * v2 日常账本 预算完成率
