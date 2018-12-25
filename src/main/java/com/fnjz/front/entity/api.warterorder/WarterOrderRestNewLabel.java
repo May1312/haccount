@@ -11,6 +11,17 @@ public class WarterOrderRestNewLabel extends WarterOrderRestEntity{
     /**图标*/
     private java.lang.String icon;
 
+    /**
+     * 账户id(资产类型id)'
+     */
+    private Integer assetsId = 0;
+
+    /**
+     * 账户名称
+     * @return
+     */
+    private String assetsName;
+
     @Column(name = "USER_PRIVATE_LABEL_ID", nullable = true)
     public Integer getUserPrivateLabelId() {
         return userPrivateLabelId;
@@ -31,5 +42,23 @@ public class WarterOrderRestNewLabel extends WarterOrderRestEntity{
      */
     public void setIcon(java.lang.String icon){
         this.icon = icon;
+    }
+
+    @Column(name = "ASSETS_ID")
+    public Integer getAssetsId() {
+        return assetsId;
+    }
+
+    public void setAssetsId(Integer assetsId) {
+        this.assetsId = assetsId;
+    }
+
+    @Column(name = "ASSETS_NAME")
+    public String getAssetsName() {
+        return assetsName;
+    }
+
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
     }
 }
