@@ -76,7 +76,7 @@ public class ShoppingMallRestController {
     @RequestMapping(value = {"/checkExchangeStatus", "/checkExchangeStatus/{type}"}, method = RequestMethod.GET)
     @ResponseBody
     public ResultBean checkExchangeStatus(HttpServletRequest request) {
-        String userInfoId = (String)request.getAttribute("userInfoId");
+        String userInfoId = (String) request.getAttribute("userInfoId");
         try {
             boolean flag = shoppingMallRestService.checkExchangeStatus(userInfoId);
             return new ResultBean(ApiResultType.OK, flag);
@@ -106,44 +106,45 @@ public class ShoppingMallRestController {
 
     /**
      * 积分兑换  map扩展加入地址信息
+     *
      * @param map
      * @param request
      * @return
      */
     @RequestMapping(value = {"/toExchange/{type}"}, method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean toExchange(@PathVariable("type")String type,@RequestBody Map<String,String> map,HttpServletRequest request) {
+    public ResultBean toExchange(@PathVariable("type") String type, @RequestBody Map<String, String> map, HttpServletRequest request) {
         try {
-            String userInfoId = (String)request.getAttribute("userInfoId");
+            String userInfoId = (String) request.getAttribute("userInfoId");
             boolean flag = shoppingMallRestService.checkExchangeStatus(userInfoId);
-            if(flag){
-                return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW2,null);
+            if (flag) {
+                return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW2, null);
             }
             //根据商品id或消耗积分数+用户拥有总积分数
             GoodsRestEntity goodsRestEntity = shoppingMallRestService.getGoodsById(Integer.valueOf(map.get("goodsId")));
             //现金红包类型商品  校验手机号验证码
-            if(goodsRestEntity.getGoodsType()==3){
+            if (goodsRestEntity.getGoodsType() == 3) {
                 //移动端校验验证码
-                if(StringUtils.equals(type,"ios") || StringUtils.equals(type,"android")){
+                if (StringUtils.equals(type, "ios") || StringUtils.equals(type, "android")) {
                     ResultBean resultBean = cashCheck(map);
-                    if(StringUtils.equals(resultBean.getCode(),"200")){
+                    if (StringUtils.equals(resultBean.getCode(), "200")) {
                         return resultBean;
                     }
                     //定义1  小程序  2 移动端
-                    map.put("channel","2");
-                }else{
+                    map.put("channel", "2");
+                } else {
                     //定义1  小程序
-                    map.put("channel","1");
+                    map.put("channel", "1");
                 }
             }
             //总积分数统计
             double integralTotal = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
             //判断用户积分数
-            if(integralTotal<goodsRestEntity.getFengfengTicketValue()){
-                return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW,null);
+            if (integralTotal < goodsRestEntity.getFengfengTicketValue()) {
+                return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW, null);
             }
-            JSONObject jsonObject = shoppingMallRestService.toExchange(map,goodsRestEntity,userInfoId);
-            return new ResultBean(ApiResultType.OK,jsonObject);
+            JSONObject jsonObject = shoppingMallRestService.toExchange(map, goodsRestEntity, userInfoId);
+            return new ResultBean(ApiResultType.OK, jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -153,10 +154,10 @@ public class ShoppingMallRestController {
     /**
      * 现金红包类型商品
      */
-    private ResultBean cashCheck(Map<String,String> map){
+    private ResultBean cashCheck(Map<String, String> map) {
         ResultBean rb;
         if (StringUtils.isEmpty(map.get("exchangeMobile"))) {
-             rb = new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
+            rb = new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
             return rb;
         }
         //校验验证码
@@ -169,8 +170,10 @@ public class ShoppingMallRestController {
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
+
     /**
      * 积分兑换---->树鱼回调接口
+     *
      * @param request
      * @return
      */
@@ -184,9 +187,9 @@ public class ShoppingMallRestController {
             String CustomerOrderNo = request.getParameter("CustomerOrderNo"); // 合作商家订单号
             String Status = request.getParameter("Status"); // 订单状态(成功,失败)
             String ReMark = request.getParameter("ReMark");
-            logger.info("----------树鱼回调触发---------- 订单号:"+CustomerOrderNo+"  状态:"+Status);
-            shoppingMallRestService.updateExchange(OrderNo,CustomerOrderNo,Status,ReMark);
-            return new ResultBean(ApiResultType.OK,null);
+            logger.info("----------树鱼回调触发---------- 订单号:" + CustomerOrderNo + "  状态:" + Status);
+            shoppingMallRestService.updateExchange(OrderNo, CustomerOrderNo, Status, ReMark);
+            return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -195,16 +198,17 @@ public class ShoppingMallRestController {
 
     /**
      * 积分兑换---->历史兑换列表
+     *
      * @param request
      * @return
      */
     @RequestMapping(value = {"/historyIntegralExchange"}, method = RequestMethod.GET)
     @ResponseBody
     public ResultBean historyIntegralExchange(HttpServletRequest request) {
-        String userInfoId = (String)request.getAttribute("userInfoId");
+        String userInfoId = (String) request.getAttribute("userInfoId");
         try {
             List<ShoppingMallIntegralExchangePhysicalRestDTO> list = shoppingMallRestService.historyIntegralExchange(userInfoId);
-            return new ResultBean(ApiResultType.OK,list);
+            return new ResultBean(ApiResultType.OK, list);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -213,20 +217,21 @@ public class ShoppingMallRestController {
 
     /**
      * 获取收货地址
+     *
      * @param request
      * @return
      */
     @RequestMapping(value = {"/consigneeAddress/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean consigneeAddress(@PathVariable("type") String type,HttpServletRequest request) {
-        logger.info("访问终端:"+type);
-        String userInfoId = (String)request.getAttribute("userInfoId");
+    public ResultBean consigneeAddress(@PathVariable("type") String type, HttpServletRequest request) {
+        logger.info("访问终端:" + type);
+        String userInfoId = (String) request.getAttribute("userInfoId");
         try {
             ConsigneeAddressRestDTO bean = userInfoAddFieldRestService.getConsigneeAddress(userInfoId);
             Map map = new HashMap();
-            map.put("aaa",bean);
+            map.put("aaa", bean);
             System.out.println(JSON.toJSON(map).toString());
-            return new ResultBean(ApiResultType.OK,bean);
+            return new ResultBean(ApiResultType.OK, bean);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -235,19 +240,20 @@ public class ShoppingMallRestController {
 
     /**
      * save or update 收货地址
+     *
      * @param request
      * @return
      */
     @RequestMapping(value = {"/consigneeAddress/{type}"}, method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean consigneeAddress(@PathVariable("type") String type,HttpServletRequest request,@RequestBody ConsigneeAddressRestDTO bean) {
-        logger.info("访问终端:"+type);
-        String userInfoId = (String)request.getAttribute("userInfoId");
+    public ResultBean consigneeAddress(@PathVariable("type") String type, HttpServletRequest request, @RequestBody ConsigneeAddressRestDTO bean) {
+        logger.info("访问终端:" + type);
+        String userInfoId = (String) request.getAttribute("userInfoId");
         try {
-            if(bean!=null){
-                userInfoAddFieldRestService.updateConsigneeAddress(userInfoId,bean);
+            if (bean != null) {
+                userInfoAddFieldRestService.updateConsigneeAddress(userInfoId, bean);
             }
-            return new ResultBean(ApiResultType.OK,null);
+            return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -259,16 +265,17 @@ public class ShoppingMallRestController {
      * 移动端-->微信提现至零钱
      * 小程序-->关注公众号 模板消息红包
      * 定义type   1:小程序openid   2:移动端openid   3:公众号openid
+     *
      * @param request
      * @return
      */
     @RequestMapping(value = {"/checkExistsOpenId/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean checkExistsOpenId(@PathVariable("type") String type,HttpServletRequest request) {
-        String userInfoId = (String)request.getAttribute("userInfoId");
+    public ResultBean checkExistsOpenId(@PathVariable("type") String type, HttpServletRequest request) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
         try {
-            Integer flag = userInfoAddFieldRestService.checkExistsOpenId(userInfoId,Integer.valueOf(type));
-            return new ResultBean(ApiResultType.OK,flag);
+            Integer flag = userInfoAddFieldRestService.checkExistsOpenId(userInfoId, Integer.valueOf(type));
+            return new ResultBean(ApiResultType.OK, flag);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -277,27 +284,28 @@ public class ShoppingMallRestController {
 
     /**
      * 移动端上传code ---> 获取openid
+     *
      * @param request
      * @return
      */
     @RequestMapping(value = {"/uploadCode/{type}"}, method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean uploadCode(@PathVariable("type") String type,HttpServletRequest request,@RequestBody Map<String, String> map) {
-       logger.info("登录终端：" + type);
+    public ResultBean uploadCode(@PathVariable("type") String type, HttpServletRequest request, @RequestBody Map<String, String> map) {
+        logger.info("登录终端：" + type);
         ResultBean rb = ParamValidateUtils.checkeLoginByWechat(map, LoginEnum.LOGIN_BY_WECHAT);
         //判断CODE
         if (rb != null) {
             return rb;
         }
-        String userInfoId = (String)request.getAttribute("userInfoId");
+        String userInfoId = (String) request.getAttribute("userInfoId");
         //判断是否已绑定openid
-        Map<String, Object> map1 = userInfoAddFieldRestService.checkExistsOpenIdByUserInfoIdForWeChat(userInfoId,2);
+        Map<String, Object> map1 = userInfoAddFieldRestService.checkExistsOpenIdByUserInfoIdForWeChat(userInfoId, 2);
         String openId;
         if (map1 != null) {
             if (map1.get("openid") == null) {
                 //根据code解密 opendid
                 JSONObject user = WeChatUtils.getUser(map.get("code") + "");
-                    openId = user.getString("openId");
+                openId = user.getString("openid");
                 try {
                     //保存openId
                     if (map1.get("id") != null) {
@@ -307,7 +315,7 @@ public class ShoppingMallRestController {
                         //insert
                         userInfoAddFieldRestService.insertOpenId(userInfoId, openId, 2);
                     }
-                    return new ResultBean(ApiResultType.OK,null);
+                    return new ResultBean(ApiResultType.OK, null);
                 } catch (Exception e) {
                     logger.error(e.toString());
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -315,7 +323,7 @@ public class ShoppingMallRestController {
 
             }
         }
-        return new ResultBean(ApiResultType.OK,null);
+        return new ResultBean(ApiResultType.OK, null);
     }
 
     @RequestMapping(value = {"/consigneeAddress"}, method = RequestMethod.GET)
@@ -326,25 +334,25 @@ public class ShoppingMallRestController {
 
     @RequestMapping(value = {"/consigneeAddress"}, method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean consigneeAddress(HttpServletRequest request,@RequestBody ConsigneeAddressRestDTO bean) {
-        return this.consigneeAddress(null, request,bean);
+    public ResultBean consigneeAddress(HttpServletRequest request, @RequestBody ConsigneeAddressRestDTO bean) {
+        return this.consigneeAddress(null, request, bean);
     }
 
     @RequestMapping(value = {"/toExchange"}, method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean toExchange(@RequestBody Map<String,String> map,HttpServletRequest request) {
-        return this.toExchange(null, map,request);
+    public ResultBean toExchange(@RequestBody Map<String, String> map, HttpServletRequest request) {
+        return this.toExchange(null, map, request);
     }
 
     @RequestMapping(value = {"/checkExistsOpenId"}, method = RequestMethod.GET)
     @ResponseBody
     public ResultBean checkExistsOpenId(HttpServletRequest request) {
-        return this.checkExistsOpenId(null,request);
+        return this.checkExistsOpenId(null, request);
     }
 
     @RequestMapping(value = {"/uploadCode"}, method = RequestMethod.POST)
     @ResponseBody
     public ResultBean uploadCode(HttpServletRequest request, @RequestBody Map<String, String> map) {
-        return this.uploadCode(null,request,map);
+        return this.uploadCode(null, request, map);
     }
 }
