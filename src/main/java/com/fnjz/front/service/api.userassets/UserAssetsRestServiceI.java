@@ -17,4 +17,18 @@ public interface UserAssetsRestServiceI extends CommonService{
     void saveOrUpdateAssets(String userInfoId, Map<String,Object> map);
 
     void updateInitDate(String userInfoId, Map<String,Object> map);
+
+    /**
+     * 添加到用户默认账户类型
+     * @param userInfoId
+     * @param map
+     */
+    void addAT2Mark(String userInfoId, Map<String,Object> map);
+
+    /**
+     * 移除用户默认账户类型
+     * @param userInfoId
+     * @param map
+     */
+    void deleteAT2Mark(String userInfoId, Map<String,Object> map);
 }

@@ -54,6 +54,39 @@ public class UserAssetsRestController extends BaseController {
     }
 
     /**
+     * 添加到用户默认账户类型+移除用户默认账户类型
+     * @param request
+     * @param map
+     * @return
+     */
+    @RequestMapping(value = {"/addAT2Mark", "/addAT2Mark/{type}","/deleteAT2Mark", "/deleteAT2Mark/{type}"}, method = {RequestMethod.POST,RequestMethod.DELETE})
+    @ResponseBody
+    public ResultBean addAT2Mark(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        if(StringUtils.isNotEmpty(map.get("ats")+"")){
+            if (StringUtils.contains(request.getRequestURI(), "/addAT2Mark")) {
+                try {
+                    userAssetsRestServiceI.addAT2Mark(userInfoId,map);
+                    return new ResultBean(ApiResultType.OK, null);
+                } catch (Exception e) {
+                    logger.error(e.toString());
+                    return new ResultBean(ApiResultType.SERVER_ERROR, null);
+                }
+            }else{
+                try {
+                    userAssetsRestServiceI.deleteAT2Mark(userInfoId,map);
+                    return new ResultBean(ApiResultType.OK, null);
+                } catch (Exception e) {
+                    logger.error(e.toString());
+                    return new ResultBean(ApiResultType.SERVER_ERROR, null);
+                }
+            }
+        }else{
+            return new ResultBean(ApiResultType.MY_PARAMS_ERROR,null);
+        }
+    }
+
+    /**
      * 设置/修改资产
      * @param request
      * @param map

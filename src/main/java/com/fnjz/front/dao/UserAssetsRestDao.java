@@ -22,6 +22,9 @@ public interface UserAssetsRestDao {
     @Sql("SELECT * FROM hbird_user_assets WHERE user_info_id=:userInfoId and if(:type=1,type=:type,type=:type);")
     List<UserAssetsRestDTO> getAssetsAllForDTO(@Param("userInfoId") String userInfoId,@Param("type") Integer type);
 
+    @Sql("SELECT assets_type FROM hbird_user_assets WHERE user_info_id =: userInfoId AND IF ( : type = 1, type =: type, type =: type ) and mark=1;")
+    List<Integer> getMarkAssets(@Param("userInfoId") String userInfoId,@Param("type") Integer type);
+
     @ResultType(UserAssetsRestEntity.class)
     @Sql("SELECT * FROM hbird_user_assets WHERE user_info_id=:userInfoId and if(:type=1,type=:type,type=:type);")
     List<UserAssetsRestEntity> getAssetsAll(@Param("userInfoId") String userInfoId,@Param("type") Integer type);
@@ -47,4 +50,12 @@ public interface UserAssetsRestDao {
 
     @Sql("insert into hbird_user_assets (`user_info_id`,`assets_type`,`money`,`type`,`create_date`) values(:userInfoId,:assetsType,:money,1,NOW());")
     void insertAssets(@Param("userInfoId") String userInfoId,@Param("assetsType") Integer assetsType,@Param("money") BigDecimal money);
+    /**
+     * 添加到用户默认账户类型
+     */
+    @Sql("insert into hbird_user_assets (`user_info_id`,`assets_type`,`type`,`create_date`,`mark`) values(:userInfoId,:at,:money,1,NOW(),1);")
+    void addAT2Mark(@Param("userInfoId") String userInfoId,@Param("at") String at);
+
+    @Sql("UPDATE `hbird_user_assets` SET `mark`=:mark where user_info_id = :userInfoId and assets_type=:at;")
+    void updateAT2Mark(@Param("userInfoId") String userInfoId,@Param("at") String at,@Param("mark") int mark);
 }
