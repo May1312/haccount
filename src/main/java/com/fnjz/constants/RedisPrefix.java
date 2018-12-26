@@ -118,7 +118,7 @@ public class RedisPrefix {
      * 缓存系统连续签到领取积分
      */
     public static final String SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE = "sys_integral:sign_in_cycle_aware";
-    public static final String SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD = "sys_integral:sign_in_cycle_award";
+    //public static final String SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD = "sys_integral:sign_in_cycle_award";
     /**
      * 缓存系统新手任务领取积分
      */

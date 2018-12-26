@@ -117,6 +117,6 @@ public class CommonMethod extends BaseController {
         list.add(JSON.toJSON(map2).toString());
         list.add(JSON.toJSON(map3).toString());
         list.add(JSON.toJSON(map4).toString());
-        redisTemplateUtils.setListRight(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD,list,2,null);
+        redisTemplateUtils.setListRight(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE,list,2,null);
     }
 }

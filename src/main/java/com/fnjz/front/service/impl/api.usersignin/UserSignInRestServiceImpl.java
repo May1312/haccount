@@ -158,7 +158,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
     private Map signInForCache(String userInfoId, String shareCode) {
         Map map = redisTemplateUtils.getForHash(PREFIX_SIGN_IN + shareCode);
         //读取签到奖励规则
-        List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
+        List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
         //判断打卡间隔 获取下一天凌晨时间间隔
         Date nextDay = DateUtils.getNextDay(new Date(Long.valueOf(map.get("signInDate") + "")));
         LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).atZone(ZoneOffset.systemDefault()).toEpochSecond();
@@ -355,7 +355,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         jsonObject.put("signInWeek", result);
         //读取系统签到奖励规则
         Period period1 = null;
-        List<String> cacheSysAward = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
+        List<String> cacheSysAward = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
         if (cacheSysAward.size() < 1) {
             // 1天奖励  也会包含其中
             List<Map<String, Object>> sysAwardList = fengFengTicketRestDao.getSignInCycle(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription());
@@ -376,9 +376,9 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             }
             //设置缓存时间
             if (period1 != null) {
-                redisTemplateUtils.setListRight(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD, cacheSysAward, 1, Long.valueOf(period1.getDays() + 1));
+                redisTemplateUtils.setListRight(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE, cacheSysAward, 1, Long.valueOf(period1.getDays() + 1));
             } else {
-                redisTemplateUtils.setListRight(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD, cacheSysAward, 1, RedisPrefix.USER_VALID_TIME);
+                redisTemplateUtils.setListRight(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE, cacheSysAward, 1, RedisPrefix.USER_VALID_TIME);
             }
         }
         //获取自己的签到奖励领取情况 mysql读取 根据系统缓存的key
@@ -488,7 +488,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             Integer signInDays = Integer.valueOf(map.get("signInDays") + "") + 1;
                             map.put("signInDays", signInDays);
                             //读取签到奖励规则
-                            List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
+                            List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
                             Integer value = getMaxCycle(list);
                             //判断连签天数
                             if (signInDays > value) {
@@ -518,7 +518,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             int days = period.getDays();
                             days = days + 1;
                             //读取签到奖励规则
-                            List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
+                            List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
                             Integer value = getMaxCycle(list);
                             //判断连签天数
                             if (days > value) {
@@ -557,7 +557,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             redisTemplateUtils.incrementForHashKey(RedisPrefix.PREFIX_SIGN_IN + shareCode, "signInDays", 1);
                             int signInDays = redisTemplateUtils.getForHashKey(RedisPrefix.PREFIX_SIGN_IN + shareCode, "signInDays");
                             //读取签到奖励规则
-                            List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
+                            List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
                             //修改奖励领取状态
                             resetSignInAward(Integer.valueOf(userInfoId), signInDays, list);
                         } else {
@@ -596,7 +596,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             int interval;
                             //判断此刻的连签天数   ---->    校验
                             //读取签到奖励规则
-                            List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
+                            List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
                             Integer value = getMaxCycle(list);
                             //判断连签天数
                             if ((days + days2 + 1) > value) {
@@ -642,7 +642,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                             int interval;
                             //判断此刻的连签天数   ---->    校验
                             //读取签到奖励规则
-                            List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD);
+                            List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
                             Integer value = getMaxCycle(list);
                             if ((days + 1) > value) {
                                 //超过最大周期数情况
