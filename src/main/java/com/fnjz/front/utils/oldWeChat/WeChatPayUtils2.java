@@ -2,8 +2,8 @@
 package com.fnjz.front.utils;
 
 import com.alibaba.fastjson.JSON;
-import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
-import com.fnjz.front.utils.NewWeChat.WeChatPayUtils;
+import com.fnjz.front.utils.newWeChat.WXAppletUtils;
+import com.fnjz.front.utils.newWeChat.WeChatPayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.util.MD5Util;

@@ -1,7 +1,7 @@
-package com.fnjz.front.utils.NewWeChat;
+package com.fnjz.front.utils.newWeChat;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fnjz.front.RestTemplate.AppConfig;
+import com.fnjz.front.restTemplate.AppConfig;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

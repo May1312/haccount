@@ -5,7 +5,7 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.UserWXQrCodeRestDao;
 import com.fnjz.front.service.api.userwxqrcode.UserWXQrCodeRestServiceI;
 import com.fnjz.front.utils.CommonUtils;
-import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
+import com.fnjz.front.utils.newWeChat.WXAppletUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
 import com.fnjz.utils.upload.QiNiuUploadFileUtils;

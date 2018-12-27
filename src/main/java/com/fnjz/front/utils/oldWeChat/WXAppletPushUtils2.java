@@ -3,8 +3,8 @@ package com.fnjz.front.utils;
 
 import com.fnjz.commonbean.WXAppletMessageBean;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.utils.NewWeChat.WXAppletPushUtils;
-import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
+import com.fnjz.front.utils.newWeChat.WXAppletPushUtils;
+import com.fnjz.front.utils.newWeChat.WXAppletUtils;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;

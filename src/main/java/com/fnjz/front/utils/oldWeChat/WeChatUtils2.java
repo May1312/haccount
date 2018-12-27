@@ -2,8 +2,8 @@
 package com.fnjz.front.utils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
-import com.fnjz.front.utils.NewWeChat.WeChatUtils;
+import com.fnjz.front.utils.newWeChat.WXAppletUtils;
+import com.fnjz.front.utils.newWeChat.WeChatUtils;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 

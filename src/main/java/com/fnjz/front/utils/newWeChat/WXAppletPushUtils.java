@@ -1,8 +1,9 @@
-package com.fnjz.front.utils.NewWeChat;
+package com.fnjz.front.utils.newWeChat;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.WXAppletMessageBean;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.RestTemplate.AppConfig;
+import com.fnjz.front.restTemplate.AppConfig;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -95,8 +96,7 @@ public class WXAppletPushUtils {
      */
     private void sendPostMessage(String accessToken, String openId, String templateId, String page, String formId, WXAppletMessageBean bean, String emphasisKeyword) {
         String hurl = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=" + accessToken;
-
-        com.alibaba.fastjson.JSONObject jsonObject = new com.alibaba.fastjson.JSONObject();
+        JSONObject jsonObject = new JSONObject();
         jsonObject.put("touser", openId);
         jsonObject.put("template_id", templateId);
         if (StringUtils.isNotEmpty(page)) {
@@ -107,7 +107,7 @@ public class WXAppletPushUtils {
         if (StringUtils.isNotEmpty(emphasisKeyword)) {
             jsonObject.put("emphasis_keyword", emphasisKeyword);
         }
-        com.alibaba.fastjson.JSONObject result = restTemplate.customRestTemplate().postForObject(hurl, jsonObject, com.alibaba.fastjson.JSONObject.class);
+        JSONObject result = restTemplate.customRestTemplate().postForObject(hurl, jsonObject, com.alibaba.fastjson.JSONObject.class);
         logger.info("--------服务通知结果---------"+result.toString());
         //access token 失效
         if (StringUtils.equals(result.get("errcode") + "", "40001")) {

@@ -14,7 +14,7 @@ import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegr
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.ShoppingMallExchangeEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
-import com.fnjz.front.utils.NewWeChat.WeChatPayUtils;
+import com.fnjz.front.utils.newWeChat.WeChatPayUtils;
 import com.fnjz.utils.sms.TemplateCode;
 import com.fnjz.utils.sms.chuanglan.sms.util.ChuangLanSmsUtil;
 import org.apache.commons.lang.StringUtils;

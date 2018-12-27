@@ -1,7 +1,7 @@
-package com.fnjz.front.utils.NewWeChat;
+package com.fnjz.front.utils.newWeChat;
 
 import com.alibaba.fastjson.JSON;
-import com.fnjz.front.RestTemplate.AppConfig;
+import com.fnjz.front.restTemplate.AppConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;

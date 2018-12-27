@@ -13,7 +13,7 @@ import com.fnjz.front.enums.QiNiuEnum;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.*;
-import com.fnjz.front.utils.NewWeChat.WeChatUtils;
+import com.fnjz.front.utils.newWeChat.WeChatUtils;
 import com.fnjz.utils.upload.QiNiuUploadFileUtils;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;

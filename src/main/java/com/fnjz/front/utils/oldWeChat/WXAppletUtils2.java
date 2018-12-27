@@ -1,7 +1,7 @@
 /*
 package com.fnjz.front.utils;
 
-import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
+import com.fnjz.front.utils.newWeChat.WXAppletUtils;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 

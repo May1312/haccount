@@ -18,7 +18,7 @@ import com.fnjz.front.service.api.message.MessageServiceI;
 import com.fnjz.front.service.api.useraccountbook.UserAccountBookRestServiceI;
 import com.fnjz.front.service.api.userprivatelabel.UserPrivateLabelRestService;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
-import com.fnjz.front.utils.NewWeChat.WXAppletPushUtils;
+import com.fnjz.front.utils.newWeChat.WXAppletPushUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.commons.lang.StringUtils;

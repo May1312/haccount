@@ -5,7 +5,7 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.service.api.registerchannel.RegisterChannelRestServiceI;
-import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
+import com.fnjz.front.utils.newWeChat.WXAppletUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
