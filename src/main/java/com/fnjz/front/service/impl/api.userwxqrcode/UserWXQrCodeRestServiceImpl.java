@@ -5,9 +5,9 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.UserWXQrCodeRestDao;
 import com.fnjz.front.service.api.userwxqrcode.UserWXQrCodeRestServiceI;
 import com.fnjz.front.utils.CommonUtils;
+import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
-import com.fnjz.front.utils.WXAppletUtils;
 import com.fnjz.utils.upload.QiNiuUploadFileUtils;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -17,7 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,6 +37,9 @@ public class UserWXQrCodeRestServiceImpl extends CommonServiceImpl implements Us
 
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+
+    @Autowired
+    private WXAppletUtils wxAppletUtils;
 
     /**
      * 插入用户-邀请码绑定关系
@@ -74,7 +80,7 @@ public class UserWXQrCodeRestServiceImpl extends CommonServiceImpl implements Us
         String accessToken = redisTemplateUtils.getForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN);
         if (StringUtils.isEmpty(accessToken)) {
             //重新获取access token
-            String accessToken1 = WXAppletUtils.getAccessToken();
+            String accessToken1 = wxAppletUtils.getAccessToken();
             net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject.fromObject(accessToken1);
             if (jsonObject.get("errcode") != null) {
                 logger.error("小程序 消息模板 服务通知:   ----获取access token异常-----");
@@ -134,7 +140,7 @@ public class UserWXQrCodeRestServiceImpl extends CommonServiceImpl implements Us
                     //access token 失效
                     if (StringUtils.equals(jsonObject1.get("errcode") + "", "40001")) {
                         //重新获取access token
-                        jsonObject1 = JSONObject.fromObject(WXAppletUtils.getAccessToken());
+                        jsonObject1 = JSONObject.fromObject(wxAppletUtils.getAccessToken());
                         accessToken =jsonObject1.getString("access_token");
                         redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN, accessToken, Long.valueOf(jsonObject1.getString("expires_in")), TimeUnit.SECONDS);
                         //重新调用

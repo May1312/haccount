@@ -1,17 +1,25 @@
-package com.fnjz.front.utils;
+package com.fnjz.front.utils.NewWeChat;
 
 import com.alibaba.fastjson.JSON;
+import com.fnjz.front.RestTemplate.AppConfig;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.util.MD5Util;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManagerFactory;
+import javax.annotation.PostConstruct;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -19,32 +27,33 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
-import java.net.URL;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.security.KeyStore;
-import java.security.SecureRandom;
 import java.util.*;
 
 /**
  * 微信支付工具类
  * Created by yhang on 2018/12/7.
  */
+@Component
 public class WeChatPayUtils {
 
     private static final Logger logger = Logger.getLogger(WeChatPayUtils.class);
 
-    //
-    private static String AppId;
-    private static String mchid;
-    private static String key;
+    private String AppId;
+    private String mchid;
+    private String key;
     //公众号appid
-    private static String officialAppId;
+    private String officialAppId;
     //小程序appid
-    private static String wxappletAppId;
+    private String wxappletAppId;
+    private HttpComponentsClientHttpRequestFactory clientHttpRequestFactory;
 
-    private static SSLSocketFactory ssf;
-    static {
+    @PostConstruct
+    public void init() {
         Properties p = new Properties();
         InputStream in = WXAppletUtils.class.getResourceAsStream("/fnjz/wechat.properties");
         // 获得密钥库文件流
@@ -61,15 +70,19 @@ public class WeChatPayUtils {
 
             // 加载密钥库
             ks.load(p12, mchid.toCharArray());
-            // 实例化密钥库
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            // 初始化密钥工厂
-            kmf.init(ks, mchid.toCharArray());
-            // 创建SSLContext
-            SSLContext sslContext = SSLContext.getInstance("SSL", "SunJSSE");
-            sslContext.init(kmf.getKeyManagers(), null, new SecureRandom());
-            // 获取SSLSocketFactory对象
-            ssf = sslContext.getSocketFactory();
+            // Trust own CA and all self-signed certs
+            SSLContext sslcontext = SSLContextBuilder.create()
+                    .loadKeyMaterial(ks, mchid.toCharArray())
+                    .build();
+            // Allow TLSv1 protocol only
+            HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext,  new String[]{"TLSv1"},
+                    null,hostnameVerifier);
+
+            CloseableHttpClient httpclient = HttpClients.custom()
+                    .setSSLSocketFactory(sslsf)
+                    .build();
+            clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(httpclient);
             // 关闭密钥库文件流
             p12.close();
             in.close();
@@ -78,6 +91,9 @@ public class WeChatPayUtils {
             logger.error(e.toString());
         }
     }
+
+    @Autowired
+    private AppConfig restTemplate;
 
     /**
      * https://blog.csdn.net/dong_18383219470/article/details/53636943
@@ -88,7 +104,7 @@ public class WeChatPayUtils {
      * @param keyToLower 是否需要将Key转换为全小写 true:key转化成小写，false:不转化
      * @return
      */
-    public static String getSign(Map<String, String> paraMap, boolean urlEncode, boolean keyToLower) {
+    public String getSign(Map<String, String> paraMap, boolean urlEncode, boolean keyToLower) {
         String buff = "";
         try {
             List<Map.Entry<String, String>> infoIds = new ArrayList<>(paraMap.entrySet());
@@ -134,7 +150,7 @@ public class WeChatPayUtils {
      * @return XML格式的字符串
      * @throws Exception
      */
-    public static String mapToXml(Map<String, String> data) throws Exception {
+    public String mapToXml(Map<String, String> data) throws Exception {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
         org.w3c.dom.Document document = documentBuilder.newDocument();
@@ -175,7 +191,7 @@ public class WeChatPayUtils {
      * @return XML数据转换后的Map
      * @throws Exception
      */
-    public static Map<String, String> xmlToMap(String strXML) {
+    public Map<String, String> xmlToMap(String strXML) {
         try {
             Map<String, String> data = new HashMap<String, String>();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -200,48 +216,6 @@ public class WeChatPayUtils {
     }
 
     /**
-     * https请求
-     * @param hurl
-     * @param data
-     */
-    public static Map<String, String> http(String hurl, String data) {
-        try {
-            URL url = new URL(hurl);
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/xml");
-            conn.setSSLSocketFactory(ssf);
-            //设置连接超时
-            conn.setConnectTimeout(5000);
-            //是否打开输入流
-            conn.setDoInput(true);
-            //是否打开输出流
-            conn.setDoOutput(true);
-            //表示连接
-            conn.connect();
-            //建立输入流，向指向的URL传入参数
-            DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
-            //中文解析异常
-            dos.write(data.getBytes());
-            dos.flush();
-            dos.close();
-            InputStream is = conn.getInputStream();
-            BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
-            StringBuffer bs = new StringBuffer();
-            String l = null;
-            while ((l = buffer.readLine()) != null) {
-                bs.append(l);
-            }
-            Map<String, String> stringStringMap = xmlToMap(bs.toString());
-            logger.info("--------微信支付结果---------" + JSON.toJSON(stringStringMap).toString());
-            return stringStringMap;
-        } catch (IOException e) {
-            logger.error(e.toString());
-        }
-        return null;
-    }
-
-    /**
      * 移动端 提现到微信零钱
      * @param money 金额 单位 元
      * @param openId 用户
@@ -251,7 +225,7 @@ public class WeChatPayUtils {
      * @param cash 定义: 提现到零钱功能---->1 小程序提现   2 移动端提现
      * @return
      */
-    public static Map<String, String> wechatPay(double money, String openId, String orderId, String desc,int flag,int cash){
+    public Map<String, String> wechatPay(double money, String openId, String orderId, String desc,int flag,int cash){
         if(flag==1){
             Map<String, String> map = new HashMap<>();
             //随机生成
@@ -285,9 +259,12 @@ public class WeChatPayUtils {
             try {
                 String data = mapToXml(map);
                 String url = "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack";
-                return http(url, data);
+                restTemplate.customRestTemplate().setRequestFactory(clientHttpRequestFactory);
+                Map<String, String> stringStringMap = xmlToMap(restTemplate.customRestTemplate().postForObject(url, data.getBytes(), String.class));
+                logger.info("--------微信支付结果---------" + JSON.toJSON(stringStringMap).toString());
+                return stringStringMap;
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.toString());
             }
         }else if(flag==2){
             Map<String, String> map = new HashMap<>();
@@ -316,9 +293,19 @@ public class WeChatPayUtils {
             try {
                 String data = mapToXml(map);
                 String url = "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers";
-                return http(url, data);
+                restTemplate.customRestTemplate().setRequestFactory(clientHttpRequestFactory);
+                //ByteArrayHttpMessageConverter mappingJackson2HttpMessageConverter = new ByteArrayHttpMessageConverter ();
+               //restTemplate.customRestTemplate().getMessageConverters().add(mappingJackson2HttpMessageConverter);
+                //HttpHeaders requestHeaders = new HttpHeaders();
+                //MediaType type = MediaType.parseMediaType("application/xml; charset=UTF-8");
+               // requestHeaders.setContentType(type);
+                //requestHeaders.add("Content-Type", "application/xml; charset=UTF-8");
+                //HttpEntity<String> requestEntity = new HttpEntity(new StringEntity(data,"application/xml","utf-8"),requestHeaders);
+                Map<String, String> stringStringMap = xmlToMap(restTemplate.customRestTemplate().postForObject(url, data.getBytes(), String.class));
+                logger.info("--------微信支付结果---------" + JSON.toJSON(stringStringMap).toString());
+                return stringStringMap;
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.toString());
             }
         }
         return null;

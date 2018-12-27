@@ -1041,6 +1041,11 @@
             <artifactId>spring-rabbit</artifactId>
             <version>1.4.5.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.jeecgframework</groupId>
+            <artifactId>jeecg</artifactId>
+            <version>3.7.5-beta</version>
+        </dependency>
     </dependencies>
 
     <organization>

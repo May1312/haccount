@@ -1,5 +1,7 @@
+/*
 package com.fnjz.front.utils;
 
+import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
@@ -12,11 +14,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
+*/
 /**
  * 微信小程序登录
  * Created by yhang on 2018/5/31.
- */
-public class WXAppletUtils {
+ *//*
+
+public class WXAppletUtils2 {
 
     private static final Logger logger = Logger.getLogger(WXAppletUtils.class);
 
@@ -72,10 +76,12 @@ public class WXAppletUtils {
         return null;
     }
 
-    /**
+    */
+/**
      * 获取access_token
      * @return
-     */
+     *//*
+
     public static String getAccessToken(){
         String hurl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+AppId+"&secret="+AppSecret;
         try {
@@ -114,3 +120,4 @@ public class WXAppletUtils {
         getUser("023o6EiE1Izze10y6TjE1BbDiE1o6Eii");
     }
 }
+*/

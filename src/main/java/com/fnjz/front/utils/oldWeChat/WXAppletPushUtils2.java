@@ -1,7 +1,10 @@
+/*
 package com.fnjz.front.utils;
 
 import com.fnjz.commonbean.WXAppletMessageBean;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.utils.NewWeChat.WXAppletPushUtils;
+import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -13,31 +16,39 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
+*/
 /**
  * 微信小程序服务推送
  * Created by yhang on 2018/11/27.
- */
+ *//*
+
 @Component
-public class WXAppletPushUtils {
+public class WXAppletPushUtils2 {
 
     private static final Logger logger = Logger.getLogger(WXAppletPushUtils.class);
 
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
 
-    /**
+    */
+/**
      * 移除成员
-     */
+     *//*
+
     public final static String removeMemberId = "OFyL4qOVfddM5tsgvslEugsmimukPITIhXHSzJS_G_M";
 
-    /**
+    */
+/**
      * 邀请成功
-     */
+     *//*
+
     public final static String inviteFriendId = "IxvkgOzU5F8TXM7_EBc_J1guWk14M64g0TzX_M1-zFA";
 
-    /**
+    */
+/**
      * 账单通知
-     */
+     *//*
+
     public final static String accountNotifyId = "XKZJ-8QcULHJAeujplQiQmy_MpWxFUKXQMKsJjjqzIE";
     //账单统计页
     public final static String accountNotifyPage="pages/chart/index/main";
@@ -45,12 +56,14 @@ public class WXAppletPushUtils {
     public final static String removeMemberPage="pages/mine/index/main";
     //邀请成功页
     public final static String inviteFriendPage="pages/mine/index/main";
-    /**
+    */
+/**
      * 推送
      *
      * @param templateId
      * @param openId
-     */
+     *//*
+
     public void wxappletPush(String templateId, String openId, String formId,String page, WXAppletMessageBean bean) {
         //获取accessToken
         String accessToken = this.checkAccessToken();
@@ -60,11 +73,13 @@ public class WXAppletPushUtils {
         }
     }
 
-    /**
+    */
+/**
      * 获取accessToken
      *
      * @return
-     */
+     *//*
+
     private String checkAccessToken() {
         String accessToken = redisTemplateUtils.getForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN);
         if (StringUtils.isEmpty(accessToken)) {
@@ -82,14 +97,16 @@ public class WXAppletPushUtils {
         return accessToken;
     }
 
-    /**
+    */
+/**
      * @param accessToken
      * @param openId
      * @param templateId      所需下发的模板消息的id
      * @param page            点击模板卡片后的跳转页面
      * @param formId
      * @param emphasisKeyword 模板需要放大的关键词
-     */
+     *//*
+
     private void sendPostMessage(String accessToken, String openId, String templateId, String page, String formId, WXAppletMessageBean bean, String emphasisKeyword) {
         String hurl = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=" + accessToken;
         try {
@@ -148,3 +165,4 @@ public class WXAppletPushUtils {
         }
     }
 }
+*/

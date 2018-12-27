@@ -18,6 +18,7 @@ import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.registerchannel.RegisterChannelRestServiceI;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.*;
+import com.fnjz.front.utils.NewWeChat.WXAppletPushUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.jeecgframework.core.util.StringUtil;

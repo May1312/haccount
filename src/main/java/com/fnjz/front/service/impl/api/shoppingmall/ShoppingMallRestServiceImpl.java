@@ -14,7 +14,7 @@ import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegr
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.ShoppingMallExchangeEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
-import com.fnjz.front.utils.WeChatPayUtils;
+import com.fnjz.front.utils.NewWeChat.WeChatPayUtils;
 import com.fnjz.utils.sms.TemplateCode;
 import com.fnjz.utils.sms.chuanglan.sms.util.ChuangLanSmsUtil;
 import org.apache.commons.lang.StringUtils;
@@ -60,6 +60,9 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
 
     @Autowired
     private UserInfoAddFieldRestDao userInfoAddFieldRestDao;
+
+    @Autowired
+    private WeChatPayUtils weChatPayUtils;
 
     /**
      * 获取可用商品
@@ -299,14 +302,14 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         Map<String, String> stringStringMap;
         if (StringUtils.isNotEmpty(wechatOpenId)) {
             double money = goodsRestEntity.getFaceValue().doubleValue();
-            stringStringMap = WeChatPayUtils.wechatPay(money, wechatOpenId, shoppingMallId, "现金红包兑换" + money + "元", 2, Integer.valueOf(map.get("channel")));
+            stringStringMap = weChatPayUtils.wechatPay(money, wechatOpenId, shoppingMallId, "现金红包兑换" + money + "元", 2, Integer.valueOf(map.get("channel")));
             if (StringUtils.equals(stringStringMap.get("return_code"), "SUCCESS") && StringUtils.equals(stringStringMap.get("result_code"), "SUCCESS")) {
                 //成功
                 flag = true;
             } else {
                 //失败重试一次  系统繁忙，请稍后再试
                 if (StringUtils.equals(stringStringMap.get("err_code"), "SYSTEMERROR")) {
-                    stringStringMap = WeChatPayUtils.wechatPay(money, wechatOpenId, shoppingMallId, "现金红包兑换" + money + "元", 2, Integer.valueOf(map.get("channel")));
+                    stringStringMap = weChatPayUtils.wechatPay(money, wechatOpenId, shoppingMallId, "现金红包兑换" + money + "元", 2, Integer.valueOf(map.get("channel")));
                     if (StringUtils.equals(stringStringMap.get("return_code"), "SUCCESS") && StringUtils.equals(stringStringMap.get("result_code"), "SUCCESS")) {
                         //成功
                         flag = true;

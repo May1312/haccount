@@ -5,8 +5,8 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.service.api.registerchannel.RegisterChannelRestServiceI;
+import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
-import com.fnjz.front.utils.WXAppletUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 小程序活动统计接口
@@ -30,6 +32,9 @@ public class WXAppletActivityStatistics {
 
     @Autowired
     private RegisterChannelRestServiceI registerChannelRestServiceI;
+
+    @Autowired
+    private WXAppletUtils wxAppletUtils;
 
     //老用户通过小游戏引导到小程序访问量统计
     @RequestMapping(value = "/statisticsOldVisitor", method = RequestMethod.GET)
@@ -49,7 +54,7 @@ public class WXAppletActivityStatistics {
     @RequestMapping(value = "/statisticsNewVisitor", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean statisticsNewVisitor(@RequestBody Map<String, String> map) {
-        String user = WXAppletUtils.getUser(map.get("code"));
+        String user = wxAppletUtils.getUser(map.get("code"));
         JSONObject jsonObject = JSONObject.parseObject(user);
         if (jsonObject.getString("errcode") != null) {
             return new ResultBean(ApiResultType.WXAPPLET_LOGIN_ERROR, null);

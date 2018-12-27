@@ -35,7 +35,7 @@ create table hbird_badge_type
    status               int(1) DEFAULT NULL COMMENT '上线状态  上线状态:0_下线 1_上线',
    primary key (id)
 );
-alter table hbird_badge comment '徽章类型表';
+alter table hbird_badge_type comment '徽章类型表';
 
 
 /*==============================================================*/
@@ -143,7 +143,7 @@ alter table hbird_user_info_add_field	Add column consignee_city varchar(32) comm
 alter table hbird_user_info_add_field	Add column consignee_district varchar(32) comment '收货区县';
 alter table hbird_user_info_add_field	Add column consignee_detail varchar(64) comment '收货地址详情';
 alter table hbird_user_info_add_field	Add column update_date datetime comment '更新时间';
---修改openId
+-- 修改openId
 alter table hbird_user_info_add_field CHANGE open_id wxapplet_open_id  VARCHAR(32) comment '小程序 openId';
 alter table hbird_user_info_add_field Add column wechat_open_id VARCHAR(32) comment '移动应用 openId';
 alter table hbird_user_info_add_field Add column official_open_id VARCHAR(32) comment '公众号  openId';

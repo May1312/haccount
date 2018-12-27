@@ -14,9 +14,9 @@ import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
 import com.fnjz.front.service.api.userinfoaddfield.UserInfoAddFieldRestService;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
+import com.fnjz.front.utils.NewWeChat.WeChatUtils;
 import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
-import com.fnjz.front.utils.WeChatUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +49,9 @@ public class ShoppingMallRestController {
 
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+
+    @Autowired
+    private WeChatUtils weChatUtils;
 
     /**
      * 获取所有商品
@@ -301,7 +304,7 @@ public class ShoppingMallRestController {
         //判断是否已绑定openid
         Map<String, Object> map1 = userInfoAddFieldRestService.checkExistsOpenIdByUserInfoIdForWeChat(userInfoId, 2);
         //根据code解密 opendid
-        JSONObject user = WeChatUtils.getUser(map.get("code") + "");
+        JSONObject user = weChatUtils.getUser(map.get("code") + "");
         String openId = user.getString("openid");
         if (map1 != null) {
             if (map1.get("openid") == null) {

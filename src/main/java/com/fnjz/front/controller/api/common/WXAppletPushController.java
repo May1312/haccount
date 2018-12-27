@@ -5,8 +5,8 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.service.api.userinfoaddfield.UserInfoAddFieldRestService;
+import com.fnjz.front.utils.NewWeChat.WXAppletUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
-import com.fnjz.front.utils.WXAppletUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +42,9 @@ public class WXAppletPushController {
     @Autowired
     private ThreadPoolTaskExecutor taskExecutor;
 
+    @Autowired
+    private WXAppletUtils wxAppletUtils;
+
     /**
      * 上传formId
      *
@@ -60,7 +63,7 @@ public class WXAppletPushController {
             if (map1 != null) {
                 if (map1.get("openid") == null) {
                     //根据code解密 opendid
-                    String code = WXAppletUtils.getUser(map.get("code") + "");
+                    String code = wxAppletUtils.getUser(map.get("code") + "");
                     JSONObject user = JSONObject.parseObject(code);
                     if (user.get("errcode") != null) {
                         logger.error("/uploadFormId   ----code解密异常-----");
@@ -80,7 +83,7 @@ public class WXAppletPushController {
                 }
             } else {
                 //根据code解密 opendid
-                String code = WXAppletUtils.getUser(map.get("code") + "");
+                String code = wxAppletUtils.getUser(map.get("code") + "");
                 JSONObject user = JSONObject.parseObject(code);
                 if (user.getString("errcode") != null) {
                     logger.error("/uploadFormId   ----code解密异常-----");
