@@ -23,6 +23,10 @@ public interface UserAssetsRestDao {
     @Sql("SELECT * FROM hbird_user_assets WHERE user_info_id=:userInfoId and if(:type=1,type=:type and money is not null,type=:type);")
     List<UserAssetsRestDTO> getAssetsAllForDTO(@Param("userInfoId") String userInfoId,@Param("type") Integer type);
 
+    @ResultType(UserAssetsRestDTO.class)
+    @Sql("SELECT * FROM hbird_user_assets WHERE user_info_id=:userInfoId and type=1 and mark=1;")
+    List<UserAssetsRestDTO> getAssetsAllForDTO(@Param("userInfoId") String userInfoId);
+
     @Sql("SELECT assets_type as at FROM hbird_user_assets WHERE user_info_id =:userInfoId AND type =:type and mark=1;")
     List<Map<String,Integer>> getMarkAssets(@Param("userInfoId") String userInfoId, @Param("type") Integer type);
 
