@@ -115,7 +115,9 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
      */
     private ShareWordsRestDTO getShareWords(ShareWordsRestDTO shareWords,String userInfoId) {
         ShareWordsRestDTO shareWords2 = shareWordsRestDao.getShareWords();
-        BeanUtils.copyProperties(shareWords2, shareWords,new String[]{"signInAware"});
+        if(shareWords2!=null){
+            BeanUtils.copyProperties(shareWords2, shareWords,new String[]{"signInAware"});
+        }
         //获取昵称 头像 注册时间
         Map<String, Object> nkAndAUById = userInfoRestDao.getNKAndAUById(Integer.valueOf(userInfoId));
         shareWords.setNickName(nkAndAUById.get("nickname")+"");

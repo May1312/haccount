@@ -6,7 +6,7 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
-import com.fnjz.front.entity.api.goods.GoodsRestDTO;
+import com.fnjz.front.entity.api.goods.GoodsListRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
 import com.fnjz.front.entity.api.userinfo.ConsigneeAddressRestDTO;
@@ -59,7 +59,7 @@ public class ShoppingMallRestController {
     @ResponseBody
     public ResultBean goods() {
         try {
-            List<GoodsRestDTO> list = shoppingMallRestService.getGoods();
+            List<GoodsListRestDTO> list = shoppingMallRestService.getGoods();
             return new ResultBean(ApiResultType.OK, list);
         } catch (Exception e) {
             logger.error(e.toString());

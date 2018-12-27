@@ -2,7 +2,7 @@ package com.fnjz.front.service.api.shoppingmall;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
-import com.fnjz.front.entity.api.goods.GoodsRestDTO;
+import com.fnjz.front.entity.api.goods.GoodsListRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
 
@@ -18,7 +18,7 @@ public interface ShoppingMallRestService {
      * 获取可用商品
      * @return
      */
-    List<GoodsRestDTO> getGoods();
+    List<GoodsListRestDTO> getGoods();
 
     /**
      * 根据id获取 商品详情

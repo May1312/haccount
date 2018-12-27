@@ -1,6 +1,7 @@
 package com.fnjz.front.dao;
 
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
+import com.fnjz.front.entity.api.goods.GoodsListRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
@@ -22,9 +23,9 @@ public interface ShoppingMallRestDao {
      * 获取可用商品
      * @return
      */
-    @ResultType(GoodsRestDTO.class)
+    @ResultType(GoodsListRestDTO.class)
     @Sql("select * from hbird_goods where status=1 order by priority,create_date")
-    List<GoodsRestDTO> getGoods();
+    List<GoodsListRestDTO> getGoods();
 
     @ResultType(GoodsRestDTO.class)
     @Sql("UPDATE `hbird_goods` SET `status` = 0 WHERE `id` = :id;")

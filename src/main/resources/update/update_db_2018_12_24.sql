@@ -144,7 +144,7 @@ alter table hbird_user_info_add_field	Add column consignee_district varchar(32) 
 alter table hbird_user_info_add_field	Add column consignee_detail varchar(64) comment '收货地址详情';
 alter table hbird_user_info_add_field	Add column update_date datetime comment '更新时间';
 --修改openId
-alter table hbird_user_info_add_field CHANGE open_id wxapplet_open_id  VARCHAR(32) COMMENT '小程序 openId';
+alter table hbird_user_info_add_field CHANGE open_id wxapplet_open_id  VARCHAR(32) comment '小程序 openId';
 alter table hbird_user_info_add_field Add column wechat_open_id VARCHAR(32) comment '移动应用 openId';
 alter table hbird_user_info_add_field Add column official_open_id VARCHAR(32) comment '公众号  openId';
 alter table hbird_user_info_add_field DROP COLUMN type;

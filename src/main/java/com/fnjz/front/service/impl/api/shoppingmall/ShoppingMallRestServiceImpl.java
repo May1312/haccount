@@ -6,7 +6,7 @@ import com.fnjz.front.dao.ShoppingMallRestDao;
 import com.fnjz.front.dao.UserInfoAddFieldRestDao;
 import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
-import com.fnjz.front.entity.api.goods.GoodsRestDTO;
+import com.fnjz.front.entity.api.goods.GoodsListRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestEntity;
@@ -67,7 +67,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
      * @return
      */
     @Override
-    public List<GoodsRestDTO> getGoods() {
+    public List<GoodsListRestDTO> getGoods() {
         return shoppingMallRestDao.getGoods();
     }
 
