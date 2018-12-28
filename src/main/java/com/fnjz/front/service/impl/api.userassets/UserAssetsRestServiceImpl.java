@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +92,7 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
             List<UserAssetsRestDTO> assets = userAssetsRestDao.getAssetsAllForDTO(userInfoId, 1);
             //查询系统所有资产
             List<UserAssetsRestDTO> allAssets = userAssetsRestDao.getSYSAssetsAll();
-            getList(assets,allAssets);
+            allAssets = getList(assets, allAssets);
             //查询初始时间
             List<UserAssetsRestEntity> initDate = userAssetsRestDao.getAssetsAll(userInfoId, 2);
             UserAssetsRestEntity userAssetsRestEntity = new UserAssetsRestEntity();
@@ -109,7 +111,7 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
             String chargeTotal = warterOrderRestDao.getTotalByDate(userAssetsRestEntity.getInitDate(), userInfoId);
             //统计资产 总额
             String assetsTotal = userAssetsRestDao.getAssetsTotal(userInfoId);
-            jsonObject.put("assets", assets);
+            jsonObject.put("assets", allAssets);
             BigDecimal charge = new BigDecimal(chargeTotal == null ? "0" : chargeTotal);
             BigDecimal asset = new BigDecimal(assetsTotal == null ? "0" : assetsTotal);
             jsonObject.put("netAssets", charge.add(asset));
@@ -123,9 +125,30 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
         }
     }
 
-    private List<UserAssetsRestDTO> getList(List<UserAssetsRestDTO> list1,List<UserAssetsRestDTO> list2){
-        return null;
+    /**
+     * list1 自有资产类
+     * list2 系统资产类
+     *
+     * @param list1
+     * @param list2
+     * @return
+     */
+    private List<UserAssetsRestDTO> getList(List<UserAssetsRestDTO> list1, List<UserAssetsRestDTO> list2) {
+        list1.forEach(v -> {
+            if (list2.contains(v)) {
+                //获取脚标
+                int i = list2.indexOf(v);
+                UserAssetsRestDTO userAssetsRestDTO = list2.get(i);
+                userAssetsRestDTO.setAssetsName(v.getAssetsName());
+                userAssetsRestDTO.setMark(v.getMark());
+                list2.set(i, userAssetsRestDTO);
+            }
+        });
+        //排序 优先显示点量的
+        Collections.sort(list2, Comparator.comparing(UserAssetsRestDTO::getPriority));
+        return list2;
     }
+
     /**
      * 设置/修改资产
      *

@@ -66,6 +66,6 @@ public interface UserAssetsRestDao {
 
     List<UserAssetsRestDTO> getAssetsAllForDTOv2(String userInfoId, int i);
 
-    @Sql("select * from hbird_assets where status=1;")
+    @Sql("select * from hbird_assets where status=1 order by priority;")
     List<UserAssetsRestDTO> getSYSAssetsAll();
 }
