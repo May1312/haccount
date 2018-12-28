@@ -30,6 +30,20 @@ public class UserAssetsRestDTO implements java.io.Serializable {
     private java.util.Date createDate;
 
     /**
+     * 资产名称
+     */
+    private String assetsName;
+
+    /**
+     * 资产图标
+     */
+    private String icon;
+
+    /**
+     * 优先级   升序
+     */
+    private Integer priority;
+    /**
      * 方法: 取得java.util.Date
      *
      * @return: java.util.Date  资产类型 当类型为1时 此字段有意义
@@ -103,5 +117,29 @@ public class UserAssetsRestDTO implements java.io.Serializable {
      */
     public void setCreateDate(java.util.Date createDate) {
         this.createDate = createDate;
+    }
+    @Column(name = "ASSETS_NAME")
+    public String getAssetsName() {
+        return assetsName;
+    }
+
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
+    }
+    @Column(name = "ICON")
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+    @Column(name = "PRIORITY")
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 }

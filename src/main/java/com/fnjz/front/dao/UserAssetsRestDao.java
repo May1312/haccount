@@ -63,4 +63,9 @@ public interface UserAssetsRestDao {
 
     @Sql("UPDATE `hbird_user_assets` SET `mark`=:mark where user_info_id = :userInfoId and assets_type=:at;")
     void updateAT2Mark(@Param("userInfoId") String userInfoId,@Param("at") String at,@Param("mark") int mark);
+
+    List<UserAssetsRestDTO> getAssetsAllForDTOv2(String userInfoId, int i);
+
+    @Sql("select * from hbird_assets where status=1;")
+    List<UserAssetsRestDTO> getSYSAssetsAll();
 }
