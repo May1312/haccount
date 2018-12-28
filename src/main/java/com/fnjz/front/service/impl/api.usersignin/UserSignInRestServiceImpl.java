@@ -313,7 +313,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 map.put("signInDate", beforeBySignInDate);
             } else {
                 map.put("signInDays", 0);
-                map.put("signInDate", LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+                map.put("signInDate", LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.of("+8")).toEpochMilli());
             }
             //cache
             redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map, RedisPrefix.USER_VALID_TIME);

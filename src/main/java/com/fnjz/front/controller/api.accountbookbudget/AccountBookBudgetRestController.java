@@ -502,8 +502,12 @@ public class AccountBookBudgetRestController extends BaseController {
                 //场景账本  查看是否设置预算及起止时间
                 SceneABBudgetRestDTO sceneABBudget = accountBookBudgetRestService.getSceneABBudget(abId);
                 if (sceneABBudget != null) {
+                    if (sceneABBudget.getBudgetMoney() == null) {
+                        return new ResultBean(ApiResultType.OK, null);
+                    }
                     if (sceneABBudget.getBudgetMoney().intValue() == -1) {
                         sceneABBudget.setBudgetMoney(null);
+                        return new ResultBean(ApiResultType.OK, null);
                     }
                     if (sceneABBudget.getBudgetMoney() != null && sceneABBudget.getBeginTime() != null && sceneABBudget.getEndTime() != null) {
                         Map<String, Object> map = accountBookBudgetRestService.getBudgetCompletionRatev2ForScene(userInfoId, abId, sceneABBudget);
