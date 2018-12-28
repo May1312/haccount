@@ -14,7 +14,7 @@ import javax.persistence.Column;
 public class UserIntegralRestDTO implements java.io.Serializable {
 
 	/**积分数*/
-	private Integer integralNum;
+	private double integralNum;
 	/**类型描述*/
 	private String description;
 	/**创建日期*/
@@ -27,7 +27,7 @@ public class UserIntegralRestDTO implements java.io.Serializable {
 	 *@return: java.lang.Integer  积分数
 	 */
 	@Column(name ="INTEGRAL_NUM",nullable=true,precision=10,scale=0)
-	public Integer getIntegralNum(){
+	public double getIntegralNum(){
 		return this.integralNum;
 	}
 
@@ -35,7 +35,7 @@ public class UserIntegralRestDTO implements java.io.Serializable {
 	 *方法: 设置java.lang.Integer
 	 *@param: java.lang.Integer  积分数
 	 */
-	public void setIntegralNum(Integer integralNum){
+	public void setIntegralNum(double integralNum){
 		this.integralNum = integralNum;
 	}
 

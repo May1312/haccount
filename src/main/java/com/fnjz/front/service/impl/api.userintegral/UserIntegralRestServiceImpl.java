@@ -989,7 +989,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     jsonObject.put("name", AcquisitionModeEnum.Inviting_friends.getForUser());
                     jsonObject.put("description", AcquisitionModeEnum.Inviting_friends.getDescription());
                     //领取状态 1:未领取 2:已领取
-                    jsonObject.put("status", 2);
+                    jsonObject.put("status", 1);
                     todayTaskArray.add(jsonObject);
                     mapAdd.put(AcquisitionModeEnum.Inviting_friends.getForUser() + "Aware", null);
                 } else if (v.getType() == AcquisitionModeEnum.Write_down_an_account.getIndex()) {

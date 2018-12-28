@@ -15,22 +15,20 @@ import java.math.BigDecimal;
 public class UserIntegralTopRestDTO implements java.io.Serializable {
 
 	/**积分数*/
-	private Integer integralNum;
+	private BigDecimal integralNum;
 	/**昵称**/
 	private String nickName;
 	/**头像url**/
 	private String avatarUrl;
 	/**排名**/
 	private Integer rank;
-	/**decimal 总积分数*/
-	private BigDecimal integralNumDecimal;
 
 	@Column(name ="INTEGRAL_NUM")
-	public Integer getIntegralNum() {
+	public BigDecimal getIntegralNum() {
 		return integralNum;
 	}
 
-	public void setIntegralNum(Integer integralNum) {
+	public void setIntegralNum(BigDecimal integralNum) {
 		this.integralNum = integralNum;
 	}
 	@Column(name ="NICK_NAME")
@@ -57,12 +55,5 @@ public class UserIntegralTopRestDTO implements java.io.Serializable {
 	public void setRank(Integer rank) {
 		this.rank = rank;
 	}
-	@Column(name ="INTEGRAL_NUM_DECIMAL")
-	public BigDecimal getIntegralNumDecimal() {
-		return integralNumDecimal;
-	}
 
-	public void setIntegralNumDecimal(BigDecimal integralNumDecimal) {
-		this.integralNumDecimal = integralNumDecimal;
-	}
 }

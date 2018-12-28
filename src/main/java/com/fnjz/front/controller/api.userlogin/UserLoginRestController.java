@@ -160,10 +160,10 @@ public class UserLoginRestController extends BaseController {
             return rb;
         }
         JSONObject user = weChatUtils.getUser(map.get("code"));
-        logger.info("移动端微信登录:"+user.toJSONString());
         if (user == null) {
             return new ResultBean(ApiResultType.WECHAT_LOGIN_ERROR, null);
         }
+        logger.info("移动端微信登录:"+user.toString());
         try {
             //查看unionid是否存在
             UserInfoRestEntity task = userLoginRestService.findUniqueByProperty(UserInfoRestEntity.class, "wechatAuth", user.getString("unionid"));

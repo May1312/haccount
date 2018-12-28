@@ -503,7 +503,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
         if (task != null) {
             //小程序用户
-            if (StringUtils.isNotEmpty(task.getSex()) && task.getBirthday() != null && StringUtils.isNotEmpty(task.getProvinceName()) && StringUtils.isNotEmpty(task.getProfession()) && StringUtils.isNotEmpty(task.getPosition())) {
+            if (StringUtils.isNotEmpty(userInfoRestEntity.getSex()) && userInfoRestEntity.getBirthday() != null && StringUtils.isNotEmpty(userInfoRestEntity.getProvinceName()) && StringUtils.isNotEmpty(userInfoRestEntity.getProfession()) && StringUtils.isNotEmpty(userInfoRestEntity.getPosition())) {
                 if (!StringUtils.equals(task.getSex(), "0")) {
                     //引入新手任务
                     createTokenUtils.integralTask(userInfoRestEntity.getId() + "", ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);

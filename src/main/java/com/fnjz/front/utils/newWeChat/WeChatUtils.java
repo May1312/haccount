@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 /**
@@ -45,18 +46,33 @@ public class WeChatUtils {
     //获取用户信息
     public JSONObject getUser(String code) {
         String hurl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + AppId + "&secret=" + AppSecret + "&code=" + code + "&grant_type=" + grant_type + "";
-        JSONObject jsonObject = restTemplate.customRestTemplate().getForObject(hurl,JSONObject.class);
+        String result = restTemplate.customRestTemplate().getForObject(hurl, String.class);
+        try {
+            result = new String(result.getBytes("iso-8859-1"), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            //授权异常
+            logger.error("wechat中文解码异常:" + e.toString());
+            return null;
+        }
+        JSONObject jsonObject = JSONObject.parseObject(result);
         if (jsonObject.getString("errcode") != null) {
             //授权异常
-            logger.error("wechat授权异常:"+jsonObject.getString("errmsg"));
+            logger.error("wechat授权异常:" + jsonObject.getString("errmsg"));
             return null;
         }
         //根据openid获取用户信息
         String hur3 = "https://api.weixin.qq.com/sns/userinfo?access_token=" + jsonObject.getString("access_token") + "&openid=" + jsonObject.getString("openid") + "";
-        JSONObject jsonObject2 = restTemplate.customRestTemplate().getForObject(hur3,JSONObject.class);
+        String result2 = restTemplate.customRestTemplate().getForObject(hur3, String.class);
+        try {
+            result2 = new String(result2.getBytes("iso-8859-1"), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.error("wechat中文解码异常:" + e.toString());
+            return null;
+        }
+        JSONObject jsonObject2 = JSONObject.parseObject(result2);
         if (jsonObject2.getString("errcode") != null) {
             //授权异常
-            logger.error("wechat授权异常:"+jsonObject2.getString("errmsg"));
+            logger.error("wechat授权异常:" + jsonObject2.getString("errmsg"));
             return null;
         }
         return jsonObject2;
