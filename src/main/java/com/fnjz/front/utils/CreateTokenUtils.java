@@ -190,7 +190,7 @@ public class CreateTokenUtils {
                     updateTaskStatus(shareCode, categoryOfBehaviorEnum, acquisitionModeEnum);
                 }
                 //加入积分返利
-                addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum);
+                addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
             }
         }
     }
@@ -230,16 +230,36 @@ public class CreateTokenUtils {
      * @param userInfoId 用户id
      * @param ff         奖励积分数  返利20%
      */
-    private void addIntegralByInvitedUser(String userInfoId, FengFengTicketRestEntity ff, CategoryOfBehaviorEnum categoryOfBehaviorEnum) {
+    private void addIntegralByInvitedUser(String userInfoId, FengFengTicketRestEntity ff, CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum) {
         //查看当前用户是否存在被邀请用户
         Map<String, Object> map = userInviteRestDao.getInvitedUserNickName(userInfoId, beginTime, 1);
         if (map != null) {
             if (map.size() > 0) {
-                BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
-                BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
-                String desc = "[" + (map.get("nickname") == null ? "蜂鸟记账" : map.get("nickname")) + "]";
-                userIntegralRestDao.insertSignInIntegral(map.get("userinfoid") + "", ff.getId() + "", null, desc + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply.doubleValue());
-                userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply);
+                if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
+                    BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
+                    BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
+                    String desc = "[" + (map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")) + "]";
+                    userIntegralRestDao.insertSignInIntegral(map.get("userinfoid") + "", ff.getId() + "", null, desc + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply.doubleValue());
+                    userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply);
+                    //addIntegralByInvitedUser(map.get("userinfoid")+"",ff,categoryOfBehaviorEnum,acquisitionModeEnum);  递归！！
+                    //todo 邀请好友 层级关系为2层
+                    Map<String, Object> map2 = userInviteRestDao.getInvitedUserNickName(map.get("userinfoid") + "", beginTime, 1);
+                    if (map2 != null) {
+                        if (map2.size() > 0) {
+                            BigDecimal bigDecimal2 = new BigDecimal(ff.getBehaviorTicketValue());
+                            BigDecimal multiply2 = bigDecimal2.multiply(new BigDecimal(percentage));
+                            String desc2 = "[" + (map2.get("nickname") == null ? "蜂鸟用户" : map2.get("nickname")) + "]";
+                            userIntegralRestDao.insertSignInIntegral(map2.get("userinfoid") + "", ff.getId() + "", null, desc2 + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply2.doubleValue());
+                            userIntegralRestDao.updateForTotalIntegral(map2.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply2);
+                        }
+                    }
+                } else {
+                    BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
+                    BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
+                    String desc = "[" + (map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")) + "]";
+                    userIntegralRestDao.insertSignInIntegral(map.get("userinfoid") + "", ff.getId() + "", null, desc + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply.doubleValue());
+                    userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply);
+                }
             }
         }
     }
