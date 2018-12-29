@@ -217,7 +217,7 @@ public class CreateTokenUtils {
     /**
      * 积分红利活动开始时间
      */
-    private static String beginTime = "2018-12-14";
+    private static String beginTime = "2018-12-26";
 
     /**
      * 红利返点  20%

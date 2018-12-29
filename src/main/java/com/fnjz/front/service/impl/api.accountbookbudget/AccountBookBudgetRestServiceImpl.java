@@ -89,7 +89,7 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
             budget.setSceneType(setSceneType);
         }
         //引入新手任务
-        createTokenUtils.integralTask(budget.getCreateBy() + "", ShareCodeUtil.id2sharecode(budget.getCreateBy()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Setting_up_budget);
+        createTokenUtils.integralTask(budget.getUpdateBy() + "", ShareCodeUtil.id2sharecode(budget.getCreateBy()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Setting_up_budget);
         if (flag) {
             return accountBookBudgetRestDao.update(budget);
         } else {
