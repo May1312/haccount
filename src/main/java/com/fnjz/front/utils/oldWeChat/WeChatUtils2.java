@@ -1,6 +1,9 @@
+/*
 package com.fnjz.front.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fnjz.front.utils.newWeChat.WXAppletUtils;
+import com.fnjz.front.utils.newWeChat.WeChatUtils;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
@@ -13,11 +16,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
+*/
 /**
  * app微信授权登录
  * Created by yhang on 2018/5/31.
- */
-public class WeChatUtils {
+ *//*
+
+public class WeChatUtils2 {
 
     private static final Logger logger = Logger.getLogger(WeChatUtils.class);
 
@@ -47,23 +52,27 @@ public class WeChatUtils {
             return null;
         }
         //刷新refresh_token  生效时间7100s
-        /*String hur2 = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + AppId + "&grant_type=refresh_token&refresh_token=" + jsonObject.getString("refresh_token") + "";
+        */
+/*String hur2 = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + AppId + "&grant_type=refresh_token&refresh_token=" + jsonObject.getString("refresh_token") + "";
         JSONObject jsonObject_refresh_token = http(hur2);
         if(jsonObject_refresh_token==null){
             return null;
-        }*/
+        }*//*
+
         //根据openid获取用户信息
         String hur3 = "https://api.weixin.qq.com/sns/userinfo?access_token=" + jsonObject.getString("access_token") + "&openid=" + jsonObject.getString("openid") + "";
         JSONObject jsonObject_user_info = http(hur3);
         return jsonObject_user_info;
     }
 
-    /*public static String getRefreshToken(String accessToken){
+    */
+/*public static String getRefreshToken(String accessToken){
         //刷新refresh_token  生效时间7100s
         String hur2 = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + AppId + "&grant_type=refresh_token&refresh_token=" + accessToken;
         JSONObject refreshToken = http(hur2);
         return refreshToken.getString("access_token");
-    }*/
+    }*//*
+
 
     public static JSONObject http(String hurl) {
         try {
@@ -110,3 +119,4 @@ public class WeChatUtils {
         getUser("011poj2m0yBCpk1kzd4m0taD2m0poj28");
     }
 }
+*/

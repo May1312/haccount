@@ -12,6 +12,8 @@ import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.*;
+import com.fnjz.front.utils.newWeChat.WXAppletUtils;
+import com.fnjz.front.utils.newWeChat.WeChatUtils;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -51,6 +53,10 @@ public class UserLoginRestController extends BaseController {
     private CreateTokenUtils createTokenUtils;
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+    @Autowired
+    private WXAppletUtils wxAppletUtils;
+    @Autowired
+    private WeChatUtils weChatUtils;
 
     /**
      * 用户登录表相关列表 登陆
@@ -153,10 +159,11 @@ public class UserLoginRestController extends BaseController {
         if (rb != null) {
             return rb;
         }
-        JSONObject user = WeChatUtils.getUser(map.get("code"));
+        JSONObject user = weChatUtils.getUser(map.get("code"));
         if (user == null) {
             return new ResultBean(ApiResultType.WECHAT_LOGIN_ERROR, null);
         }
+        logger.info("移动端微信登录:"+user.toString());
         try {
             //查看unionid是否存在
             UserInfoRestEntity task = userLoginRestService.findUniqueByProperty(UserInfoRestEntity.class, "wechatAuth", user.getString("unionid"));
@@ -239,7 +246,7 @@ public class UserLoginRestController extends BaseController {
             return rb;
         }
         try {
-            String user = WXAppletUtils.getUser(map.get("code"));
+            String user = wxAppletUtils.getUser(map.get("code"));
             JSONObject jsonObject = JSONObject.parseObject(user);
             if (jsonObject.getString("errcode") != null) {
                 return new ResultBean(ApiResultType.WXAPPLET_LOGIN_ERROR, null);
@@ -560,7 +567,7 @@ public class UserLoginRestController extends BaseController {
     public ResultBean wxUnionidIsExist(@ApiParam(value = "可选  ios/android/wxapplet") @PathVariable("type") String type, @RequestBody @ApiIgnore Map<String, String> map) {
 
         //根据code获取session_key
-        String code = WXAppletUtils.getUser(map.get("code"));
+        String code = wxAppletUtils.getUser(map.get("code"));
         //转换成json对象
         JSONObject jsonObject = JSONObject.parseObject(code);
         if (jsonObject == null || jsonObject.getString("errcode") != null) {

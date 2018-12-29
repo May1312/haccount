@@ -39,6 +39,6 @@ public class SmsSendTask implements Job{
 
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-		run();
+		//run();
 	}
 }

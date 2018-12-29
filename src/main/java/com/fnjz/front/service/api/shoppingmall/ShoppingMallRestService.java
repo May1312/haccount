@@ -2,11 +2,12 @@ package com.fnjz.front.service.api.shoppingmall;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
-import com.fnjz.front.entity.api.goods.GoodsRestDTO;
+import com.fnjz.front.entity.api.goods.GoodsListRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
-import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestDTO;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by yhang on 2018/10/20.
@@ -17,7 +18,7 @@ public interface ShoppingMallRestService {
      * 获取可用商品
      * @return
      */
-    List<GoodsRestDTO> getGoods();
+    List<GoodsListRestDTO> getGoods();
 
     /**
      * 根据id获取 商品详情
@@ -37,7 +38,7 @@ public interface ShoppingMallRestService {
      * 商品兑换接口
      * @return
      */
-    JSONObject toExchange(String exchangeMobile,GoodsRestEntity goodsInfoRestDTO,String userInfoId) throws Exception;
+    JSONObject toExchange(Map<String,String> map, GoodsRestEntity goodsInfoRestDTO, String userInfoId) throws Exception;
 
     /**
      * 树鱼回调接口
@@ -53,7 +54,7 @@ public interface ShoppingMallRestService {
      * @param userInfoId
      * @return
      */
-    List<ShoppingMallIntegralExchangeRestDTO> historyIntegralExchange(String userInfoId);
+    List<ShoppingMallIntegralExchangePhysicalRestDTO> historyIntegralExchange(String userInfoId);
 
     /**
      * 查看用户当前是否存在兑换中商品

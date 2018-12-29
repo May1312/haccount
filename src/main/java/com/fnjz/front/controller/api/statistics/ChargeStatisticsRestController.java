@@ -376,7 +376,7 @@ public class ChargeStatisticsRestController extends BaseController {
                 Map<String, String> dateByWeeks1 = DateUtils.getDateByWeeks(Integer.valueOf(endWeek));
                 try {
                     //1为支出类型
-                    Map<String, Object> map = warterOrderRestServiceI.statisticsForWeeksv2(dateByWeeks.get("beginTime"), dateByWeeks1.get("endWeek"), userInfoId, orderType);
+                    Map<String, Object> map = warterOrderRestServiceI.statisticsForWeeksv2(dateByWeeks.get("beginTime"), dateByWeeks1.get("endTime"), userInfoId, orderType);
                     return new ResultBean(ApiResultType.OK, map);
                 } catch (Exception e) {
                     logger.error(e.toString());

@@ -105,6 +105,8 @@ public enum ApiResultType {
 
     //签到积分相关
     HAS_SIGNED("08002","已签到，请勿重复！"),
+    //不允许补签
+    NOT_ALLOW_RESIGN("08003","日期不在可补签日期内！"),
 
     //积分校验相关
     INTEGRAL_EXCHANGE_NOT_ALLOW2("09001","当前用户存在兑换中商品,不允许再次兑换！"),

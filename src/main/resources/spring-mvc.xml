@@ -115,7 +115,7 @@
         <property name="connectTimeout" value="10000"/>
         <property name="readTimeout" value="10000"/>
     </bean>
-    <!--RestTemplate -->
+    <!--restTemplate -->
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <constructor-arg ref="httpClientFactory"/>
     </bean>

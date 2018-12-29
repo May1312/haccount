@@ -3,7 +3,7 @@ package com.fnjz.front.timer;
 import com.fnjz.commonbean.WXAppletMessageBean;
 import com.fnjz.front.entity.api.wxappletmessagetemp.WXAppletAccountNotifyTempRestEntity;
 import com.fnjz.front.service.api.wxappletmessagetemp.WXAppletMessageTempService;
-import com.fnjz.front.utils.WXAppletPushUtils;
+import com.fnjz.front.utils.newWeChat.WXAppletPushUtils;
 import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;

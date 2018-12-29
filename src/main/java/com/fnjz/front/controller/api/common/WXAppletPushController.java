@@ -5,8 +5,9 @@ import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.service.api.userinfoaddfield.UserInfoAddFieldRestService;
+import com.fnjz.front.utils.newWeChat.WXAppletUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
-import com.fnjz.front.utils.WXAppletUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -41,6 +42,9 @@ public class WXAppletPushController {
     @Autowired
     private ThreadPoolTaskExecutor taskExecutor;
 
+    @Autowired
+    private WXAppletUtils wxAppletUtils;
+
     /**
      * 上传formId
      *
@@ -53,29 +57,57 @@ public class WXAppletPushController {
     public ResultBean uploadFormId(HttpServletRequest request, @RequestBody Map<String, Object> map) {
         String userInfoId = (String) request.getAttribute("userInfoId");
         taskExecutor.execute(() -> {
-            //根据code解密 opendid
-            String code = WXAppletUtils.getUser(map.get("code") + "");
-            JSONObject user = JSONObject.parseObject(code);
-            if (user.getString("errcode") != null) {
-                logger.error("/uploadFormId   ----code解密异常-----");
+            //判断是否已绑定openid
+            Map<String, Object> map1 = userInfoAddFieldRestService.checkExists(userInfoId);
+            String openId = null;
+            if (map1 != null) {
+                if (map1.get("openid") == null) {
+                    //根据code解密 opendid
+                    String code = wxAppletUtils.getUser(map.get("code") + "");
+                    JSONObject user = JSONObject.parseObject(code);
+                    if (user.get("errcode") != null) {
+                        logger.error("/uploadFormId   ----code解密异常-----");
+                    } else {
+                        openId = user.getString("openid");
+                        //保存openId
+                        if (map1.get("id") != null) {
+                            //已存在  更新
+                            userInfoAddFieldRestService.updateOpenId(userInfoId, openId, Integer.valueOf(map1.get("id") + ""), 1);
+                        } else {
+                            //insert
+                            userInfoAddFieldRestService.insertOpenId(userInfoId, openId, 1);
+                        }
+                    }
+                }else{
+                    openId =(String) map1.get("openid");
+                }
             } else {
-                String opendId = user.getString("openid");
-                //判断是否已绑定openid
-                userInfoAddFieldRestService.checkExists(userInfoId, opendId);
+                //根据code解密 opendid
+                String code = wxAppletUtils.getUser(map.get("code") + "");
+                JSONObject user = JSONObject.parseObject(code);
+                if (user.getString("errcode") != null) {
+                    logger.error("/uploadFormId   ----code解密异常-----");
+                } else {
+                    openId = user.getString("openid");
+                    //insert
+                    userInfoAddFieldRestService.insertOpenId(userInfoId, openId, 1);
+                }
+            }
+            if (StringUtils.isNotEmpty(openId)) {
                 //将formid存入redis   按日区分
                 LocalDate date = LocalDate.now();
                 DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyyMMdd");
                 String time = date.format(formatters);
                 List<String> arrays = (List<String>) map.get("formIds");
-                boolean status = redisTemplateUtils.hasKey(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time);
+                boolean status = redisTemplateUtils.hasKey(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "_" + time);
                 if (!status) {
                     //当天首次上传
-                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time, arrays, 1);
+                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "_" + time, arrays, 1,7L);
                 } else {
-                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + opendId + "_" + time, arrays, 2);
+                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "_" + time, arrays, 2,null);
                 }
                 //cache openId   以user_info_id 为key
-                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID + userInfoId, opendId, 7L);
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_USERINFOID_OPENID + userInfoId, openId, 7L);
             }
         });
         return new ResultBean(ApiResultType.OK, null);

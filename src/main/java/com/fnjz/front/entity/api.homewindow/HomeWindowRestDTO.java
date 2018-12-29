@@ -48,6 +48,8 @@ public class HomeWindowRestDTO implements java.io.Serializable {
 	private String shareContent;
 	/**分享图片*/
 	private String shareImage;
+	/**弹框类型  floating_window  浮框   popup_windows弹框*/
+	private String homeWindowType;
 
 	/**
 	 *方法: 取得java.lang.String
@@ -278,4 +280,12 @@ public class HomeWindowRestDTO implements java.io.Serializable {
 		this.shareImage = shareImage;
 	}
 
+	@Column(name ="HOME_WINDOW_TYPE")
+	public String getHomeWindowType() {
+		return homeWindowType;
+	}
+
+	public void setHomeWindowType(String homeWindowType) {
+		this.homeWindowType = homeWindowType;
+	}
 }

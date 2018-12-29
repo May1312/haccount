@@ -1,6 +1,7 @@
 package com.fnjz.front.service.api.usersignin;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fnjz.front.entity.api.sharewords.ShareWordsRestDTO;
 import org.jeecgframework.core.common.service.CommonService;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ public interface UserSignInRestServiceI extends CommonService{
      * 签到
      * @param userInfoId
      */
-    Integer signIn(String userInfoId,String shareCode);
+    ShareWordsRestDTO signIn(String userInfoId, String shareCode);
 
     /**
      * 查看当天是否已签到

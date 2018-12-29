@@ -1,7 +1,5 @@
 package com.fnjz.front.utils;
 
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Random;
 
@@ -206,12 +204,10 @@ public class ShareCodeUtil {
         int str3 = sharecode2id(str2);
         int a = 10;
     }
-
-    @Test
-    public void main() {
-        String str2 = id2sharecode(3433);
+    public static void main(String[] args){
+        String str2 = id2sharecode(18170);
         System.out.println(str2);
-        int str4 = sharecode2id("99999507");
+        int str4 = sharecode2id("99999326");
         System.out.println(str4);
     }
 

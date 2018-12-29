@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service("homeWindowRestService")
@@ -40,26 +39,7 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
         //获取用户弹框读取情况
         String cacheActivity = redisTemplateUtils.getForString(RedisPrefix.USER_HOME_WINDOW_READ + shareCode);
         JSONArray activity = JSONArray.parseArray(cacheActivity);
-        /*boolean flag = false;
-        if (activity != null) {
-            for (int i = 0; i < activity.size(); i++) {
-                JSONObject jsonObject = activity.getJSONObject(i);
-                //判断当前获取用户读取状态
-                if (jsonObject.getInteger("hasRead") != 2) {
-                    //判断推送次数
-                    if (jsonObject.getInteger("pushToUser") < 2) {
-                        //定义推送两次
-                        flag = true;
-                        break;
-                    }
-                }
-            }
-        } else {
-            flag = true;
-        }*/
-
         Period period = null;
-        //if (flag) {
         List<HomeWindowRestDTO> list = homeWindowRestDao.listForWindow(type, version);
         JSONArray jsonArray = new JSONArray();
         if (list.size() > 0) {
@@ -92,8 +72,6 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
                                 break;
                             }
                         }
-                        //id相等 次数累计
-                        //jsonObject.put("pushToUser", jsonObject.getInteger("pushToUser") == null ? 1 : (jsonObject.getInteger("pushToUser") + 1));
                         tag = false;
                         break;
                     }
@@ -141,6 +119,14 @@ public class HomeWindowRestServiceImpl extends CommonServiceImpl implements Home
         }
         redisTemplateUtils.deleteKey(RedisPrefix.USER_INVITE_COUNT + shareCode);
         JSONObject result = new JSONObject();
+        //添加新用户注册奖励积分数
+        String registerAward = redisTemplateUtils.getForString(RedisPrefix.USER_REGISTER_INTEGRAL + shareCode);
+        JSONObject register = new JSONObject();
+        if(StringUtils.isNotEmpty(registerAward)){
+            register.put("registerAward",Integer.valueOf(registerAward));
+            redisTemplateUtils.deleteKey(RedisPrefix.USER_REGISTER_INTEGRAL + shareCode);
+        }
+        result.put("registerAward", register);
         result.put("inviteCount", jsonObject);
         result.put("activity", jsonArray);
         return result;

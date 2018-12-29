@@ -8,6 +8,7 @@ import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.ResultType;
 import org.jeecgframework.minidao.annotation.Sql;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -23,21 +24,21 @@ public interface UserIntegralRestDao {
      * @param id
      * @param behaviorTicketValue
      */
-    @Sql("INSERT INTO `hbird_user_integral` (`user_info_id`,`integral_num`,`fengfeng_ticket_id`,`create_date`,`description`,`type`,`category_of_behavior`) VALUES (:userInfoId,:behaviorTicketValue,:id,NOW(),:description,:type,:categoryOfBehavior);")
-    void insertSignInIntegral(@Param("userInfoId") String userInfoId,@Param("id") String id,@Param("behaviorTicketValue") Integer behaviorTicketValue,@Param("description")String description,@Param("type")Integer type,@Param("categoryOfBehavior")Integer categoryOfBehavior);
+    @Sql("INSERT INTO `hbird_user_integral` (`user_info_id`,`integral_num`,`fengfeng_ticket_id`,`create_date`,`description`,`type`,`category_of_behavior`,`integral_num_double`) VALUES (:userInfoId,:behaviorTicketValue,:id,NOW(),:description,:type,:categoryOfBehavior,:integralDouble);")
+    void insertSignInIntegral(@Param("userInfoId") String userInfoId,@Param("id") String id,@Param("behaviorTicketValue") Integer behaviorTicketValue,@Param("description")String description,@Param("type")Integer type,@Param("categoryOfBehavior")Integer categoryOfBehavior,@Param("integralDouble")double integralDouble);
 
-    @Sql("SELECT COALESCE(SUM(integral_num),0) from `hbird_user_integral` where `user_info_id`=:userInfoId;")
-    int getTotalIntegralBySum(@Param("userInfoId") String userInfoId);
+    @Sql("SELECT COALESCE(SUM(integral_num_double),0) from `hbird_user_integral` where `user_info_id`=:userInfoId;")
+    double getTotalIntegralBySum(@Param("userInfoId") String userInfoId);
 
     /**
      * 从用户对应总积分表中获取积分数
      * @param userInfoId
      */
-    @Sql("SELECT integral_num from `hbird_user_total_integrals` where `user_info_id`=:userInfoId;")
-    Integer getTotalIntegral(@Param("userInfoId") String userInfoId);
+    @Sql("SELECT integral_num_decimal from `hbird_user_total_integrals` where `user_info_id`=:userInfoId;")
+    String getTotalIntegral(@Param("userInfoId") String userInfoId);
 
     @ResultType(UserIntegralRestDTO.class)
-    @Sql("SELECT integral_num,description,create_date FROM hbird_user_integral where user_info_id=:userInfoId ORDER BY create_date desc LIMIT :curpage,:itemPerPage")
+    @Sql("SELECT integral_num_double as integral_num,description,create_date FROM hbird_user_integral where user_info_id=:userInfoId ORDER BY create_date desc LIMIT :curpage,:itemPerPage")
     List<UserIntegralRestDTO> listForPage(@Param("userInfoId")String userInfoId, @Param("curpage") Integer curpage, @Param("itemPerPage") Integer itemPerPage);
 
     /**
@@ -85,7 +86,7 @@ public interface UserIntegralRestDao {
      * 获取积分排行榜
      * @return
      */
-    @Sql("SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num, @rank := @rank + 1 as rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id,integral_num FROM hbird_user_total_integrals ORDER BY integral_num DESC LIMIT 0, :top ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id;")
+    @Sql("SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num_decimal as integral_num, @rank := @rank + 1 as rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id,integral_num,integral_num_decimal FROM hbird_user_total_integrals ORDER BY integral_num_decimal DESC LIMIT 0, :top ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id;")
     List<UserIntegralTopRestDTO> integralTop(@Param("top") int top);
 
     /**
@@ -93,7 +94,7 @@ public interface UserIntegralRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT result.nick_name, result.avatar_url, result.integral_num, result.rank FROM ( SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num, top.user_info_id, @rank := @rank + 1 AS rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id,integral_num FROM hbird_user_total_integrals ORDER BY integral_num DESC ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id ) AS result WHERE result.user_info_id = :userInfoId;")
+    @Sql("SELECT result.nick_name, result.avatar_url, result.integral_num_decimal as integral_num, result.rank FROM ( SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num_decimal, top.user_info_id, @rank := @rank + 1 AS rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id,integral_num_decimal FROM hbird_user_total_integrals ORDER BY integral_num_decimal DESC ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id ) AS result WHERE result.user_info_id = :userInfoId;")
     UserIntegralTopRestDTO integralForMySelf(@Param("userInfoId") String userInfoId);
 
     /**
@@ -102,8 +103,8 @@ public interface UserIntegralRestDao {
      * @param id
      * @param behaviorTicketValue
      */
-    @Sql("INSERT INTO `hbird_user_integral` (`user_info_id`,`integral_num`,`shopping_mall_integral_exchange_id`,`create_date`,`description`,`category_of_behavior`) VALUES (:userInfoId,:behaviorTicketValue,:id,NOW(),:description,:categoryOfBehavior);")
-    void insertShoppingMallIntegral(@Param("userInfoId") String userInfoId,@Param("shoppingMallIntegralExchangeId") String id,@Param("behaviorTicketValue") String behaviorTicketValue,@Param("description")String description,@Param("categoryOfBehavior")Integer categoryOfBehavior);
+    @Sql("INSERT INTO `hbird_user_integral` (`user_info_id`,`integral_num`,`shopping_mall_integral_exchange_id`,`create_date`,`description`,`category_of_behavior`,`integral_num_double`) VALUES (:userInfoId,:behaviorTicketValue,:id,NOW(),:description,:categoryOfBehavior,:integralDouble);")
+    void insertShoppingMallIntegral(@Param("userInfoId") String userInfoId,@Param("shoppingMallIntegralExchangeId") String id,@Param("behaviorTicketValue") String behaviorTicketValue,@Param("description")String description,@Param("categoryOfBehavior")Integer categoryOfBehavior,@Param("integralDouble")double integralDouble);
 
     /**
      * 赋值总积分表
@@ -111,9 +112,9 @@ public interface UserIntegralRestDao {
      * @param sum
      * @param i
      */
-    @Sql("insert into hbird_user_total_integrals (`user_info_id`,`integral_num`,`type`,`create_date`) values (:userInfoId,:integralNum,:type,now())")
-    void insertForTotalIntegral(@Param("userInfoId") String userInfoId,@Param("integralNum") int sum,@Param("type") int i);
+    @Sql("insert into hbird_user_total_integrals (`user_info_id`,`integral_num_decimal`,`type`,`create_date`) values (:userInfoId,:integralNum,:type,now())")
+    void insertForTotalIntegral(@Param("userInfoId") String userInfoId,@Param("integralNum") BigDecimal sum,@Param("type") int i);
 
-    @Sql("update hbird_user_total_integrals set integral_num = integral_num+:integralNum,update_date=now() where user_info_id=:userInfoId;")
-    void updateForTotalIntegral(@Param("userInfoId") String userInfoId,@Param("integralNum") Integer integer);
+    @Sql("update hbird_user_total_integrals set integral_num_decimal = integral_num_decimal+:decimal,update_date=now() where user_info_id=:userInfoId;")
+    void updateForTotalIntegral(@Param("userInfoId") String userInfoId,@Param("integralNum") Integer integer,@Param("decimal") BigDecimal decimal);
 }
