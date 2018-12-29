@@ -164,7 +164,7 @@ public class CreateTokenUtils {
                 shareCode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
                 if (acquisitionModeEnum.equals(AcquisitionModeEnum.The_invitation_came_to_five)) {
                     //当日邀请达5人  判断人数
-                    int countForInvitedUsers = userInviteRestDao.getCountForInvitedUsers(userInfoId);
+                    int countForInvitedUsers = userInviteRestDao.getCountForInvitedUsersv2(userInfoId);
                     if (countForInvitedUsers >= 5) {
                         this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
                         updateTaskStatus(shareCode, categoryOfBehaviorEnum, acquisitionModeEnum);

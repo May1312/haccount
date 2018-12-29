@@ -16,10 +16,12 @@ import com.fnjz.front.enums.SignInEnum;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
 import com.fnjz.front.service.api.usersignin.UserSignInRestServiceI;
 import com.fnjz.front.service.api.userwxqrcode.UserWXQrCodeRestServiceI;
+import com.fnjz.front.service.impl.api.userintegral.UserIntegralRestServiceImpl;
 import com.fnjz.front.utils.DateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.junit.Test;
 import org.springframework.beans.BeanUtils;
@@ -36,6 +38,8 @@ import static com.fnjz.constants.RedisPrefix.PREFIX_SIGN_IN;
 @Service("userSignInRestService")
 @Transactional
 public class UserSignInRestServiceImpl extends CommonServiceImpl implements UserSignInRestServiceI {
+
+    private static final Logger logger = Logger.getLogger(UserSignInRestServiceImpl.class);
 
     @Autowired
     private UserSignInRestDao userSignInRestDao;
@@ -157,18 +161,44 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         }
     }
 
+    @Test
+    public void run3(){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime signInDate = LocalDateTime.ofEpochSecond(1546014714L, 0, ZoneOffset.ofHours(8));
+        //下一天时间
+        LocalDateTime localDateTime = signInDate.plusDays(1);
+        //获取当天凌晨范围
+        LocalDateTime before = localDateTime.withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime after = localDateTime.withHour(23).withMinute(59).withSecond(59);
+        if (now.isAfter(before) && now.isBefore(after)) {
+            System.out.println(1);
+
+        }else if (now.isAfter(after)) {
+            System.out.println(2);
+
+        } else {
+            System.out.println(3);
+        }
+    }
     private Map signInForCache(String userInfoId, String shareCode) {
         Map map = redisTemplateUtils.getForHash(PREFIX_SIGN_IN + shareCode);
         //读取签到奖励规则
         List<String> list = redisTemplateUtils.range(RedisPrefix.SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE);
         //判断打卡间隔 获取下一天凌晨时间间隔
-        Date nextDay = DateUtils.getNextDay(new Date(Long.valueOf(map.get("signInDate") + "")));
-        LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).atZone(ZoneOffset.systemDefault()).toEpochSecond();
+        //Date nextDay = DateUtils.getNextDay(new Date(Long.valueOf(map.get("signInDate") + "")));
+        //LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).atZone(ZoneOffset.systemDefault()).toEpochSecond();
+        LocalDateTime signInDate = LocalDateTime.ofEpochSecond(Long.valueOf(map.get("signInDate")+"") / 1000, 0, ZoneOffset.ofHours(8));
+        //下一天时间
+        LocalDateTime localDateTime = signInDate.plusDays(1);
         //获取当天凌晨范围
-        Date dateOfBegin = DateUtils.fetchBeginOfDay(nextDay);
-        Date dateOfEnd = DateUtils.fetchEndOfDay(nextDay);
-        long now = System.currentTimeMillis();
-        if (now > dateOfBegin.getTime() && now < dateOfEnd.getTime()) {
+        LocalDateTime before = localDateTime.withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime after = localDateTime.withHour(23).withMinute(59).withSecond(59);
+        logger.info("签到获取凌晨时间段:"+before.toString()+" "+after.toString());
+        //Date dateOfBegin = DateUtils.fetchBeginOfDay(nextDay);
+        //Date dateOfEnd = DateUtils.fetchEndOfDay(nextDay);
+        //long now = System.currentTimeMillis();
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(before) && now.isBefore(after)) {
             //获取最大周数
             JSONObject jsonObject = JSONObject.parseObject(list.get(list.size() - 1));
             Iterator iterator = jsonObject.keySet().iterator();
@@ -180,7 +210,9 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 map.put("signInDays", (Integer.valueOf(map.get("signInDays") + "") + 1));
             }
             map.put("signInDate", System.currentTimeMillis());
-        } else if (now > dateOfEnd.getTime()) {
+            //修改奖励领取状态
+            resetSignInAward(Integer.valueOf(userInfoId), Integer.valueOf(map.get("signInDays") + ""), list);
+        } else if (now.isAfter(after)) {
             //置空
             map.put("signInDays", 1);
             map.put("signInDate", System.currentTimeMillis());
@@ -188,8 +220,6 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             //已签到情况下
             map.put("hasSigned", true);
         }
-        //修改奖励领取状态
-        resetSignInAward(Integer.valueOf(userInfoId), Integer.valueOf(map.get("signInDays") + ""), list);
         return map;
     }
 
@@ -203,7 +233,9 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             JSONObject jsonObject = JSONObject.parseObject(v);
             Iterator iterator = jsonObject.keySet().iterator();
             int value = Integer.valueOf(iterator.next() + "");
+            logger.info("输出连签周数判断："+value);
             if (signInDays == value) {
+                logger.info("达标："+value);
                 //解锁update
                 UserSignInAwardRestEntity bean = new UserSignInAwardRestEntity(userInfoId, CategoryOfBehaviorEnum.SignIn.getName(), value, 1, 1, 0);
                 userSignInAwardRestDao.update(bean);
@@ -211,8 +243,8 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 //判断连签天数是否为1  重置领取状态
                 if (signInDays == 1) {
                     userSignInAwardRestDao.updateAllForReset(userInfoId, CategoryOfBehaviorEnum.SignIn.getName());
+                    break;
                 }
-                break;
             } else {
                 continue;
             }

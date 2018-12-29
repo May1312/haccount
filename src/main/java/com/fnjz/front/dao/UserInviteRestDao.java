@@ -31,6 +31,14 @@ public interface UserInviteRestDao {
     @Sql("select count(id) from hbird_user_invite where user_info_id =:userInfoId and type=1;")
     int getCountForInvitedUsers(@Param("userInfoId") String userInfoId);
 
+    /**
+     * 获取邀请人数  按天
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select count(id) from hbird_user_invite where user_info_id =:userInfoId and type=1 and create_date like CONCAT(DATE_FORMAT( now( ), '%Y-%m-%d' ),'%');")
+    int getCountForInvitedUsersv2(@Param("userInfoId") String userInfoId);
+
     @ResultType(UserInviteRestDTO.class)
     @Sql("SELECT userinfo.nick_name,userinfo.avatar_url,userinfo.register_date FROM hbird_user_invite invite RIGHT JOIN hbird_user_info userinfo on invite.invite_user_info_id=userinfo.id where invite.user_info_id=:userInfoId and type=1 ORDER BY invite.create_date desc LIMIT :curpage,:itemPerPage;")
     List<UserInviteRestDTO> listForPage(@Param("userInfoId") String userInfoId,@Param("curpage") int startIndex,@Param("itemPerPage") int pageSize);

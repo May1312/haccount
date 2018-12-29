@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.apache.log4j.Logger;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.HashMap;
@@ -37,6 +37,9 @@ import java.util.concurrent.TimeUnit;
 @Service("userIntegralRestService")
 @Transactional
 public class UserIntegralRestServiceImpl extends CommonServiceImpl implements UserIntegralRestServiceI {
+
+    private static final Logger logger = Logger.getLogger(UserIntegralRestServiceImpl.class);
+
 
     @Autowired
     private FengFengTicketRestDao fengFengTicketRestDao;
@@ -1035,6 +1038,13 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
         }
     }
 
+    @Test
+    public void run2(){
+        LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
+        //凌晨时间戳-当前时间戳
+        long cacheTime = time.toEpochSecond(ZoneOffset.of("+8")) - LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+        System.out.println(cacheTime);
+    }
     /**
      * 校验map长度
      *
@@ -1057,6 +1067,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
                     //凌晨时间戳-当前时间戳
                     long cacheTime = time.toEpochSecond(ZoneOffset.of("+8")) - LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+                    logger.info("每日任务换成时间s:"+cacheTime);
                     redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, newbieTask.toJSONString(), cacheTime, TimeUnit.SECONDS);
                 }
             }
@@ -1188,8 +1199,11 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     }
                 });
                 //重新缓存  获取系统缓存有效期
-                Long expire = redisTemplateUtils.getExpireForSeconds(RedisPrefix.SYS_INTEGRAL_TODAY_TASK);
-                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, newbieTask.toJSONString(), expire, TimeUnit.SECONDS);
+                LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
+                //凌晨时间戳-当前时间戳
+                long cacheTime = time.toEpochSecond(ZoneOffset.of("+8")) - LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+                logger.info("每日任务换成时间s:"+cacheTime);
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, newbieTask.toJSONString(), cacheTime, TimeUnit.SECONDS);
                 return newbieTask;
             }
         }
