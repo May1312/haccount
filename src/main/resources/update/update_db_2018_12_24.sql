@@ -94,6 +94,11 @@ create table hbird_share_words
 );
 
 alter table hbird_share_words comment '日签分享话术表';
+-- 添加基本数据
+INSERT INTO `hbird_share_words`(`id`, `festival`, `festival_day`, `words`, `icon`, `status`, `update_date`, `create_date`) VALUES (1, '', NULL, '学问是异常珍贵的东西，从任何源泉吸收都不可耻。', 'https://head.image.fengniaojizhang.cn/1545998925392_1.jpg', 1, NULL, '2018-12-28 12:08:48');
+INSERT INTO `hbird_share_words`(`id`, `festival`, `festival_day`, `words`, `icon`, `status`, `update_date`, `create_date`) VALUES (2, '', NULL, '惩罚恶人是上帝的事，我们应该学会饶恕。', 'https://head.image.fengniaojizhang.cn/1545998943337_2.jpg', 1, NULL, '2018-12-28 12:09:06');
+INSERT INTO `hbird_share_words`(`id`, `festival`, `festival_day`, `words`, `icon`, `status`, `update_date`, `create_date`) VALUES (3, '', NULL, '科学有点儿像你呼吸的空气，它无处不在。', 'https://head.image.fengniaojizhang.cn/1545998991902_3.jpg', 1, NULL, '2018-12-28 12:09:54');
+INSERT INTO `hbird_share_words`(`id`, `festival`, `festival_day`, `words`, `icon`, `status`, `update_date`, `create_date`) VALUES (4, '', NULL, '没有任何权宜之计可以让人逃避真正的劳动：思考。', 'https://head.image.fengniaojizhang.cn/1545999006560_4.jpg', 1, NULL, '2018-12-28 12:10:09');
 
 
 /*==============================================================*/

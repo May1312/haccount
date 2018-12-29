@@ -118,7 +118,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         //加入实物兑换
         if (goodsRestEntity.getGoodsType() == 2) {
             exchangePhysical(map, goodsRestEntity, userInfoId);
-            result2.put("status", 1);
+            result2.put("status", 2);
             return result2;
         } else if (goodsRestEntity.getGoodsType() == 3) {
             //现金红包类兑换
@@ -275,7 +275,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         //设置数量
         shoppingMall.setCount(1);
         //设置兑换状态
-        shoppingMall.setStatus(1);
+        shoppingMall.setStatus(2);
         //添加兑换记录
         shoppingMallRestDao.insertPhysical(shoppingMall, userInfoId);
         //记录积分消耗表
