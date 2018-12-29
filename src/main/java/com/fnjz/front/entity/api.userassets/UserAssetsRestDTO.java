@@ -49,7 +49,7 @@ public class UserAssetsRestDTO implements java.io.Serializable {
     /**
      * 是否默认账户标记  0:非默认 1:默认,
      */
-    private Integer mark;
+    private Integer mark = 0;
 
     /**
      * 方法: 取得java.util.Date

@@ -40,4 +40,11 @@ public interface UserAssetsRestServiceI extends CommonService{
      * @return
      */
     JSONObject getAssetsv2(String userInfoId, String shareCode, String flag);
+
+    /**
+     * v2
+     * @param userInfoId
+     * @param map
+     */
+    void saveOrUpdateAssetsv2(String userInfoId, Map<String,Object> map);
 }

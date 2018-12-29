@@ -120,7 +120,10 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
         } else {
             //查询资产
             List<UserAssetsRestDTO> assets = userAssetsRestDao.getAssetsAllForDTO(userInfoId);
-            jsonObject.put("assets", assets);
+            //查询系统所有资产
+            List<UserAssetsRestDTO> allAssets = userAssetsRestDao.getSYSAssetsAll();
+            allAssets = getList(assets, allAssets);
+            jsonObject.put("assets", allAssets);
             return jsonObject;
         }
     }
@@ -141,11 +144,14 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
                 UserAssetsRestDTO userAssetsRestDTO = list2.get(i);
                 userAssetsRestDTO.setAssetsName(v.getAssetsName());
                 userAssetsRestDTO.setMark(v.getMark());
+                userAssetsRestDTO.setMoney(v.getMoney());
+                userAssetsRestDTO.setUpdateDate(v.getUpdateDate());
+                userAssetsRestDTO.setCreateDate(v.getCreateDate());
                 list2.set(i, userAssetsRestDTO);
             }
         });
         //排序 优先显示点量的
-        Collections.sort(list2, Comparator.comparing(UserAssetsRestDTO::getPriority));
+        Collections.sort(list2, Comparator.comparing(UserAssetsRestDTO::getMark).reversed().thenComparing(UserAssetsRestDTO::getPriority));
         return list2;
     }
 
@@ -164,6 +170,18 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
         } else {
             //update
             userAssetsRestDao.updateMoney(new BigDecimal(map.get("money") + ""), userInfoId, Integer.valueOf(map.get("assetsType") + ""));
+        }
+    }
+
+    @Override
+    public void saveOrUpdateAssetsv2(String userInfoId, Map<String, Object> map) {
+        int count = userAssetsRestDao.getAssetsByAssetsType(userInfoId, Integer.valueOf(map.get("assetsType") + ""));
+        if (count < 1) {
+            //insert
+            userAssetsRestDao.insertAssetsv2(userInfoId, Integer.valueOf(map.get("assetsType") + ""),map.get("assetsName") + "", new BigDecimal(map.get("money") + ""));
+        } else {
+            //update
+            userAssetsRestDao.updateMoneyv2(new BigDecimal(map.get("money") + ""),map.get("assetsName") + "", userInfoId, Integer.valueOf(map.get("assetsType") + ""));
         }
     }
 
