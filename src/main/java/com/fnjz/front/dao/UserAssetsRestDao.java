@@ -63,4 +63,15 @@ public interface UserAssetsRestDao {
 
     @Sql("UPDATE `hbird_user_assets` SET `mark`=:mark where user_info_id = :userInfoId and assets_type=:at;")
     void updateAT2Mark(@Param("userInfoId") String userInfoId,@Param("at") String at,@Param("mark") int mark);
+
+    List<UserAssetsRestDTO> getAssetsAllForDTOv2(String userInfoId, int i);
+
+    @Sql("select * from hbird_assets where status=1 order by priority;")
+    List<UserAssetsRestDTO> getSYSAssetsAll();
+
+    @Sql("insert into hbird_user_assets (`user_info_id`,`assets_type`,`assets_name`,`money`,`type`,`create_date`) values(:userInfoId,:assetsType,:assetsName,:money,1,NOW());")
+    void insertAssetsv2(@Param("userInfoId") String userInfoId,@Param("assetsType") Integer assetsType,@Param("assetsName") String assetsName,@Param("money") BigDecimal money);
+
+    @Sql("UPDATE `hbird_user_assets` SET `money`=:money,`assets_name`=:assetsName where user_info_id = :userInfoId and assets_type=:assetsType;")
+    void updateMoneyv2(@Param("money") BigDecimal money,@Param("assetsName") String assetsName,@Param("userInfoId") String userInfoId,@Param("assetsType") Integer assetsType);
 }

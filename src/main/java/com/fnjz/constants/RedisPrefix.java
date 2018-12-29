@@ -36,6 +36,10 @@ public class RedisPrefix {
      */
     public static final String PREFIX_USER_VERIFYCODE_CHANGE_MOBILE = "user_verifycode_changemobile:";
     /**
+     * 用户兑换红包类商品手机号验证码前缀
+     */
+    public static final String PREFIX_USER_VERIFYCODE_CASH_MOBILE = "user_verifycode_cashmobile:";
+    /**
      * 小程序session_key缓存前缀
      */
     public static final String PREFIX_WXAPPLET_SESSION_KEY = "user_wxapplet_sessionkey:";
@@ -114,6 +118,7 @@ public class RedisPrefix {
      * 缓存系统连续签到领取积分
      */
     public static final String SYS_INTEGRAL_SIGN_IN_CYCLE_AWARE = "sys_integral:sign_in_cycle_aware";
+    //public static final String SYS_INTEGRAL_SIGN_IN_CYCLE_AWARD = "sys_integral:sign_in_cycle_award";
     /**
      * 缓存系统新手任务领取积分
      */
@@ -146,6 +151,11 @@ public class RedisPrefix {
      * 缓存用户邀请好友数
      */
     public static final String USER_INVITE_COUNT = "user_invite_count:";
+
+    /**
+     * 用户注册成功奖励积分数
+     */
+    public static final String USER_REGISTER_INTEGRAL = "user_register_integral:";
 
     public static final String SPEND = "SPEND";
 

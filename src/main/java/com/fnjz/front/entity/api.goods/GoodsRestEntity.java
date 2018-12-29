@@ -55,7 +55,9 @@ public class GoodsRestEntity implements java.io.Serializable {
 	private java.lang.Integer delflag;
 	/**删除时间*/
 	private java.util.Date delDate;
-	
+	/**商品类型 1:虚拟  2:实物  3:红包*/
+	private java.lang.Integer goodsType;
+
 	/**
 	 *方法: 取得java.lang.Integer
 	 *@return: java.lang.Integer  id
@@ -330,5 +332,13 @@ public class GoodsRestEntity implements java.io.Serializable {
 
 	public void setType(Integer type) {
 		this.type = type;
+	}
+	@Column(name ="GOODS_TYPE")
+	public Integer getGoodsType() {
+		return goodsType;
+	}
+
+	public void setGoodsType(Integer goodsType) {
+		this.goodsType = goodsType;
 	}
 }

@@ -39,17 +39,28 @@ public class UserAssetsRestController extends BaseController {
      * @param request
      * @return
      */
-    @RequestMapping(value = {"/assets", "/assets/{type}"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/assets/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean getAssets(HttpServletRequest request, @RequestParam(required = false) String flag) {
+    public ResultBean getAssets(@PathVariable String type,HttpServletRequest request, @RequestParam(required = false) String flag) {
         String userInfoId = (String) request.getAttribute("userInfoId");
         String shareCode = (String) request.getAttribute("shareCode");
-        try {
-            JSONObject jsonObject = userAssetsRestServiceI.getAssets(userInfoId,shareCode,flag);
-            return new ResultBean(ApiResultType.OK, jsonObject);
-        } catch (Exception e) {
-            logger.error(e.toString());
-            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        if(StringUtils.equals(type,"ios")||StringUtils.equals(type,"android")){
+            try {
+                JSONObject jsonObject = userAssetsRestServiceI.getAssetsv2(userInfoId,shareCode,flag);
+                return new ResultBean(ApiResultType.OK, jsonObject);
+            } catch (Exception e) {
+                logger.error(e.toString());
+                return new ResultBean(ApiResultType.SERVER_ERROR, null);
+            }
+        }else{
+            //旧版资产接口
+            try {
+                JSONObject jsonObject = userAssetsRestServiceI.getAssets(userInfoId,shareCode,flag);
+                return new ResultBean(ApiResultType.OK, jsonObject);
+            } catch (Exception e) {
+                logger.error(e.toString());
+                return new ResultBean(ApiResultType.SERVER_ERROR, null);
+            }
         }
     }
 
@@ -92,17 +103,27 @@ public class UserAssetsRestController extends BaseController {
      * @param map
      * @return
      */
-    @RequestMapping(value = {"/saveOrUpdateAssets", "/saveOrUpdateAssets/{type}"}, method = RequestMethod.POST)
+    @RequestMapping(value = {"/saveOrUpdateAssets/{type}"}, method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean saveOrUpdateAssets(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+    public ResultBean saveOrUpdateAssets(@PathVariable String type, HttpServletRequest request, @RequestBody Map<String,Object> map) {
         String userInfoId = (String) request.getAttribute("userInfoId");
-        if(StringUtils.isNotEmpty(map.get("assetsType")+"")){
-            try {
-                userAssetsRestServiceI.saveOrUpdateAssets(userInfoId,map);
-                return new ResultBean(ApiResultType.OK, null);
-            } catch (Exception e) {
-                logger.error(e.toString());
-                return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        if(StringUtils.isNotEmpty(map.get("assetsType")+"")||StringUtils.isNotEmpty(map.get("assetsName")+"")){
+            if(StringUtils.equals(type,"ios")||StringUtils.equals(type,"android")){
+                try {
+                    userAssetsRestServiceI.saveOrUpdateAssetsv2(userInfoId,map);
+                    return new ResultBean(ApiResultType.OK, null);
+                } catch (Exception e) {
+                    logger.error(e.toString());
+                    return new ResultBean(ApiResultType.SERVER_ERROR, null);
+                }
+            }else{
+                try {
+                    userAssetsRestServiceI.saveOrUpdateAssets(userInfoId,map);
+                    return new ResultBean(ApiResultType.OK, null);
+                } catch (Exception e) {
+                    logger.error(e.toString());
+                    return new ResultBean(ApiResultType.SERVER_ERROR, null);
+                }
             }
         }else{
             return new ResultBean(ApiResultType.MY_PARAMS_ERROR,null);
@@ -130,5 +151,17 @@ public class UserAssetsRestController extends BaseController {
         }else{
             return new ResultBean(ApiResultType.MY_PARAMS_ERROR,null);
         }
+    }
+
+    @RequestMapping(value = "/assets", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean assets(HttpServletRequest request, @RequestParam(required = false) String flag) {
+        return this.getAssets(null, request, flag);
+    }
+
+    @RequestMapping(value = "/saveOrUpdateAssets", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean saveOrUpdateAssets(HttpServletRequest request, @RequestBody Map<String,Object> map) {
+        return this.saveOrUpdateAssets(null, request, map);
     }
 }

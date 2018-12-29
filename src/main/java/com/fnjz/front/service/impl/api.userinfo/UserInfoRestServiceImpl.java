@@ -18,6 +18,7 @@ import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.registerchannel.RegisterChannelRestServiceI;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.*;
+import com.fnjz.front.utils.newWeChat.WXAppletPushUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.jeecgframework.core.util.StringUtil;
@@ -109,6 +110,10 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         if (StringUtils.equals("android", type) || StringUtils.equals("ios", type)) {
             insertDefaultLabel(insertId, insertId2);
         }
+        taskExecutor.execute(()->{
+            //引入当日任务---->注册成功送积分
+            createTokenUtils.integralTask(insertId + "", null, CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Become_hbird_user);
+        });
         return insert3;
     }
 
@@ -149,7 +154,6 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                     //insert
                     userPrivateLabelRestDao.insert(userPrivateLabelRestEntity);
                 });
-
             }
         }
 
@@ -298,12 +302,16 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
         //处理当日任务  发送小程序服务通知
         taskExecutor.execute(() -> {
+            //引入当日任务---->注册成功送积分
+            createTokenUtils.integralTask(insertId + "", null, CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Become_hbird_user);
             //判断是否为受邀用户
             if (StringUtils.isNotEmpty(map.get("inviteCode"))) {
                 int userInfoId = ShareCodeUtil.sharecode2id(map.get("inviteCode"));
                 userInviteRestDao.insert(userInfoId, insertId);
-                //引入当日任务
-                createTokenUtils.integralTask(userInfoId + "", ShareCodeUtil.id2sharecode(userInfoId), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
+                //引入当日任务---->邀请好友
+                createTokenUtils.integralTask(userInfoId + "", map.get("inviteCode"), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
+                //引入当日任务---->邀请达5人
+                createTokenUtils.integralTask(userInfoId + "", null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_invitation_came_to_five);
                 //小程序----->服务通知
                 String openId = userInfoAddFieldRestDao.getByUserInfoId(userInfoId + "");
                 if (StringUtils.isNotEmpty(openId)) {
@@ -311,8 +319,8 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                     Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "*");
                     if (keys.size() > 0) {
                         Object[] arrays = keys.toArray();
-                        Arrays.sort(arrays,Collections.reverseOrder());
-                        String formId =(String) redisTemplateUtils.popListRight(arrays[0]+"");
+                        Arrays.sort(arrays, Collections.reverseOrder());
+                        String formId = (String) redisTemplateUtils.popListRight(arrays[0] + "");
                         WXAppletMessageBean bean = new WXAppletMessageBean();
                         //设置好友昵称
                         bean.getKeyword1().put("value", userInfoRestEntity.getNickName() == null ? "蜂鸟用户" : userInfoRestEntity.getNickName());
@@ -495,7 +503,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         }
         if (task != null) {
             //小程序用户
-            if (StringUtils.isNotEmpty(task.getSex()) && task.getBirthday() != null && StringUtils.isNotEmpty(task.getProvinceName()) && StringUtils.isNotEmpty(task.getProfession()) && StringUtils.isNotEmpty(task.getPosition())) {
+            if (StringUtils.isNotEmpty(userInfoRestEntity.getSex()) && userInfoRestEntity.getBirthday() != null && StringUtils.isNotEmpty(userInfoRestEntity.getProvinceName()) && StringUtils.isNotEmpty(userInfoRestEntity.getProfession()) && StringUtils.isNotEmpty(userInfoRestEntity.getPosition())) {
                 if (!StringUtils.equals(task.getSex(), "0")) {
                     //引入新手任务
                     createTokenUtils.integralTask(userInfoRestEntity.getId() + "", ShareCodeUtil.id2sharecode(userInfoRestEntity.getId()), CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Perfecting_personal_data);

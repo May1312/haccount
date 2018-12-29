@@ -232,6 +232,10 @@ public class RedisTemplateUtils {
         redisTemplate.opsForHash().put(key,mapKey, value);
     }
 
+    public void updateForHashKey(String key,String mapKey, Object value) {
+        redisTemplate.opsForHash().put(key,mapKey, value);
+    }
+
     /**
      * 获取map中的指定key的value
      * @param key
@@ -520,11 +524,11 @@ public class RedisTemplateUtils {
      * 往list中添加元素,不存在list 创建
      * flag 1:设置缓存时间   2:不设置缓存时间
      */
-    public void setListRight(String prefix,List<String> value,int flag) {
+    public void setListRight(String prefix,List<String> value,int flag,Long days) {
         if(1==flag){
             redisTemplate.opsForList().rightPushAll(prefix,value);
             //设置缓存时间
-            redisTemplate.expire(prefix,7L,TimeUnit.DAYS);
+            redisTemplate.expire(prefix,days,TimeUnit.DAYS);
         }else{
             redisTemplate.opsForList().rightPushAll(prefix,value);
         }
@@ -535,6 +539,15 @@ public class RedisTemplateUtils {
      */
     public Object popListRight(String prefix) {
         return redisTemplate.opsForList().rightPop(prefix);
+    }
+
+    /**
+     * 获取list所有数据
+     * @param prefix
+     * @return
+     */
+    public List<String> range(String prefix) {
+        return redisTemplate.opsForList().range(prefix,0,-1);
     }
 
     /**

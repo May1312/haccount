@@ -29,7 +29,12 @@ public enum VerifyCodeEnum {
     /**
      * 修改手机号--->旧手机号获取验证码
      */
-    VERIFYCODE_OLD_MOBILE(5);
+    VERIFYCODE_OLD_MOBILE(5),
+
+    /**
+     * 商城  红包兑换验证码
+     */
+    VERIFYCODE_CASH_MOBILE(6);
 
     private int index;
 

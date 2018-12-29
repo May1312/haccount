@@ -6,6 +6,8 @@ import org.jeecgframework.minidao.annotation.MiniDao;
 import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.Sql;
 
+import java.util.Map;
+
 /**
  * Created by yhang on 2018/6/1.
  */
@@ -36,4 +38,12 @@ public interface UserInfoRestDao {
      */
     @Sql("select IFNULL(u.nick_name,REPLACE(u.mobile, SUBSTR(mobile,4,4), '****')) name  from hbird_user_info u  where id = :userInfoId;")
     String getUserNameByUserId(@Param("userInfoId") Integer userInfoId);
+
+    /**
+     * 获取 昵称 头像
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select nick_name as nickName,avatar_url as avatarUrl,register_date as registerDate from hbird_user_info where id=:userInfoId;")
+    Map<String,Object> getNKAndAUById(@Param("userInfoId") Integer userInfoId);
 }

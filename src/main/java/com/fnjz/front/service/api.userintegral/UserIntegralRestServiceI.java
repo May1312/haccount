@@ -29,6 +29,8 @@ public interface UserIntegralRestServiceI extends CommonService{
      */
     JSONObject integralTask(String userInfoId,String shareCode);
 
+    JSONObject integralTask2(String userInfoId,String shareCode);
+
     /**
      * 获取积分排行榜
      * @param userInfoId
@@ -41,5 +43,12 @@ public interface UserIntegralRestServiceI extends CommonService{
      * @param userInfoId
      * @return
      */
-    Integer getUserTotalIntegral(String userInfoId);
+    double getUserTotalIntegral(String userInfoId);
+
+    /**
+     * 积分排行榜top10
+     * @param userInfoId
+     * @return
+     */
+    JSONObject integralTop10(String userInfoId);
 }

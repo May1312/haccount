@@ -29,6 +29,8 @@ public class GoodsInfoRestDTO extends GoodsRestDTO implements java.io.Serializab
 	private String exchangeNotice;
 	/**描述*/
 	private String remark;
+	/**商品类型 1:虚拟  2:实物  3:红包*/
+	private Integer goodsType;
 
 	/**
 	 *方法: 取得java.lang.String
@@ -109,5 +111,14 @@ public class GoodsInfoRestDTO extends GoodsRestDTO implements java.io.Serializab
 	 */
 	public void setRemark(String remark){
 		this.remark = remark;
+	}
+
+	@Column(name ="GOODS_TYPE")
+	public Integer getGoodsType() {
+		return goodsType;
+	}
+
+	public void setGoodsType(Integer goodsType) {
+		this.goodsType = goodsType;
 	}
 }

@@ -7,6 +7,7 @@ import org.jeecgframework.minidao.annotation.ResultType;
 import org.jeecgframework.minidao.annotation.Sql;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by yhang on 2018/10/17.
@@ -33,4 +34,14 @@ public interface UserInviteRestDao {
     @ResultType(UserInviteRestDTO.class)
     @Sql("SELECT userinfo.nick_name,userinfo.avatar_url,userinfo.register_date FROM hbird_user_invite invite RIGHT JOIN hbird_user_info userinfo on invite.invite_user_info_id=userinfo.id where invite.user_info_id=:userInfoId and type=1 ORDER BY invite.create_date desc LIMIT :curpage,:itemPerPage;")
     List<UserInviteRestDTO> listForPage(@Param("userInfoId") String userInfoId,@Param("curpage") int startIndex,@Param("itemPerPage") int pageSize);
+
+    /**
+     * 积分返利   查询当前用户的邀请人昵称
+     * @param userInfoId
+     * @param beginTime
+     * @param type   1 小程序邀请类型
+     * @return
+     */
+    @Sql("select base2.nick_name as nickname,base1.user_info_id as userinfoid from hbird_user_invite as base1 JOIN hbird_user_info as base2 on base1.invite_user_info_id=base2.id where invite_user_info_id=:userInfoId and type=:type and create_date>=:beginTime;")
+    Map<String,Object> getInvitedUserNickName(@Param("userInfoId") String userInfoId, @Param("beginTime") String beginTime, @Param("type") int type);
 }

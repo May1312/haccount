@@ -13,6 +13,7 @@ import com.fnjz.front.enums.QiNiuEnum;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.*;
+import com.fnjz.front.utils.newWeChat.WeChatUtils;
 import com.fnjz.utils.upload.QiNiuUploadFileUtils;
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
@@ -50,6 +51,9 @@ public class UserInfoRestController extends BaseController {
 
     @Autowired
     private UserLoginRestServiceI userLoginRestServiceI;
+
+    @Autowired
+    private WeChatUtils weChatUtils;
 
     @ApiOperation(value = "绑定/更换手机号")
     @ApiImplicitParams({
@@ -144,7 +148,7 @@ public class UserInfoRestController extends BaseController {
             UserLoginRestEntity userLoginRestEntity = redisTemplateUtils.getUserLoginRestEntityCache(key);
             if (StringUtils.isNotEmpty(userLoginRestEntity.getMobile()) && StringUtils.isNotEmpty(userLoginRestEntity.getPassword())) {
                 //获取unionid
-                JSONObject user = WeChatUtils.getUser(map.get("code"));
+                JSONObject user = weChatUtils.getUser(map.get("code"));
                 if (user == null) {
                     return new ResultBean(ApiResultType.WECHAT_BIND_ERROR, null);
                 }

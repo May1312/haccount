@@ -31,4 +31,20 @@ public interface UserAssetsRestServiceI extends CommonService{
      * @param map
      */
     void deleteAT2Mark(String userInfoId, Map<String,Object> map);
+
+    /**
+     * 获取用户资产 v2
+     * @param userInfoId
+     * @param shareCode
+     * @param flag
+     * @return
+     */
+    JSONObject getAssetsv2(String userInfoId, String shareCode, String flag);
+
+    /**
+     * v2
+     * @param userInfoId
+     * @param map
+     */
+    void saveOrUpdateAssetsv2(String userInfoId, Map<String,Object> map);
 }

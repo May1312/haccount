@@ -1,5 +1,7 @@
 package com.fnjz.front.entity.api.userassets;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.persistence.Column;
 import java.math.BigDecimal;
 
@@ -28,6 +30,26 @@ public class UserAssetsRestDTO implements java.io.Serializable {
      * 创建日期
      */
     private java.util.Date createDate;
+
+    /**
+     * 资产名称
+     */
+    private String assetsName;
+
+    /**
+     * 资产图标
+     */
+    private String icon;
+
+    /**
+     * 优先级   升序
+     */
+    private Integer priority;
+
+    /**
+     * 是否默认账户标记  0:非默认 1:默认,
+     */
+    private Integer mark = 0;
 
     /**
      * 方法: 取得java.util.Date
@@ -103,5 +125,66 @@ public class UserAssetsRestDTO implements java.io.Serializable {
      */
     public void setCreateDate(java.util.Date createDate) {
         this.createDate = createDate;
+    }
+
+    @Column(name = "ASSETS_NAME")
+    public String getAssetsName() {
+        return assetsName;
+    }
+
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
+    }
+
+    @Column(name = "ICON")
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    @Column(name = "PRIORITY")
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+
+    /**
+     * 重新equals方法
+     * 校验 assetsType数值相等
+     *
+     * @return
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null) {
+            //自己和自己比较时,直接返回true
+            if (obj == this) {
+                return true;
+            }
+            //判断是否是同类型的对象进行比较
+            if (obj instanceof UserAssetsRestDTO) {
+                UserAssetsRestDTO dto = (UserAssetsRestDTO) obj;
+                if (StringUtils.equals(dto.assetsType + "", this.assetsType + "")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Column(name = "MARK")
+    public Integer getMark() {
+        return mark;
+    }
+
+    public void setMark(Integer mark) {
+        this.mark = mark;
     }
 }

@@ -114,5 +114,4 @@ public class GoodsRestDTO implements java.io.Serializable {
 	public void setListPicture(String listPicture){
 		this.listPicture = listPicture;
 	}
-
 }
