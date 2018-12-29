@@ -62,7 +62,6 @@ public class UserAssetsRestController extends BaseController {
                 return new ResultBean(ApiResultType.SERVER_ERROR, null);
             }
         }
-
     }
 
     /**
