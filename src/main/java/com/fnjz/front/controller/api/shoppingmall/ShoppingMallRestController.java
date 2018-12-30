@@ -130,14 +130,14 @@ public class ShoppingMallRestController {
                 //移动端校验验证码
                 if (StringUtils.equals(type, "ios") || StringUtils.equals(type, "android")) {
                     ResultBean resultBean = cashCheck(map);
-                    if (StringUtils.equals(resultBean.getCode(), "200")) {
+                    if (!StringUtils.equals(resultBean.getCode(), "200")) {
                         return resultBean;
                     }
                     //定义1  小程序  2 移动端
                     map.put("channel", "2");
                 } else {
                     ResultBean resultBean = cashCheck(map);
-                    if (StringUtils.equals(resultBean.getCode(), "200")) {
+                    if (!StringUtils.equals(resultBean.getCode(), "200")) {
                         return resultBean;
                     }
                     //定义1  小程序
