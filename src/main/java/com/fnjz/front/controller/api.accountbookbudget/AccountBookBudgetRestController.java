@@ -167,6 +167,7 @@ public class AccountBookBudgetRestController extends BaseController {
             } else {
                 //执行新增流程 此种情况只适用于第一次设置预算
                 budget.setCreateBy(Integer.valueOf(userInfoId));
+                budget.setUpdateBy(Integer.valueOf(userInfoId));
                 int i = accountBookBudgetRestService.saveOrUpdate(budget, false);
                 if (i < 0) {
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
