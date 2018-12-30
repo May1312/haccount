@@ -136,6 +136,10 @@ public class ShoppingMallRestController {
                     //定义1  小程序  2 移动端
                     map.put("channel", "2");
                 } else {
+                    ResultBean resultBean = cashCheck(map);
+                    if (StringUtils.equals(resultBean.getCode(), "200")) {
+                        return resultBean;
+                    }
                     //定义1  小程序
                     map.put("channel", "1");
                 }
