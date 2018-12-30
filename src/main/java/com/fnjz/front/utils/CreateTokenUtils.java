@@ -197,6 +197,7 @@ public class CreateTokenUtils {
                     addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                 } else if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
+                    logger.info("=====================积分返利开始0:"+shareCode);
                     //加入积分返利
                     addIntegralByInvitedUser(shareCode, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                 } else {
@@ -248,6 +249,7 @@ public class CreateTokenUtils {
     private void addIntegralByInvitedUser(String userInfoId, FengFengTicketRestEntity ff, CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum) {
         //查看当前用户是否存在被邀请用户
         Map<String, Object> map = userInviteRestDao.getInvitedUserNickName(userInfoId, beginTime, 1);
+        logger.info("=====================积分返利开始1:"+JSON.toJSONString(map));
         if (map != null) {
             if (map.size() > 0) {
                 if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
@@ -260,6 +262,8 @@ public class CreateTokenUtils {
                     //addIntegralByInvitedUser(map.get("userinfoid")+"",ff,categoryOfBehaviorEnum,acquisitionModeEnum);  递归！！
                     //todo 邀请好友 层级关系为2层
                     Map<String, Object> map2 = userInviteRestDao.getInvitedUserNickName(map.get("userinfoid") + "", beginTime, 1);
+                    logger.info("=====================积分返利开始2:"+JSON.toJSONString(map));
+
                     if (map2 != null) {
                         if (map2.size() > 0) {
                             logger.info("积分返利（）第二层受益人:"+map.get("userinfoid"));
