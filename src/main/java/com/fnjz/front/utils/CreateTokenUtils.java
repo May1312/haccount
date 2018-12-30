@@ -161,13 +161,13 @@ public class CreateTokenUtils {
      * @param acquisitionModeEnum
      * 邀请人id   被邀请人id--->邀请人Inviting_friends
      */
-    public void integralTask(String userInfoId, String shareCode, CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum) {
-        boolean flag = this.checkTaskComplete(categoryOfBehaviorEnum, acquisitionModeEnum, userInfoId, shareCode);
+    public void integralTask(String userInfoId, String shareCode2, CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum) {
+        boolean flag = this.checkTaskComplete(categoryOfBehaviorEnum, acquisitionModeEnum, userInfoId, shareCode2);
         if (!flag) {
             //获取需要绑定的积分数
             FengFengTicketRestEntity fengFengTicketRestEntity = this.getFengFengTicket(acquisitionModeEnum);
             if (fengFengTicketRestEntity != null) {
-                shareCode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
+                String shareCode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
                 if (acquisitionModeEnum.equals(AcquisitionModeEnum.The_invitation_came_to_five)) {
                     //当日邀请达5人  判断人数
                     int countForInvitedUsers = userInviteRestDao.getCountForInvitedUsersv2(userInfoId);
