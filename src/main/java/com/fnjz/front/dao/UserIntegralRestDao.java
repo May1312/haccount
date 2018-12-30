@@ -79,7 +79,7 @@ public interface UserIntegralRestDao {
      * @return
      */
     @ResultType(UserIntegralRestEntity.class)
-    @Sql("select * from hbird_user_integral where user_info_id=:userInfoId and if(:categoryOfBehaviorEnum=1,category_of_behavior=:categoryOfBehaviorEnum,category_of_behavior=:categoryOfBehaviorEnum and create_date like concat(CURRENT_DATE,'%'));")
+    @Sql("select * from hbird_user_integral where user_info_id=:userInfoId and if(:categoryOfBehaviorEnum=1,category_of_behavior=:categoryOfBehaviorEnum,category_of_behavior=:categoryOfBehaviorEnum and create_date like concat(CURRENT_DATE,'%')) GROUP BY  type;")
     List<UserIntegralRestEntity> getTaskComplete(@Param("categoryOfBehaviorEnum") int categoryOfBehaviorEnum,@Param("userInfoId") String userInfoId);
 
     /**
