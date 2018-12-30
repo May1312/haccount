@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.controller.api.shoppingmall.ShoppingMallRestController;
 import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
@@ -15,6 +16,7 @@ import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.jeecgframework.jwt.def.JwtConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,6 +33,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class CreateTokenUtils {
+
+    private static final Logger logger = Logger.getLogger(CreateTokenUtils.class);
+
 
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
@@ -246,6 +251,7 @@ public class CreateTokenUtils {
         if (map != null) {
             if (map.size() > 0) {
                 if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
+                    logger.info("积分返利（）第一层受益人:"+map.get("userinfoid") + " 注册用户:"+userInfoId);
                     BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
                     BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
                     String desc = "[" + (map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")) + "]";
@@ -256,6 +262,7 @@ public class CreateTokenUtils {
                     Map<String, Object> map2 = userInviteRestDao.getInvitedUserNickName(map.get("userinfoid") + "", beginTime, 1);
                     if (map2 != null) {
                         if (map2.size() > 0) {
+                            logger.info("积分返利（）第二层受益人:"+map.get("userinfoid"));
                             BigDecimal bigDecimal2 = new BigDecimal(ff.getBehaviorTicketValue());
                             BigDecimal multiply2 = bigDecimal2.multiply(new BigDecimal(percentage));
                             String desc2 = "[" + (map2.get("nickname") == null ? "蜂鸟用户" : map2.get("nickname")) + "]";
