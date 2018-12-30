@@ -197,9 +197,9 @@ public class CreateTokenUtils {
                     addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                 } else if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
-                    logger.info("=====================积分返利开始0:"+shareCode);
+                    logger.info("=====================积分返利开始0:"+shareCode2);
                     //加入积分返利
-                    addIntegralByInvitedUser(shareCode, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
+                    addIntegralByInvitedUser(shareCode2, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                 } else {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
                     updateTaskStatus(shareCode, categoryOfBehaviorEnum, acquisitionModeEnum);
