@@ -1,5 +1,6 @@
 package com.fnjz.front.service.impl.api.usersignin;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.*;
@@ -206,6 +207,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             Iterator iterator = jsonObject.keySet().iterator();
             int value = Integer.valueOf(iterator.next() + "");
             logger.info("周期最大数:"+value);
+            logger.info("周期list:"+ JSON.toJSONString(list));
             if ((Integer.valueOf(map.get("signInDays") + "") + 1) % (value + 1) == 0) {
                 logger.info("达到周期上限28:"+value);
                 //达到周期上限
