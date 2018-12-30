@@ -309,7 +309,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                 int userInfoId = ShareCodeUtil.sharecode2id(map.get("inviteCode"));
                 userInviteRestDao.insert(userInfoId, insertId);
                 //引入当日任务---->邀请好友
-                createTokenUtils.integralTask(userInfoId + "", map.get("inviteCode"), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
+                createTokenUtils.integralTask(userInfoId + "", insertId+"", CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
                 //引入当日任务---->邀请达5人
                 createTokenUtils.integralTask(userInfoId + "", null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_invitation_came_to_five);
                 //小程序----->服务通知

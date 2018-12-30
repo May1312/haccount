@@ -154,6 +154,7 @@ public class CreateTokenUtils {
      *
      * @param categoryOfBehaviorEnum
      * @param acquisitionModeEnum
+     * 邀请人id   被邀请人id--->邀请人Inviting_friends
      */
     public void integralTask(String userInfoId, String shareCode, CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum) {
         boolean flag = this.checkTaskComplete(categoryOfBehaviorEnum, acquisitionModeEnum, userInfoId, shareCode);
@@ -168,6 +169,8 @@ public class CreateTokenUtils {
                     if (countForInvitedUsers >= 5) {
                         this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
                         updateTaskStatus(shareCode, categoryOfBehaviorEnum, acquisitionModeEnum);
+                        //加入积分返利
+                        addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                     }
                 } else if (acquisitionModeEnum.equals(AcquisitionModeEnum.The_bookkeeping_came_to_three)) {
                     //当日记账达3笔
@@ -175,6 +178,8 @@ public class CreateTokenUtils {
                     if (count >= 3) {
                         this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
                         updateTaskStatus(shareCode, categoryOfBehaviorEnum, acquisitionModeEnum);
+                        //加入积分返利
+                        addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                     }
                 } else if (acquisitionModeEnum.equals(AcquisitionModeEnum.Become_hbird_user)) {
                     //成为蜂鸟记账用户
@@ -183,14 +188,19 @@ public class CreateTokenUtils {
                     userIntegralRestDao.insertForTotalIntegral(userInfoId, new BigDecimal(fengFengTicketRestEntity.getBehaviorTicketValue()), 1);
                     //设置注册积分奖励弹框
                     redisTemplateUtils.cacheForString(RedisPrefix.USER_REGISTER_INTEGRAL + shareCode, fengFengTicketRestEntity.getBehaviorTicketValue() + "", RedisPrefix.USER_VALID_TIME);
+                    //加入积分返利
+                    addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                 } else if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
+                    //加入积分返利
+                    addIntegralByInvitedUser(shareCode, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                 } else {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
                     updateTaskStatus(shareCode, categoryOfBehaviorEnum, acquisitionModeEnum);
+                    //加入积分返利
+                    addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                 }
-                //加入积分返利
-                addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
+
             }
         }
     }
