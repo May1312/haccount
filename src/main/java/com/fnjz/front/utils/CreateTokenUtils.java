@@ -116,7 +116,7 @@ public class CreateTokenUtils {
         //邀请好友可以多次触发
         if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
             //缓存邀请好友人数
-            redisTemplateUtils.incrementForHash(RedisPrefix.USER_INVITE_COUNT + shareCode, "inviteCount", 1);
+            redisTemplateUtils.incrementForHash(RedisPrefix.USER_INVITE_COUNT + ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), "inviteCount", 1);
             return false;
         }
         int count = userIntegralRestDao.checkTaskComplete(categoryOfBehaviorEnum.getIndex(), acquisitionModeEnum.getIndex(), userInfoId);
