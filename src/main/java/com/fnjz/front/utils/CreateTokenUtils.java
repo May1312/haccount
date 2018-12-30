@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.controller.api.userlogin.UserLoginRestController;
 import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
@@ -15,6 +16,7 @@ import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.jeecgframework.jwt.def.JwtConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,6 +33,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class CreateTokenUtils {
+
+    private static final Logger logger = Logger.getLogger(CreateTokenUtils.class);
+
 
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
@@ -156,13 +161,13 @@ public class CreateTokenUtils {
      * @param acquisitionModeEnum
      * 邀请人id   被邀请人id--->邀请人Inviting_friends
      */
-    public void integralTask(String userInfoId, String shareCode, CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum) {
-        boolean flag = this.checkTaskComplete(categoryOfBehaviorEnum, acquisitionModeEnum, userInfoId, shareCode);
+    public void integralTask(String userInfoId, String shareCode2, CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum) {
+        boolean flag = this.checkTaskComplete(categoryOfBehaviorEnum, acquisitionModeEnum, userInfoId, shareCode2);
         if (!flag) {
             //获取需要绑定的积分数
             FengFengTicketRestEntity fengFengTicketRestEntity = this.getFengFengTicket(acquisitionModeEnum);
             if (fengFengTicketRestEntity != null) {
-                shareCode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
+                String shareCode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
                 if (acquisitionModeEnum.equals(AcquisitionModeEnum.The_invitation_came_to_five)) {
                     //当日邀请达5人  判断人数
                     int countForInvitedUsers = userInviteRestDao.getCountForInvitedUsersv2(userInfoId);
@@ -192,8 +197,14 @@ public class CreateTokenUtils {
                     addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                 } else if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
-                    //加入积分返利
-                    addIntegralByInvitedUser(shareCode, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
+                    logger.info("=====================积分返利开始0:"+shareCode2);
+                    //查看当前用户是否存在被邀请用户  todo 重复代码
+                    Map<String, Object> map = userInviteRestDao.getInvitedUserNickName(userInfoId, beginTime, 1);
+                    if (map != null) {
+                        if (map.size() > 0) {
+                            addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
+                        }
+                    }
                 } else {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
                     updateTaskStatus(shareCode, categoryOfBehaviorEnum, acquisitionModeEnum);
@@ -204,6 +215,7 @@ public class CreateTokenUtils {
             }
         }
     }
+
 
     /**
      * 更新账本最后同步时间
@@ -243,33 +255,38 @@ public class CreateTokenUtils {
     private void addIntegralByInvitedUser(String userInfoId, FengFengTicketRestEntity ff, CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum) {
         //查看当前用户是否存在被邀请用户
         Map<String, Object> map = userInviteRestDao.getInvitedUserNickName(userInfoId, beginTime, 1);
+        logger.info("=====================积分返利开始1:"+JSON.toJSONString(map));
         if (map != null) {
             if (map.size() > 0) {
-                if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
-                    BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
-                    BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
-                    String desc = "[" + (map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")) + "]";
-                    userIntegralRestDao.insertSignInIntegral(map.get("userinfoid") + "", ff.getId() + "", null, desc + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply.doubleValue());
-                    userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply);
-                    //addIntegralByInvitedUser(map.get("userinfoid")+"",ff,categoryOfBehaviorEnum,acquisitionModeEnum);  递归！！
-                    //todo 邀请好友 层级关系为2层
-                    Map<String, Object> map2 = userInviteRestDao.getInvitedUserNickName(map.get("userinfoid") + "", beginTime, 1);
-                    if (map2 != null) {
-                        if (map2.size() > 0) {
-                            BigDecimal bigDecimal2 = new BigDecimal(ff.getBehaviorTicketValue());
-                            BigDecimal multiply2 = bigDecimal2.multiply(new BigDecimal(percentage));
-                            String desc2 = "[" + (map2.get("nickname") == null ? "蜂鸟用户" : map2.get("nickname")) + "]";
-                            userIntegralRestDao.insertSignInIntegral(map2.get("userinfoid") + "", ff.getId() + "", null, desc2 + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply2.doubleValue());
-                            userIntegralRestDao.updateForTotalIntegral(map2.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply2);
-                        }
-                    }
-                } else {
-                    BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
-                    BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
-                    String desc = "[" + (map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")) + "]";
-                    userIntegralRestDao.insertSignInIntegral(map.get("userinfoid") + "", ff.getId() + "", null, desc + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply.doubleValue());
-                    userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply);
-                }
+//                if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
+//                    logger.info("积分返利（）第一层受益人:"+map.get("userinfoid") + " 注册用户:"+userInfoId);
+//                    BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
+//                    BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
+//                    String desc = "[" + (map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")) + "]";
+//                    userIntegralRestDao.insertSignInIntegral(map.get("userinfoid") + "", ff.getId() + "", null, desc + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply.doubleValue());
+//                    userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply);
+//                    //addIntegralByInvitedUser(map.get("userinfoid")+"",ff,categoryOfBehaviorEnum,acquisitionModeEnum);  递归！！
+//                    //todo 邀请好友 层级关系为2层
+//                    Map<String, Object> map2 = userInviteRestDao.getInvitedUserNickName(map.get("userinfoid") + "", beginTime, 1);
+//                    logger.info("=====================积分返利开始2:"+JSON.toJSONString(map));
+//
+//                    if (map2 != null) {
+//                        if (map2.size() > 0) {
+//                            logger.info("积分返利（）第二层受益人:"+map2.get("userinfoid"));
+//                            BigDecimal bigDecimal2 = new BigDecimal(ff.getBehaviorTicketValue());
+//                            BigDecimal multiply2 = bigDecimal2.multiply(new BigDecimal(percentage));
+//                            String desc2 = "[" + (map2.get("nickname") == null ? "蜂鸟用户" : map2.get("nickname")) + "]";
+//                            userIntegralRestDao.insertSignInIntegral(map2.get("userinfoid") + "", ff.getId() + "", null, desc2 + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply2.doubleValue());
+//                            userIntegralRestDao.updateForTotalIntegral(map2.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply2);
+//                        }
+//                    }
+//                } else {
+                BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
+                BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
+                String desc = "[" + (map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")) + "]";
+                userIntegralRestDao.insertSignInIntegral(map.get("userinfoid") + "", ff.getId() + "", null, desc + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply.doubleValue());
+                userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply);
+                //}
             }
         }
     }
