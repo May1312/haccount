@@ -202,7 +202,7 @@ public class CreateTokenUtils {
                     Map<String, Object> map = userInviteRestDao.getInvitedUserNickName(userInfoId, beginTime, 1);
                     if (map != null) {
                         if (map.size() > 0) {
-                            addIntegralByInvitedUser(shareCode2, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
+                            addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                         }
                     }
                 } else {
