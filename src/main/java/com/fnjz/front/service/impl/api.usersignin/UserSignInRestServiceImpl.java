@@ -203,9 +203,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         logger.info("当前时间:"+now.toString());
         if (now.isAfter(before) && now.isBefore(after)) {
             //获取最大周数
-            JSONObject jsonObject = JSONObject.parseObject(list.get(list.size() - 1));
-            Iterator iterator = jsonObject.keySet().iterator();
-            int value = Integer.valueOf(iterator.next() + "");
+            Integer value = getMaxCycle(list);
             logger.info("周期最大数:"+value);
             logger.info("周期list:"+ JSON.toJSONString(list));
             if ((Integer.valueOf(map.get("signInDays") + "") + 1) % (value + 1) == 0) {
