@@ -172,11 +172,22 @@ public class ShoppingMallRestController {
         try {
             String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
             logger.info("redis红包兑换验证码："+code);
-            rb = ParamValidateUtils.checkVerifycode(map, code);
+            rb = checkVerifycode(map, code);
             return rb;
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    private ResultBean checkVerifycode(Map<String, String> map, String code) {
+        if (StringUtils.isEmpty(code)) {
+            return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
+        }
+        if (StringUtils.equals(code, map.get("verifyCode"))) {
+            return new ResultBean(ApiResultType.OK, null);
+        } else {
+            return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
         }
     }
 
