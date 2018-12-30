@@ -198,7 +198,6 @@ public class CreateTokenUtils {
                 } else if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
                     logger.info("=====================积分返利开始0:"+shareCode2);
-                    //加入积分返利
                     addIntegralByInvitedUser(shareCode2, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                 } else {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
@@ -252,35 +251,35 @@ public class CreateTokenUtils {
         logger.info("=====================积分返利开始1:"+JSON.toJSONString(map));
         if (map != null) {
             if (map.size() > 0) {
-                if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
-                    logger.info("积分返利（）第一层受益人:"+map.get("userinfoid") + " 注册用户:"+userInfoId);
+//                if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
+//                    logger.info("积分返利（）第一层受益人:"+map.get("userinfoid") + " 注册用户:"+userInfoId);
+//                    BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
+//                    BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
+//                    String desc = "[" + (map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")) + "]";
+//                    userIntegralRestDao.insertSignInIntegral(map.get("userinfoid") + "", ff.getId() + "", null, desc + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply.doubleValue());
+//                    userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply);
+//                    //addIntegralByInvitedUser(map.get("userinfoid")+"",ff,categoryOfBehaviorEnum,acquisitionModeEnum);  递归！！
+//                    //todo 邀请好友 层级关系为2层
+//                    Map<String, Object> map2 = userInviteRestDao.getInvitedUserNickName(map.get("userinfoid") + "", beginTime, 1);
+//                    logger.info("=====================积分返利开始2:"+JSON.toJSONString(map));
+//
+//                    if (map2 != null) {
+//                        if (map2.size() > 0) {
+//                            logger.info("积分返利（）第二层受益人:"+map2.get("userinfoid"));
+//                            BigDecimal bigDecimal2 = new BigDecimal(ff.getBehaviorTicketValue());
+//                            BigDecimal multiply2 = bigDecimal2.multiply(new BigDecimal(percentage));
+//                            String desc2 = "[" + (map2.get("nickname") == null ? "蜂鸟用户" : map2.get("nickname")) + "]";
+//                            userIntegralRestDao.insertSignInIntegral(map2.get("userinfoid") + "", ff.getId() + "", null, desc2 + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply2.doubleValue());
+//                            userIntegralRestDao.updateForTotalIntegral(map2.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply2);
+//                        }
+//                    }
+//                } else {
                     BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
                     BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
                     String desc = "[" + (map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")) + "]";
                     userIntegralRestDao.insertSignInIntegral(map.get("userinfoid") + "", ff.getId() + "", null, desc + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply.doubleValue());
                     userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply);
-                    //addIntegralByInvitedUser(map.get("userinfoid")+"",ff,categoryOfBehaviorEnum,acquisitionModeEnum);  递归！！
-                    //todo 邀请好友 层级关系为2层
-                    Map<String, Object> map2 = userInviteRestDao.getInvitedUserNickName(map.get("userinfoid") + "", beginTime, 1);
-                    logger.info("=====================积分返利开始2:"+JSON.toJSONString(map));
-
-                    if (map2 != null) {
-                        if (map2.size() > 0) {
-                            logger.info("积分返利（）第二层受益人:"+map.get("userinfoid"));
-                            BigDecimal bigDecimal2 = new BigDecimal(ff.getBehaviorTicketValue());
-                            BigDecimal multiply2 = bigDecimal2.multiply(new BigDecimal(percentage));
-                            String desc2 = "[" + (map2.get("nickname") == null ? "蜂鸟用户" : map2.get("nickname")) + "]";
-                            userIntegralRestDao.insertSignInIntegral(map2.get("userinfoid") + "", ff.getId() + "", null, desc2 + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply2.doubleValue());
-                            userIntegralRestDao.updateForTotalIntegral(map2.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply2);
-                        }
-                    }
-                } else {
-                    BigDecimal bigDecimal = new BigDecimal(ff.getBehaviorTicketValue());
-                    BigDecimal multiply = bigDecimal.multiply(new BigDecimal(percentage));
-                    String desc = "[" + (map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")) + "]";
-                    userIntegralRestDao.insertSignInIntegral(map.get("userinfoid") + "", ff.getId() + "", null, desc + AcquisitionModeEnum.BONUS.getDescription(), AcquisitionModeEnum.BONUS.getIndex(), categoryOfBehaviorEnum.getIndex(), multiply.doubleValue());
-                    userIntegralRestDao.updateForTotalIntegral(map.get("userinfoid") + "", ff.getBehaviorTicketValue(), multiply);
-                }
+                //}
             }
         }
     }
