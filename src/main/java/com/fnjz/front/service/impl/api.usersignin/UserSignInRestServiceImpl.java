@@ -180,6 +180,7 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             System.out.println(3);
         }
     }
+
     private Map signInForCache(String userInfoId, String shareCode) {
         Map map = redisTemplateUtils.getForHash(PREFIX_SIGN_IN + shareCode);
         //读取签到奖励规则
@@ -198,21 +199,26 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
         //Date dateOfEnd = DateUtils.fetchEndOfDay(nextDay);
         //long now = System.currentTimeMillis();
         LocalDateTime now = LocalDateTime.now();
+        logger.info("当前时间:"+now.toString());
         if (now.isAfter(before) && now.isBefore(after)) {
             //获取最大周数
             JSONObject jsonObject = JSONObject.parseObject(list.get(list.size() - 1));
             Iterator iterator = jsonObject.keySet().iterator();
             int value = Integer.valueOf(iterator.next() + "");
+            logger.info("周期最大数:"+value);
             if ((Integer.valueOf(map.get("signInDays") + "") + 1) % (value + 1) == 0) {
+                logger.info("达到周期上限28:"+value);
                 //达到周期上限
                 map.put("signInDays", 1);
             } else {
+                logger.info("连签天数加1:"+value);
                 map.put("signInDays", (Integer.valueOf(map.get("signInDays") + "") + 1));
             }
             map.put("signInDate", System.currentTimeMillis());
             //修改奖励领取状态
             resetSignInAward(Integer.valueOf(userInfoId), Integer.valueOf(map.get("signInDays") + ""), list);
         } else if (now.isAfter(after)) {
+            logger.info("存在间隔天:"+now.toString());
             //置空
             map.put("signInDays", 1);
             map.put("signInDate", System.currentTimeMillis());
