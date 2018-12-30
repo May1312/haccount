@@ -198,7 +198,13 @@ public class CreateTokenUtils {
                 } else if (acquisitionModeEnum.equals(AcquisitionModeEnum.Inviting_friends)) {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
                     logger.info("=====================积分返利开始0:"+shareCode2);
-                    addIntegralByInvitedUser(shareCode2, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
+                    //查看当前用户是否存在被邀请用户  todo 重复代码
+                    Map<String, Object> map = userInviteRestDao.getInvitedUserNickName(userInfoId, beginTime, 1);
+                    if (map != null) {
+                        if (map.size() > 0) {
+                            addIntegralByInvitedUser(shareCode2, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
+                        }
+                    }
                 } else {
                     this.insertInIntegral(userInfoId, fengFengTicketRestEntity, acquisitionModeEnum, categoryOfBehaviorEnum);
                     updateTaskStatus(shareCode, categoryOfBehaviorEnum, acquisitionModeEnum);
