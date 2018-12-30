@@ -127,6 +127,7 @@ public class ShoppingMallRestController {
             GoodsRestEntity goodsRestEntity = shoppingMallRestService.getGoodsById(Integer.valueOf(map.get("goodsId")));
             //现金红包类型商品  校验手机号验证码
             if (goodsRestEntity.getGoodsType() == 3) {
+                logger.info("红包兑换验证码："+JSON.toJSONString(map));
                 //移动端校验验证码
                 if (StringUtils.equals(type, "ios") || StringUtils.equals(type, "android")) {
                     ResultBean resultBean = cashCheck(map);
@@ -170,6 +171,7 @@ public class ShoppingMallRestController {
         //校验验证码
         try {
             String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
+            logger.info("redis红包兑换验证码："+code);
             rb = ParamValidateUtils.checkVerifycode(map, code);
             return rb;
         } catch (Exception e) {

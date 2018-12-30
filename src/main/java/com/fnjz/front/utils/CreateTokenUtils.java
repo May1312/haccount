@@ -7,7 +7,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.controller.api.shoppingmall.ShoppingMallRestController;
 import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
@@ -215,6 +214,7 @@ public class CreateTokenUtils {
             }
         }
     }
+
 
     /**
      * 更新账本最后同步时间
