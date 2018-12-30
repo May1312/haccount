@@ -738,9 +738,17 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
      * @return
      */
     private Integer getMaxCycle(List<String> list) {
-        //获取最大周数
-        JSONObject jsonObject = JSONObject.parseObject(list.get(list.size() - 1));
-        Iterator iterator = jsonObject.keySet().iterator();
-        return Integer.valueOf(iterator.next() + "");
+        Integer value = 0;
+        for(int i=0;i<list.size();i++){
+            //获取最大周数
+            JSONObject jsonObject = JSONObject.parseObject(list.get(i));
+            Iterator iterator = jsonObject.keySet().iterator();
+            Integer value1 = Integer.valueOf(iterator.next() + "");
+            if(value1>value){
+                value=value1;
+            }
+        }
+        return value;
     }
+
 }
