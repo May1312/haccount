@@ -205,7 +205,7 @@ public class ShareCodeUtil {
         int a = 10;
     }
     public static void main(String[] args){
-        String str2 = id2sharecode(18170);
+        String str2 = id2sharecode(37989);
         System.out.println(str2);
         int str4 = sharecode2id("99933051");
         System.out.println(str4);
