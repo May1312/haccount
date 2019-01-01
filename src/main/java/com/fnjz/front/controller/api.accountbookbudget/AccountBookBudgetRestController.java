@@ -1,5 +1,6 @@
 package com.fnjz.front.controller.api.accountbookbudget;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
@@ -139,9 +140,11 @@ public class AccountBookBudgetRestController extends BaseController {
         } else {
             budgetResult = accountBookBudgetRestService.getLatelyBudgetv2(budget.getAccountBookId());
         }
+        logger.info("获取预算值 新增or更新:"+ JSON.toJSONString(budgetResult));
         //校验金额
         try {
             if (budgetResult != null) {
+                logger.info("获取预算值 更新入参:"+ JSON.toJSONString(budget));
                 //执行更新流程
                 budget.setUpdateBy(Integer.valueOf(userInfoId));
                 budget.setId(budgetResult.getId());
@@ -168,6 +171,7 @@ public class AccountBookBudgetRestController extends BaseController {
                 //执行新增流程 此种情况只适用于第一次设置预算
                 budget.setCreateBy(Integer.valueOf(userInfoId));
                 budget.setUpdateBy(Integer.valueOf(userInfoId));
+                logger.info("获取预算值 新增入参:"+ JSON.toJSONString(budget));
                 int i = accountBookBudgetRestService.saveOrUpdate(budget, false);
                 if (i < 0) {
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
