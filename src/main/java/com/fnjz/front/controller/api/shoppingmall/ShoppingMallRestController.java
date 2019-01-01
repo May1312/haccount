@@ -171,7 +171,7 @@ public class ShoppingMallRestController {
      */
     @Transactional
     public ResultBean cashCheck(Map<String, String> map) {
-        ResultBean rb;
+        ResultBean rb = null;
         if (StringUtils.isEmpty(map.get("exchangeMobile"))) {
             rb = new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
             return rb;
@@ -179,14 +179,12 @@ public class ShoppingMallRestController {
         //校验验证码
         try {
             long time = System.currentTimeMillis()+TIMEOUT;
-            if(!redislock.lock(map.get("exchangeMobile"),String.valueOf(time))){
-                //throw new Exception(101,"换个姿势再试试")
-                logger.info("索失败");
+            if(redislock.lock(map.get("exchangeMobile"))) {
+                String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
+                logger.info("redis红包兑换验证码："+code);
+                rb = checkVerifycode(map, code);
             }
-            String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
-            logger.info("redis红包兑换验证码："+code);
-            rb = checkVerifycode(map, code);
-            redislock.unlock(map.get("exchangeMobile"),String.valueOf(time));
+            redislock.unlock(map.get("exchangeMobile"));
             logger.info("释放锁");
             return rb;
         } catch (Exception e) {
