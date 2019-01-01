@@ -14,6 +14,7 @@ import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
 import com.fnjz.front.service.api.userinfoaddfield.UserInfoAddFieldRestService;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
+import com.fnjz.front.utils.RedisLockUtils;
 import com.fnjz.front.utils.newWeChat.WeChatUtils;
 import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
@@ -111,7 +112,8 @@ public class ShoppingMallRestController {
     /**
      * 锁
      */
-    private final StampedLock lock = new StampedLock();
+    @Autowired
+    private RedisLockUtils redisLock;
 
     /**
      * 积分兑换  map扩展加入地址信息
@@ -129,13 +131,13 @@ public class ShoppingMallRestController {
             if (flag) {
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW2, null);
             }
+            //加锁
+            redisLock.lock(userInfoId);
             //根据商品id或消耗积分数+用户拥有总积分数
             GoodsRestEntity goodsRestEntity = shoppingMallRestService.getGoodsById(Integer.valueOf(map.get("goodsId")));
             //现金红包类型商品  校验手机号验证码
             if (goodsRestEntity.getGoodsType() == 3) {
                 logger.info("红包兑换验证码："+JSON.toJSONString(map));
-                //加入锁校
-                long stamp = lock.writeLock();
                 //移动端校验验证码
                 if (StringUtils.equals(type, "ios") || StringUtils.equals(type, "android")) {
                     ResultBean resultBean = cashCheck(map);
@@ -152,8 +154,6 @@ public class ShoppingMallRestController {
                     //定义1  小程序
                     map.put("channel", "1");
                 }
-                //释放锁
-                lock.unlockWrite(stamp);
             }
             //总积分数统计
             double integralTotal = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
@@ -162,6 +162,8 @@ public class ShoppingMallRestController {
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW, null);
             }
             JSONObject jsonObject = shoppingMallRestService.toExchange(map, goodsRestEntity, userInfoId);
+            //释放锁
+            redisLock.unlock(userInfoId);
             return new ResultBean(ApiResultType.OK, jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -192,10 +194,10 @@ public class ShoppingMallRestController {
 
     private ResultBean checkVerifycode(Map<String, String> map, String code) {
         if (StringUtils.isEmpty(code)) {
-            redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
             return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
         }
         if (StringUtils.equals(code, map.get("verifyCode"))) {
+            redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
             return new ResultBean(ApiResultType.OK, null);
         } else {
             return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
