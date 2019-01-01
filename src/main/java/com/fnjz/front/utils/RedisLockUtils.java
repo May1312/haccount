@@ -2,13 +2,14 @@ package com.fnjz.front.utils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RedisLockUtils {
     @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    private RedisTemplate stringRedisTemplate;
 
 
     /***
@@ -22,10 +23,10 @@ public class RedisLockUtils {
             return true;
         }
         //如果锁超时 ***
-        String currentValue = stringRedisTemplate.opsForValue().get(key);
+        String currentValue = (String) stringRedisTemplate.opsForValue().get(key);
         if(!StringUtils.isEmpty(currentValue) && Long.parseLong(currentValue)<System.currentTimeMillis()){
             //获取上一个锁的时间
-            String oldvalue  = stringRedisTemplate.opsForValue().getAndSet(key,value);
+            String oldvalue  = (String) stringRedisTemplate.opsForValue().getAndSet(key,value);
             if(!StringUtils.isEmpty(oldvalue)&&oldvalue.equals(currentValue)){
                 return true;
             }
@@ -40,7 +41,7 @@ public class RedisLockUtils {
      */
     public void unlock(String key,String value){
         try {
-            String currentValue = stringRedisTemplate.opsForValue().get(key);
+            String currentValue = (String)stringRedisTemplate.opsForValue().get(key);
             if(!StringUtils.isEmpty(currentValue)&&currentValue.equals(value)){
                 stringRedisTemplate.opsForValue().getOperations().delete(key);
             }

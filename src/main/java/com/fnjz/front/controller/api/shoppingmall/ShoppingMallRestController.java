@@ -179,11 +179,13 @@ public class ShoppingMallRestController {
             long time = System.currentTimeMillis()+TIMEOUT;
             if(!redislock.lock(map.get("exchangeMobile"),String.valueOf(time))){
                 //throw new Exception(101,"换个姿势再试试")
+                logger.info("索失败");
             }
             String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
             logger.info("redis红包兑换验证码："+code);
             rb = checkVerifycode(map, code);
             redislock.unlock(map.get("exchangeMobile"),String.valueOf(time));
+            logger.info("释放锁");
             return rb;
         } catch (Exception e) {
             logger.error(e.toString());
