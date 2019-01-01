@@ -162,8 +162,6 @@ public class ShoppingMallRestController {
         }
     }
 
-    private static final int TIMEOUT= 10*1000;
-
     @Autowired
     private RedisLockUtils redislock;
     /**
@@ -178,7 +176,6 @@ public class ShoppingMallRestController {
         }
         //校验验证码
         try {
-            long time = System.currentTimeMillis()+TIMEOUT;
             if(redislock.lock(map.get("exchangeMobile"))) {
                 String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
                 logger.info("redis红包兑换验证码："+code);
