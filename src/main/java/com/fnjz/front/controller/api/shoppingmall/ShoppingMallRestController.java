@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.StampedLock;
 
 /**
  * 商城相关
@@ -108,6 +109,11 @@ public class ShoppingMallRestController {
     }
 
     /**
+     * 锁
+     */
+    private final StampedLock lock = new StampedLock();
+
+    /**
      * 积分兑换  map扩展加入地址信息
      *
      * @param map
@@ -128,6 +134,8 @@ public class ShoppingMallRestController {
             //现金红包类型商品  校验手机号验证码
             if (goodsRestEntity.getGoodsType() == 3) {
                 logger.info("红包兑换验证码："+JSON.toJSONString(map));
+                //加入锁校
+                long stamp = lock.writeLock();
                 //移动端校验验证码
                 if (StringUtils.equals(type, "ios") || StringUtils.equals(type, "android")) {
                     ResultBean resultBean = cashCheck(map);
@@ -144,6 +152,8 @@ public class ShoppingMallRestController {
                     //定义1  小程序
                     map.put("channel", "1");
                 }
+                //释放锁
+                lock.unlockWrite(stamp);
             }
             //总积分数统计
             double integralTotal = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
@@ -182,6 +192,7 @@ public class ShoppingMallRestController {
 
     private ResultBean checkVerifycode(Map<String, String> map, String code) {
         if (StringUtils.isEmpty(code)) {
+            redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
             return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
         }
         if (StringUtils.equals(code, map.get("verifyCode"))) {
