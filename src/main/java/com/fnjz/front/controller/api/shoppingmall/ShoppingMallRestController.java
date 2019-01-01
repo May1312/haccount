@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -168,7 +169,8 @@ public class ShoppingMallRestController {
     /**
      * 现金红包类型商品
      */
-    private ResultBean cashCheck(Map<String, String> map) {
+    @Transactional
+    public ResultBean cashCheck(Map<String, String> map) {
         ResultBean rb;
         if (StringUtils.isEmpty(map.get("exchangeMobile"))) {
             rb = new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
