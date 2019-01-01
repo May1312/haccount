@@ -111,6 +111,15 @@ public class ShoppingMallRestController {
     }
 
     /**
+     * <<<<<<< HEAD
+     * =======
+     * 锁
+     */
+    @Autowired
+    private RedisLockUtils redisLock;
+
+    /**
+     * >>>>>>> product
      * 积分兑换  map扩展加入地址信息
      *
      * @param map
@@ -126,11 +135,13 @@ public class ShoppingMallRestController {
             if (flag) {
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW2, null);
             }
+            //加锁
+            redisLock.lock(userInfoId);
             //根据商品id或消耗积分数+用户拥有总积分数
             GoodsRestEntity goodsRestEntity = shoppingMallRestService.getGoodsById(Integer.valueOf(map.get("goodsId")));
             //现金红包类型商品  校验手机号验证码
             if (goodsRestEntity.getGoodsType() == 3) {
-                logger.info("红包兑换验证码："+JSON.toJSONString(map));
+                logger.info("红包兑换验证码：" + JSON.toJSONString(map));
                 //移动端校验验证码
                 if (StringUtils.equals(type, "ios") || StringUtils.equals(type, "android")) {
                     ResultBean resultBean = cashCheck(map);
@@ -155,6 +166,8 @@ public class ShoppingMallRestController {
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW, null);
             }
             JSONObject jsonObject = shoppingMallRestService.toExchange(map, goodsRestEntity, userInfoId);
+            //释放锁
+            redisLock.unlock(userInfoId);
             return new ResultBean(ApiResultType.OK, jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -164,26 +177,22 @@ public class ShoppingMallRestController {
 
     @Autowired
     private RedisLockUtils redislock;
+
     /**
      * 现金红包类型商品
      */
     @Transactional
     public ResultBean cashCheck(Map<String, String> map) {
-        ResultBean rb = null;
+        ResultBean rb;
         if (StringUtils.isEmpty(map.get("exchangeMobile"))) {
             rb = new ResultBean(ApiResultType.USERNAME_OR_PASSWORD_ISNULL, null);
             return rb;
         }
         //校验验证码
         try {
-            if(redislock.lock(map.get("exchangeMobile"))) {
-                String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
-                logger.info("redis红包兑换验证码："+code);
-                rb = checkVerifycode(map, code);
-            }
-            redislock.unlock(map.get("exchangeMobile"));
-            logger.info("释放锁");
-            return rb;
+            String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
+            logger.info("redis红包兑换验证码：" + code);
+            return checkVerifycode(map, code);
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -351,7 +360,7 @@ public class ShoppingMallRestController {
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
                 }
             }
-        }else{
+        } else {
             //insert
             userInfoAddFieldRestService.insertOpenId(userInfoId, openId, 2);
         }
