@@ -136,7 +136,9 @@ public class AccountBookBudgetRestController extends BaseController {
             //格式化日期
             budget.setTime(DateUtils.checkYearMonth(budget.getTime()));
             //判断是否存在预算
-            budgetResult = accountBookBudgetRestService.getLatelyBudget(budget.getTime(), budget.getAccountBookId());
+            //budgetResult = accountBookBudgetRestService.getLatelyBudget(budget.getTime(), budget.getAccountBookId());
+            budgetResult = accountBookBudgetRestService.getLatelyBudgetv2(budget.getTime(), budget.getAccountBookId());
+
         } else {
             budgetResult = accountBookBudgetRestService.getLatelyBudgetv2(budget.getAccountBookId());
         }
@@ -144,12 +146,12 @@ public class AccountBookBudgetRestController extends BaseController {
         //校验金额
         try {
             if (budgetResult != null) {
-                logger.info("获取预算值 更新入参:"+ JSON.toJSONString(budget));
                 //执行更新流程
                 budget.setUpdateBy(Integer.valueOf(userInfoId));
                 budget.setId(budgetResult.getId());
                 budget.setCreateBy(budgetResult.getCreateBy());
                 budget.setCreateDate(budgetResult.getCreateDate());
+                logger.info("获取预算值 更新入参:"+ JSON.toJSONString(budget));
                 int i = accountBookBudgetRestService.saveOrUpdate(budget, true);
                 if (i < 0) {
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
