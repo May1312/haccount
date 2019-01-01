@@ -195,10 +195,10 @@ public class ShoppingMallRestController {
 
     private ResultBean checkVerifycode(Map<String, String> map, String code) {
         if (StringUtils.isEmpty(code)) {
-            redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
             return new ResultBean(ApiResultType.VERIFYCODE_TIME_OUT, null);
         }
         if (StringUtils.equals(code, map.get("verifyCode"))) {
+            redisTemplateUtils.deleteKey(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
             return new ResultBean(ApiResultType.OK, null);
         } else {
             return new ResultBean(ApiResultType.VERIFYCODE_IS_ERROR, null);
