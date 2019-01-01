@@ -47,7 +47,7 @@ public interface ShoppingMallRestDao {
      * @param shoppingMall
      * @param userInfoId
      */
-    @Sql("insert into hbird_shopping_mall_integral_exchange (`id`,`user_info_id`,`goods_id`,`status`,`count`,`consignee_name`,`consignee_mobile`,`consignee_province`,`consignee_city`,`consignee_district`,`consignee_detail`,`create_date`) values (:shoppingMall.id,:userInfoId,:shoppingMall.goodsId,:shoppingMall.status,:shoppingMall.count,:shoppingMall.consigneeName,:shoppingMall.consigneeMobile,:shoppingMall.consigneeProvince,:shoppingMall.consigneeCity,:shoppingMall.consigneeDistrict,:shoppingMall.consigneeDetail,now());")
+    @Sql("insert into hbird_shopping_mall_integral_exchange (`id`,`user_info_id`,`goods_id`,`status`,`count`,`consignee_name`,`consignee_mobile`,`consignee_province`,`consignee_city`,`consignee_district`,`consignee_detail`,`create_date`,`exchange_mobile`) values (:shoppingMall.id,:userInfoId,:shoppingMall.goodsId,:shoppingMall.status,:shoppingMall.count,:shoppingMall.consigneeName,:shoppingMall.consigneeMobile,:shoppingMall.consigneeProvince,:shoppingMall.consigneeCity,:shoppingMall.consigneeDistrict,:shoppingMall.consigneeDetail,now(),:shoppingMall.exchangeMobile);")
     void insertPhysical(@Param("shoppingMall") ShoppingMallIntegralExchangePhysicalRestEntity shoppingMall, @Param("userInfoId")String userInfoId);
 
     @ResultType(ShoppingMallIntegralExchangeRestEntity.class)
