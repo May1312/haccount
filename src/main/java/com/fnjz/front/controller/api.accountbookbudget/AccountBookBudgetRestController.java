@@ -1,5 +1,6 @@
 package com.fnjz.front.controller.api.accountbookbudget;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
@@ -135,10 +136,13 @@ public class AccountBookBudgetRestController extends BaseController {
             //格式化日期
             budget.setTime(DateUtils.checkYearMonth(budget.getTime()));
             //判断是否存在预算
-            budgetResult = accountBookBudgetRestService.getLatelyBudget(budget.getTime(), budget.getAccountBookId());
+            //budgetResult = accountBookBudgetRestService.getLatelyBudget(budget.getTime(), budget.getAccountBookId());
+            budgetResult = accountBookBudgetRestService.getLatelyBudgetv2(budget.getTime(), budget.getAccountBookId());
+
         } else {
             budgetResult = accountBookBudgetRestService.getLatelyBudgetv2(budget.getAccountBookId());
         }
+        logger.info("获取预算值 新增or更新:"+ JSON.toJSONString(budgetResult));
         //校验金额
         try {
             if (budgetResult != null) {
@@ -147,6 +151,7 @@ public class AccountBookBudgetRestController extends BaseController {
                 budget.setId(budgetResult.getId());
                 budget.setCreateBy(budgetResult.getCreateBy());
                 budget.setCreateDate(budgetResult.getCreateDate());
+                logger.info("获取预算值 更新入参:"+ JSON.toJSONString(budget));
                 int i = accountBookBudgetRestService.saveOrUpdate(budget, true);
                 if (i < 0) {
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
@@ -168,6 +173,7 @@ public class AccountBookBudgetRestController extends BaseController {
                 //执行新增流程 此种情况只适用于第一次设置预算
                 budget.setCreateBy(Integer.valueOf(userInfoId));
                 budget.setUpdateBy(Integer.valueOf(userInfoId));
+                logger.info("获取预算值 新增入参:"+ JSON.toJSONString(budget));
                 int i = accountBookBudgetRestService.saveOrUpdate(budget, false);
                 if (i < 0) {
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
