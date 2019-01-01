@@ -14,6 +14,7 @@ import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
 import com.fnjz.front.service.api.userinfoaddfield.UserInfoAddFieldRestService;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
+import com.fnjz.front.utils.RedisLockUtils;
 import com.fnjz.front.utils.newWeChat.WeChatUtils;
 import com.fnjz.front.utils.ParamValidateUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
@@ -109,11 +110,6 @@ public class ShoppingMallRestController {
     }
 
     /**
-     * 锁
-     */
-    private final StampedLock lock = new StampedLock();
-
-    /**
      * 积分兑换  map扩展加入地址信息
      *
      * @param map
@@ -134,8 +130,6 @@ public class ShoppingMallRestController {
             //现金红包类型商品  校验手机号验证码
             if (goodsRestEntity.getGoodsType() == 3) {
                 logger.info("红包兑换验证码："+JSON.toJSONString(map));
-                //加入锁校
-                long stamp = lock.writeLock();
                 //移动端校验验证码
                 if (StringUtils.equals(type, "ios") || StringUtils.equals(type, "android")) {
                     ResultBean resultBean = cashCheck(map);
@@ -152,8 +146,6 @@ public class ShoppingMallRestController {
                     //定义1  小程序
                     map.put("channel", "1");
                 }
-                //释放锁
-                lock.unlockWrite(stamp);
             }
             //总积分数统计
             double integralTotal = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
@@ -169,6 +161,10 @@ public class ShoppingMallRestController {
         }
     }
 
+    private static final int TIMEOUT= 10*1000;
+
+    @Autowired
+    private RedisLockUtils redislock;
     /**
      * 现金红包类型商品
      */
@@ -180,9 +176,14 @@ public class ShoppingMallRestController {
         }
         //校验验证码
         try {
+            long time = System.currentTimeMillis()+TIMEOUT;
+            if(!redislock.lock(map.get("exchangeMobile"),String.valueOf(time))){
+                //throw new Exception(101,"换个姿势再试试")
+            }
             String code = redisTemplateUtils.getVerifyCode(RedisPrefix.PREFIX_USER_VERIFYCODE_CASH_MOBILE + map.get("exchangeMobile"));
             logger.info("redis红包兑换验证码："+code);
             rb = checkVerifycode(map, code);
+            redislock.unlock(map.get("exchangeMobile"),String.valueOf(time));
             return rb;
         } catch (Exception e) {
             logger.error(e.toString());
