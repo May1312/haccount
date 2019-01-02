@@ -17,16 +17,19 @@ import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.IntegralEnum;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
+import com.fnjz.front.utils.CreateTokenUtils;
+import com.fnjz.front.utils.RedisLockUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.log4j.Logger;
+
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.HashMap;
@@ -53,11 +56,19 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
     @Autowired
     private UserSignInAwardRestDao userSignInAwardRestDao;
 
+    @Autowired
+    private RedisLockUtils redisLock;
+
+    @Autowired
+    private CreateTokenUtils createTokenUtils;
+
     @Override
     public void signInIntegral(String userInfoId, String shareCode, Map<String, String> map) {
         //根据cycle 判断周数
         String cycle = map.get("cycle");
         if (StringUtils.isNotEmpty(cycle)) {
+            //加锁
+            redisLock.lock(userInfoId);
             //判断是否取到资格
             UserSignInAwardRestEntity entity = userSignInAwardRestDao.getGetTimesAndAwardStatus(userInfoId, cycle);
             if (entity.getGetTimes() != null) {
@@ -75,8 +86,12 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), Integer.valueOf(cycle), CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(ff.getBehaviorTicketValue()+""));
                     //修改总积分数
                     userIntegralRestDao.updateForTotalIntegral(userInfoId,ff.getBehaviorTicketValue() ,new BigDecimal(ff.getBehaviorTicketValue()+""));
+                    //返利
+                    createTokenUtils.addIntegralByInvitedUser(userInfoId,ff,CategoryOfBehaviorEnum.TodayTask,AcquisitionModeEnum.BONUS);
                 }
             }
+            //解锁
+            redisLock.unlock(userInfoId);
         }
     }
 
