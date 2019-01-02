@@ -110,15 +110,12 @@ public class ShoppingMallRestController {
     }
 
     /**
-     * <<<<<<< HEAD
-     * =======
      * 锁
      */
     @Autowired
     private RedisLockUtils redisLock;
 
     /**
-     * >>>>>>> product
      * 积分兑换  map扩展加入地址信息
      *
      * @param map
@@ -177,9 +174,6 @@ public class ShoppingMallRestController {
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
-
-    @Autowired
-    private RedisLockUtils redislock;
 
     /**
      * 现金红包类型商品
