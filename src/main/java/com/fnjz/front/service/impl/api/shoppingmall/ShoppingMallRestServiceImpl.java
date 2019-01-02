@@ -14,7 +14,6 @@ import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegr
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestEntity;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
-import com.fnjz.front.enums.ShoppingMallExchangeEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
 import com.fnjz.front.utils.newWeChat.WeChatPayUtils;
 import com.fnjz.utils.sms.TemplateCode;
@@ -39,9 +38,7 @@ import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -117,7 +114,31 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
     @Override
     public JSONObject toExchange(Map<String, String> map, GoodsRestEntity goodsRestEntity, String userInfoId) throws Exception {
         JSONObject result2 = new JSONObject();
-        //加入实物兑换
+
+        //测试代码
+        String shoppingMallId = userInfoId + System.currentTimeMillis();
+        ShoppingMallIntegralExchangeRestEntity shoppingMall = new ShoppingMallIntegralExchangeRestEntity();
+        //兑换失败
+        shoppingMall.setStatus(3);
+        //录入错误原因
+        shoppingMall.setDescription("测试数据");
+        //设置订单号
+        shoppingMall.setId(Long.valueOf(shoppingMallId));
+        //设置id
+        shoppingMall.setGoodsId(Integer.valueOf(goodsRestEntity.getId()));
+        //设置兑换手机号
+        shoppingMall.setExchangeMobile(map.get("exchangeMobile"));
+        //设置数量
+        shoppingMall.setCount(1);
+        shoppingMallRestDao.insert(shoppingMall, userInfoId);
+        result2.put("status", 3);
+        //记录积分消耗表
+        userIntegralRestDao.insertShoppingMallIntegral(userInfoId, shoppingMallId, "-" + goodsRestEntity.getFengfengTicketValue(), goodsRestEntity.getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex(),Double.parseDouble("-"+goodsRestEntity.getFengfengTicketValue()+""));
+        //修改总积分值
+        userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + goodsRestEntity.getFengfengTicketValue()),new BigDecimal("-"+goodsRestEntity.getFengfengTicketValue()));
+        return result2;
+
+        /*//加入实物兑换
         if (goodsRestEntity.getGoodsType() == 2) {
             exchangePhysical(map, goodsRestEntity, userInfoId);
             result2.put("status", 2);
@@ -228,7 +249,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                             //记录积分消耗表
                             userIntegralRestDao.insertShoppingMallIntegral(userInfoId, shoppingMallId, "-" + goodsRestEntity.getFengfengTicketValue(), goodsRestEntity.getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex(),Double.parseDouble("-"+goodsRestEntity.getFengfengTicketValue()+""));
                             //修改总积分值
-                            userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + goodsRestEntity.getFengfengTicketValue()),new BigDecimal(goodsRestEntity.getFengfengTicketValue()));
+                            userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + goodsRestEntity.getFengfengTicketValue()),new BigDecimal("-"+goodsRestEntity.getFengfengTicketValue()));
                             result2.put("cardDeadline", Date.from(instant));
                             result2.put("cardCode", decryCardPwd);
                             result2.put("status", 2);
@@ -259,7 +280,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             result2.put("status", 3);
             return result2;
         }
-        return null;
+        return null;*/
     }
 
     /**
