@@ -112,7 +112,13 @@ public enum ApiResultType {
     INTEGRAL_EXCHANGE_NOT_ALLOW2("09001","当前用户存在兑换中商品,不允许再次兑换！"),
     INTEGRAL_EXCHANGE_NOT_ALLOW("09002","当前用户积分数不允许兑换！"),
 
-    NOT_ALLOW_VISIT("09003","无此权限查看账本！");
+    NOT_ALLOW_VISIT("09003","无此权限查看账本！"),
+
+    //微信支付
+    SYSTE_BUSY("10001","微信支付系统繁忙，请稍后再试"),
+    //已经达到今日付款总额上限/已达到付款给此用户额度上限
+    MONEY_LIMIT("10002","今日领取红包金额已达上限，请明日再来");
+
 
     ApiResultType(String status, String str) {
         setCode(status);

@@ -14,10 +14,10 @@ import com.fnjz.front.enums.LoginEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
 import com.fnjz.front.service.api.userinfoaddfield.UserInfoAddFieldRestService;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
-import com.fnjz.front.utils.RedisLockUtils;
-import com.fnjz.front.utils.newWeChat.WeChatUtils;
 import com.fnjz.front.utils.ParamValidateUtils;
+import com.fnjz.front.utils.RedisLockUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
+import com.fnjz.front.utils.newWeChat.WeChatUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.StampedLock;
 
 /**
  * 商城相关
@@ -168,6 +167,10 @@ public class ShoppingMallRestController {
             JSONObject jsonObject = shoppingMallRestService.toExchange(map, goodsRestEntity, userInfoId);
             //释放锁
             redisLock.unlock(userInfoId);
+            if(jsonObject.get("result")!=null){
+                ResultBean rb = jsonObject.getObject("result",ResultBean.class);
+                return rb;
+            }
             return new ResultBean(ApiResultType.OK, jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());

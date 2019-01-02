@@ -1,6 +1,7 @@
 package com.fnjz.front.entity.api.shoppingmallintegralexchange;
 
 import javax.persistence.Column;
+import java.math.BigDecimal;
 
 /**
  * @Title: Entity
@@ -20,6 +21,9 @@ public class ShoppingMallIntegralExchangePhysicalRestDTO extends ShoppingMallInt
 
 	/**快递单号*/
 	private String expressNumber;
+
+	/**面值*/
+	private BigDecimal faceValue;
 
 	@Column(name ="GOODS_TYPE")
 	public Integer getGoodsType() {
@@ -44,5 +48,13 @@ public class ShoppingMallIntegralExchangePhysicalRestDTO extends ShoppingMallInt
 
 	public void setExpressNumber(String expressNumber) {
 		this.expressNumber = expressNumber;
+	}
+	@Column(name ="FACE_VALUE")
+	public BigDecimal getFaceValue() {
+		return faceValue;
+	}
+
+	public void setFaceValue(BigDecimal faceValue) {
+		this.faceValue = faceValue;
 	}
 }
