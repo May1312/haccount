@@ -47,7 +47,7 @@ public interface ShoppingMallRestDao {
      * @param shoppingMall
      * @param userInfoId
      */
-    @Sql("insert into hbird_shopping_mall_integral_exchange (`id`,`user_info_id`,`goods_id`,`status`,`count`,`consignee_name`,`consignee_mobile`,`consignee_province`,`consignee_city`,`consignee_district`,`consignee_detail`,`create_date`,`exchange_mobile`) values (:shoppingMall.id,:userInfoId,:shoppingMall.goodsId,:shoppingMall.status,:shoppingMall.count,:shoppingMall.consigneeName,:shoppingMall.consigneeMobile,:shoppingMall.consigneeProvince,:shoppingMall.consigneeCity,:shoppingMall.consigneeDistrict,:shoppingMall.consigneeDetail,now(),:shoppingMall.exchangeMobile);")
+    @Sql("insert into hbird_shopping_mall_integral_exchange (`id`,`user_info_id`,`goods_id`,`status`,`count`,`consignee_name`,`consignee_mobile`,`consignee_province`,`consignee_city`,`consignee_district`,`consignee_detail`,`create_date`,`exchange_mobile`,`description`) values (:shoppingMall.id,:userInfoId,:shoppingMall.goodsId,:shoppingMall.status,:shoppingMall.count,:shoppingMall.consigneeName,:shoppingMall.consigneeMobile,:shoppingMall.consigneeProvince,:shoppingMall.consigneeCity,:shoppingMall.consigneeDistrict,:shoppingMall.consigneeDetail,now(),:shoppingMall.exchangeMobile,:shoppingMall.description);")
     void insertPhysical(@Param("shoppingMall") ShoppingMallIntegralExchangePhysicalRestEntity shoppingMall, @Param("userInfoId")String userInfoId);
 
     @ResultType(ShoppingMallIntegralExchangeRestEntity.class)
@@ -57,7 +57,7 @@ public interface ShoppingMallRestDao {
     @Sql("UPDATE `hbird_shopping_mall_integral_exchange` SET `status` = :status WHERE `id` = :id;")
     void update(@Param("id") String customerOrderNo,@Param("status")int status);
 
-    @Sql("select shop.id,shop.exchange_mobile,shop.status,shop.card_code,shop.card_deadline,shop.create_date,goods.goods_name,goods.fengfeng_ticket_value,goods.list_picture,goods.type,goods.goods_type,shop.express_company,shop.express_number from hbird_shopping_mall_integral_exchange shop LEFT JOIN hbird_goods goods on shop.goods_id=goods.id where shop.user_info_id=:userInfoId order by create_date desc;")
+    @Sql("select shop.id,shop.exchange_mobile,shop.status,shop.card_code,shop.card_deadline,shop.create_date,goods.goods_name,goods.fengfeng_ticket_value,goods.list_picture,goods.type,goods.goods_type,goods.face_value,shop.express_company,shop.express_number from hbird_shopping_mall_integral_exchange shop LEFT JOIN hbird_goods goods on shop.goods_id=goods.id where shop.user_info_id=:userInfoId order by create_date desc;")
     List<ShoppingMallIntegralExchangePhysicalRestDTO> historyIntegralExchange(@Param("userInfoId") String userInfoId);
 
     @Sql("select count(id) from hbird_shopping_mall_integral_exchange where user_info_id=:userInfoId and status=1;")
