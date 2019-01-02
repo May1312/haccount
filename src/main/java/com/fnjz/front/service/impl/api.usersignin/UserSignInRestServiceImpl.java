@@ -280,19 +280,23 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
      * @param list
      */
     private void reSignResetSignInAward(Integer userInfoId, Integer beforeSignInDays, Integer afterSignInDays, List<String> list) {
-        //判断是否达标
-        for (int i = 0; i < list.size(); i++) {
+        int[] list2 = new int[list.size()];
+        for(int i = 0;i<list2.length;i++){
             JSONObject jsonObject = JSONObject.parseObject(list.get(i));
             Iterator iterator = jsonObject.keySet().iterator();
-            int value = Integer.valueOf(iterator.next() + "");
+            list2[i]=Integer.valueOf(iterator.next() + "");
+        }
+        //list2 顺序排
+        Arrays.sort(list2);
+        //判断是否达标
+        for (int i = 0; i < list2.length; i++) {
+            int value = list2[i];
             //在某个区间内才可以------------->  连签6天  后签2天  补签之后 连签9天  奖励7天解锁
             //                                 连签7天  后签6天  补签之后  连签14天  奖励14天解锁
             if (beforeSignInDays >= value) {
                 Integer value2 = null;
-                if (i < list.size() - 1) {
-                    JSONObject jsonObject1 = JSONObject.parseObject(list.get(i + 1));
-                    Iterator iterator1 = jsonObject1.keySet().iterator();
-                    value2 = Integer.valueOf(iterator1.next() + "");
+                if (i < list2.length - 1) {
+                    value2 = Integer.valueOf(list2[i + 1]);
                 }
                 if (value2 != null) {
                     if (beforeSignInDays >= value2) {
