@@ -24,7 +24,7 @@ public class RedisLockUtils {
     /**
      * 默认请求锁的超时时间(ms 毫秒)
      */
-    private static final long TIME_OUT = 1000;
+    private static final long TIME_OUT = 10000;
 
     /**
      * 默认锁的有效时间(s)

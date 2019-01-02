@@ -228,7 +228,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                             //记录积分消耗表
                             userIntegralRestDao.insertShoppingMallIntegral(userInfoId, shoppingMallId, "-" + goodsRestEntity.getFengfengTicketValue(), goodsRestEntity.getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex(),Double.parseDouble("-"+goodsRestEntity.getFengfengTicketValue()+""));
                             //修改总积分值
-                            userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + goodsRestEntity.getFengfengTicketValue()),new BigDecimal(goodsRestEntity.getFengfengTicketValue()));
+                            userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + goodsRestEntity.getFengfengTicketValue()),new BigDecimal("-"+goodsRestEntity.getFengfengTicketValue()));
                             result2.put("cardDeadline", Date.from(instant));
                             result2.put("cardCode", decryCardPwd);
                             result2.put("status", 2);
