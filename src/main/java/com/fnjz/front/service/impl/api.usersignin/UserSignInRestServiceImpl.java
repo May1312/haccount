@@ -16,16 +16,14 @@ import com.fnjz.front.enums.SignInEnum;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
 import com.fnjz.front.service.api.usersignin.UserSignInRestServiceI;
 import com.fnjz.front.service.api.userwxqrcode.UserWXQrCodeRestServiceI;
-import com.fnjz.front.service.impl.api.userintegral.UserIntegralRestServiceImpl;
-import com.fnjz.front.utils.DateUtils;
-import com.fnjz.front.utils.RedisTemplateUtils;
-import com.fnjz.front.utils.ShareCodeUtil;
+import com.fnjz.front.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.junit.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,14 +69,24 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
     @Autowired
     private UserWXQrCodeRestServiceI userWXQrCodeRestServiceI;
 
+    @Autowired
+    private RedisLockUtils redisLock;
+
+    @Autowired
+    private CreateTokenUtils createTokenUtils;
+
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
+
     /**
      * 签到
      *
      * @param userInfoId
      */
     @Override
-    @Deprecated
     public ShareWordsRestDTO signIn(String userInfoId, String shareCode) {
+        //加锁  ----->  重复签到
+        redisLock.lock(userInfoId);
         Map map = signInForCache(userInfoId, shareCode);
         FengFengTicketRestEntity ff = fengFengTicketRestDao.getFengFengTicket(IntegralEnum.CATEGORY_OF_BEHAVIOR_SIGN_IN.getDescription(), IntegralEnum.ACQUISITION_MODE_SIGN_IN.getDescription(), IntegralEnum.SIGNIN_1.getIndex());
         //未录入或该记录不可用
@@ -99,16 +107,22 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
                 }
                 //签到积分记录
                 if (ff.getBehaviorTicketValue() != null) {
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex(), Double.parseDouble(ff.getBehaviorTicketValue() + ""));
-                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue(), new BigDecimal(ff.getBehaviorTicketValue()));
+                    taskExecutor.execute(() -> {
+                        userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), IntegralEnum.SIGNIN_1.getIndex(), CategoryOfBehaviorEnum.SignIn.getIndex(), Double.parseDouble(ff.getBehaviorTicketValue() + ""));
+                        userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue(), new BigDecimal(ff.getBehaviorTicketValue()));
+                        //返利
+                        createTokenUtils.addIntegralByInvitedUser(userInfoId,ff,CategoryOfBehaviorEnum.TodayTask,AcquisitionModeEnum.BONUS);
+                    });
                 }
             }
         }
         //更新redis缓存  去掉是否签到标识
-        if (map.get("hasSigned") != null) {
-            map.remove("hasSigned");
-        }
+        //if (map.get("hasSigned") != null) {
+        //    map.remove("hasSigned");
+        //}
         redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map);
+        //释放锁
+        redisLock.unlock(userInfoId);
         return getShareWords(dto,userInfoId);
     }
 

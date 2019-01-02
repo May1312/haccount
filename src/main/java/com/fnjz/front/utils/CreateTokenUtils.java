@@ -7,7 +7,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.controller.api.userlogin.UserLoginRestController;
 import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
@@ -211,7 +210,6 @@ public class CreateTokenUtils {
                     //加入积分返利
                     addIntegralByInvitedUser(userInfoId, fengFengTicketRestEntity, categoryOfBehaviorEnum, acquisitionModeEnum);
                 }
-
             }
         }
     }
@@ -252,7 +250,7 @@ public class CreateTokenUtils {
      * @param userInfoId 用户id
      * @param ff         奖励积分数  返利20%
      */
-    private void addIntegralByInvitedUser(String userInfoId, FengFengTicketRestEntity ff, CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum) {
+    public void addIntegralByInvitedUser(String userInfoId, FengFengTicketRestEntity ff, CategoryOfBehaviorEnum categoryOfBehaviorEnum, AcquisitionModeEnum acquisitionModeEnum) {
         //查看当前用户是否存在被邀请用户
         Map<String, Object> map = userInviteRestDao.getInvitedUserNickName(userInfoId, beginTime, 1);
         logger.info("=====================积分返利开始1:"+JSON.toJSONString(map));

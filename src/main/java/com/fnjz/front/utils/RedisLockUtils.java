@@ -24,12 +24,12 @@ public class RedisLockUtils {
     /**
      * 默认请求锁的超时时间(ms 毫秒)
      */
-    private static final long TIME_OUT = 100;
+    private static final long TIME_OUT = 1000;
 
     /**
      * 默认锁的有效时间(s)
      */
-    public static final int EXPIRE = 60;
+    public static final int EXPIRE = 10;
     //////////////////// 静态常量定义结束///////////////////////
 
     /**
