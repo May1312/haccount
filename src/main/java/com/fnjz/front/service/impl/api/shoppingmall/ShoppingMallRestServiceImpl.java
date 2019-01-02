@@ -490,7 +490,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                 //根据goodsid--->获取
                 GoodsRestEntity goodsById = shoppingMallRestDao.getGoodsById(shopping.getGoodsId());
                 //成功
-                shoppingMallRestDao.update(customerOrderNo, 2);
+                shoppingMallRestDao.update(customerOrderNo, 2,null);
                 //记录积分消耗表
                 userIntegralRestDao.insertShoppingMallIntegral(shopping.getUserInfoId() + "", customerOrderNo, "-" + goodsById.getFengfengTicketValue(), goodsById.getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex(),Double.parseDouble("-" + goodsById.getFengfengTicketValue()));
                 //修改总积分值
@@ -498,7 +498,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             }
         } else {
             //兑换失败
-            shoppingMallRestDao.update(customerOrderNo, 3);
+            shoppingMallRestDao.update(customerOrderNo, 3,reMark);
         }
     }
 
@@ -542,18 +542,18 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                 if (jsonObject1.get("MessageCode") == null) {
                     if (StringUtils.equals(jsonObject1.getString("Status"), "成功")) {
                         //成功
-                        shoppingMallRestDao.update(list.get(0).getId() + "", 2);
+                        shoppingMallRestDao.update(list.get(0).getId() + "", 2,jsonObject1.getString("ReMark"));
                         //记录积分消耗表
                         userIntegralRestDao.insertShoppingMallIntegral(userInfoId, list.get(0).getId() + "", "-" + list.get(0).getFengfengTicketValue(), list.get(0).getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex(),Double.parseDouble("-" + list.get(0).getFengfengTicketValue()));
                         //修改总积分值
                         userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + list.get(0).getFengfengTicketValue()),new BigDecimal("-" + list.get(0).getFengfengTicketValue()));
                         list.get(0).setStatus(2);
                     } else if (StringUtils.equals(jsonObject1.getString("Status"), "失败")) {
-                        shoppingMallRestDao.update(list.get(0).getId() + "", 3);
+                        shoppingMallRestDao.update(list.get(0).getId() + "", 3,jsonObject1.getString("ReMark"));
                         list.get(0).setStatus(3);
                     }
                 } else {
-                    shoppingMallRestDao.update(list.get(0).getId() + "", 3);
+                    shoppingMallRestDao.update(list.get(0).getId() + "", 3,jsonObject1.getString("ReMark"));
                     list.get(0).setStatus(3);
                 }
             }
