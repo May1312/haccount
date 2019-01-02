@@ -126,12 +126,14 @@ public class ShoppingMallRestController {
     public ResultBean toExchange(@PathVariable("type") String type, @RequestBody Map<String, String> map, HttpServletRequest request) {
         try {
             String userInfoId = (String) request.getAttribute("userInfoId");
-            boolean flag = shoppingMallRestService.checkExchangeStatus(userInfoId);
-            if (flag) {
-                return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW2, null);
-            }
             //加锁
             redisLock.lock(userInfoId);
+            boolean flag = shoppingMallRestService.checkExchangeStatus(userInfoId);
+            if (flag) {
+                //释放锁
+                redisLock.unlock(userInfoId);
+                return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW2, null);
+            }
             //根据商品id或消耗积分数+用户拥有总积分数
             GoodsRestEntity goodsRestEntity = shoppingMallRestService.getGoodsById(Integer.valueOf(map.get("goodsId")));
             //现金红包类型商品  校验手机号验证码
@@ -141,6 +143,8 @@ public class ShoppingMallRestController {
                 if (StringUtils.equals(type, "ios") || StringUtils.equals(type, "android")) {
                     ResultBean resultBean = cashCheck(map);
                     if (!StringUtils.equals(resultBean.getCode(), "200")) {
+                        //释放锁
+                        redisLock.unlock(userInfoId);
                         return resultBean;
                     }
                     //定义1  小程序  2 移动端
@@ -148,6 +152,8 @@ public class ShoppingMallRestController {
                 } else {
                     ResultBean resultBean = cashCheck(map);
                     if (!StringUtils.equals(resultBean.getCode(), "200")) {
+                        //释放锁
+                        redisLock.unlock(userInfoId);
                         return resultBean;
                     }
                     //定义1  小程序
@@ -158,6 +164,8 @@ public class ShoppingMallRestController {
             double integralTotal = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
             //判断用户积分数
             if (integralTotal < goodsRestEntity.getFengfengTicketValue()) {
+                //释放锁
+                redisLock.unlock(userInfoId);
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW, null);
             }
             JSONObject jsonObject = shoppingMallRestService.toExchange(map, goodsRestEntity, userInfoId);
