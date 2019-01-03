@@ -1,5 +1,6 @@
 package com.fnjz.front.service.impl.api.userinvite;
 
+import com.fnjz.front.dao.UserInfoRestDao;
 import com.fnjz.front.dao.UserInviteRestDao;
 import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.UserInviteRestDTO;
@@ -19,6 +20,9 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
 
     @Autowired
     private UserInviteRestDao userInviteRestDao;
+
+    @Autowired
+    private UserInfoRestDao userInfoRestDao;
 
     /**
      * 获取邀请人数
@@ -54,5 +58,17 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
         //设置返回结果
         pageRest.setContent(listForPage);
         return pageRest;
+    }
+
+    @Override
+    public boolean insert(int userInfoId,int inviteUserInfoId) {
+        //校验邀请码
+        int i = userInfoRestDao.checkUserExists(userInfoId);
+        if(i>0){
+            userInviteRestDao.insert(userInfoId, inviteUserInfoId);
+            return true;
+        }else{
+            return false;
+        }
     }
 }

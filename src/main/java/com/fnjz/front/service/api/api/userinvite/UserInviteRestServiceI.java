@@ -21,4 +21,6 @@ public interface UserInviteRestServiceI {
      * @return
      */
     PageRest listForPage(String userInfoId, Integer curPage, Integer pageSize);
+
+    boolean insert(int i, int inviteCode);
 }
