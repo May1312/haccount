@@ -911,10 +911,13 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             newbieTask.forEach(v1 -> {
                 JSONObject jsonObject = JSONObject.parseObject(v1 + "");
                 String key = jsonObject.getString("name") + "Aware";
-                Integer integral = Integer.valueOf(cacheSysNewbieTask.get(key) + "");
-                jsonObject.put("integralAware", integral);
-                newbieTask2.add(jsonObject);
-                mapAdd.put(key, null);
+
+                if(cacheSysNewbieTask.get(key)!=null){
+                    Integer integral = Integer.valueOf(cacheSysNewbieTask.get(key) + "");
+                    jsonObject.put("integralAware", integral);
+                    newbieTask2.add(jsonObject);
+                    mapAdd.put(key, null);
+                }
             });
             return compareMap(cacheSysNewbieTask, mapAdd, shareCode, newbieTask2, 2, 1);
         } else {
