@@ -358,8 +358,8 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             String time = LocalDate.now().format(formatters);
             //统计有效注册人数
             redisTemplateUtils.incrementNewRegisterV2(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":sumNewRegister" + "_" + time, "sumNewRegister");
+            registerChannelRestServiceI.insert(channel,userInfoId,1);
         }
-        registerChannelRestServiceI.insert(channel,userInfoId,1);
     }
     /**
      * 根据userInfoId更新密码
