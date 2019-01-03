@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.FengFengTicketRestDao;
+import com.fnjz.front.dao.UserInfoRestDao;
 import com.fnjz.front.dao.UserIntegralRestDao;
 import com.fnjz.front.dao.UserSignInAwardRestDao;
 import com.fnjz.front.entity.api.PageRest;
@@ -61,6 +62,9 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
 
     @Autowired
     private CreateTokenUtils createTokenUtils;
+
+    @Autowired
+    private UserInfoRestDao userInfoRestDao;
 
     @Override
     public void signInIntegral(String userInfoId, String shareCode, Map<String, String> map) {
@@ -714,10 +718,10 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
     public JSONObject integralTop(String userInfoId) {
         //获取top3
         List<UserIntegralTopRestDTO> top = userIntegralRestDao.integralTop(3);
-        UserIntegralTopRestDTO mySelf = userIntegralRestDao.integralForMySelf(userInfoId);
+        //UserIntegralTopRestDTO mySelf = userIntegralRestDao.integralForMySelf(userInfoId);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("top3", top);
-        jsonObject.put("mySelf", mySelf);
+        //jsonObject.put("mySelf", mySelf);
         return jsonObject;
     }
 
@@ -725,7 +729,16 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
     public JSONObject integralTop10(String userInfoId) {
         //获取top10
         List<UserIntegralTopRestDTO> top = userIntegralRestDao.integralTop(10);
+        for(int i= 0;i<top.size();i++){
+            //设置排名
+            top.get(i).setRank(i+1);
+        }
+        //获取自有排名
         UserIntegralTopRestDTO mySelf = userIntegralRestDao.integralForMySelf(userInfoId);
+        //获取自有头像  昵称
+        Map<String,Object> map = userInfoRestDao.getNKAndAUById(Integer.valueOf(userInfoId));
+        mySelf.setNickName(map.get("nickname")+"");
+        mySelf.setAvatarUrl(map.get("avatarurl")+"");
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("top10", top);
         jsonObject.put("mySelf", mySelf);
