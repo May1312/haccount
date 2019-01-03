@@ -117,7 +117,10 @@ public enum ApiResultType {
     //微信支付
     SYSTE_BUSY("10001","微信支付系统繁忙，请稍后再试"),
     //已经达到今日付款总额上限/已达到付款给此用户额度上限
-    MONEY_LIMIT("10002","今日领取红包金额已达上限，请明日再来");
+    MONEY_LIMIT("10002","今日领取红包金额已达上限，请明日再来"),
+
+    //已存在绑定关系，请勿重复绑定
+    HAD_BIND("10003","已存在绑定关系，请勿重复绑定");
 
 
     ApiResultType(String status, String str) {

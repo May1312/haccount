@@ -1,5 +1,6 @@
 package com.fnjz.front.service.api.api.userinvite;
 
+import com.fnjz.commonbean.ResultBean;
 import com.fnjz.front.entity.api.PageRest;
 
 /**
@@ -22,5 +23,5 @@ public interface UserInviteRestServiceI {
      */
     PageRest listForPage(String userInfoId, Integer curPage, Integer pageSize);
 
-    boolean insert(int i, int inviteCode);
+    ResultBean insert(int i, int inviteCode);
 }
