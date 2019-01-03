@@ -668,15 +668,23 @@ public class UserLoginRestController extends BaseController {
      */
     @RequestMapping(value = "/bindInvite/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBean bindInvite(@PathVariable String type,HttpServletRequest request,@RequestBody Map<String,Object> map){
-        logger.info("请求终端:"+type);
-        int inviteCode = ShareCodeUtil.sharecode2id(map.get("inviteCode")+"");
-        String userInfoId = (String) request.getAttribute("userInfoId");
-        boolean flag = userInviteRestServiceI.insert(inviteCode,Integer.parseInt(userInfoId));
-        if(flag){
-            return new ResultBean(ApiResultType.OK,null);
-        }else{
-            return new ResultBean(ApiResultType.USER_NOT_EXIST,null);
+    public ResultBean bindInvite(@PathVariable("type") String type,HttpServletRequest request,@RequestBody Map<String,Object> map){
+        logger.info("请求终端:" + type);
+        int inviteCode = 0;
+        try {
+            if (map.get("inviteCode") == null) {
+                return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
+            }
+            inviteCode = ShareCodeUtil.sharecode2id((map.get("inviteCode") + ""));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
         }
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        if(StringUtils.equals(userInfoId,inviteCode+"")){
+            return new ResultBean(ApiResultType.REQ_PARAMS_ERROR, null);
+        }
+        ResultBean flag = userInviteRestServiceI.insert(inviteCode, Integer.parseInt(userInfoId));
+        return flag;
     }
 }

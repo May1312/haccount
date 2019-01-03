@@ -52,4 +52,12 @@ public interface UserInviteRestDao {
      */
     @Sql("select base2.nick_name as nickname,base1.user_info_id as userinfoid from hbird_user_invite as base1 JOIN hbird_user_info as base2 on base1.invite_user_info_id=base2.id where invite_user_info_id=:userInfoId and type=:type and create_date>=:beginTime;")
     Map<String,Object> getInvitedUserNickName(@Param("userInfoId") String userInfoId, @Param("beginTime") String beginTime, @Param("type") int type);
+
+    /**
+     * 查看是否存在上级
+     * @param inviteUserInfoId
+     * @return
+     */
+    @Sql("select COALESCE(count(id),0) from hbird_user_invite where invite_user_info_id=:inviteUserInfoId;")
+    int checkExists(@Param("inviteUserInfoId") int inviteUserInfoId);
 }

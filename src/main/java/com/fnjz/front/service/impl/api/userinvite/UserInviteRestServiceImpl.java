@@ -1,10 +1,13 @@
 package com.fnjz.front.service.impl.api.userinvite;
 
+import com.fnjz.commonbean.ResultBean;
+import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.dao.UserInfoRestDao;
 import com.fnjz.front.dao.UserInviteRestDao;
 import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.UserInviteRestDTO;
 import com.fnjz.front.service.api.api.userinvite.UserInviteRestServiceI;
+import com.fnjz.front.utils.RedisLockUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,15 +63,26 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
         return pageRest;
     }
 
+    @Autowired
+    private RedisLockUtils redisLock;
+
     @Override
-    public boolean insert(int userInfoId,int inviteUserInfoId) {
+    public ResultBean insert(int userInfoId, int inviteUserInfoId) {
         //校验邀请码
         int i = userInfoRestDao.checkUserExists(userInfoId);
         if(i>0){
-            userInviteRestDao.insert(userInfoId, inviteUserInfoId);
-            return true;
+            redisLock.lock(inviteUserInfoId+"");
+            int j = userInviteRestDao.checkExists(inviteUserInfoId);
+            if(j<1){
+                userInviteRestDao.insert(userInfoId, inviteUserInfoId);
+                redisLock.unlock(inviteUserInfoId+"");
+                return new ResultBean(ApiResultType.OK,null);
+            }else{
+                redisLock.unlock(inviteUserInfoId+"");
+                return new ResultBean(ApiResultType.HAD_BIND,null);
+            }
         }else{
-            return false;
+            return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
         }
     }
 }
