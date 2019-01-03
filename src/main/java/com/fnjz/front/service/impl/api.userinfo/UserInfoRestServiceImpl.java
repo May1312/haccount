@@ -1,11 +1,9 @@
 package com.fnjz.front.service.impl.api.userinfo;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fnjz.commonbean.WXAppletMessageBean;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
-import com.fnjz.front.entity.api.fengfengticket.FengFengTicketRestEntity;
 import com.fnjz.front.entity.api.incometype.IncomeTypeLabelIdRestDTO;
 import com.fnjz.front.entity.api.spendtype.SpendTypeLabelIdRestDTO;
 import com.fnjz.front.entity.api.useraccountbook.UserAccountBookRestEntity;
@@ -29,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 @Service("userInfoRestService")
 @Transactional
@@ -305,7 +305,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             //引入当日任务---->注册成功送积分
             createTokenUtils.integralTask(insertId + "", null, CategoryOfBehaviorEnum.NewbieTask, AcquisitionModeEnum.Become_hbird_user);
             //判断是否为受邀用户
-            if (StringUtils.isNotEmpty(map.get("inviteCode"))) {
+            /*if (StringUtils.isNotEmpty(map.get("inviteCode"))) {
                 int userInfoId = ShareCodeUtil.sharecode2id(map.get("inviteCode"));
                 userInviteRestDao.insert(userInfoId, insertId);
                 //引入当日任务---->邀请好友
@@ -339,7 +339,7 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
                         wxAppletPushUtils.wxappletPush(WXAppletPushUtils.inviteFriendId, openId, formId, WXAppletPushUtils.inviteFriendPage, bean);
                     }
                 }
-            }
+            }*/
             String wxappletChannel = map.get("wxappletChannel");
             statisticsForRegister(wxappletChannel,insertId);
         });
@@ -358,8 +358,8 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
             String time = LocalDate.now().format(formatters);
             //统计有效注册人数
             redisTemplateUtils.incrementNewRegisterV2(RedisPrefix.PREFIX_WXAPPLET_ACTIVITY + ":" + channel + ":sumNewRegister" + "_" + time, "sumNewRegister");
+            registerChannelRestServiceI.insert(channel,userInfoId,1);
         }
-        registerChannelRestServiceI.insert(channel,userInfoId,1);
     }
     /**
      * 根据userInfoId更新密码

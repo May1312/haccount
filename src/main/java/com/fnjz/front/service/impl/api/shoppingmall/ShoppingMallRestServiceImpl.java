@@ -545,13 +545,13 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                     if (StringUtils.equals(jsonObject1.getString("Status"), "成功")) {
                         //成功
                         shoppingMallRestDao.update(list.get(0).getId() + "", 2, jsonObject1.getString("ReMark"));
-                        //记录积分消耗表
-                        userIntegralRestDao.insertShoppingMallIntegral(userInfoId, list.get(0).getId() + "", "-" + list.get(0).getFengfengTicketValue(), list.get(0).getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex(), Double.parseDouble("-" + list.get(0).getFengfengTicketValue()));
-                        //修改总积分值
-                        userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf("-" + list.get(0).getFengfengTicketValue()), new BigDecimal("-" + list.get(0).getFengfengTicketValue()));
                         list.get(0).setStatus(2);
                     } else if (StringUtils.equals(jsonObject1.getString("Status"), "失败")) {
                         shoppingMallRestDao.update(list.get(0).getId() + "", 3, jsonObject1.getString("ReMark"));
+                        //记录积分消耗表
+                        userIntegralRestDao.insertShoppingMallIntegral(userInfoId, list.get(0).getId() + "", list.get(0).getFengfengTicketValue()+"", list.get(0).getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex(), Double.parseDouble(list.get(0).getFengfengTicketValue()+""));
+                        //修改总积分值
+                        userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf(list.get(0).getFengfengTicketValue()), new BigDecimal(list.get(0).getFengfengTicketValue()));
                         list.get(0).setStatus(3);
                     }
                 } else {

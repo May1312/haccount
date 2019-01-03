@@ -46,4 +46,10 @@ public interface UserInfoRestDao {
      */
     @Sql("select nick_name as nickName,avatar_url as avatarUrl,register_date as registerDate from hbird_user_info where id=:userInfoId;")
     Map<String,Object> getNKAndAUById(@Param("userInfoId") Integer userInfoId);
+
+    /**
+     * 校验用户id是否存在
+     */
+    @Sql("select COALESCE(count(id),0) from hbird_user_info where id=:userInfoId;")
+    int checkUserExists(@Param("userInfoId") Integer userInfoId);
 }

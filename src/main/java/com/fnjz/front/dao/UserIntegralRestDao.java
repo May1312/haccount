@@ -86,15 +86,17 @@ public interface UserIntegralRestDao {
      * 获取积分排行榜
      * @return
      */
-    @Sql("SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num_decimal as integral_num, @rank := @rank + 1 as rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id,integral_num,integral_num_decimal FROM hbird_user_total_integrals ORDER BY integral_num_decimal DESC LIMIT 0, :top ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id;")
+    //@Sql("SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num_decimal as integral_num, @rank := @rank + 1 as rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id,integral_num,integral_num_decimal FROM hbird_user_total_integrals ORDER BY integral_num_decimal DESC LIMIT 0, :top ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id;")
+    @Sql("select t.user_info_id,t1.nick_name,t1.avatar_url,t.integral_num_decimal as integral_num from hbird_user_total_integrals t inner join hbird_user_info t1 on t.user_info_id = t1.id order by t.integral_num_decimal desc limit :top;")
     List<UserIntegralTopRestDTO> integralTop(@Param("top") int top);
 
     /**
-     * 查询自有积分数
+     * 查询自有积分数  ---->获取排名
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT result.nick_name, result.avatar_url, result.integral_num_decimal as integral_num, result.rank FROM ( SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num_decimal, top.user_info_id, @rank := @rank + 1 AS rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id,integral_num_decimal FROM hbird_user_total_integrals ORDER BY integral_num_decimal DESC ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id ) AS result WHERE result.user_info_id = :userInfoId;")
+    //@Sql("SELECT result.nick_name, result.avatar_url, result.integral_num_decimal as integral_num, result.rank FROM ( SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num_decimal, top.user_info_id, @rank := @rank + 1 AS rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id,integral_num_decimal FROM hbird_user_total_integrals ORDER BY integral_num_decimal DESC ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id ) AS result WHERE result.user_info_id = :userInfoId;")
+    @Sql("select count(*) as rank,t.integral_num_decimal as integral_num from hbird_user_total_integrals t where t.integral_num_decimal>=( select t.integral_num_decimal from hbird_user_total_integrals t where t.user_info_id = :userInfoId )")
     UserIntegralTopRestDTO integralForMySelf(@Param("userInfoId") String userInfoId);
 
     /**

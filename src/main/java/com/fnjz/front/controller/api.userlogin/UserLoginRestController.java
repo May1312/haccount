@@ -9,6 +9,7 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.userinfo.UserInfoRestEntity;
 import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.enums.LoginEnum;
+import com.fnjz.front.service.api.api.userinvite.UserInviteRestServiceI;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.service.api.userlogin.UserLoginRestServiceI;
 import com.fnjz.front.utils.*;
@@ -57,6 +58,8 @@ public class UserLoginRestController extends BaseController {
     private WXAppletUtils wxAppletUtils;
     @Autowired
     private WeChatUtils weChatUtils;
+    @Autowired
+    private UserInviteRestServiceI userInviteRestServiceI;
 
     /**
      * 用户登录表相关列表 登陆
@@ -656,6 +659,24 @@ public class UserLoginRestController extends BaseController {
             }
         } else {
             return new ResultBean(ApiResultType.SERVER_ERROR, "此微信账号已注册");
+        }
+    }
+
+    /**
+     * 移动端绑定 邀请关系
+     * @return
+     */
+    @RequestMapping(value = "/bindInvite/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBean bindInvite(@PathVariable String type,HttpServletRequest request,@RequestBody Map<String,Object> map){
+        logger.info("请求终端:"+type);
+        int inviteCode = ShareCodeUtil.sharecode2id(map.get("inviteCode")+"");
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        boolean flag = userInviteRestServiceI.insert(inviteCode,Integer.parseInt(userInfoId));
+        if(flag){
+            return new ResultBean(ApiResultType.OK,null);
+        }else{
+            return new ResultBean(ApiResultType.USER_NOT_EXIST,null);
         }
     }
 }
