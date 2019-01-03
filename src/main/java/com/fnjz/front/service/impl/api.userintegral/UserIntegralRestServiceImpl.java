@@ -1001,10 +1001,12 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             todayTask.forEach(v1 -> {
                 JSONObject jsonObject = JSONObject.parseObject(v1 + "");
                 String key = jsonObject.getString("name") + "Aware";
-                Integer integral = Integer.valueOf(cacheSysTodayTask.get(key) + "");
-                jsonObject.put("integralAware", integral);
-                todayTask2.add(jsonObject);
-                mapAdd.put(key, null);
+                if(cacheSysTodayTask.get(key)!=null){
+                    Integer integral = Integer.valueOf(cacheSysTodayTask.get(key) + "");
+                    jsonObject.put("integralAware", integral);
+                    todayTask2.add(jsonObject);
+                    mapAdd.put(key, null);
+                }
             });
             return compareMap(cacheSysTodayTask, mapAdd, shareCode, todayTask2, 2, 2);
         } else {
