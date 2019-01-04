@@ -1,5 +1,6 @@
 package com.fnjz.front.entity.api.warterorder;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 /**
@@ -25,6 +26,17 @@ public class APPWarterOrderRestDTO extends WarterOrderRestEntity {
 
     /**账本类型id*/
     private Integer abTypeId;
+
+    /**
+     * 账户id(资产类型id)'
+     */
+    private Integer assetsId = 0;
+
+    /**
+     * 账户名称
+     * @return
+     */
+    private String assetsName;
 
     public Integer getUserPrivateLabelId() {
         return userPrivateLabelId;
@@ -72,5 +84,23 @@ public class APPWarterOrderRestDTO extends WarterOrderRestEntity {
 
     public void setAbTypeId(Integer abTypeId) {
         this.abTypeId = abTypeId;
+    }
+
+    @Column(name = "ASSETS_ID")
+    public Integer getAssetsId() {
+        return assetsId;
+    }
+
+    public void setAssetsId(Integer assetsId) {
+        this.assetsId = assetsId;
+    }
+
+    @Column(name = "ASSETS_NAME")
+    public String getAssetsName() {
+        return assetsName;
+    }
+
+    public void setAssetsName(String assetsName) {
+        this.assetsName = assetsName;
     }
 }
