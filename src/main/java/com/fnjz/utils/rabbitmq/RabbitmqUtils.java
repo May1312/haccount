@@ -15,7 +15,8 @@ public class RabbitmqUtils {
     private RabbitTemplate rabbitTemplate;
 
     //发送消息
-    public void publish(Object obj){
-        rabbitTemplate.convertAndSend(obj);
+    public void publish(String queue,Object obj){
+        //rabbitTemplate.convertAndSend(obj);
+        rabbitTemplate.convertAndSend(queue,obj);
     }
 }

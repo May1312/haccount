@@ -44,6 +44,7 @@
     <rabbit:direct-exchange name="offlinepush">
         <rabbit:bindings>
             <rabbit:binding queue="offlinequeue" key="offline" />
+            <rabbit:binding queue="buriedpointqueue" key="point" />
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
@@ -52,6 +53,12 @@
     <!-- 配置监听 消费者 manual 手工确认消息-->
     <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual">
         <rabbit:listener ref="offlinePushConsumerListener" queues="offlinequeue"></rabbit:listener>
+    </rabbit:listener-container>
+
+    <bean name="buriedPointConsumerListener" class="com.fnjz.front.rabbit.BuriedPointConsumerListener"></bean>
+    <!-- 配置监听 消费者 manual 手工确认消息-->
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual">
+        <rabbit:listener ref="buriedPointConsumerListener" queues="buriedpointqueue"></rabbit:listener>
     </rabbit:listener-container>
 
 </beans>

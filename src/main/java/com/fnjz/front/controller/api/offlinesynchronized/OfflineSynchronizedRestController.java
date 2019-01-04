@@ -90,7 +90,7 @@ public class OfflineSynchronizedRestController extends BaseController {
 				}
 			//发送消息队列
 			logger.info("离线同步校验通过,发送消息");
-			rabbitmqUtils.publish(map);
+			rabbitmqUtils.publish("offline",map);
 			return new ResultBean(ApiResultType.OK,null);
 		} catch (Exception e) {
 			logger.error(e.toString());
@@ -137,5 +137,34 @@ public class OfflineSynchronizedRestController extends BaseController {
 	@ResponseBody
 	public ResultBean offlinePush(HttpServletRequest request,@RequestBody Map<String,Object> map) {
 		return this.offlinePush(null, request,map);
+	}
+
+	/**
+	 * 埋点统计接口
+	 * @param type
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/buriedPoint/{type}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultBean buriedPoint(@PathVariable("type") String type,HttpServletRequest request,@RequestBody Map<String,Object> map) {
+		logger.info("访问终端:"+type);
+		try {
+			final String userInfoId = (String) request.getAttribute("userInfoId");
+			//追加userinfoid 消费校验
+			map.put("userInfoId",userInfoId);
+			//发送消息队列
+			rabbitmqUtils.publish("point",map);
+			return new ResultBean(ApiResultType.OK,null);
+		} catch (Exception e) {
+			logger.error(e.toString());
+			return new ResultBean(ApiResultType.SERVER_ERROR,null);
+		}
+	}
+
+	@RequestMapping(value = "/buriedPoint", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultBean buriedPoint(HttpServletRequest request,@RequestBody Map<String,Object> map) {
+		return this.buriedPoint(null, request,map);
 	}
 }
