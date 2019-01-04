@@ -127,13 +127,13 @@ public class ShoppingMallRestController {
         String userInfoId = (String) request.getAttribute("userInfoId");
         try {
             //加锁
-            if (!redisLock.lock(userInfoId)) {
+            if (!redisLock.lock(userInfoId+""+map.get("goodsId"))) {
                 return new ResultBean(ApiResultType.NOT_ALLOW_TO_EXCHANGE, null);
             }
             boolean flag = shoppingMallRestService.checkExchangeStatus(userInfoId);
             if (flag) {
                 //释放锁
-                redisLock.unlock(userInfoId);
+                redisLock.unlock(userInfoId+""+map.get("goodsId"));
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW2, null);
             }
             //根据商品id或消耗积分数+用户拥有总积分数
@@ -146,7 +146,7 @@ public class ShoppingMallRestController {
                     ResultBean resultBean = cashCheck(map);
                     if (!StringUtils.equals(resultBean.getCode(), "200")) {
                         //释放锁
-                        redisLock.unlock(userInfoId);
+                        redisLock.unlock(userInfoId+""+map.get("goodsId"));
                         return resultBean;
                     }
                     //定义1  小程序  2 移动端
@@ -155,7 +155,7 @@ public class ShoppingMallRestController {
                     ResultBean resultBean = cashCheck(map);
                     if (!StringUtils.equals(resultBean.getCode(), "200")) {
                         //释放锁
-                        redisLock.unlock(userInfoId);
+                        redisLock.unlock(userInfoId+""+map.get("goodsId"));
                         return resultBean;
                     }
                     //定义1  小程序
@@ -167,12 +167,12 @@ public class ShoppingMallRestController {
             //判断用户积分数
             if (integralTotal < goodsRestEntity.getFengfengTicketValue()) {
                 //释放锁
-                redisLock.unlock(userInfoId);
+                redisLock.unlock(userInfoId+""+map.get("goodsId"));
                 return new ResultBean(ApiResultType.INTEGRAL_EXCHANGE_NOT_ALLOW, null);
             }
             JSONObject jsonObject = shoppingMallRestService.toExchange(map, goodsRestEntity, userInfoId);
             //释放锁
-            redisLock.unlock(userInfoId);
+            redisLock.unlock(userInfoId+""+map.get("goodsId"));
             if (jsonObject.get("result") != null) {
                 ResultBean rb = jsonObject.getObject("result", ResultBean.class);
                 return rb;
@@ -181,7 +181,7 @@ public class ShoppingMallRestController {
         } catch (Exception e) {
             logger.error(e.toString());
             //释放锁
-            redisLock.unlock(userInfoId);
+            redisLock.unlock(userInfoId+""+map.get("goodsId"));
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }
