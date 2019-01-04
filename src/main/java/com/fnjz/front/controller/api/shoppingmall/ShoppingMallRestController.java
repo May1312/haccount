@@ -125,10 +125,12 @@ public class ShoppingMallRestController {
     @RequestMapping(value = {"/toExchange/{type}"}, method = RequestMethod.POST)
     @ResponseBody
     public ResultBean toExchange(@PathVariable("type") String type, @RequestBody Map<String, String> map, HttpServletRequest request) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
         try {
-            String userInfoId = (String) request.getAttribute("userInfoId");
             //加锁
-            redisLock.lock(userInfoId);
+            if (!redisLock.lock(userInfoId)) {
+                return new ResultBean(ApiResultType.NOT_ALLOW_TO_EXCHANGE, null);
+            }
             boolean flag = shoppingMallRestService.checkExchangeStatus(userInfoId);
             if (flag) {
                 //释放锁
@@ -172,13 +174,15 @@ public class ShoppingMallRestController {
             JSONObject jsonObject = shoppingMallRestService.toExchange(map, goodsRestEntity, userInfoId);
             //释放锁
             redisLock.unlock(userInfoId);
-            if(jsonObject.get("result")!=null){
-                ResultBean rb = jsonObject.getObject("result",ResultBean.class);
+            if (jsonObject.get("result") != null) {
+                ResultBean rb = jsonObject.getObject("result", ResultBean.class);
                 return rb;
             }
             return new ResultBean(ApiResultType.OK, jsonObject);
         } catch (Exception e) {
             logger.error(e.toString());
+            //释放锁
+            redisLock.unlock(userInfoId);
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
     }

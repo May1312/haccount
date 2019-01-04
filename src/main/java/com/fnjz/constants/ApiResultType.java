@@ -120,7 +120,9 @@ public enum ApiResultType {
     MONEY_LIMIT("10002","今日领取红包金额已达上限，请明日再来"),
 
     //已存在绑定关系，请勿重复绑定
-    HAD_BIND("10003","已存在绑定关系，请勿重复绑定");
+    HAD_BIND("10003","已存在绑定关系，请勿重复绑定"),
+
+    NOT_ALLOW_TO_EXCHANGE("10004","请勿重复提交,五分钟后再试");
 
 
     ApiResultType(String status, String str) {
