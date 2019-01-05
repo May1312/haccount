@@ -35,6 +35,7 @@
     <!-- queue 队列声明 -->
     <!-- durable 是否持久化 exclusive 仅创建者可以使用的私有队列，断开后自动删除 auto-delete 当所有消费端连接断开后，是否自动删除队列 -->
     <rabbit:queue id="offlinequeue" name="offlinequeue" durable="true" auto-delete="false"/>
+    <rabbit:queue id="buriedpointqueue" name="buriedpointqueue" durable="true" auto-delete="false"/>
 
     <!-- 交换机定义 -->
     <!--交换机：一个交换机可以绑定多个队列，一个队列也可以绑定到多个交换机上。
@@ -50,13 +51,13 @@
 
     <bean name="offlinePushConsumerListener" class="com.fnjz.front.rabbit.OfflinePushConsumerListener"></bean>
 
-    <!-- 配置监听 消费者 manual 手工确认消息-->
+    <!-- 配置监听 消费者 manual 手工确认消息  记账监听-->
     <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual">
         <rabbit:listener ref="offlinePushConsumerListener" queues="offlinequeue"></rabbit:listener>
     </rabbit:listener-container>
 
     <bean name="buriedPointConsumerListener" class="com.fnjz.front.rabbit.BuriedPointConsumerListener"></bean>
-    <!-- 配置监听 消费者 manual 手工确认消息-->
+    <!-- 配置监听 消费者 manual 手工确认消息  埋点监听-->
     <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual">
         <rabbit:listener ref="buriedPointConsumerListener" queues="buriedpointqueue"></rabbit:listener>
     </rabbit:listener-container>

@@ -154,7 +154,7 @@ public class OfflineSynchronizedRestController extends BaseController {
 			//追加userinfoid 消费校验
 			map.put("userInfoId",userInfoId);
 			//发送消息队列
-			rabbitmqUtils.publish("point",map);
+			rabbitmqUtils.publish("offline",map);
 			return new ResultBean(ApiResultType.OK,null);
 		} catch (Exception e) {
 			logger.error(e.toString());

@@ -26,6 +26,7 @@ class RestControllerr {
         Map<String,Object> map = new HashMap<>();
         map.put("name","fengniaojizhang");
         rabbitmqUtils.publish("point",map);
+        //rabbitmqUtils.publishForPoint("offline",map);
         return null;
     }
 }
