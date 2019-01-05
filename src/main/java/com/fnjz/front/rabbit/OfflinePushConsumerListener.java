@@ -41,11 +41,12 @@ class OfflinePushConsumerListener implements ChannelAwareMessageListener {
                 String synDate =jsonObject.get("synDate")+"";
                 String mobileDevice =jsonObject.get("mobileDevice")+"";
                 String userInfoId =jsonObject.get("userInfoId")+"";
+                String clientId =jsonObject.get("clientId")+"";
                 Date latelySynDate = offlineSynchronizedRestServiceI.getLatelySynDate(mobileDevice, userInfoId);
                 if(latelySynDate!=null&&synDate!=null){
                     if(StringUtils.equals(DateUtils.convert2StringAll(latelySynDate),DateUtils.convert2StringAll(Long.valueOf(synDate)))) {
                         List<WarterOrderRestNewLabel> list = JSONObject.parseArray(JSON.toJSONString(jsonObject.get("synData")),WarterOrderRestNewLabel.class);
-                        offlineSynchronizedRestServiceI.offlinePush(list,mobileDevice,userInfoId);
+                        offlineSynchronizedRestServiceI.offlinePush(list,mobileDevice,userInfoId,clientId);
                     }
                 }
             }

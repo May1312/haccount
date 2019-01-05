@@ -21,6 +21,6 @@ public interface BuriedPointRestDao {
      * 新增
      * @param entity
      */
-    @Sql("insert into hbird_buried_point (user_info_id,device_num,point_type_id,client_id,brand,model,wechat_version,system,platform,create_time) values (:entity.userInfoId,:entity.deviceNum,:entity.pointTypeId,:entity.clientId,:entity.brand,:entity.model,:entity.wechatVersion,:entity.system,:entity.platform,now());")
+    @Sql("insert into hbird_buried_point (user_info_id,device_num,point_type_id,client_id,brand,model,wechat_version,system_version,platform,create_time) values (:entity.userInfoId,:entity.deviceNum,:entity.pointTypeId,:entity.clientId,:entity.brand,:entity.model,:entity.wechatVersion,:entity.systemVersion,:entity.platform,now());")
     void insert(@Param("entity") BuriedPointRestEntity entity);
 }

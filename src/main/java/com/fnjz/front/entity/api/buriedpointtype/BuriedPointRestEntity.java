@@ -28,7 +28,7 @@ public class BuriedPointRestEntity implements Serializable {
     /**微信版本号*/
     private String wechatVersion;
     /**操作系统版本号*/
-    private String system;
+    private String systemVersion;
     /**客户端平台*/
     private String platform;
 
@@ -98,13 +98,13 @@ public class BuriedPointRestEntity implements Serializable {
     public void setWechatVersion(String wechatVersion) {
         this.wechatVersion = wechatVersion;
     }
-    @Column(name = "SYSTEM")
-    public String getSystem() {
-        return system;
+    @Column(name = "SYSTEM_VERSION")
+    public String getSystemVersion() {
+        return systemVersion;
     }
 
-    public void setSystem(String system) {
-        this.system = system;
+    public void setSystemVersion(String systemVersion) {
+        this.systemVersion = systemVersion;
     }
     @Column(name = "PLATFORM")
     public String getPlatform() {

@@ -10,7 +10,7 @@ CREATE TABLE `hbird_channel` (
 	`channel_corporation` VARCHAR ( 64 ) NOT NULL DEFAULT '无' COMMENT '合作公司[例如信息流的优化公司，或者短信推广时短信公司]/有含义描述/无',
 	`channel_name` VARCHAR ( 50 ) DEFAULT '' COMMENT '渠道名称：渠道类型_渠道媒体_合作公司',
 	`channel_nid` VARCHAR ( 128 ) NOT NULL DEFAULT '' COMMENT '渠道标识',
-	`create_time` datetime NOT NULL COMMENT '创建时间',
+	`create_time` datetime default NULL COMMENT '创建时间',
 	PRIMARY KEY ( `id` ),
 	KEY `INDEX_CHANNEL_NID` ( `channel_nid` )
 ) ENGINE = INNODB AUTO_INCREMENT = 0 DEFAULT CHARSET = utf8 COMMENT '推广渠道标识表';
@@ -45,6 +45,8 @@ insert into hbird_channel(`channel_type`,`channel_media`,`channel_corporation`,`
 values ('应用商店','安智','无','应用商店_安智_无','anzhi',now());
 insert into hbird_channel(`channel_type`,`channel_media`,`channel_corporation`,`channel_name`,`channel_nid`,`create_time`)
 values ('应用商店','机锋','无','应用商店_机锋_无',' jifeng',now());
+insert into hbird_channel(`channel_type`,`channel_media`,`channel_corporation`,`channel_name`,`channel_nid`,`create_time`)
+values ('微信小程序换量','大黄','无','小程序换量_大黄_无',' h0105',now());
 
 -- 埋点记录表
 drop table if exists hbird_buried_point;
@@ -58,9 +60,9 @@ CREATE TABLE `hbird_buried_point` (
 	`brand` VARCHAR ( 24 ) DEFAULT NULL COMMENT '手机品牌',
   `model` VARCHAR ( 24 ) DEFAULT NULL COMMENT '手机型号',
   `wechat_version` VARCHAR ( 24 ) DEFAULT NULL COMMENT '微信版本号',
-  `system` VARCHAR ( 24 ) DEFAULT NULL COMMENT '操作系统版本号',
+  `system_version` VARCHAR ( 24 ) DEFAULT NULL COMMENT '操作系统版本号',
   `platform` VARCHAR ( 24 ) DEFAULT NULL COMMENT '客户端平台',
-	`create_time` datetime NOT NULL COMMENT '创建时间',
+	`create_time` datetime default NULL COMMENT '创建时间',
 	PRIMARY KEY ( `id` ),
 	KEY `INDEX_POINT_TYPE_ID` ( `point_type_id` ),
 	KEY `INDEX_USER_INFO_ID` ( `user_info_id` ),
@@ -73,7 +75,7 @@ drop table if exists hbird_buried_point_type;
 CREATE TABLE `hbird_buried_point_type` (
 	`id` INT ( 11 ) NOT NULL AUTO_INCREMENT COMMENT '埋点类型id主键',
 	`point_desc` VARCHAR ( 64 ) NOT NULL COMMENT '埋点描述 例:记账按钮',
-	`create_time` datetime NOT NULL COMMENT '创建时间',
+	`create_time` datetime default NULL COMMENT '创建时间',
 	PRIMARY KEY ( `id` )
 ) ENGINE = INNODB AUTO_INCREMENT = 0 DEFAULT CHARSET = utf8 COMMENT '埋点类型表';
 -- 首页
@@ -88,7 +90,8 @@ insert into hbird_buried_point_type(`point_desc`,`create_time`) values ('邀请�
 insert into hbird_buried_point_type(`point_desc`,`create_time`) values ('切换日期按钮',now());
 insert into hbird_buried_point_type(`point_desc`,`create_time`) values ('备注输入框',now());
 insert into hbird_buried_point_type(`point_desc`,`create_time`) values ('选择购买心情',now());
-insert into hbird_buried_point_type(`point_desc`,`create_time`) values ('点击更多类别添加按钮',now());
+insert into hbird_buried_point_type(`point_desc`,`create_time`) values ('点击更多类别按钮',now());
+insert into hbird_buried_point_type(`point_desc`,`create_time`) values ('点击更多类别-添加按钮',now());
 insert into hbird_buried_point_type(`point_desc`,`create_time`) values ('点击完成',now());
 insert into hbird_buried_point_type(`point_desc`,`create_time`) values ('切换收入',now());
 -- 数据页
@@ -122,4 +125,7 @@ insert into hbird_buried_point_type(`point_desc`,`create_time`) values ('确认�
 
 
 -- hbird_user_info 增加 channel_id (渠道标识id)
+alter table hbird_user_info Add column channel_id int(3) comment '渠道标识id';
+
 --  hbird_water 增加 client_id (记录每笔所用终端)
+alter table hbird_water_order Add column client_id varchar(24) comment '记账终端';

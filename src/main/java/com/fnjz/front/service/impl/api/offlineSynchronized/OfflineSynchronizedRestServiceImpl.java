@@ -148,7 +148,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
      * @param userInfoId
      */
     @Override
-    public void offlinePush(List<WarterOrderRestNewLabel> list, String mobileDevice, String userInfoId) {
+    public void offlinePush(List<WarterOrderRestNewLabel> list, String mobileDevice, String userInfoId,String clientId) {
         //生成本次同步记录
         offlineSynchronizedRestDao.insert(mobileDevice, userInfoId);
         if (list != null) {
@@ -158,6 +158,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 list.sort(Comparator.naturalOrder());
                 for (WarterOrderRestNewLabel warter : list) {
                     warter = addLabelInfo(warter);
+                    warter.setClientId(clientId);
                     //同步数据
                     warterOrderRestDao.saveOrUpdateOfflineData(warter);
                 }

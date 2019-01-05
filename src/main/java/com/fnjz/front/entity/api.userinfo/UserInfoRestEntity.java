@@ -86,6 +86,8 @@ public class UserInfoRestEntity implements java.io.Serializable {
 	private java.util.Date registerDate;
 	/**更新时间*/
 	private java.util.Date updateDate;
+	/**渠道标识id*/
+	private Integer channelId;
 	
 	/**
 	 *方法: 取得java.lang.Integer
@@ -611,5 +613,13 @@ public class UserInfoRestEntity implements java.io.Serializable {
 
 	public void setAndroidChannel(String androidChannel) {
 		this.androidChannel = androidChannel;
+	}
+	@Column(name ="CHANNEL_ID")
+	public Integer getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(Integer channelId) {
+		this.channelId = channelId;
 	}
 }
