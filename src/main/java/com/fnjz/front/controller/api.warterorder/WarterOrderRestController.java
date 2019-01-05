@@ -139,7 +139,11 @@ public class WarterOrderRestController extends BaseController {
     @RequestMapping(value = "/toChargev2/{type}", method = RequestMethod.POST)
     @ResponseBody
     public ResultBean toChargev2(@PathVariable("type") String type, HttpServletRequest request, @RequestBody WarterOrderRestNewLabel charge) {
-        System.out.println("登录终端：" + type);
+        if(StringUtils.equals("android",type)||StringUtils.equals("ios",type)){
+            charge.setClientId(type);
+        }else{
+            charge.setClientId("wxapplet");
+        }
         ResultBean rb = ParamValidateUtils.checkToCharge(charge);
         if (rb != null) {
             return rb;

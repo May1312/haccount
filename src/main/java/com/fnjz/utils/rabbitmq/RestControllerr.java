@@ -25,7 +25,8 @@ class RestControllerr {
     public @ResponseBody ResultBean run() {
         Map<String,Object> map = new HashMap<>();
         map.put("name","fengniaojizhang");
-        rabbitmqUtils.publish(map);
+        rabbitmqUtils.publish("point",map);
+        //rabbitmqUtils.publishForPoint("offline",map);
         return null;
     }
 }

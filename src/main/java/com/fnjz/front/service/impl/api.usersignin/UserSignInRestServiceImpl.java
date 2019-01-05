@@ -118,9 +118,9 @@ public class UserSignInRestServiceImpl extends CommonServiceImpl implements User
             }
         }
         //更新redis缓存  去掉是否签到标识
-        //if (map.get("hasSigned") != null) {
-        //    map.remove("hasSigned");
-        //}
+        if (map.get("hasSigned") != null) {
+           map.remove("hasSigned");
+        }
         redisTemplateUtils.updateForHash(PREFIX_SIGN_IN + shareCode, map);
         //释放锁
         redisLock.unlock(userInfoId);

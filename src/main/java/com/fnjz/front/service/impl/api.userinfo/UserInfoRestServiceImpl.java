@@ -13,10 +13,10 @@ import com.fnjz.front.entity.api.userlogin.UserLoginRestEntity;
 import com.fnjz.front.entity.api.userprivatelabel.UserPrivateLabelRestEntity;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
+import com.fnjz.front.service.api.channel.ChannelRestServiceI;
 import com.fnjz.front.service.api.registerchannel.RegisterChannelRestServiceI;
 import com.fnjz.front.service.api.userinfo.UserInfoRestServiceI;
 import com.fnjz.front.utils.*;
-import com.fnjz.front.utils.newWeChat.WXAppletPushUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.jeecgframework.core.util.StringUtil;
@@ -46,24 +46,26 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
     @Autowired
     private CreateTokenUtils createTokenUtils;
     @Autowired
-    private UserInviteRestDao userInviteRestDao;
-    @Autowired
     private UserPrivateLabelRestDao userPrivateLabelRestDao;
     @Autowired
     private ThreadPoolTaskExecutor taskExecutor;
     @Autowired
-    private UserInfoAddFieldRestDao userInfoAddFieldRestDao;
-    @Autowired
     private RedisTemplateUtils redisTemplateUtils;
     @Autowired
-    private FengFengTicketRestDao fengFengTicketRestDao;
-    @Autowired
-    private WXAppletPushUtils wxAppletPushUtils;
-    @Autowired
     private RegisterChannelRestServiceI registerChannelRestServiceI;
+    @Autowired
+    private ChannelRestServiceI channelRestServiceI;
 
     @Override
     public int insert(UserInfoRestEntity userInfoRestEntity, String type) {
+        //判断渠道标识
+        if(StringUtils.isNotEmpty(userInfoRestEntity.getAndroidChannel())){
+            //判断渠道标识
+            Integer id = channelRestServiceI.getIdByChannelNid(userInfoRestEntity.getAndroidChannel());
+            if(id!=null){
+                userInfoRestEntity.setChannelId(id);
+            }
+        }
         int insertId = userInfoRestDao.insert(userInfoRestEntity);
         //获取主键,insert-->user login 表
         UserLoginRestEntity userLogin = new UserLoginRestEntity();
@@ -257,7 +259,22 @@ public class UserInfoRestServiceImpl extends CommonServiceImpl implements UserIn
         if (StringUtils.isNotEmpty(jsonObject.getString("mobile"))) {
             userInfoRestEntity.setMobile(map.get("mobile"));
         }
-
+        //判断android渠道标识
+        if(StringUtils.isNotEmpty(map.get("androidChannel"))){
+            //判断渠道标识
+            Integer id = channelRestServiceI.getIdByChannelNid(map.get("androidChannel"));
+            if(id!=null){
+                userInfoRestEntity.setChannelId(id);
+            }
+        }
+        //判断小程序渠道标识
+        if(StringUtils.isNotEmpty(map.get("wxappletChannel"))){
+            //判断渠道标识
+            Integer id = channelRestServiceI.getIdByChannelNid(map.get("wxappletChannel"));
+            if(id!=null){
+                userInfoRestEntity.setChannelId(id);
+            }
+        }
         //insert user info表
         int insertId = userInfoRestDao.insert(userInfoRestEntity);
         //获取主键,insert-->user login 表
