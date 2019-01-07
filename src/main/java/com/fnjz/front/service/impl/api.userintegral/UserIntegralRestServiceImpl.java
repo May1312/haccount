@@ -737,8 +737,8 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
         UserIntegralTopRestDTO mySelf = userIntegralRestDao.integralForMySelf(userInfoId);
         //获取自有头像  昵称
         Map<String,Object> map = userInfoRestDao.getNKAndAUById(Integer.valueOf(userInfoId));
-        mySelf.setNickName(map.get("nickname")+"");
-        mySelf.setAvatarUrl(map.get("avatarurl")+"");
+        mySelf.setNickName((String) map.get("nickname"));
+        mySelf.setAvatarUrl((String) map.get("avatarurl"));
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("top10", top);
         jsonObject.put("mySelf", mySelf);
