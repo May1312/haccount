@@ -86,7 +86,7 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
     @Override
     public JSONObject getAssetsv2(String userInfoId, String shareCode, String flag) {
         JSONObject jsonObject = new JSONObject();
-        if (StringUtils.isEmpty(flag)) {
+        if (StringUtils.isEmpty(flag)&&StringUtils.isNotEmpty(userInfoId)) {
             //定义 type 1为资产类 2为初始时间
             //查询用户拥有资产
             List<UserAssetsRestDTO> assets = userAssetsRestDao.getAssetsAllForDTO(userInfoId, 1);
