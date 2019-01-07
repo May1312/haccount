@@ -93,7 +93,7 @@ public class ParamValidateUtils {
      * @param map
      * @return
      */
-    public static ResultBean checkRegisterByWXApplet(Map<String, String> map) {
+    public static ResultBean       checkRegisterByWXApplet(Map<String, String> map) {
         //encryptedData 加密数据
         if (StringUtils.isEmpty(map.get("encryptedData"))) {
             return new ResultBean(ApiResultType.encryptedData_IS_NULL, null);

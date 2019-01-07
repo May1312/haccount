@@ -51,6 +51,7 @@ public enum ApiResultType {
     encryptedData_IS_NULL("01035","encryptedData为空，请检查！"),
     IV_IS_NULL("01036","iv为空，请检查！"),
     KEY_IS_NULL("01037","key为空，请检查！"),
+    RE_LOGIN("01038","请重新执行登录流程，key可能已失效"),
     MOBILE_IS_VAILD("999","手机号无此权限!"),
     ROBOT_IS_VAILD("888","测试用户号段必须不小于13位!"),
 

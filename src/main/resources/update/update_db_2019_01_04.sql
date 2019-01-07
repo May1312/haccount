@@ -44,9 +44,18 @@ values ('应用商店','搜狗','无','应用商店_搜狗_无','sougou',now());
 insert into hbird_channel(`channel_type`,`channel_media`,`channel_corporation`,`channel_name`,`channel_nid`,`create_time`)
 values ('应用商店','安智','无','应用商店_安智_无','anzhi',now());
 insert into hbird_channel(`channel_type`,`channel_media`,`channel_corporation`,`channel_name`,`channel_nid`,`create_time`)
-values ('应用商店','机锋','无','应用商店_机锋_无',' jifeng',now());
-insert into hbird_channel(`channel_type`,`channel_media`,`channel_corporation`,`channel_name`,`channel_nid`,`create_time`)
-values ('微信小程序换量','大黄','无','小程序换量_大黄_无',' h0105',now());
+values ('应用商店','机锋','无','应用商店_机锋_无','jifeng',now());
+INSERT INTO `hbird_channel`(`channel_type`, `channel_media`, `channel_corporation`, `channel_name`, `channel_nid`, `create_time`)
+VALUES ('微信小程序换量', '步步赚', '无', '微信小程序换量_步步赚_无', 'bubuzhuan1026', '2019-01-05 16:39:36');
+INSERT INTO `hbird_channel`(`channel_type`, `channel_media`, `channel_corporation`, `channel_name`, `channel_nid`, `create_time`)
+VALUES ('微信小程序换量', '王佳', '无', '微信小程序换量_王佳_无', 'wangjia1211', '2019-01-07 10:07:01');
+INSERT INTO `hbird_channel`(`channel_type`, `channel_media`, `channel_corporation`, `channel_name`, `channel_nid`, `create_time`)
+VALUES ('微信小程序换量', '换换乐', '无', '微信小程序换量_换换乐_无', 'huanhuanle1213', '2019-01-07 10:07:03');
+INSERT INTO `hbird_channel`(`channel_type`, `channel_media`, `channel_corporation`, `channel_name`, `channel_nid`, `create_time`)
+VALUES ('微信小程序换量', '动物冲鸭', '无', '微信小程序换量_动物冲鸭_无', 'dongwuchongya1225', '2019-01-07 10:07:09');
+INSERT INTO `hbird_channel`(`channel_type`, `channel_media`, `channel_corporation`, `channel_name`, `channel_nid`, `create_time`)
+VALUES ('微信小程序换量', '隐心民宿', '无', '微信小程序换量_隐心民宿_无', 'yinxinminsu1226', '2019-01-07 10:07:07');
+
 
 -- 埋点记录表
 drop table if exists hbird_buried_point;
