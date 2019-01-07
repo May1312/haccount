@@ -180,10 +180,18 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
     }
 
     private WarterOrderRestNewLabel addLabelInfo(WarterOrderRestNewLabel charge) {
+        //获取标签详情
+        UserPrivateLabelRestEntity userPrivateLabelRestEntity = null;
         //追加标签信息
         if (charge.getUserPrivateLabelId() != null) {
-            //获取标签详情
-            UserPrivateLabelRestEntity userPrivateLabelRestEntity = userPrivateLabelRestDao.selectInfoByLabelId(charge.getUserPrivateLabelId());
+            if(charge.getUserPrivateLabelId().intValue()==0){
+                if(charge.getTypeId()!=null){
+                    charge.setUserPrivateLabelId(Integer.valueOf(charge.getTypeId()));
+                    userPrivateLabelRestEntity = userPrivateLabelRestDao.selectInfoByLabelId(Integer.valueOf(charge.getTypeId()));
+                }
+            }else{
+                userPrivateLabelRestEntity = userPrivateLabelRestDao.selectInfoByLabelId(charge.getUserPrivateLabelId());
+            }
             if (userPrivateLabelRestEntity != null) {
                 charge.setTypePid(userPrivateLabelRestEntity.getTypePid());
                 charge.setTypeId(userPrivateLabelRestEntity.getTypeId());

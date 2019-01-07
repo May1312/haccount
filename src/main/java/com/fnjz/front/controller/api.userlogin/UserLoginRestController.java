@@ -297,7 +297,13 @@ public class UserLoginRestController extends BaseController {
         try {
             //解密  获取sessionkey
             String key = redisTemplateUtils.getSessionKey(map.get("key"));
-            JSONObject user = WXAppletDecodeUtils.getUserInfo(map.get("encryptedData"), key, map.get("iv"));
+            JSONObject user = null;
+            try {
+                user = WXAppletDecodeUtils.getUserInfo(map.get("encryptedData"), key, map.get("iv"));
+            } catch (Exception e) {
+                logger.error("小程序解密用户数据异常:"+e.toString());
+                return new ResultBean(ApiResultType.RE_LOGIN, null);
+            }
             logger.info(user.toJSONString());
             if (user == null) {
                 return new ResultBean(ApiResultType.WXAPPLET_LOGIN_ERROR, null);
@@ -581,7 +587,13 @@ public class UserLoginRestController extends BaseController {
 
         String session_key = jsonObject.getString("session_key");
         //根据sessionkey解密unionid
-        JSONObject user = WXAppletDecodeUtils.getUserInfo(map.get("encryptedData"), session_key, map.get("iv"));
+        JSONObject user = null;
+        try {
+            user = WXAppletDecodeUtils.getUserInfo(map.get("encryptedData"), session_key, map.get("iv"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResultBean(ApiResultType.RE_LOGIN,null);
+        }
         //微信解码正常判断是否已经注册
         if (user != null && StringUtils.isNotEmpty(user.getString("unionId"))) {
             String unionId = user.getString("unionId");
