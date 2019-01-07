@@ -38,7 +38,7 @@ public interface RegisterChannelRestDao {
      * @param channel
      * @return
      */
-    @Sql("SELECT COALESCE(sum( base2.integral_num ),0) FROM hbird_register_channel AS base1 INNER JOIN hbird_user_total_integrals AS base2 ON base1.user_info_id = base2.user_info_id WHERE base1.channel =:channel AND base1.type = 1;")
+    @Sql("SELECT COALESCE(sum( base2.integral_num_decimal ),0) FROM hbird_register_channel AS base1 INNER JOIN hbird_user_total_integrals AS base2 ON base1.user_info_id = base2.user_info_id WHERE base1.channel =:channel AND base1.type = 1;")
     int getStatisticsForIntegral(@Param("channel") String channel);
 
     /**
