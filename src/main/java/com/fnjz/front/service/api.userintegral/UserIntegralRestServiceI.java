@@ -20,7 +20,7 @@ public interface UserIntegralRestServiceI extends CommonService{
      * @param userInfoId
      * @return
      */
-    PageRest listForPage(String userInfoId, Integer curPage, Integer pageSize);
+    PageRest listForPage(String userInfoId, Integer curPage, Integer pageSize,Integer type);
 
     /**
      * 获取今日任务/新手任务完成情况

@@ -7,12 +7,15 @@ import com.fnjz.constants.ApiResultType;
 import com.fnjz.front.dao.ShoppingMallRestDao;
 import com.fnjz.front.dao.UserInfoAddFieldRestDao;
 import com.fnjz.front.dao.UserIntegralRestDao;
+import com.fnjz.front.dao.UserInviteRestDao;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsListRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ReportShopRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestEntity;
+import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.ShoppingMallExchangeEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
@@ -65,6 +68,9 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
 
     @Autowired
     private WeChatPayUtils weChatPayUtils;
+
+    @Autowired
+    private UserInviteRestDao userInviteRestDao;
 
     /**
      * 获取可用商品
@@ -572,5 +578,35 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public List<ReportShopRestDTO> reportShop() {
+        return shoppingMallRestDao.reportShop();
+    }
+
+    @Override
+    public List<ReportShopRestDTO> reportForInvited() {
+        return shoppingMallRestDao.reportForInvited();
+    }
+
+    /**
+     * 好友累计贡献积分+已邀请好友数+好友邀请好友数
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public Map<String, Object> invitedData(String userInfoId) {
+        //好友累计贡献积分
+        Double integrales = userIntegralRestDao.getIntegralByType(userInfoId,AcquisitionModeEnum.BONUS.getIndex());
+        //已邀请好友数
+        Integer invitedNum = userInviteRestDao.getCountForInvitedUsers(userInfoId);
+        //好友邀请好友数
+        Integer invitedNum2 = userInviteRestDao.getCountForReInvitedUsers(userInfoId);
+        Map<String,Object> map = new HashMap<>();
+        map.put("invitedIntegrales",integrales);
+        map.put("invitedFriendsNum",invitedNum);
+        map.put("invitedFriendsNum2",invitedNum2);
+        return map;
     }
 }

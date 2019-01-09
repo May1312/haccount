@@ -66,9 +66,9 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
         if(pageSize!=null){
             pageRest.setPageSize(pageSize);
         }
-        List<UserInviteRestDTO> listForPage = userInviteRestDao.listForPage(userInfoId,pageRest.getStartIndex(),pageRest.getPageSize());
+        List<UserInviteRestDTO> listForPage = userInviteRestDao.listForPagev2(userInfoId,pageRest.getStartIndex(),pageRest.getPageSize());
         //获取总条数
-        Integer count = userInviteRestDao.getCountForInvitedUsers(userInfoId);
+        Integer  count = userInviteRestDao.getCountForInvitedUsers(userInfoId);
         //设置总记录数
         pageRest.setTotalCount(count);
         //设置返回结果

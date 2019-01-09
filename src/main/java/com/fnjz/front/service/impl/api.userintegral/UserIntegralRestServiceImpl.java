@@ -87,11 +87,11 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     }
                     userSignInAwardRestDao.update(bean);
                     //添加到积分记录表
-                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), Integer.valueOf(cycle), CategoryOfBehaviorEnum.SignIn.getIndex(),Double.parseDouble(ff.getBehaviorTicketValue()+""));
+                    userIntegralRestDao.insertSignInIntegral(userInfoId, ff.getId() + "", ff.getBehaviorTicketValue(), AcquisitionModeEnum.SignIn.getDescription(), Integer.valueOf(cycle), CategoryOfBehaviorEnum.SignIn.getIndex(), Double.parseDouble(ff.getBehaviorTicketValue() + ""));
                     //修改总积分数
-                    userIntegralRestDao.updateForTotalIntegral(userInfoId,ff.getBehaviorTicketValue() ,new BigDecimal(ff.getBehaviorTicketValue()+""));
+                    userIntegralRestDao.updateForTotalIntegral(userInfoId, ff.getBehaviorTicketValue(), new BigDecimal(ff.getBehaviorTicketValue() + ""));
                     //返利
-                    createTokenUtils.addIntegralByInvitedUser(userInfoId,ff,CategoryOfBehaviorEnum.TodayTask,AcquisitionModeEnum.BONUS);
+                    createTokenUtils.addIntegralByInvitedUser(userInfoId, ff, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.BONUS);
                 }
             }
             //解锁
@@ -100,13 +100,25 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
     }
 
     @Override
-    public PageRest listForPage(String userInfoId, Integer curPage, Integer pageSize) {
+    public PageRest listForPage(String userInfoId, Integer curPage, Integer pageSize, Integer type) {
         PageRest pageRest = new PageRest();
         if (curPage != null) {
             pageRest.setCurPage(curPage);
         }
         if (pageSize != null) {
             pageRest.setPageSize(pageSize);
+        }
+        if (type != null) {
+            if (type == AcquisitionModeEnum.BONUS.getIndex()) {
+                List<UserIntegralRestDTO> listForPage = userIntegralRestDao.listForPage(userInfoId, pageRest.getStartIndex(), pageRest.getPageSize(), type);
+                //获取总条数
+                Integer count = userIntegralRestDao.getCount(userInfoId, type);
+                //设置总记录数
+                pageRest.setTotalCount(count);
+                //设置返回结果
+                pageRest.setContent(listForPage);
+                return pageRest;
+            }
         }
         List<UserIntegralRestDTO> listForPage = userIntegralRestDao.listForPage(userInfoId, pageRest.getStartIndex(), pageRest.getPageSize());
         //获取总条数
@@ -729,14 +741,14 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
     public JSONObject integralTop10(String userInfoId) {
         //获取top10
         List<UserIntegralTopRestDTO> top = userIntegralRestDao.integralTop(10);
-        for(int i= 0;i<top.size();i++){
+        for (int i = 0; i < top.size(); i++) {
             //设置排名
-            top.get(i).setRank(i+1);
+            top.get(i).setRank(i + 1);
         }
         //获取自有排名
         UserIntegralTopRestDTO mySelf = userIntegralRestDao.integralForMySelf(userInfoId);
         //获取自有头像  昵称
-        Map<String,Object> map = userInfoRestDao.getNKAndAUById(Integer.valueOf(userInfoId));
+        Map<String, Object> map = userInfoRestDao.getNKAndAUById(Integer.valueOf(userInfoId));
         mySelf.setNickName((String) map.get("nickname"));
         mySelf.setAvatarUrl((String) map.get("avatarurl"));
         JSONObject jsonObject = new JSONObject();
@@ -912,7 +924,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 JSONObject jsonObject = JSONObject.parseObject(v1 + "");
                 String key = jsonObject.getString("name") + "Aware";
 
-                if(cacheSysNewbieTask.get(key)!=null){
+                if (cacheSysNewbieTask.get(key) != null) {
                     Integer integral = Integer.valueOf(cacheSysNewbieTask.get(key) + "");
                     jsonObject.put("integralAware", integral);
                     newbieTask2.add(jsonObject);
@@ -1004,7 +1016,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
             todayTask.forEach(v1 -> {
                 JSONObject jsonObject = JSONObject.parseObject(v1 + "");
                 String key = jsonObject.getString("name") + "Aware";
-                if(cacheSysTodayTask.get(key)!=null){
+                if (cacheSysTodayTask.get(key) != null) {
                     Integer integral = Integer.valueOf(cacheSysTodayTask.get(key) + "");
                     jsonObject.put("integralAware", integral);
                     todayTask2.add(jsonObject);
@@ -1072,12 +1084,13 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
     }
 
     @Test
-    public void run2(){
+    public void run2() {
         LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
         //凌晨时间戳-当前时间戳
         long cacheTime = time.toEpochSecond(ZoneOffset.of("+8")) - LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
         System.out.println(cacheTime);
     }
+
     /**
      * 校验map长度
      *
@@ -1100,7 +1113,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                     LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
                     //凌晨时间戳-当前时间戳
                     long cacheTime = time.toEpochSecond(ZoneOffset.of("+8")) - LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
-                    logger.info("每日任务换成时间s:"+cacheTime);
+                    logger.info("每日任务换成时间s:" + cacheTime);
                     redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, newbieTask.toJSONString(), cacheTime, TimeUnit.SECONDS);
                 }
             }
@@ -1235,7 +1248,7 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
                 LocalDateTime time = LocalDate.now().atTime(23, 59, 59);
                 //凌晨时间戳-当前时间戳
                 long cacheTime = time.toEpochSecond(ZoneOffset.of("+8")) - LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
-                logger.info("每日任务换成时间s:"+cacheTime);
+                logger.info("每日任务换成时间s:" + cacheTime);
                 redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_TODAY_TASK + shareCode, newbieTask.toJSONString(), cacheTime, TimeUnit.SECONDS);
                 return newbieTask;
             }
