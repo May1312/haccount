@@ -10,20 +10,25 @@ import com.fnjz.front.entity.api.integralsactivity.IntegralsActivityRestEntity;
 import com.fnjz.front.entity.api.integralsactivity.UserIntegralsActivityRestDTO;
 import com.fnjz.front.entity.api.integralsactivity.UserIntegralsActivitySumRestDTO;
 import com.fnjz.front.entity.api.integralsactivityrange.IntegralsActivityRangeRestEntity;
+import com.fnjz.front.entity.api.message.MessageEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ReportShopRestDTO;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.integralsactivity.IntegralsActivityService;
+import com.fnjz.front.service.api.message.MessageServiceI;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Service("integralsActivityService")
 @Transactional
-public class IntegralsActivityServiceImpl implements IntegralsActivityService {
+public class IntegralsActivityServiceImpl extends CommonServiceImpl implements IntegralsActivityService {
 
     @Autowired
     private IntegralsActivityRestDao integralsActivityRestDao;
@@ -42,6 +47,12 @@ public class IntegralsActivityServiceImpl implements IntegralsActivityService {
 
     @Autowired
     private UserIntegralRestDao userIntegralRestDao;
+
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
+
+    @Autowired
+    private MessageServiceI messageService;
 
     //500积分=10元
     private static BigDecimal bigDecimal = new BigDecimal(0.02);
@@ -136,6 +147,18 @@ public class IntegralsActivityServiceImpl implements IntegralsActivityService {
         //扣除积分
         userIntegralRestDao.insertSignInIntegral(userInfoId, iaId, null, AcquisitionModeEnum.USER_INTEGRAL_ACTIVITY.getDescription(), AcquisitionModeEnum.USER_INTEGRAL_ACTIVITY.getIndex(), CategoryOfBehaviorEnum.INTEGRALS_ACTIVITY.getIndex(), Double.parseDouble("-"+integral));
         userIntegralRestDao.updateForTotalIntegral(userInfoId, null, new BigDecimal("-"+integral));
+        taskExecutor.execute(()->{
+            int userInfoId2 = Integer.valueOf(userInfoId);
+            //消息内容
+            String message="您已成功参加明天的记账挑战活动,记得明天来记账哦~";
+            MessageEntity messageEntity = new MessageEntity();
+            messageEntity.setUserInfoId(userInfoId2);
+            messageEntity.setContent(message);
+            messageEntity.setCreateBy(userInfoId2);
+            messageEntity.setStatus(2);
+            messageEntity.setCreateDate(new Date());
+            this.save(messageEntity);
+        });
     }
 
     @Override
