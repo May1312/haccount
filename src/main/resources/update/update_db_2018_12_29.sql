@@ -42,3 +42,56 @@ UPDATE hbird_user_assets AS base2,
 SET base2.assets_name = base3.assets_name
 WHERE
 	base2.assets_type = base3.assets_type;
+
+
+-- 同步 hbird_spend_type   hbird_income_type   提前创建两张表表
+
+UPDATE hbird_spend_type AS base2
+INNER JOIN ( SELECT icon, spend_name AS typename FROM `hbird_spend_type_test` WHERE parent_id IS NOT NULL ) AS base1 ON base2.spend_name = base1.typename
+SET base2.icon = base1.icon where parent_id is not null;
+
+
+UPDATE hbird_income_type AS base2
+INNER JOIN ( SELECT icon, income_name AS typename FROM `hbird_income_type_test` WHERE parent_id IS NOT NULL ) AS base1 ON base2.income_name = base1.typename
+SET base2.icon = base1.icon where parent_id is not null;
+
+
+-- 更新用户自有标签表
+UPDATE hbird_user_private_label AS base2
+INNER JOIN (
+	SELECT
+		icon,
+		spend_name AS typename
+	FROM
+		`hbird_spend_type_test`
+	WHERE
+		parent_id IS NOT NULL UNION ALL
+	SELECT
+		icon,
+		income_name AS typename
+	FROM
+		`hbird_income_type_test`
+	WHERE
+		parent_id IS NOT NULL
+	) AS base1 ON base2.type_name = base1.typename
+	SET base2.icon = base1.icon;
+
+
+UPDATE hbird_water_order AS base2
+INNER JOIN (
+	SELECT
+		icon,
+		spend_name AS typename
+	FROM
+		`hbird_spend_type_test`
+	WHERE
+		parent_id IS NOT NULL UNION ALL
+	SELECT
+		icon,
+		income_name AS typename
+	FROM
+		`hbird_income_type_test`
+	WHERE
+		parent_id IS NOT NULL
+	) AS base1 ON base2.type_name = base1.typename
+	SET base2.icon = base1.icon where base2.type_name is not null;
