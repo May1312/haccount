@@ -14,6 +14,11 @@ public class ReportShopRestDTO{
 	 */
 	private Object value;
 
+	/**
+	 * 对应数值
+	 */
+	private Object value2;
+
 
 	public String getNickName() {
 		return nickName;
@@ -29,5 +34,13 @@ public class ReportShopRestDTO{
 
 	public void setValue(Object value) {
 		this.value = value;
+	}
+
+	public Object getValue2() {
+		return value2;
+	}
+
+	public void setValue2(Object value2) {
+		this.value2 = value2;
 	}
 }

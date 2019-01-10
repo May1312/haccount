@@ -24,4 +24,6 @@ public interface UserInviteRestServiceI {
     PageRest listForPage(String userInfoId, Integer curPage, Integer pageSize);
 
     ResultBean insert(int i, int inviteCode);
+
+    Object listForPagev2(String userInfoId, Integer curPage, Integer pageSize);
 }

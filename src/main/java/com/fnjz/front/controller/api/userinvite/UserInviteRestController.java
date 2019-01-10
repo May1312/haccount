@@ -28,7 +28,7 @@ public class UserInviteRestController {
     private UserInviteRestServiceI userInviteRestServiceI;
 
     /**
-     * 获取今日任务/新手任务完成情况
+     * 获取历史邀请好友
      * @param request
      * @return
      */
@@ -38,6 +38,23 @@ public class UserInviteRestController {
         String userInfoId = (String) request.getAttribute("userInfoId");
         try {
             return new ResultBean(ApiResultType.OK,userInviteRestServiceI.listForPage(userInfoId, curPage, pageSize));
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 获取历史邀请好友  加入返回积分数
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = {"/historyInviteUsersv2", "/historyInviteUsersv2/{type}"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean historyInviteUsersv2(HttpServletRequest request, @RequestParam(value="curPage",required = false) Integer curPage, @RequestParam(value="pageSize",required = false) Integer pageSize) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            return new ResultBean(ApiResultType.OK,userInviteRestServiceI.listForPagev2(userInfoId, curPage, pageSize));
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);

@@ -190,4 +190,9 @@ public class RedisPrefix {
      * 小程序端服务推送 userinfoid  openid
      */
     public static final String PREFIX_WXAPPLET_USERINFOID_OPENID = "wxapplet_userinfoid_openid:";
+
+    /**
+     * 头部轮播缓存
+     */
+    public static final String PREFIX_HEAD_REPORT = "head_report:";
 }

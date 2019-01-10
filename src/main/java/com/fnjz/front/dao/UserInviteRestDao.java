@@ -50,7 +50,7 @@ public interface UserInviteRestDao {
      * @param pageSize
      * @return
      */
-    @Sql("SELECT base2.user_info_id,sum(base2.integral_num_double) as integral_num,base3.nick_name,base3.avatar_url,base3.register_date from hbird_user_invite as base1 INNER JOIN hbird_user_integral as base2 on base1.invite_user_info_id=base2.user_info_id INNER JOIN hbird_user_info as base3 on base2.user_info_id=base3.id WHERE base1.user_info_id =:userInfoId AND base1.type = 1 and base2.integral_num_double>0 group by base2.user_info_id order by base3.register_date desc LIMIT :curpage,:itemPerPage;")
+    @Sql("SELECT COALESCE(sum(base2.integral_num_double),0) as integral_num,base3.nick_name,base3.avatar_url,base3.register_date from hbird_user_invite as base1 LEFT JOIN hbird_user_integral as base2 on base1.invite_user_info_id=base2.user_info_id LEFT JOIN hbird_user_info as base3 on base1.invite_user_info_id=base3.id WHERE base1.user_info_id =:userInfoId AND base1.type = 1 group by base1.invite_user_info_id order by base3.register_date desc LIMIT :curpage,:itemPerPage;")
     List<UserInviteRestDTO> listForPagev2(@Param("userInfoId") String userInfoId,@Param("curpage") int startIndex,@Param("itemPerPage") int pageSize);
 
     /**

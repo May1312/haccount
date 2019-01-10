@@ -111,7 +111,7 @@ public enum ApiResultType {
 
     //积分校验相关
     INTEGRAL_EXCHANGE_NOT_ALLOW2("09001","当前用户存在兑换中商品,不允许再次兑换！"),
-    INTEGRAL_EXCHANGE_NOT_ALLOW("09002","当前用户积分数不允许兑换！"),
+    INTEGRAL_EXCHANGE_NOT_ALLOW("09002","当前用户积分数不足！"),
 
     NOT_ALLOW_VISIT("09003","无此权限查看账本！"),
 
