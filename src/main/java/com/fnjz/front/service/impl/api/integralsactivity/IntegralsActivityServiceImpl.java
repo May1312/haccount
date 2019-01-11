@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -179,6 +180,27 @@ public class IntegralsActivityServiceImpl extends CommonServiceImpl implements I
         //设置返回结果
         pageRest.setContent(listForPage);
         return pageRest;
+    }
+
+    @Override
+    public void chargeToIntegralsActivity(String userInfoId) {
+        //判断用户是否参加(查看当前天往前推一天是否存在参与活动记录)---->判断用户是否达标
+        LocalDate time = LocalDate.now().minusDays(1);
+        Map<String,Integer> map = integralsActivityRestDao.checkSignUpByUserInfoIdAndTime(userInfoId, time.toString());
+        if(map!=null){
+            if(map.get("status")!=null){
+                //已参赛-----> 判断当前状态
+                if(map.get("status")==1){
+                    //1----->已报名，未记账---->执行更新流程
+                    integralsActivityRestDao.updateIntegralActivityForChangeDate(map.get("id"));
+                }
+            }
+        }
+    }
+
+    @Override
+    public IntegralsActivityRestEntity getIntegralsActivityById(String iaId) {
+        return integralsActivityRestDao.getIntegralsActivityById(iaId);
     }
 
     @Test

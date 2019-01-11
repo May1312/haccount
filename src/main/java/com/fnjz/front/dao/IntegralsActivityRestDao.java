@@ -10,6 +10,7 @@ import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.Sql;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by yhang on 2019/1/9.
@@ -57,4 +58,23 @@ public interface IntegralsActivityRestDao {
 
     @Sql("select count(id) from hbird_user_integrals_activity where user_info_id=:userInfoId;")
     Integer getCountForUserIntegrals(@Param("userInfoId") String userInfoId);
+
+    @Sql("select id,create_date from hbird_integrals_activity where id=:iaId;")
+    IntegralsActivityRestEntity getIntegralsActivityById(@Param("iaId") String iaId);
+
+    /**
+     * 查看指定日期用户是否参与记账挑战赛
+     * @param userInfoId
+     * @param time
+     * @return
+     */
+    @Sql("SELECT id,status FROM hbird_user_integrals_activity WHERE user_info_id =:userInfoId and create_date LIKE concat(:time,'%');")
+    Map<String,Integer> checkSignUpByUserInfoIdAndTime(@Param("userInfoId") String userInfoId, @Param("time") String time);
+
+    /**
+     * 更新记账挑战赛---->记账状态
+     * @param id
+     */
+    @Sql("UPDATE `hbird_integrals_activity` SET `status` = 2, `charge_date` = now( ), `update_date` = now( ) WHERE `id` = :id;")
+    void updateIntegralActivityForChangeDate(@Param("id") Integer id);
 }

@@ -123,7 +123,9 @@ public enum ApiResultType {
     //已存在绑定关系，请勿重复绑定
     HAD_BIND("10003","已存在绑定关系，请勿重复绑定"),
 
-    NOT_ALLOW_TO_EXCHANGE("10004","请勿重复提交,五分钟后再试");
+    NOT_ALLOW_TO_EXCHANGE("10004","请勿重复提交,五分钟后再试"),
+
+    ACTIVITY_IS_END("10005","本期活动已截止，请参加下期");
 
 
     ApiResultType(String status, String str) {

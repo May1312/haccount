@@ -3,17 +3,22 @@ package com.fnjz.front.controller.api.integralsactivity;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.integralsactivity.IntegralsActivityRestEntity;
 import com.fnjz.front.entity.api.integralsactivityrange.IntegralsActivityRangeRestEntity;
 import com.fnjz.front.service.api.integralsactivity.IntegralsActivityService;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
 import com.fnjz.front.utils.RedisLockUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.util.StringUtil;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -132,6 +137,19 @@ public class IntegralsActivityRestController {
         }
         //获取用户参与的积分区间
         IntegralsActivityRangeRestEntity integralsActivityRangeRestEntity = integralsActivityService.getIntegralsActivityRangeById(map.get("iarId"));
+        //获取期数信息
+        IntegralsActivityRestEntity integralsActivityRestEntity = integralsActivityService.getIntegralsActivityById(map.get("iarId"));
+        if(integralsActivityRestEntity!=null){
+            if(integralsActivityRestEntity.getCreateDate()!=null){
+                LocalDateTime localDateTime = LocalDateTime.ofInstant(integralsActivityRestEntity.getCreateDate().toInstant(), ZoneId.systemDefault()).withHour(23).withMinute(59).withSecond(59);
+                //不允许报名
+                if(LocalDateTime.now().isAfter(localDateTime)){
+                    //释放锁
+                    redisLock.unlock("integral:"+userInfoId+"_"+map.get("iaId"));
+                    return new ResultBean(ApiResultType.ACTIVITY_IS_END, null);
+                }
+            }
+        }
         //查看积分数是否达标
         double integralTotal = userIntegralRestServiceI.getUserTotalIntegral(userInfoId);
         //判断用户积分数
@@ -151,5 +169,15 @@ public class IntegralsActivityRestController {
             redisLock.unlock("integral:"+userInfoId+"_"+map.get("iaId"));
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
+    }
+
+    @Test
+    public void run() {
+        Date date = new Date(1547222400000L);//凌晨截止
+        Date date2 = new Date(1547222399000L);//59分
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        LocalDateTime localDateTime2 = LocalDateTime.ofInstant(date2.toInstant(), zone);
+        System.out.println(localDateTime2.isBefore(localDateTime));
     }
 }

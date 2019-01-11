@@ -49,4 +49,12 @@ public interface IntegralsActivityService {
      * @return
      */
     Object getPersonalActivityInfoForPage(String userInfoId, Integer curPage, Integer pageSize);
+
+    /**
+     * 用户记账---->记账挑战完成业务
+     * @param userInfoId
+     */
+    void chargeToIntegralsActivity(String userInfoId);
+
+    IntegralsActivityRestEntity getIntegralsActivityById(String iarId);
 }
