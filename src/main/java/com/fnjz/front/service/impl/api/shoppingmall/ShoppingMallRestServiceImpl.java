@@ -613,7 +613,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
             List<ReportShopRestDTO> reportShopRestDTOS = shoppingMallRestDao.reportForInvited();
             int inviteFriendsAware = redisTemplateUtils.getForHashKey(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, "inviteFriendsAware");
             reportShopRestDTOS.forEach(v -> {
-                v.setValue2((Integer.parseInt(v.getValue() + "") * inviteFriendsAware) * 0.2);
+                v.setValue2((Integer.parseInt(v.getValue() + "") * inviteFriendsAware) * 0.02);
             });
             if (reportShopRestDTOS != null) {
                 if (reportShopRestDTOS.size() > 0) {
