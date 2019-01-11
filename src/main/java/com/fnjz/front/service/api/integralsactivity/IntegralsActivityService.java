@@ -57,4 +57,6 @@ public interface IntegralsActivityService {
     void chargeToIntegralsActivity(String userInfoId);
 
     IntegralsActivityRestEntity getIntegralsActivityById(String iarId);
+
+    IntegralsActivityRestEntity checkActivityResult(String userInfoId);
 }

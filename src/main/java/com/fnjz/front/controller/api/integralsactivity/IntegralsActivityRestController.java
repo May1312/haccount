@@ -1,5 +1,6 @@
 package com.fnjz.front.controller.api.integralsactivity;
 
+import cn.jiguang.common.utils.StringUtils;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
@@ -8,6 +9,7 @@ import com.fnjz.front.entity.api.integralsactivityrange.IntegralsActivityRangeRe
 import com.fnjz.front.service.api.integralsactivity.IntegralsActivityService;
 import com.fnjz.front.service.api.userintegral.UserIntegralRestServiceI;
 import com.fnjz.front.utils.RedisLockUtils;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.util.StringUtil;
 import org.junit.Test;
@@ -39,6 +41,9 @@ public class IntegralsActivityRestController {
 
     @Autowired
     private UserIntegralRestServiceI userIntegralRestServiceI;
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     /**
      * 获取积分活动页头部记录播报
@@ -80,6 +85,28 @@ public class IntegralsActivityRestController {
         String userInfoId = (String) request.getAttribute("userInfoId");
         try {
             return new ResultBean(ApiResultType.OK,integralsActivityService.getPersonalActivity(userInfoId));
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 检查前推两期是否达标---->查看系统结果
+     * @return
+     */
+    @RequestMapping(value = {"/checkActivityResult", "/checkActivityResult/{type}"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean checkActivityResult(HttpServletRequest request) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        try {
+            //查看是否存在缓存
+            String forString = redisTemplateUtils.getForString(RedisPrefix.PREFIX_INTEGRALS_ACTIVITY + userInfoId);
+            if(StringUtils.isNotEmpty(forString)){
+                return new ResultBean(ApiResultType.OK,null);
+            }else{
+                return new ResultBean(ApiResultType.OK,integralsActivityService.checkActivityResult(userInfoId));
+            }
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);

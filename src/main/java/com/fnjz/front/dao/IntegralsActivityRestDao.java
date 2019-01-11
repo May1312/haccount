@@ -77,4 +77,13 @@ public interface IntegralsActivityRestDao {
      */
     @Sql("UPDATE `hbird_integrals_activity` SET `status` = 2, `charge_date` = now( ), `update_date` = now( ) WHERE `id` = :id;")
     void updateIntegralActivityForChangeDate(@Param("id") Integer id);
+
+    /**
+     * 检查前推两期是否达标---->查看系统结果
+     * @param userInfoId
+     * @param time
+     * @return
+     */
+    @Sql("SELECT id,(integrals+get_integrals) AS total_integrals, create_date FROM hbird_user_integrals_activity WHERE user_info_id=:userInfoId and create_date LIKE concat( :time, '%') AND STATUS = 3;")
+    IntegralsActivityRestEntity checkActivityResult(@Param("userInfoId") String userInfoId,@Param("time") String time);
 }
