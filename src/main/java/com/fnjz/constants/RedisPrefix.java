@@ -195,4 +195,9 @@ public class RedisPrefix {
      * 头部轮播缓存
      */
     public static final String PREFIX_HEAD_REPORT = "head_report:";
+
+    /**
+     * 缓存活动成功读取次数
+     */
+    public static final String PREFIX_INTEGRALS_ACTIVITY = "user_integrals_activity_success:";
 }

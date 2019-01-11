@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -201,6 +202,30 @@ public class IntegralsActivityServiceImpl extends CommonServiceImpl implements I
     @Override
     public IntegralsActivityRestEntity getIntegralsActivityById(String iaId) {
         return integralsActivityRestDao.getIntegralsActivityById(iaId);
+    }
+
+    private static String success = "success";
+    /**
+     * 检查前推两期是否达标---->查看系统结果
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public IntegralsActivityRestEntity checkActivityResult(String userInfoId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate time = now.toLocalDate().minusDays(2);
+        IntegralsActivityRestEntity integralsActivityRestEntity = integralsActivityRestDao.checkActivityResult(userInfoId, time.toString());
+        if(integralsActivityRestEntity!=null){
+            if(integralsActivityRestEntity.getId()!=null){
+                //读取一次
+                LocalDateTime time2 = LocalDate.now().atTime(23, 59, 59);
+                //凌晨时间戳-当前时间戳
+                long cacheTime = time2.toEpochSecond(ZoneOffset.of("+8")) - now.toEpochSecond(ZoneOffset.of("+8"));
+                redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_INTEGRALS_ACTIVITY + userInfoId, success, cacheTime, TimeUnit.SECONDS);
+                return integralsActivityRestEntity;
+            }
+        }
+        return null;
     }
 
     @Test
