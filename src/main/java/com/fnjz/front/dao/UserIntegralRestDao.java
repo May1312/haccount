@@ -42,12 +42,23 @@ public interface UserIntegralRestDao {
     List<UserIntegralRestDTO> listForPage(@Param("userInfoId")String userInfoId, @Param("curpage") Integer curpage, @Param("itemPerPage") Integer itemPerPage);
 
     /**
+     * 根据类型查询积分记录
+     * @param userInfoId
+     * @param type
+     * @return
+     */
+    @Sql("SELECT integral_num_double as integral_num,description,create_date FROM hbird_user_integral where user_info_id=:userInfoId and type=:type ORDER BY create_date desc LIMIT :curpage,:itemPerPage")
+    List<UserIntegralRestDTO> listForPage(@Param("userInfoId")String userInfoId, @Param("curpage") Integer curpage, @Param("itemPerPage") Integer itemPerPage,@Param("type")Integer type);
+    /**
      * 分页统计
      * @param userInfoId
      * @return
      */
     @Sql("select count(*) from hbird_user_integral where user_info_id=:userInfoId")
     Integer getCount(@Param("userInfoId")String userInfoId);
+
+    @Sql("select count(*) from hbird_user_integral where user_info_id=:userInfoId and type=:type;")
+    Integer getCount(@Param("userInfoId")String userInfoId,@Param("type")Integer type);
 
     /**
      * 统计积分流水中  连签 7/14/21/28签到历史记录  用户恢复历史
@@ -119,4 +130,8 @@ public interface UserIntegralRestDao {
 
     @Sql("update hbird_user_total_integrals set integral_num_decimal = integral_num_decimal+:decimal,update_date=now() where user_info_id=:userInfoId;")
     void updateForTotalIntegral(@Param("userInfoId") String userInfoId,@Param("integralNum") Integer integer,@Param("decimal") BigDecimal decimal);
+
+    //好友累计贡献积分
+    @Sql("select sum(integral_num_double) from hbird_user_integral where user_info_id=:userInfoId and type=:type;")
+    Double getIntegralByType(@Param("userInfoId") String userInfoId,@Param("type") int index);
 }

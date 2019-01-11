@@ -111,7 +111,7 @@ public enum ApiResultType {
 
     //积分校验相关
     INTEGRAL_EXCHANGE_NOT_ALLOW2("09001","当前用户存在兑换中商品,不允许再次兑换！"),
-    INTEGRAL_EXCHANGE_NOT_ALLOW("09002","当前用户积分数不允许兑换！"),
+    INTEGRAL_EXCHANGE_NOT_ALLOW("09002","当前用户积分数不足！"),
 
     NOT_ALLOW_VISIT("09003","无此权限查看账本！"),
 
@@ -123,7 +123,9 @@ public enum ApiResultType {
     //已存在绑定关系，请勿重复绑定
     HAD_BIND("10003","已存在绑定关系，请勿重复绑定"),
 
-    NOT_ALLOW_TO_EXCHANGE("10004","请勿重复提交,五分钟后再试");
+    NOT_ALLOW_TO_EXCHANGE("10004","请勿重复提交,五分钟后再试"),
+
+    ACTIVITY_IS_END("10005","本期活动已截止，请参加下期");
 
 
     ApiResultType(String status, String str) {

@@ -4,18 +4,23 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
+import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.dao.ShoppingMallRestDao;
 import com.fnjz.front.dao.UserInfoAddFieldRestDao;
 import com.fnjz.front.dao.UserIntegralRestDao;
+import com.fnjz.front.dao.UserInviteRestDao;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsListRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ReportShopRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestEntity;
+import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.enums.ShoppingMallExchangeEnum;
 import com.fnjz.front.service.api.shoppingmall.ShoppingMallRestService;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.newWeChat.WeChatPayUtils;
 import com.fnjz.utils.sms.TemplateCode;
 import com.fnjz.utils.sms.chuanglan.sms.util.ChuangLanSmsUtil;
@@ -44,6 +49,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by yhang on 2018/10/20.
@@ -65,6 +71,9 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
 
     @Autowired
     private WeChatPayUtils weChatPayUtils;
+
+    @Autowired
+    private UserInviteRestDao userInviteRestDao;
 
     /**
      * 获取可用商品
@@ -549,7 +558,7 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
                     } else if (StringUtils.equals(jsonObject1.getString("Status"), "失败")) {
                         shoppingMallRestDao.update(list.get(0).getId() + "", 3, jsonObject1.getString("ReMark"));
                         //记录积分消耗表
-                        userIntegralRestDao.insertShoppingMallIntegral(userInfoId, list.get(0).getId() + "", list.get(0).getFengfengTicketValue()+"", list.get(0).getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex(), Double.parseDouble(list.get(0).getFengfengTicketValue()+""));
+                        userIntegralRestDao.insertShoppingMallIntegral(userInfoId, list.get(0).getId() + "", list.get(0).getFengfengTicketValue() + "", list.get(0).getGoodsName(), CategoryOfBehaviorEnum.SHOPPING_MALL_EXCHANGE.getIndex(), Double.parseDouble(list.get(0).getFengfengTicketValue() + ""));
                         //修改总积分值
                         userIntegralRestDao.updateForTotalIntegral(userInfoId, Integer.valueOf(list.get(0).getFengfengTicketValue()), new BigDecimal(list.get(0).getFengfengTicketValue()));
                         list.get(0).setStatus(3);
@@ -571,5 +580,67 @@ public class ShoppingMallRestServiceImpl implements ShoppingMallRestService {
         } else {
             return false;
         }
+    }
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
+
+    @Override
+    public List<ReportShopRestDTO> reportShop() {
+        String forString = redisTemplateUtils.getForString(RedisPrefix.PREFIX_HEAD_REPORT + "shop");
+        if (StringUtils.isNotEmpty(forString)) {
+            List list = JSON.parseObject(forString, List.class);
+            return list;
+        } else {
+            List<ReportShopRestDTO> reportShopRestDTOS = shoppingMallRestDao.reportShop();
+            if (reportShopRestDTOS != null) {
+                if (reportShopRestDTOS.size() > 0) {
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_HEAD_REPORT + "shop", JSONObject.toJSONString(reportShopRestDTOS), RedisPrefix.SESSION_KEY_TIME, TimeUnit.DAYS);
+                }
+            }
+            return reportShopRestDTOS;
+        }
+    }
+
+    @Override
+    public List<ReportShopRestDTO> reportForInvited() {
+        String forString = redisTemplateUtils.getForString(RedisPrefix.PREFIX_HEAD_REPORT + "invite");
+        if (StringUtils.isNotEmpty(forString)) {
+            List list = JSON.parseObject(forString, List.class);
+            return list;
+        } else {
+            List<ReportShopRestDTO> reportShopRestDTOS = shoppingMallRestDao.reportForInvited();
+            int inviteFriendsAware = redisTemplateUtils.getForHashKey(RedisPrefix.SYS_INTEGRAL_TODAY_TASK, "inviteFriendsAware");
+            reportShopRestDTOS.forEach(v -> {
+                v.setValue2((Integer.parseInt(v.getValue() + "") * inviteFriendsAware) * 0.2);
+            });
+            if (reportShopRestDTOS != null) {
+                if (reportShopRestDTOS.size() > 0) {
+                    redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_HEAD_REPORT + "invite", JSONObject.toJSONString(reportShopRestDTOS), RedisPrefix.SESSION_KEY_TIME, TimeUnit.DAYS);
+                }
+            }
+            return reportShopRestDTOS;
+        }
+    }
+
+    /**
+     * 好友累计贡献积分+已邀请好友数+好友邀请好友数
+     *
+     * @param userInfoId
+     * @return
+     */
+    @Override
+    public Map<String, Object> invitedData(String userInfoId) {
+        //好友累计贡献积分
+        Double integrales = userIntegralRestDao.getIntegralByType(userInfoId, AcquisitionModeEnum.BONUS.getIndex());
+        //已邀请好友数
+        Integer invitedNum = userInviteRestDao.getCountForInvitedUsers(userInfoId);
+        //好友邀请好友数
+        Integer invitedNum2 = userInviteRestDao.getCountForReInvitedUsers(userInfoId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("invitedIntegrales", integrales == null ? 0 : integrales);
+        map.put("invitedFriendsNum", invitedNum == null ? 0 : invitedNum);
+        map.put("invitedFriendsNum2", invitedNum2 == null ? 0 : invitedNum2);
+        return map;
     }
 }

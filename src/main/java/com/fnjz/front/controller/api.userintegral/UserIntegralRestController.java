@@ -74,10 +74,10 @@ public class UserIntegralRestController extends BaseController {
      */
     @RequestMapping(value = {"/historyIntegral", "/historyIntegral/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean historyIntegral(HttpServletRequest request, @RequestParam(value="curPage",required = false) Integer curPage, @RequestParam(value="pageSize",required = false) Integer pageSize) {
+    public ResultBean historyIntegral(HttpServletRequest request, @RequestParam(value="curPage",required = false) Integer curPage, @RequestParam(value="pageSize",required = false) Integer pageSize, @RequestParam(value="type",required = false) Integer type) {
         String userInfoId = (String) request.getAttribute("userInfoId");
         try {
-            PageRest page = userIntegralRestServiceI.listForPage(userInfoId, curPage, pageSize);
+            PageRest page = userIntegralRestServiceI.listForPage(userInfoId, curPage, pageSize,type);
             return new ResultBean(ApiResultType.OK,page);
         } catch (Exception e) {
             logger.error(e.toString());

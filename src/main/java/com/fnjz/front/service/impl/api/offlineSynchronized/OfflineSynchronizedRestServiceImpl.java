@@ -12,6 +12,7 @@ import com.fnjz.front.entity.api.warterorder.WarterOrderRestEntity;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
+import com.fnjz.front.service.api.integralsactivity.IntegralsActivityService;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.CreateTokenUtils;
@@ -52,6 +53,9 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
 
     @Autowired
     private WarterOrderRestServiceI warterOrderRestServiceI;
+
+    @Autowired
+    private IntegralsActivityService integralsActivityService;
 
     /**
      * 获取最新同步时间
@@ -173,6 +177,8 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                         createTokenUtils.integralTask(userInfoId, null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
                         //引入当日任务 ---->记账达3笔
                         createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
+                        //记账挑战赛任务
+                        integralsActivityService.chargeToIntegralsActivity(userInfoId);
                     }
                 }
             }

@@ -16,6 +16,7 @@ import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
+import com.fnjz.front.service.api.integralsactivity.IntegralsActivityService;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.DateUtils;
@@ -58,6 +59,9 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
+
+    @Autowired
+    private IntegralsActivityService integralsActivityService;
 
     @Test
     public void run() {
@@ -347,6 +351,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
             //打卡统计
             myCount(sharecode,userInfoId);
+            //记账挑战赛任务
+            integralsActivityService.chargeToIntegralsActivity(userInfoId);
         });
     }
 

@@ -4,6 +4,7 @@ import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsListRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ReportShopRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangeRestEntity;
@@ -62,4 +63,14 @@ public interface ShoppingMallRestDao {
 
     @Sql("select count(id) from hbird_shopping_mall_integral_exchange where user_info_id=:userInfoId and status=1;")
     int checkExchangeStatus(@Param("userInfoId") String userInfoId);
+
+    /**
+     * 取二十条不重复记录
+     * @return
+     */
+    @Sql("SELECT DISTINCT base1.user_info_id,base2.nick_name,base3.goods_name as value FROM `hbird_shopping_mall_integral_exchange` as base1 INNER JOIN hbird_user_info as base2 on base1.user_info_id=base2.id INNER JOIN hbird_goods as base3 on base1.goods_id=base3.id where base1.status=2 order by base1.create_date desc limit 20;")
+    List<ReportShopRestDTO> reportShop();
+
+    @Sql("select base2.nick_name,base1.top as value from (select count(*) as top,user_info_id from hbird_user_invite where type=1 group by user_info_id) as base1 INNER JOIN hbird_user_info as base2 on base1.user_info_id=base2.id order by base1.top desc limit 20;")
+    List<ReportShopRestDTO> reportForInvited();
 }

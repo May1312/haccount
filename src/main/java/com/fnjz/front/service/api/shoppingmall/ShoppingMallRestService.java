@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsListRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ReportShopRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
 
 import java.util.List;
@@ -62,4 +63,23 @@ public interface ShoppingMallRestService {
      * @return
      */
     boolean checkExchangeStatus(String userInfoId);
+
+    /**
+     * 获取商城头部兑换播报
+     * @return
+     */
+    List<ReportShopRestDTO> reportShop();
+
+    /**
+     * 获取邀请好友头部兑换播报
+     * @return
+     */
+    List<ReportShopRestDTO> reportForInvited();
+
+    /**
+     * 好友累计贡献积分+已邀请好友数+好友邀请好友数
+     * @param userInfoId
+     * @return
+     */
+    Map<String,Object> invitedData(String userInfoId);
 }

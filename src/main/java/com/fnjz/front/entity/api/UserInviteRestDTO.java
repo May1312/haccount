@@ -14,6 +14,9 @@ public class UserInviteRestDTO {
     private String avatarUrl;
 
     private Date registerDate;
+
+    private double integralNum;
+
     @Column(name ="NICK_NAME",length=32)
     public String getNickName() {
         return nickName;
@@ -37,5 +40,13 @@ public class UserInviteRestDTO {
 
     public void setRegisterDate(Date registerDate) {
         this.registerDate = registerDate;
+    }
+
+    public double getIntegralNum() {
+        return integralNum;
+    }
+
+    public void setIntegralNum(double integralNum) {
+        this.integralNum = integralNum;
     }
 }

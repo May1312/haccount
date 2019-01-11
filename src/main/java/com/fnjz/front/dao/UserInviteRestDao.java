@@ -44,6 +44,16 @@ public interface UserInviteRestDao {
     List<UserInviteRestDTO> listForPage(@Param("userInfoId") String userInfoId,@Param("curpage") int startIndex,@Param("itemPerPage") int pageSize);
 
     /**
+     * 返回积分数
+     * @param userInfoId
+     * @param startIndex
+     * @param pageSize
+     * @return
+     */
+    @Sql("SELECT COALESCE(sum(base2.integral_num_double),0) as integral_num,base3.nick_name,base3.avatar_url,base3.register_date from hbird_user_invite as base1 LEFT JOIN hbird_user_integral as base2 on base1.invite_user_info_id=base2.user_info_id LEFT JOIN hbird_user_info as base3 on base1.invite_user_info_id=base3.id WHERE base1.user_info_id =:userInfoId AND base1.type = 1 group by base1.invite_user_info_id order by base3.register_date desc LIMIT :curpage,:itemPerPage;")
+    List<UserInviteRestDTO> listForPagev2(@Param("userInfoId") String userInfoId,@Param("curpage") int startIndex,@Param("itemPerPage") int pageSize);
+
+    /**
      * 积分返利   查询当前用户的邀请人昵称
      * @param userInfoId
      * @param beginTime
@@ -59,5 +69,13 @@ public interface UserInviteRestDao {
      * @return
      */
     @Sql("select COALESCE(count(id),0) from hbird_user_invite where invite_user_info_id=:inviteUserInfoId;")
-    int checkExists(@Param("inviteUserInfoId") int inviteUserInfoId);
+    Integer checkExists(@Param("inviteUserInfoId") int inviteUserInfoId);
+
+    /**
+     * 好友邀请好友数
+     * @param userInfoId
+     * @return
+     */
+    @Sql("select count(id) from (select invite_user_info_id from hbird_user_invite where user_info_id =:userInfoId and type=1) as base1 INNER JOIN hbird_user_invite as base2 on base1.invite_user_info_id=base2.user_info_id;")
+    Integer getCountForReInvitedUsers(@Param("userInfoId") String userInfoId);
 }

@@ -25,7 +25,9 @@ public enum AcquisitionModeEnum {
     Become_hbird_user(14,"Become_hbird_user","成为蜂鸟记账用户","beUser"),
     //Record_keeping_mood(13,"Record_keeping_mood","记录记账心情","");
     //话术描述  返给您丰丰票红利
-    BONUS(17,null,"返给您丰丰票红利",null);
+    BONUS(17,null,"返给您丰丰票红利",null),
+    USER_INTEGRAL_ACTIVITY(18,null,"记账挑战赛扣除",null),
+    USER_INTEGRAL_ACTIVITY2(19,null,"记账挑战成功",null);
 
     private int index;
     private String name;

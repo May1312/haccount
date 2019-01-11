@@ -8,6 +8,7 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.goods.GoodsInfoRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsListRestDTO;
 import com.fnjz.front.entity.api.goods.GoodsRestEntity;
+import com.fnjz.front.entity.api.shoppingmallintegralexchange.ReportShopRestDTO;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ShoppingMallIntegralExchangePhysicalRestDTO;
 import com.fnjz.front.entity.api.userinfo.ConsigneeAddressRestDTO;
 import com.fnjz.front.enums.LoginEnum;
@@ -402,5 +403,39 @@ public class ShoppingMallRestController {
     @ResponseBody
     public ResultBean uploadCode(HttpServletRequest request, @RequestBody Map<String, String> map) {
         return this.uploadCode(null, request, map);
+    }
+
+    /**
+     * 获取商城首页兑换记录播报
+     * @return
+     */
+    @RequestMapping(value = {"/reportForShop"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean reportShop() {
+       List<ReportShopRestDTO> list = shoppingMallRestService.reportShop();
+        return new ResultBean(ApiResultType.OK,list);
+    }
+
+    /**
+     * 获取邀请好友头部记录播报
+     * @return
+     */
+    @RequestMapping(value = {"/reportForInvited"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean reportForInvited() {
+        List<ReportShopRestDTO> list = shoppingMallRestService.reportForInvited();
+        return new ResultBean(ApiResultType.OK,list);
+    }
+
+    /**
+     * 好友累计贡献积分数  好友累计贡献积分+已邀请好友数+好友邀请好友数
+     * @return
+     */
+    @RequestMapping(value = {"/invitedData"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean invitedData(HttpServletRequest request) {
+        String userInfoId = (String) request.getAttribute("userInfoId");
+        Map<String,Object> map = shoppingMallRestService.invitedData(userInfoId);
+        return new ResultBean(ApiResultType.OK,map);
     }
 }
