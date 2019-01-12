@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -93,7 +94,12 @@ public class OfflineSynchronizedRestController extends BaseController {
             map.put("clientId", type);
             //发送消息队列
             logger.info("离线同步校验通过,发送消息");
-            rabbitmqUtils.publish("offline", map);
+            if(map.get("synData")!=null){
+                List list = (List) map.get("synData");
+                if(list.size()>0){
+                    rabbitmqUtils.publish("offline", map);
+                }
+            }
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());

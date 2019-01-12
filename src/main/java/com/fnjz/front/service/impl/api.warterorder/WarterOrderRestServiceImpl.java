@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fnjz.front.dao.AccountBookRestDao;
+import com.fnjz.front.dao.UserAssetsRestDao;
 import com.fnjz.front.dao.UserPrivateLabelRestDao;
 import com.fnjz.front.dao.WarterOrderRestDao;
 import com.fnjz.front.entity.api.PageRest;
@@ -62,6 +63,9 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 
     @Autowired
     private IntegralsActivityService integralsActivityService;
+
+    @Autowired
+    private UserAssetsRestDao userAssetsRestDao;
 
     @Test
     public void run() {
@@ -354,6 +358,130 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             //记账挑战赛任务
             integralsActivityService.chargeToIntegralsActivity(userInfoId);
         });
+    }
+
+    /**
+     * 修改资产
+     */
+    private void updateAssets(WarterOrderRestNewLabel water) {
+        //判断新增(差值小于10ms内)  删除   更新情况  分别处理
+        long abs = Math.abs(water.getCreateDate().getTime() - water.getUpdateDate().getTime());
+        if (abs < 10 && water.getDelflag() == 0) {
+            //新增情况
+            if (water.getOrderType() == 1) {
+                //支出
+                userAssetsRestDao.updateMoneyv3(new BigDecimal(-+(water.getMoney()).doubleValue()), water.getUpdateBy(), water.getAssetsId());
+            } else {
+                //收入
+                userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+            }
+        } else if (abs > 10 && water.getDelflag() == 0) {
+            //更新情况  获取原纪录
+            WarterOrderRestNewLabel oldWater = warterOrderRestDao.findWaterOrderByIdForMoneyAndUpdateBy(water.getId());
+            //第一层判断  更新自己数据  or  更新他人数据
+            if (water.getUpdateBy().intValue() == oldWater.getUpdateBy()) {
+                //自有数据   判断订单类型
+                if (water.getOrderType().intValue() == oldWater.getOrderType().intValue()) {
+                    //判断订单类型
+                    if (water.getOrderType().intValue() == 1) {
+                        //判断账户类型是否修改
+                        if (water.getAssetsId().intValue() == oldWater.getAssetsId().intValue()) {
+                            //支出
+                            //同类型   新值-旧值
+                            BigDecimal subtract = water.getMoney().subtract(oldWater.getMoney());
+                            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+(subtract).doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                        } else {
+                            //账户类型修改
+                            //支出----新纪录
+                            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+water.getMoney().doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                            //支出----旧纪录
+                            userAssetsRestDao.updateMoneyv3(oldWater.getMoney(), water.getUpdateBy(), oldWater.getAssetsId());
+                        }
+                    } else {
+                        //判断账户类型是否修改
+                        if (water.getAssetsId().intValue() == oldWater.getAssetsId().intValue()) {
+                            //同类型
+                            BigDecimal subtract = water.getMoney().subtract(oldWater.getMoney());
+                            userAssetsRestDao.updateMoneyv3(subtract, water.getUpdateBy(), water.getAssetsId());
+                        } else {
+                            //账户类型修改
+                            //收入----新纪录
+                            userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+                            //收入----旧纪录
+                            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+oldWater.getMoney().doubleValue()), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                        }
+                    }
+                } else {
+                    //订单类型修改  新订单支出  旧订单收入
+                    if (water.getOrderType().intValue() == 1) {
+                        //判断账户类型是否修改
+                        if (water.getAssetsId().intValue() == oldWater.getAssetsId().intValue()) {
+                            BigDecimal add = (new BigDecimal(-+(water.getMoney()).doubleValue())).add(new BigDecimal(-+(oldWater.getMoney()).doubleValue()));
+                            userAssetsRestDao.updateMoneyv3(add, water.getUpdateBy(), water.getAssetsId());
+                        } else {
+                            //支出----新纪录
+                            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+water.getMoney().doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                            //收入----旧记录
+                            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+oldWater.getMoney().doubleValue()), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                        }
+                    } else {
+                        //新订单收入   旧订单支出
+                        //判断账户类型是否修改
+                        if (water.getAssetsId().intValue() == oldWater.getAssetsId().intValue()) {
+                            BigDecimal add = water.getMoney().add(oldWater.getMoney());
+                            userAssetsRestDao.updateMoneyv3(add, water.getUpdateBy(), water.getAssetsId());
+                        } else {
+                            //收入----新纪录
+                            userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+                            //支出----旧记录
+                            userAssetsRestDao.updateMoneyv3(oldWater.getMoney(), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                        }
+                    }
+                }
+            } else {
+                //更新他人数据
+                if (water.getOrderType().intValue() == oldWater.getOrderType().intValue()) {
+                    //同类型   修改两人数据
+                    //判断订单类型
+                    if (water.getOrderType().intValue() == 1) {
+                        //支出--->新人
+                        userAssetsRestDao.updateMoneyv3(new BigDecimal(-+water.getMoney().doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                        //支出--->旧人 恢复
+                        userAssetsRestDao.updateMoneyv3(oldWater.getMoney(), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                    } else {
+                        //收入----新纪录
+                        userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+                        //收入----旧纪录
+                        userAssetsRestDao.updateMoneyv3(new BigDecimal(-+oldWater.getMoney().doubleValue()), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                    }
+                } else {
+                    //订单类型修改  新订单支出  旧订单收入
+                    if (water.getOrderType().intValue() == 1) {
+                        //支出--->新人
+                        userAssetsRestDao.updateMoneyv3(new BigDecimal(-+water.getMoney().doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                        //收入--->旧人 恢复
+                        userAssetsRestDao.updateMoneyv3(new BigDecimal(-+oldWater.getMoney().doubleValue()), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                    } else {
+                        //新订单收入   旧订单支出
+                        //收入--->新人
+                        userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+                        //支出--->旧人 恢复
+                        userAssetsRestDao.updateMoneyv3(oldWater.getMoney(), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                    }
+                }
+            }
+        } else if (water.getDelflag() == 1) {
+            if (water.getAssetsId() != 0) {
+                //删除情况  与新增 反之
+                if (water.getOrderType() == 1) {
+                    //支出
+                    userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+                } else {
+                    //收入
+                    userAssetsRestDao.updateMoneyv3(new BigDecimal(-+(water.getMoney()).doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                }
+            }
+        }
     }
 
     /**
