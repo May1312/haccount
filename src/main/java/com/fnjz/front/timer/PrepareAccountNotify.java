@@ -3,6 +3,7 @@ package com.fnjz.front.timer;
 import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.wxappletmessagetemp.WXAppletMessageTempRestEntity;
 import com.fnjz.front.service.api.wxappletmessagetemp.WXAppletMessageTempService;
+import com.fnjz.front.utils.RedisLockUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
 import org.apache.commons.lang.xwork.StringUtils;
 import org.apache.log4j.Logger;
@@ -37,6 +38,9 @@ public class PrepareAccountNotify implements Job {
 
     @Autowired
     private WXAppletMessageTempService wxAppletMessageTempService;
+
+    @Autowired
+    private RedisLockUtils redisLock;
 
     /**
      * 锁
@@ -148,6 +152,8 @@ public class PrepareAccountNotify implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
-        accountNotify();
+        if (redisLock.lock("prepareAccountNotify_islock")) {
+            accountNotify();
+        }
     }
 }
