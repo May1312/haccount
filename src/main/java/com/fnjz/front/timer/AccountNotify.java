@@ -3,6 +3,7 @@ package com.fnjz.front.timer;
 import com.fnjz.commonbean.WXAppletMessageBean;
 import com.fnjz.front.entity.api.wxappletmessagetemp.WXAppletAccountNotifyTempRestEntity;
 import com.fnjz.front.service.api.wxappletmessagetemp.WXAppletMessageTempService;
+import com.fnjz.front.utils.RedisLockUtils;
 import com.fnjz.front.utils.newWeChat.WXAppletPushUtils;
 import org.apache.log4j.Logger;
 import org.quartz.Job;
@@ -35,6 +36,9 @@ public class AccountNotify implements Job {
 
     @Autowired
     private WXAppletMessageTempService wxAppletMessageTempService;
+
+    @Autowired
+    private RedisLockUtils redisLock;
 
     /**
      * 线程数定义
@@ -100,7 +104,9 @@ public class AccountNotify implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
-        accountNotify();
+        if (redisLock.lock("accountNotify_islock")) {
+            accountNotify();
+        }
     }
 
     /**

@@ -102,7 +102,9 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
         //校验邀请码
         int i = userInfoRestDao.checkUserExists(userInfoId);
         if(i>0){
-            redisLock.lock(inviteUserInfoId+"");
+            if (!redisLock.lock("invited_"+inviteUserInfoId)) {
+                return new ResultBean(ApiResultType.NOT_ALLOW_TO_EXCHANGE, null);
+            }
             int j = userInviteRestDao.checkExists(inviteUserInfoId);
             if(j<1){
                 userInviteRestDao.insert(userInfoId, inviteUserInfoId);
@@ -139,10 +141,10 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
                         }
                     }
                 });
-                redisLock.unlock(inviteUserInfoId+"");
+                redisLock.unlock("invited_"+inviteUserInfoId);
                 return new ResultBean(ApiResultType.OK,null);
             }else{
-                redisLock.unlock(inviteUserInfoId+"");
+                redisLock.unlock("invited_"+inviteUserInfoId);
                 return new ResultBean(ApiResultType.HAD_BIND,null);
             }
         }else{
