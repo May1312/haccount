@@ -1,10 +1,7 @@
 package com.fnjz.front.service.impl.api.offlineSynchronized;
 
 import com.fnjz.constants.RedisPrefix;
-import com.fnjz.front.dao.OfflineSynchronizedRestDao;
-import com.fnjz.front.dao.UserAccountBookRestDao;
-import com.fnjz.front.dao.UserPrivateLabelRestDao;
-import com.fnjz.front.dao.WarterOrderRestDao;
+import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.offlineSynchronized.SynDateRestDTO;
 import com.fnjz.front.entity.api.userprivatelabel.UserPrivateLabelRestEntity;
 import com.fnjz.front.entity.api.warterorder.APPWarterOrderRestDTO;
@@ -24,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -56,6 +54,9 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
 
     @Autowired
     private IntegralsActivityService integralsActivityService;
+
+    @Autowired
+    private UserAssetsRestDao userAssetsRestDao;
 
     /**
      * 获取最新同步时间
@@ -134,8 +135,8 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 userAccountBookRestDao.updateBindABFlag(userInfoId);
             }
             list = warterOrderRestDao.findAllWaterListV2(userInfoId, latelySynDate.getSynDate());
-            if(list2!=null){
-                if(list2.size()>0){
+            if (list2 != null) {
+                if (list2.size() > 0) {
                     list.addAll(list2);
                 }
             }
@@ -152,7 +153,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
      * @param userInfoId
      */
     @Override
-    public void offlinePush(List<WarterOrderRestNewLabel> list, String mobileDevice, String userInfoId,String clientId) {
+    public void offlinePush(List<WarterOrderRestNewLabel> list, String mobileDevice, String userInfoId, String clientId) {
         //生成本次同步记录
         offlineSynchronizedRestDao.insert(mobileDevice, userInfoId);
         if (list != null) {
@@ -163,6 +164,8 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 for (WarterOrderRestNewLabel warter : list) {
                     warter = addLabelInfo(warter);
                     warter.setClientId(clientId);
+                    //修改资产
+                    updateAssets(warter);
                     //同步数据
                     warterOrderRestDao.saveOrUpdateOfflineData(warter);
                 }
@@ -170,16 +173,145 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 createTokenUtils.updateABtime(list.get(0).getAccountBookId());
                 //记账总笔数置
                 int chargeTotal = warterOrderRestServiceI.chargeTotalv2(userInfoId);
-                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT+shareCode,"chargeTotal",chargeTotal);
+                redisTemplateUtils.updateForHashKey(RedisPrefix.PREFIX_MY_COUNT + shareCode, "chargeTotal", chargeTotal);
                 if (list.get(list.size() - 1).getCreateDate() != null) {
                     if (LocalDateTime.ofInstant(list.get(list.size() - 1).getCreateDate().toInstant(), ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now())) {
                         //引入当日任务
                         createTokenUtils.integralTask(userInfoId, null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
                         //引入当日任务 ---->记账达3笔
-                        createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
+                        createTokenUtils.integralTask(userInfoId, null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
                         //记账挑战赛任务
                         integralsActivityService.chargeToIntegralsActivity(userInfoId);
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void run2() {
+        System.out.println(Math.abs((new Date()).getTime() - (new Date()).getTime()) < 10);
+    }
+
+    /**
+     * 修改资产
+     */
+    private void updateAssets(WarterOrderRestNewLabel water) {
+        //判断新增(差值小于10ms内)  删除   更新情况  分别处理
+        long abs = Math.abs(water.getCreateDate().getTime() - water.getUpdateDate().getTime());
+        if (abs < 10 && water.getDelflag() == 0) {
+            //新增情况
+            if (water.getOrderType() == 1) {
+                //支出
+                userAssetsRestDao.updateMoneyv3(new BigDecimal(-+(water.getMoney()).doubleValue()), water.getUpdateBy(), water.getAssetsId());
+            } else {
+                //收入
+                userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+            }
+        } else if (abs > 10 && water.getDelflag() == 0) {
+            //更新情况  获取原纪录
+            WarterOrderRestNewLabel oldWater = warterOrderRestDao.findWaterOrderByIdForMoneyAndUpdateBy(water.getId());
+            //第一层判断  更新自己数据  or  更新他人数据
+            if (water.getUpdateBy().intValue() == oldWater.getUpdateBy()) {
+                //自有数据   判断订单类型
+                if (water.getOrderType().intValue() == oldWater.getOrderType().intValue()) {
+                    //判断订单类型
+                    if (water.getOrderType().intValue() == 1) {
+                        //判断账户类型是否修改
+                        if (water.getAssetsId().intValue() == oldWater.getAssetsId().intValue()) {
+                            //支出
+                            //同类型   新值-旧值
+                            BigDecimal subtract = water.getMoney().subtract(oldWater.getMoney());
+                            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+(subtract).doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                        } else {
+                            //账户类型修改
+                            //支出----新纪录
+                            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+water.getMoney().doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                            //支出----旧纪录
+                            userAssetsRestDao.updateMoneyv3(oldWater.getMoney(), water.getUpdateBy(), oldWater.getAssetsId());
+                        }
+                    } else {
+                        //判断账户类型是否修改
+                        if (water.getAssetsId().intValue() == oldWater.getAssetsId().intValue()) {
+                            //同类型
+                            BigDecimal subtract = water.getMoney().subtract(oldWater.getMoney());
+                            userAssetsRestDao.updateMoneyv3(subtract, water.getUpdateBy(), water.getAssetsId());
+                        } else {
+                            //账户类型修改
+                            //收入----新纪录
+                            userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+                            //收入----旧纪录
+                            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+oldWater.getMoney().doubleValue()), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                        }
+                    }
+                } else {
+                    //订单类型修改  新订单支出  旧订单收入
+                    if (water.getOrderType().intValue() == 1) {
+                        //判断账户类型是否修改
+                        if (water.getAssetsId().intValue() == oldWater.getAssetsId().intValue()) {
+                            BigDecimal add = (new BigDecimal(-+(water.getMoney()).doubleValue())).add(new BigDecimal(-+(oldWater.getMoney()).doubleValue()));
+                            userAssetsRestDao.updateMoneyv3(add, water.getUpdateBy(), water.getAssetsId());
+                        } else {
+                            //支出----新纪录
+                            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+water.getMoney().doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                            //收入----旧记录
+                            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+oldWater.getMoney().doubleValue()), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                        }
+                    } else {
+                        //新订单收入   旧订单支出
+                        //判断账户类型是否修改
+                        if (water.getAssetsId().intValue() == oldWater.getAssetsId().intValue()) {
+                            BigDecimal add = water.getMoney().add(oldWater.getMoney());
+                            userAssetsRestDao.updateMoneyv3(add, water.getUpdateBy(), water.getAssetsId());
+                        } else {
+                            //收入----新纪录
+                            userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+                            //支出----旧记录
+                            userAssetsRestDao.updateMoneyv3(oldWater.getMoney(), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                        }
+                    }
+                }
+            } else {
+                //更新他人数据
+                if (water.getOrderType().intValue() == oldWater.getOrderType().intValue()) {
+                    //同类型   修改两人数据
+                    //判断订单类型
+                    if (water.getOrderType().intValue() == 1) {
+                        //支出--->新人
+                        userAssetsRestDao.updateMoneyv3(new BigDecimal(-+water.getMoney().doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                        //支出--->旧人 恢复
+                        userAssetsRestDao.updateMoneyv3(oldWater.getMoney(), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                    } else {
+                        //收入----新纪录
+                        userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+                        //收入----旧纪录
+                        userAssetsRestDao.updateMoneyv3(new BigDecimal(-+oldWater.getMoney().doubleValue()), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                    }
+                } else {
+                    //订单类型修改  新订单支出  旧订单收入
+                    if (water.getOrderType().intValue() == 1) {
+                        //支出--->新人
+                        userAssetsRestDao.updateMoneyv3(new BigDecimal(-+water.getMoney().doubleValue()), water.getUpdateBy(), water.getAssetsId());
+                        //收入--->旧人 恢复
+                        userAssetsRestDao.updateMoneyv3(new BigDecimal(-+oldWater.getMoney().doubleValue()), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                    } else {
+                        //新订单收入   旧订单支出
+                        //收入--->新人
+                        userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+                        //支出--->旧人 恢复
+                        userAssetsRestDao.updateMoneyv3(oldWater.getMoney(), oldWater.getUpdateBy(), oldWater.getAssetsId());
+                    }
+                }
+            }
+        } else if (water.getDelflag() == 1) {
+            if (water.getAssetsId() != 0) {
+                //删除情况  与新增 反之
+                if (water.getOrderType() == 1) {
+                    //支出
+                    userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+                } else {
+                    //收入
+                    userAssetsRestDao.updateMoneyv3(new BigDecimal(-+(water.getMoney()).doubleValue()), water.getUpdateBy(), water.getAssetsId());
                 }
             }
         }
@@ -190,12 +322,12 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
         UserPrivateLabelRestEntity userPrivateLabelRestEntity = null;
         //追加标签信息
         if (charge.getUserPrivateLabelId() != null) {
-            if(charge.getUserPrivateLabelId().intValue()==0){
-                if(charge.getTypeId()!=null){
+            if (charge.getUserPrivateLabelId().intValue() == 0) {
+                if (charge.getTypeId() != null) {
                     charge.setUserPrivateLabelId(Integer.valueOf(charge.getTypeId()));
                     userPrivateLabelRestEntity = userPrivateLabelRestDao.selectInfoByLabelId(Integer.valueOf(charge.getTypeId()));
                 }
-            }else{
+            } else {
                 userPrivateLabelRestEntity = userPrivateLabelRestDao.selectInfoByLabelId(charge.getUserPrivateLabelId());
             }
             if (userPrivateLabelRestEntity != null) {

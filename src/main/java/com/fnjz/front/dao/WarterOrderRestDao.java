@@ -486,4 +486,12 @@ public interface WarterOrderRestDao {
      */
     @Sql("select count(*) from (select update_by from hbird_water_order where update_by=:userInfoId group by DATE_FORMAT(create_date,'%Y-%m-%d')) as base1;")
     int getTotalChargeDays(@Param("userInfoId")String userInfoId);
+
+    /**
+     * 获取流水中 金额和订单类型和更新人和账户id
+     * @param id
+     * @return
+     */
+    @Sql("select money,order_type,update_by,assets_id from hbird_water_order where id=:id;")
+    WarterOrderRestNewLabel findWaterOrderByIdForMoneyAndUpdateBy(@Param("id") String id);
 }
