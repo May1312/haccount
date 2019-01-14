@@ -107,7 +107,7 @@ public interface UserIntegralRestDao {
      * @return
      */
     //@Sql("SELECT result.nick_name, result.avatar_url, result.integral_num_decimal as integral_num, result.rank FROM ( SELECT userInfo.nick_name, userInfo.avatar_url, top.integral_num_decimal, top.user_info_id, @rank := @rank + 1 AS rank FROM ( SELECT @rank := 0 ) AS rank, ( SELECT user_info_id,integral_num_decimal FROM hbird_user_total_integrals ORDER BY integral_num_decimal DESC ) AS top LEFT JOIN hbird_user_info userInfo ON userInfo.id = top.user_info_id ) AS result WHERE result.user_info_id = :userInfoId;")
-    @Sql("select count(*) as rank,t.integral_num_decimal as integral_num from hbird_user_total_integrals t where t.integral_num_decimal>=( select t.integral_num_decimal from hbird_user_total_integrals t where t.user_info_id = :userInfoId )")
+    @Sql("select count(id) as rank from hbird_user_total_integrals t where t.integral_num_decimal>=( select t.integral_num_decimal from hbird_user_total_integrals t where t.user_info_id = :userInfoId )")
     UserIntegralTopRestDTO integralForMySelf(@Param("userInfoId") String userInfoId);
 
     /**

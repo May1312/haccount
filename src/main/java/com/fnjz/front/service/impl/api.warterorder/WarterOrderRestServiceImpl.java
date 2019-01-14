@@ -27,9 +27,13 @@ import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -480,10 +484,21 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         commonDao.save(charge);
     }
 
+    @Autowired
+    private DataSourceTransactionManager transactionManager;
+
     @Override
     public void insertv2(WarterOrderRestNewLabel charge) {
         charge = addLabelInfo(charge);
+
+        //手动开启事务
+        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW); // 事物隔离级别，开启新事务，这样会比较安全些。
+        TransactionStatus status = transactionManager.getTransaction(def); // 获得事务状态
         warterOrderRestDao.insert(charge);
+        //手动提交事务  ---->记账达三笔有时取不到第三笔记录
+        transactionManager.commit(status);
+
         //修改账本更新时间
         createTokenUtils.updateABtime(charge.getAccountBookId());
         String userInfoId = charge.getCreateBy()+"";
