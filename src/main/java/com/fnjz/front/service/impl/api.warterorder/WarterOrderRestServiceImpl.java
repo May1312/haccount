@@ -313,6 +313,8 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     private void updateAssets(WarterOrderRestNewLabel water) {
         //获取原纪录
         WarterOrderRestNewLabel oldWater = warterOrderRestDao.findWaterOrderByIdForMoneyAndUpdateBy(water.getId());
+        water.setAssetsId(oldWater.getAssetsId());
+        water.setAssetsName(oldWater.getAssetsName());
         //判断新增(差值小于10ms内)  删除   更新情况  分别处理
         long abs = Math.abs(water.getCreateDate().getTime() - water.getUpdateDate().getTime());
         if (abs < 10 && water.getDelflag() == 0) {
