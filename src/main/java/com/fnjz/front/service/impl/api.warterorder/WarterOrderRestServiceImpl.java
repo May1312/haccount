@@ -281,6 +281,11 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     @Override
     public Integer update(WarterOrderRestNewLabel charge) {
         charge = addLabelInfo(charge);
+        WarterOrderRestNewLabel finalCharge = charge;
+        //资产修改
+        taskExecutor.execute(()->{
+            updateAssets(finalCharge);
+        });
         //修改账本更新时间
         createTokenUtils.updateABtime(charge.getAccountBookId());
         return warterOrderRestDao.update(charge);
@@ -289,95 +294,37 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     @Override
     public Integer deleteOrder(String orderId, String userInfoId, String code) {
         int i = commonDao.updateBySqlString("UPDATE `hbird_water_order` SET `delflag` = " + 1 + " , `del_date` = NOW(), `update_date` = NOW(), `update_by` = " + userInfoId + ", `update_name` = '" + code + "' WHERE `id` = '" + orderId + "';");
+        //删除情况  与新增 反之
+        //获取原纪录
+        WarterOrderRestNewLabel oldWater = warterOrderRestDao.findWaterOrderByIdForMoneyAndUpdateBy(orderId);
+        if (oldWater.getOrderType() == 1) {
+            //支出
+            userAssetsRestDao.updateMoneyv3(oldWater.getMoney(), oldWater.getUpdateBy(), oldWater.getAssetsId());
+        } else {
+            //收入
+            userAssetsRestDao.updateMoneyv3(new BigDecimal(-+(oldWater.getMoney()).doubleValue()), oldWater.getUpdateBy(), oldWater.getAssetsId());
+        }
         return i;
     }
 
-    @Override
-    public Map<String, BigDecimal> getAccount(String time, String accountBookId) {
-        List<Map<String, BigDecimal>> listbySql = commonDao.findListMapbySql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END) AS spend,SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END) AS income FROM `hbird_water_order` WHERE charge_date LIKE '" + time + "%' AND account_book_id = '" + accountBookId + "' AND delflag = 0;");
-        return (Map) listbySql.get(0);
-    }
-
-    @Override
-    public WarterOrderRestDTO findById(String id) {
-        return warterOrderRestDao.findById(id);
-    }
-
-    @Override
-    public WXAppletWarterOrderRestInfoDTO findByIdv2(String id, Integer memberFlag) {
-        if (memberFlag == null) {
-            //定义 1头像  2不带头像  为null默认不带头像
-            memberFlag = 2;
-        }
-        if (memberFlag == 1) {
-            return warterOrderRestDao.findByIdv2(id);
-        } else {
-            return warterOrderRestDao.findByIdv2NoAvatar(id);
-        }
-    }
-
-    @Override
-    public int countChargeDays(String currentYearMonth, Integer accountBookId) {
-        List<Map<String, String>> maps = warterOrderRestDao.countChargeDays(currentYearMonth, accountBookId);
-        return maps.size();
-    }
-
-    @Override
-    public int countChargeDaysByChargeDays(String currentYearMonth, Integer accountBookId) {
-        List<Map<String, String>> maps = warterOrderRestDao.countChargeDaysByChargeDays(currentYearMonth, accountBookId);
-        return maps.size();
-    }
-
-    @Override
-    public int chargeTotal(Integer accountBookId) {
-        return warterOrderRestDao.chargeTotal(accountBookId);
-    }
-
-    @Override
-    public void insert(WarterOrderRestNewLabel charge, String code, Integer accountBookId) {
-        //引入当日任务 判断当前时间是否为
-        createTokenUtils.integralTask(charge.getCreateBy() + "", ShareCodeUtil.id2sharecode(Integer.valueOf(charge.getCreateBy())), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
-        commonDao.save(charge);
-    }
-
-    @Override
-    public void insertv2(WarterOrderRestNewLabel charge) {
-        charge = addLabelInfo(charge);
-        warterOrderRestDao.insert(charge);
-        //修改账本更新时间
-        createTokenUtils.updateABtime(charge.getAccountBookId());
-        String userInfoId = charge.getCreateBy()+"";
-        String sharecode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
-        taskExecutor.execute(()->{
-            //引入当日任务 ---->记一笔账
-            createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
-            //引入当日任务 ---->记账达3笔
-            createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
-            //打卡统计
-            myCount(sharecode,userInfoId);
-            //记账挑战赛任务
-            integralsActivityService.chargeToIntegralsActivity(userInfoId);
-        });
-    }
-
     /**
-     * 修改资产
+     * 小程序端处理--->修改资产
      */
     private void updateAssets(WarterOrderRestNewLabel water) {
+        //获取原纪录
+        WarterOrderRestNewLabel oldWater = warterOrderRestDao.findWaterOrderByIdForMoneyAndUpdateBy(water.getId());
         //判断新增(差值小于10ms内)  删除   更新情况  分别处理
         long abs = Math.abs(water.getCreateDate().getTime() - water.getUpdateDate().getTime());
         if (abs < 10 && water.getDelflag() == 0) {
             //新增情况
-            if (water.getOrderType() == 1) {
-                //支出
-                userAssetsRestDao.updateMoneyv3(new BigDecimal(-+(water.getMoney()).doubleValue()), water.getUpdateBy(), water.getAssetsId());
-            } else {
-                //收入
-                userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
-            }
+//            if (water.getOrderType() == 1) {
+//                //支出
+//                userAssetsRestDao.updateMoneyv3(new BigDecimal(-+(water.getMoney()).doubleValue()), water.getUpdateBy(), water.getAssetsId());
+//            } else {
+//                //收入
+//                userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
+//            }
         } else if (abs > 10 && water.getDelflag() == 0) {
-            //更新情况  获取原纪录
-            WarterOrderRestNewLabel oldWater = warterOrderRestDao.findWaterOrderByIdForMoneyAndUpdateBy(water.getId());
             //第一层判断  更新自己数据  or  更新他人数据
             if (water.getUpdateBy().intValue() == oldWater.getUpdateBy()) {
                 //自有数据   判断订单类型
@@ -482,6 +429,74 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                 }
             }
         }
+    }
+
+    @Override
+    public Map<String, BigDecimal> getAccount(String time, String accountBookId) {
+        List<Map<String, BigDecimal>> listbySql = commonDao.findListMapbySql("SELECT SUM( CASE WHEN order_type = 1 THEN money ELSE 0 END) AS spend,SUM( CASE WHEN order_type = 2 THEN money ELSE 0 END) AS income FROM `hbird_water_order` WHERE charge_date LIKE '" + time + "%' AND account_book_id = '" + accountBookId + "' AND delflag = 0;");
+        return (Map) listbySql.get(0);
+    }
+
+    @Override
+    public WarterOrderRestDTO findById(String id) {
+        return warterOrderRestDao.findById(id);
+    }
+
+    @Override
+    public WXAppletWarterOrderRestInfoDTO findByIdv2(String id, Integer memberFlag) {
+        if (memberFlag == null) {
+            //定义 1头像  2不带头像  为null默认不带头像
+            memberFlag = 2;
+        }
+        if (memberFlag == 1) {
+            return warterOrderRestDao.findByIdv2(id);
+        } else {
+            return warterOrderRestDao.findByIdv2NoAvatar(id);
+        }
+    }
+
+    @Override
+    public int countChargeDays(String currentYearMonth, Integer accountBookId) {
+        List<Map<String, String>> maps = warterOrderRestDao.countChargeDays(currentYearMonth, accountBookId);
+        return maps.size();
+    }
+
+    @Override
+    public int countChargeDaysByChargeDays(String currentYearMonth, Integer accountBookId) {
+        List<Map<String, String>> maps = warterOrderRestDao.countChargeDaysByChargeDays(currentYearMonth, accountBookId);
+        return maps.size();
+    }
+
+    @Override
+    public int chargeTotal(Integer accountBookId) {
+        return warterOrderRestDao.chargeTotal(accountBookId);
+    }
+
+    @Override
+    public void insert(WarterOrderRestNewLabel charge, String code, Integer accountBookId) {
+        //引入当日任务 判断当前时间是否为
+        createTokenUtils.integralTask(charge.getCreateBy() + "", ShareCodeUtil.id2sharecode(Integer.valueOf(charge.getCreateBy())), CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+        commonDao.save(charge);
+    }
+
+    @Override
+    public void insertv2(WarterOrderRestNewLabel charge) {
+        charge = addLabelInfo(charge);
+        warterOrderRestDao.insert(charge);
+        //修改账本更新时间
+        createTokenUtils.updateABtime(charge.getAccountBookId());
+        String userInfoId = charge.getCreateBy()+"";
+        String sharecode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
+        taskExecutor.execute(()->{
+            //引入当日任务 ---->记一笔账
+            createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+            //引入当日任务 ---->记账达3笔
+            createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
+            //打卡统计
+            myCount(sharecode,userInfoId);
+            //记账挑战赛任务
+            integralsActivityService.chargeToIntegralsActivity(userInfoId);
+        });
     }
 
     /**
