@@ -68,16 +68,18 @@ public interface IntegralsActivityRestDao {
      * @param time
      * @return
      */
-    @Sql("SELECT id,status FROM hbird_user_integrals_activity WHERE user_info_id =:userInfoId and create_date LIKE concat(:time,'%');")
+    @Sql("SELECT id,status,ia_id as iaid FROM hbird_user_integrals_activity WHERE user_info_id =:userInfoId and create_date LIKE concat(:time,'%');")
     Map<String,Integer> checkSignUpByUserInfoIdAndTime(@Param("userInfoId") String userInfoId, @Param("time") String time);
 
     /**
      * 更新记账挑战赛---->记账状态
      * @param id
      */
-    @Sql("UPDATE `hbird_integrals_activity` SET `status` = 2, `charge_date` = now( ), `update_date` = now( ) WHERE `id` = :id;")
-    void updateIntegralActivityForChangeDate(@Param("id") Integer id);
+    @Sql("UPDATE `hbird_user_integrals_activity` SET `status` = 2, `charge_date` = now( ), `update_date` = now( ) WHERE `id` = :id;")
+    void updateUserIntegralActivityForChangeDate(@Param("id") Integer id);
 
+    @Sql("UPDATE `hbird_integrals_activity` SET `success_users` = success_users + 1, `false_success_users` = false_success_users+1,`update_date` = now( ) WHERE `id` = :iaId;")
+    void updateIntegralActivityForCharge(@Param("iaId") Integer iaId);
     /**
      * 检查前推两期是否达标---->查看系统结果
      * @param userInfoId
