@@ -59,4 +59,12 @@ public interface IntegralsActivityService {
     IntegralsActivityRestEntity getIntegralsActivityById(String iarId);
 
     IntegralsActivityRestEntity checkActivityResult(String userInfoId);
+
+    /**
+     * 判断用户是否报名指定期数活动
+     * @param userInfoId
+     * @param iaId
+     * @return
+     */
+    boolean checkUserSignup(String userInfoId, String iaId);
 }

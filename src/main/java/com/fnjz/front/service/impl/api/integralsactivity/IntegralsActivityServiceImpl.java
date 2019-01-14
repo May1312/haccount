@@ -228,6 +228,12 @@ public class IntegralsActivityServiceImpl extends CommonServiceImpl implements I
         return null;
     }
 
+    @Override
+    public boolean checkUserSignup(String userInfoId, String iaId) {
+        Integer status = integralsActivityRestDao.checkUserSignup(userInfoId,iaId);
+        return status==null?true:false;
+    }
+
     @Test
     public void run() {
         LocalDateTime localDateTime = LocalDateTime.now();
