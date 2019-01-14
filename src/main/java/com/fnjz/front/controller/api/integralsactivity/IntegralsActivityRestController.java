@@ -164,6 +164,8 @@ public class IntegralsActivityRestController {
         }
         //校验用户是否已报名
         if(!integralsActivityService.checkUserSignup(userInfoId,map.get("iaId"))){
+            //释放锁
+            redisLock.unlock("integral:"+userInfoId+"_"+map.get("iaId"));
             return new ResultBean(ApiResultType.HAD_SIGN_UP,null);
         }
         //获取用户参与的积分区间
