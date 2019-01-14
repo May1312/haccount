@@ -20,6 +20,9 @@ public class WXAppletWarterOrderRestInfoDTO extends WXAppletWarterOrderRestBaseD
     /**更新时间*/
     private Date updateDate;
 
+    /**更新者*/
+    private Integer updateBy;
+
     /**账本类型id*/
     private Integer abTypeId;
     /**
@@ -89,5 +92,13 @@ public class WXAppletWarterOrderRestInfoDTO extends WXAppletWarterOrderRestBaseD
 
     public void setAssetsName(String assetsName) {
         this.assetsName = assetsName;
+    }
+
+    public Integer getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(Integer updateBy) {
+        this.updateBy = updateBy;
     }
 }

@@ -312,12 +312,11 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
      */
     private void updateAssets(WarterOrderRestNewLabel water) {
         //获取原纪录
-        WarterOrderRestNewLabel oldWater = warterOrderRestDao.findWaterOrderByIdForMoneyAndUpdateBy(water.getId());
+        WXAppletWarterOrderRestInfoDTO oldWater = this.findByIdv2(water.getId(),null);
         water.setAssetsId(oldWater.getAssetsId());
         water.setAssetsName(oldWater.getAssetsName());
         //判断新增(差值小于10ms内)  删除   更新情况  分别处理
-        long abs = Math.abs(water.getCreateDate().getTime() - water.getUpdateDate().getTime());
-        if (abs < 10 && water.getDelflag() == 0) {
+       // if (abs < 10 && water.getDelflag() == 0) {
             //新增情况
 //            if (water.getOrderType() == 1) {
 //                //支出
@@ -326,7 +325,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
 //                //收入
 //                userAssetsRestDao.updateMoneyv3(water.getMoney(), water.getUpdateBy(), water.getAssetsId());
 //            }
-        } else if (abs > 10 && water.getDelflag() == 0) {
+       // } else if (abs > 10 && water.getDelflag() == 0) {
             //第一层判断  更新自己数据  or  更新他人数据
             if (water.getUpdateBy().intValue() == oldWater.getUpdateBy()) {
                 //自有数据   判断订单类型
@@ -419,7 +418,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                     }
                 }
             }
-        } else if (water.getDelflag() == 1) {
+        /*} else if (water.getDelflag() == 1) {
             if (water.getAssetsId() != 0) {
                 //删除情况  与新增 反之
                 if (water.getOrderType() == 1) {
@@ -430,7 +429,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                     userAssetsRestDao.updateMoneyv3(new BigDecimal(-+(water.getMoney()).doubleValue()), water.getUpdateBy(), water.getAssetsId());
                 }
             }
-        }
+        }*/
     }
 
     @Override
