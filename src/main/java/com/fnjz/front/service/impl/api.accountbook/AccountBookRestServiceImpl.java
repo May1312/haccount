@@ -91,6 +91,7 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
         return jsonArray;
     }
 
+    private static String defaultLogo="https://head.image.fengniaojizhang.cn/duck/logo.png";
     @Override
     public JSONObject getABMembers(Integer abId, String userInfoId) {
         JSONObject jsonObject = new JSONObject();
@@ -103,16 +104,16 @@ public class AccountBookRestServiceImpl extends CommonServiceImpl implements Acc
             abMembers.forEach(v -> {
                 if (StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "0")) {
                     //当前请求用户为账本所有者
-                    jsonObject.put("yourSelf", v.get("avatarurl"));
+                    jsonObject.put("yourSelf", v.get("avatarurl")==null?defaultLogo:v.get("avatarurl"));
                 } else if (StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "2")) {
-                    jsonObject.put("yourSelf", v.get("avatarurl"));
+                    jsonObject.put("yourSelf", v.get("avatarurl")==null?defaultLogo:v.get("avatarurl"));
                 } else if (StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "1")) {
                     //当前用户作为成员
-                    jsonObject.put("yourSelf", v.get("avatarurl"));
+                    jsonObject.put("yourSelf", v.get("avatarurl")==null?defaultLogo:v.get("avatarurl"));
                 } else if (!StringUtils.equals(v.get("userinfoid") + "", userInfoId) && StringUtils.equals(v.get("usertype") + "", "0")) {
-                    jsonObject.put("owner", v.get("avatarurl"));
+                    jsonObject.put("owner", v.get("avatarurl")==null?defaultLogo:v.get("avatarurl"));
                 } else {
-                    memberArray.add(v.get("avatarurl"));
+                    memberArray.add(v.get("avatarurl")==null?defaultLogo:v.get("avatarurl"));
                 }
             });
         } else {
