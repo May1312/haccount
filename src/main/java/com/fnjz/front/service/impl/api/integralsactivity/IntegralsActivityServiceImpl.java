@@ -193,7 +193,8 @@ public class IntegralsActivityServiceImpl extends CommonServiceImpl implements I
                 //已参赛-----> 判断当前状态
                 if(map.get("status")==1){
                     //1----->已报名，未记账---->执行更新流程
-                    integralsActivityRestDao.updateIntegralActivityForChangeDate(map.get("id"));
+                    integralsActivityRestDao.updateUserIntegralActivityForChangeDate(map.get("id"));
+                    integralsActivityRestDao.updateIntegralActivityForCharge(map.get("iaid"));
                 }
             }
         }
