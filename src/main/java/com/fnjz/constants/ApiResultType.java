@@ -125,7 +125,9 @@ public enum ApiResultType {
 
     NOT_ALLOW_TO_EXCHANGE("10004","请勿重复提交,五分钟后再试"),
 
-    ACTIVITY_IS_END("10005","本期活动已截止，请参加下期");
+    ACTIVITY_IS_END("10005","本期活动已截止，请参加下期"),
+
+    HAD_SIGN_UP("10006","您已参与本期活动");
 
 
     ApiResultType(String status, String str) {

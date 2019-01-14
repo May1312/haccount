@@ -162,6 +162,10 @@ public class IntegralsActivityRestController {
         if (!redisLock.lock("integral:"+userInfoId+"_"+map.get("iaId"))) {
             return new ResultBean(ApiResultType.NOT_ALLOW_TO_EXCHANGE, null);
         }
+        //校验用户是否已报名
+        if(!integralsActivityService.checkUserSignup(userInfoId,map.get("iaId"))){
+            return new ResultBean(ApiResultType.HAD_SIGN_UP,null);
+        }
         //获取用户参与的积分区间
         IntegralsActivityRangeRestEntity integralsActivityRangeRestEntity = integralsActivityService.getIntegralsActivityRangeById(map.get("iarId"));
         //获取期数信息
