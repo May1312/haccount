@@ -171,7 +171,7 @@ public class IntegralsActivityRestController {
         //获取用户参与的积分区间
         IntegralsActivityRangeRestEntity integralsActivityRangeRestEntity = integralsActivityService.getIntegralsActivityRangeById(map.get("iarId"));
         //获取期数信息
-        IntegralsActivityRestEntity integralsActivityRestEntity = integralsActivityService.getIntegralsActivityById(map.get("iarId"));
+        IntegralsActivityRestEntity integralsActivityRestEntity = integralsActivityService.getIntegralsActivityById(map.get("iaId"));
         if(integralsActivityRestEntity!=null){
             if(integralsActivityRestEntity.getCreateDate()!=null){
                 LocalDateTime localDateTime = LocalDateTime.ofInstant(integralsActivityRestEntity.getCreateDate().toInstant(), ZoneId.systemDefault()).withHour(23).withMinute(59).withSecond(59);
