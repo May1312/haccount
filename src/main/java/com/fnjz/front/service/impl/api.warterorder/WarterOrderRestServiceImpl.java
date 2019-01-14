@@ -27,10 +27,11 @@ import org.apache.commons.lang.StringUtils;
 import org.jeecgframework.core.common.service.impl.CommonServiceImpl;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -485,7 +486,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     }
 
     @Autowired
-    private DataSourceTransactionManager transactionManager;
+    private HibernateTransactionManager transactionManager;
 
     @Override
     public void insertv2(WarterOrderRestNewLabel charge) {
@@ -495,21 +496,27 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW); // 事物隔离级别，开启新事务，这样会比较安全些。
         TransactionStatus status = transactionManager.getTransaction(def); // 获得事务状态
-        warterOrderRestDao.insert(charge);
-        //手动提交事务  ---->记账达三笔有时取不到第三笔记录
-        transactionManager.commit(status);
+        try {
+            warterOrderRestDao.insert(charge);
+            //手动提交事务  ---->记账达三笔有时取不到第三笔记录
+            transactionManager.commit(status);
+        } catch (TransactionException e) {
+            //回滚
+            e.printStackTrace();
+            transactionManager.rollback(status);
+        }
 
         //修改账本更新时间
         createTokenUtils.updateABtime(charge.getAccountBookId());
-        String userInfoId = charge.getCreateBy()+"";
+        String userInfoId = charge.getCreateBy() + "";
         String sharecode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
-        taskExecutor.execute(()->{
+        taskExecutor.execute(() -> {
             //引入当日任务 ---->记一笔账
-            createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
+            createTokenUtils.integralTask(userInfoId, null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
             //引入当日任务 ---->记账达3笔
-            createTokenUtils.integralTask(userInfoId,null , CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
+            createTokenUtils.integralTask(userInfoId, null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_bookkeeping_came_to_three);
             //打卡统计
-            myCount(sharecode,userInfoId);
+            myCount(sharecode, userInfoId);
             //记账挑战赛任务
             integralsActivityService.chargeToIntegralsActivity(userInfoId);
         });
@@ -518,7 +525,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     /**
      * 记账笔数统计 累计记账天数
      */
-    private void myCount(String shareCode,String userInfoId) {
+    private void myCount(String shareCode, String userInfoId) {
         //统计记账总笔数+1
         Map s = redisTemplateUtils.getMyCount(shareCode);
         if (s.size() > 0) {
@@ -528,19 +535,19 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             }
             //设置当前时间戳 为时间标识   累计记账天数
             if (s.containsKey("chargeDays")) {
-                if(s.containsKey("chargeTime")){
-                    String chargeTime = s.get("chargeTime")+"";
+                if (s.containsKey("chargeTime")) {
+                    String chargeTime = s.get("chargeTime") + "";
                     LocalDateTime signInDate = LocalDateTime.ofEpochSecond(Long.valueOf(chargeTime), 0, ZoneOffset.ofHours(8));
                     //获取当前日期
                     LocalDateTime end = LocalDate.now().atTime(23, 59, 59);
                     LocalDateTime begin = LocalDate.now().atTime(0, 0, 0);
-                    if(!(signInDate.isAfter(begin) && begin.isBefore(end))){
+                    if (!(signInDate.isAfter(begin) && begin.isBefore(end))) {
                         redisTemplateUtils.incrementMyCountTotal(shareCode, "chargeDays", 1);
                         redisTemplateUtils.updateForHashKey(shareCode, "chargeTime", System.currentTimeMillis());
                     }
                 }
                 redisTemplateUtils.incrementMyCountTotal(shareCode, "chargeTotal", 1);
-            }else{
+            } else {
                 //查询累计记账天数
                 int totalChargeDays = warterOrderRestDao.getTotalChargeDays(userInfoId);
                 redisTemplateUtils.updateForHashKey(shareCode, "chargeDays", totalChargeDays);
