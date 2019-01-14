@@ -232,7 +232,7 @@ public class IntegralsActivityServiceImpl extends CommonServiceImpl implements I
     @Override
     public boolean checkUserSignup(String userInfoId, String iaId) {
         Integer status = integralsActivityRestDao.checkUserSignup(userInfoId,iaId);
-        return status==null?true:false;
+        return status==null?true:(status==0?true:false);
     }
 
     @Test
