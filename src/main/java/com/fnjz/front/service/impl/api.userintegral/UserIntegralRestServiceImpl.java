@@ -747,6 +747,9 @@ public class UserIntegralRestServiceImpl extends CommonServiceImpl implements Us
         }
         //获取自有排名
         UserIntegralTopRestDTO mySelf = userIntegralRestDao.integralForMySelf(userInfoId);
+        //获取用户积分
+        String totalIntegral = userIntegralRestDao.getTotalIntegral(userInfoId);
+        mySelf.setIntegralNum(new BigDecimal(totalIntegral==null?"0":totalIntegral));
         //获取自有头像  昵称
         Map<String, Object> map = userInfoRestDao.getNKAndAUById(Integer.valueOf(userInfoId));
         mySelf.setNickName((String) map.get("nickname"));
