@@ -42,6 +42,7 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
 
     /**
      * 获取邀请人数
+     *
      * @param userInfoId
      * @return
      */
@@ -52,6 +53,7 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
 
     /**
      * 邀请历史记录列表
+     *
      * @param userInfoId
      * @param curPage
      * @param pageSize
@@ -60,15 +62,15 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
     @Override
     public PageRest listForPage(String userInfoId, Integer curPage, Integer pageSize) {
         PageRest pageRest = new PageRest();
-        if(curPage!=null){
+        if (curPage != null) {
             pageRest.setCurPage(curPage);
         }
-        if(pageSize!=null){
+        if (pageSize != null) {
             pageRest.setPageSize(pageSize);
         }
-        List<UserInviteRestDTO> listForPage = userInviteRestDao.listForPage(userInfoId,pageRest.getStartIndex(),pageRest.getPageSize());
+        List<UserInviteRestDTO> listForPage = userInviteRestDao.listForPage(userInfoId, pageRest.getStartIndex(), pageRest.getPageSize());
         //获取总条数
-        Integer  count = userInviteRestDao.getCountForInvitedUsers(userInfoId);
+        Integer count = userInviteRestDao.getCountForInvitedUsers(userInfoId);
         //设置总记录数
         pageRest.setTotalCount(count);
         //设置返回结果
@@ -101,53 +103,55 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
     public ResultBean insert(int userInfoId, int inviteUserInfoId) {
         //校验邀请码
         int i = userInfoRestDao.checkUserExists(userInfoId);
-        if(i>0){
-            if (!redisLock.lock("invited_"+inviteUserInfoId)) {
+        if (i > 0) {
+            if (!redisLock.lock("invited_" + inviteUserInfoId)) {
                 return new ResultBean(ApiResultType.NOT_ALLOW_TO_EXCHANGE, null);
             }
             int j = userInviteRestDao.checkExists(inviteUserInfoId);
-            if(j<1){
+            if (j < 1) {
                 userInviteRestDao.insert(userInfoId, inviteUserInfoId);
-                taskExecutor.execute(()->{
+                taskExecutor.execute(() -> {
                     //引入当日任务---->邀请好友
-                    createTokenUtils.integralTask(userInfoId + "", inviteUserInfoId+"", CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
+                    createTokenUtils.integralTask(userInfoId + "", inviteUserInfoId + "", CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Inviting_friends);
                     //引入当日任务---->邀请达5人
                     createTokenUtils.integralTask(userInfoId + "", null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.The_invitation_came_to_five);
                     String openId = userInfoAddFieldRestDao.getByUserInfoId(userInfoId + "");
                     if (StringUtils.isNotEmpty(openId)) {
-                        //获取formId
-                        Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "*");
-                        if (keys.size() > 0) {
-                            Object[] arrays = keys.toArray();
-                            Arrays.sort(arrays, Collections.reverseOrder());
-                            String formId = (String) redisTemplateUtils.popListRight(arrays[0] + "");
-                            WXAppletMessageBean bean = new WXAppletMessageBean();
-                            Map<String, Object> map = userInfoRestDao.getNKAndAUById(inviteUserInfoId);
-                            //设置好友昵称
-                            bean.getKeyword1().put("value", map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname")+"");
-                            //设置邀请时间
-                            bean.getKeyword2().put("value", LocalDate.now().toString());
-                            //设置获得奖励
-                            FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(null, AcquisitionModeEnum.Inviting_friends.getName(), null);
-                            if (fengFengTicket != null) {
-                                bean.getKeyword3().put("value", fengFengTicket.getBehaviorTicketValue() == null ? "0" : fengFengTicket.getBehaviorTicketValue() + "积分（价值0.4元）");
+                        //设置获得奖励
+                        FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(null, AcquisitionModeEnum.Inviting_friends.getName(), null);
+                        if (fengFengTicket != null) {
+                            if (fengFengTicket.getBehaviorTicketValue() != null) {
+                                //获取formId
+                                Set keys = redisTemplateUtils.getKeys(RedisPrefix.PREFIX_WXAPPLET_PUSH + openId + "*");
+                                if (keys.size() > 0) {
+                                    Object[] arrays = keys.toArray();
+                                    Arrays.sort(arrays, Collections.reverseOrder());
+                                    String formId = (String) redisTemplateUtils.popListRight(arrays[0] + "");
+                                    WXAppletMessageBean bean = new WXAppletMessageBean();
+                                    Map<String, Object> map = userInfoRestDao.getNKAndAUById(inviteUserInfoId);
+                                    //设置好友昵称
+                                    bean.getKeyword1().put("value", map.get("nickname") == null ? "蜂鸟用户" : map.get("nickname") + "");
+                                    //设置邀请时间
+                                    bean.getKeyword2().put("value", LocalDate.now().toString());
+                                    bean.getKeyword3().put("value", fengFengTicket.getBehaviorTicketValue() + "积分（价值0.4元）");
+                                    //设置已邀请人数
+                                    int inviteUsers = userInviteRestDao.getCountForInvitedUsers(userInfoId + "");
+                                    bean.getKeyword4().put("value", inviteUsers + "人");
+                                    //温馨提示
+                                    bean.getKeyword5().put("value", "邀请好友赚现金，马上去提现！");
+                                    wxAppletPushUtils.wxappletPush(WXAppletPushUtils.inviteFriendId, openId, formId, WXAppletPushUtils.inviteFriendPage, bean);
+                                }
                             }
-                            //设置已邀请人数
-                            int inviteUsers = userInviteRestDao.getCountForInvitedUsers(userInfoId + "");
-                            bean.getKeyword4().put("value", inviteUsers + "人");
-                            //温馨提示
-                            bean.getKeyword5().put("value", "邀请好友赚现金，马上去提现！");
-                            wxAppletPushUtils.wxappletPush(WXAppletPushUtils.inviteFriendId, openId, formId, WXAppletPushUtils.inviteFriendPage, bean);
                         }
                     }
                 });
-                redisLock.unlock("invited_"+inviteUserInfoId);
-                return new ResultBean(ApiResultType.OK,null);
-            }else{
-                redisLock.unlock("invited_"+inviteUserInfoId);
-                return new ResultBean(ApiResultType.HAD_BIND,null);
+                redisLock.unlock("invited_" + inviteUserInfoId);
+                return new ResultBean(ApiResultType.OK, null);
+            } else {
+                redisLock.unlock("invited_" + inviteUserInfoId);
+                return new ResultBean(ApiResultType.HAD_BIND, null);
             }
-        }else{
+        } else {
             return new ResultBean(ApiResultType.USER_NOT_EXIST, null);
         }
     }
@@ -155,15 +159,15 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
     @Override
     public Object listForPagev2(String userInfoId, Integer curPage, Integer pageSize) {
         PageRest pageRest = new PageRest();
-        if(curPage!=null){
+        if (curPage != null) {
             pageRest.setCurPage(curPage);
         }
-        if(pageSize!=null){
+        if (pageSize != null) {
             pageRest.setPageSize(pageSize);
         }
-        List<UserInviteRestDTO> listForPage = userInviteRestDao.listForPagev2(userInfoId,pageRest.getStartIndex(),pageRest.getPageSize());
+        List<UserInviteRestDTO> listForPage = userInviteRestDao.listForPagev2(userInfoId, pageRest.getStartIndex(), pageRest.getPageSize());
         //获取总条数
-        Integer  count = userInviteRestDao.getCountForInvitedUsers(userInfoId);
+        Integer count = userInviteRestDao.getCountForInvitedUsers(userInfoId);
         //设置总记录数
         pageRest.setTotalCount(count);
         //设置返回结果
