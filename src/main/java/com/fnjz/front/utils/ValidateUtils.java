@@ -15,12 +15,14 @@ public class ValidateUtils {
      */
     public static boolean isMobile(String mobiles){
         boolean flag = false;
-        try{
-            Pattern p = Pattern.compile("^((13[0-9])|(14[0-9])|(15[^4,\\D])|(17[0-9])|(18[0,5-9])|(19[0-9]))\\d{8}$");
-            Matcher m = p.matcher(mobiles);
-            flag = m.matches();
-        }catch(Exception e){
-            flag = false;
+        if(mobiles.length()==11){
+            try{
+                Pattern p = Pattern.compile("0?(12|13|14|15|16|17|18|19)[0-9]{9}");
+                Matcher m = p.matcher(mobiles);
+                flag = m.matches();
+            }catch(Exception e){
+                flag = false;
+            }
         }
         return flag;
     }
@@ -42,7 +44,7 @@ public class ValidateUtils {
     }
 
     public static void main(String[] args){
-        //System.out.println(!isMobile("15501233770"));
-        System.out.println(checkDecimal("1.00"));
+        System.out.println(isMobile("15501233770"));
+        //System.out.println(checkDecimal("1.00"));
     }
 }
