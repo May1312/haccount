@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.ChannelAwareMessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ import java.io.IOException;
  * 埋点消费
  * Created by yhang on 2019/1/4.
  */
-@Transactional
 class BuriedPointConsumerListener implements ChannelAwareMessageListener {
 
     private static final Logger logger = Logger.getLogger(BuriedPointConsumerListener.class);
