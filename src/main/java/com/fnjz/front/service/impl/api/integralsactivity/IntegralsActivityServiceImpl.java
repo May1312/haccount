@@ -29,7 +29,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -140,6 +139,7 @@ public class IntegralsActivityServiceImpl extends CommonServiceImpl implements I
         return integralsActivityRestDao.getIntegralsActivityRangeById(iarId);
     }
 
+    private static String msg = "您已成功参加明天的记账挑战活动,记得明天来记账哦~";
     @Override
     public void toSignup(String userInfoId, String iaId, double integral) {
         //录入 参与记录
@@ -151,15 +151,12 @@ public class IntegralsActivityServiceImpl extends CommonServiceImpl implements I
         userIntegralRestDao.updateForTotalIntegral(userInfoId, null, new BigDecimal("-"+integral));
         taskExecutor.execute(()->{
             int userInfoId2 = Integer.valueOf(userInfoId);
-            //消息内容
-            String message="您已成功参加明天的记账挑战活动,记得明天来记账哦~";
             MessageEntity messageEntity = new MessageEntity();
             messageEntity.setUserInfoId(userInfoId2);
-            messageEntity.setContent(message);
+            messageEntity.setContent(msg);
             messageEntity.setCreateBy(userInfoId2);
             messageEntity.setStatus(2);
-            messageEntity.setCreateDate(new Date());
-            this.save(messageEntity);
+            integralsActivityRestDao.insertMessage(messageEntity);
         });
     }
 
