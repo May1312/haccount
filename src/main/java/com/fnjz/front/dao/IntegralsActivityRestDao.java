@@ -25,13 +25,13 @@ public interface IntegralsActivityRestDao {
     @Sql("SELECT base2.nick_name, base1.get_integrals as value FROM hbird_user_integrals_activity AS base1 INNER JOIN hbird_user_info AS base2 ON base1.user_info_id = base2.id WHERE base1.status=3 ORDER BY base1.id DESC LIMIT 20;")
     List<ReportShopRestDTO> reportForIntegral();
 
-    @Sql("select id,sum(total_integrals+add_integrals) as total_integrals,create_date from hbird_integrals_activity where create_date LIKE concat(:time,'%') and status=1 order by id desc limit 1;")
+    @Sql("select id,sum(total_integrals+add_integrals) as total_integrals,create_date from hbird_integrals_activity where create_date LIKE concat(:time,'%') order by id desc limit 1;")
     IntegralsActivityRestEntity getActivityInfo(@Param("time") String time);
 
     @Sql("SELECT status,sum(integrals+get_integrals) as integrals,create_date,charge_date,end_date FROM hbird_user_integrals_activity WHERE user_info_id= :userInfoId and create_date BETWEEN :beginTime AND :endTime group by ia_id order by ia_id desc;")
     List<UserIntegralsActivityRestDTO> getPersonalActivity(@Param("userInfoId") String userInfoId, @Param("beginTime")String beginTime, @Param("endTime")String endTime);
 
-    @Sql("select false_total_users,false_success_users,false_fail_users from hbird_integrals_activity where create_date LIKE concat(:time,'%') and status=1 order by id desc limit 1;")
+    @Sql("select false_total_users,false_success_users,false_fail_users from hbird_integrals_activity where create_date LIKE concat(:time,'%') order by id desc limit 1;")
     IntegralsActivityRestEntity getLastActivityInfo(@Param("time") String time);
 
     @Sql("select id,integrals from hbird_user_integrals_activity_range where id=:iarId;")
