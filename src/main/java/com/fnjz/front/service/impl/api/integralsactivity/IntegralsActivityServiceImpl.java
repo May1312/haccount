@@ -139,7 +139,7 @@ public class IntegralsActivityServiceImpl extends CommonServiceImpl implements I
         return integralsActivityRestDao.getIntegralsActivityRangeById(iarId);
     }
 
-    private static String msg = "您已成功参加明天的记账挑战活动,记得明天来记账哦~";
+    private static String msg = "您已成功参加今天的记账挑战活动,记得明天来记账哦~";
     @Override
     public void toSignup(String userInfoId, String iaId, double integral) {
         //录入 参与记录
