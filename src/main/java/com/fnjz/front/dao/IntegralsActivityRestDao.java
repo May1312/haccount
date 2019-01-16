@@ -4,6 +4,7 @@ import com.fnjz.front.entity.api.integralsactivity.IntegralsActivityRestEntity;
 import com.fnjz.front.entity.api.integralsactivity.UserIntegralsActivityRestDTO;
 import com.fnjz.front.entity.api.integralsactivity.UserIntegralsActivitySumRestDTO;
 import com.fnjz.front.entity.api.integralsactivityrange.IntegralsActivityRangeRestEntity;
+import com.fnjz.front.entity.api.message.MessageEntity;
 import com.fnjz.front.entity.api.shoppingmallintegralexchange.ReportShopRestDTO;
 import org.jeecgframework.minidao.annotation.MiniDao;
 import org.jeecgframework.minidao.annotation.Param;
@@ -91,4 +92,11 @@ public interface IntegralsActivityRestDao {
 
     @Sql("select count(id) from hbird_user_integrals_activity where user_info_id=:userInfoId and ia_id=:iaId;")
     Integer checkUserSignup(@Param("userInfoId")String userInfoId,@Param("iaId") String iaId);
+
+    /**
+     * 插入消息
+     * @param messageEntity
+     */
+    @Sql("insert into hbird_message (`user_info_id`, `content`, `status`, `create_date`, `create_by`) values (:entity.userInfoId,:entity.content,2,now(),:entity.createBy);")
+    void insertMessage(@Param("entity") MessageEntity messageEntity);
 }
