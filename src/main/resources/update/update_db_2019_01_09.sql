@@ -19,7 +19,7 @@ create table hbird_integrals_activity
    primary key (id)
 );
 alter table hbird_integrals_activity comment '积分活动表';
-
+INSERT INTO `hbird_integrals_activity` ( `create_date`, `status` ) VALUES ( now( ), 1 );
 
 -- 用户--积分活动参与记录表
 create table hbird_user_integrals_activity
