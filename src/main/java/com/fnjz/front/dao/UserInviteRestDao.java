@@ -50,7 +50,7 @@ public interface UserInviteRestDao {
      * @param pageSize
      * @return
      */
-    @Sql("SELECT COALESCE(sum(base2.integral_num_double),0) as integral_num,base3.nick_name,base3.avatar_url,base3.register_date from hbird_user_invite as base1 LEFT JOIN hbird_user_integral as base2 on base1.invite_user_info_id=base2.user_info_id LEFT JOIN hbird_user_info as base3 on base1.invite_user_info_id=base3.id WHERE base1.user_info_id =:userInfoId AND base1.type = 1 group by base1.invite_user_info_id order by base3.register_date desc LIMIT :curpage,:itemPerPage;")
+    @Sql(" SELECT base3.nick_name, base3.avatar_url, base3.register_date, COALESCE ( sum( base4.integral_num_double ), 0 ) AS integral_num,base4.type FROM ( SELECT base1.invite_user_info_id, base2.nick_name, base2.avatar_url, base2.register_date FROM hbird_user_invite AS base1 INNER JOIN hbird_user_info AS base2 ON base1.invite_user_info_id = base2.id WHERE base1.user_info_id = :userInfoId AND base1.type = 1 ORDER BY base1.create_date DESC LIMIT :curpage,:itemPerPage ) AS base3 left JOIN hbird_user_integral AS base4 ON base3.invite_user_info_id = base4.user_info_id WHERE ( base4.integral_num_double IS NULL OR base4.integral_num_double > 0 ) GROUP BY base3.invite_user_info_id order by base3.invite_user_info_id desc;")
     List<UserInviteRestDTO> listForPagev2(@Param("userInfoId") String userInfoId,@Param("curpage") int startIndex,@Param("itemPerPage") int pageSize);
 
     /**

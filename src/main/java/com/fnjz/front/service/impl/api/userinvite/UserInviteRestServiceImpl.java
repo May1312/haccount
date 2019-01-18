@@ -24,6 +24,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -156,8 +157,10 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
         }
     }
 
+    private static BigDecimal num = new BigDecimal(0.2);
     @Override
     public Object listForPagev2(String userInfoId, Integer curPage, Integer pageSize) {
+        FengFengTicketRestEntity fengFengTicket = fengFengTicketRestDao.getFengFengTicket(null, AcquisitionModeEnum.Become_hbird_user.getName(), null);
         PageRest pageRest = new PageRest();
         if (curPage != null) {
             pageRest.setCurPage(curPage);
@@ -166,6 +169,21 @@ public class UserInviteRestServiceImpl implements UserInviteRestServiceI {
             pageRest.setPageSize(pageSize);
         }
         List<UserInviteRestDTO> listForPage = userInviteRestDao.listForPagev2(userInfoId, pageRest.getStartIndex(), pageRest.getPageSize());
+        listForPage.forEach(v->{
+            if(v.getType()!=null){
+                //排除用户 注册所得积分
+                if(v.getType().intValue()==AcquisitionModeEnum.Become_hbird_user.getIndex()){
+                    v.setIntegralNum(((new BigDecimal(v.getIntegralNum())).subtract(new BigDecimal(fengFengTicket.getBehaviorTicketValue()))).multiply(num).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                }else{
+                    v.setIntegralNum((new BigDecimal(v.getIntegralNum())).multiply(num).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                }
+            }else{
+                v.setIntegralNum((new BigDecimal(v.getIntegralNum())).multiply(num).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+            }
+            if(v.getIntegralNum()<0){
+                v.setIntegralNum(0);
+            }
+        });
         //获取总条数
         Integer count = userInviteRestDao.getCountForInvitedUsers(userInfoId);
         //设置总记录数
