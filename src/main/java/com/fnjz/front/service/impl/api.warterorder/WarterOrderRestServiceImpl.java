@@ -420,6 +420,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             UserPrivateLabelRestEntity userPrivateLabelRestEntity = userPrivateLabelRestDao.selectInfoByLabelId(charge.getUserPrivateLabelId());
             if (userPrivateLabelRestEntity != null) {
                 charge.setTypePid(userPrivateLabelRestEntity.getTypePid());
+                charge.setTypePname(userPrivateLabelRestEntity.getTypePname());
                 charge.setTypeId(userPrivateLabelRestEntity.getTypeId());
                 charge.setTypeName(userPrivateLabelRestEntity.getTypeName());
                 charge.setIcon(userPrivateLabelRestEntity.getIcon());
