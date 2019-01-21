@@ -87,7 +87,7 @@ public interface IntegralsActivityRestDao {
      * @param time
      * @return
      */
-    @Sql("SELECT id,(integrals+get_integrals) AS total_integrals, create_date FROM hbird_user_integrals_activity WHERE user_info_id=:userInfoId and create_date LIKE concat( :time, '%') AND STATUS = 3;")
+    @Sql("SELECT ia_id as id,(integrals+get_integrals) AS total_integrals, create_date FROM hbird_user_integrals_activity WHERE user_info_id=:userInfoId and create_date LIKE concat( :time, '%') AND STATUS = 3;")
     IntegralsActivityRestEntity checkActivityResult(@Param("userInfoId") String userInfoId,@Param("time") String time);
 
     @Sql("select count(id) from hbird_user_integrals_activity where user_info_id=:userInfoId and ia_id=:iaId;")
