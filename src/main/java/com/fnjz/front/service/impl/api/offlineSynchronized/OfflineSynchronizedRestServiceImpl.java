@@ -332,6 +332,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
             }
             if (userPrivateLabelRestEntity != null) {
                 charge.setTypePid(userPrivateLabelRestEntity.getTypePid());
+                charge.setTypePname(userPrivateLabelRestEntity.getTypePname());
                 charge.setTypeId(userPrivateLabelRestEntity.getTypeId());
                 charge.setTypeName(userPrivateLabelRestEntity.getTypeName());
                 charge.setIcon(userPrivateLabelRestEntity.getIcon());

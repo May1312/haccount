@@ -4,12 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.fnjz.front.dao.AccountBookRestDao;
-import com.fnjz.front.dao.UserAssetsRestDao;
-import com.fnjz.front.dao.UserPrivateLabelRestDao;
-import com.fnjz.front.dao.WarterOrderRestDao;
+import com.fnjz.front.dao.*;
 import com.fnjz.front.entity.api.PageRest;
 import com.fnjz.front.entity.api.statistics.*;
+import com.fnjz.front.entity.api.userfestivaltags.FestivalTagsRestEntity;
+import com.fnjz.front.entity.api.userfestivaltags.UserFestivalTagsRestEntity;
 import com.fnjz.front.entity.api.userprivatelabel.UserPrivateLabelRestEntity;
 import com.fnjz.front.entity.api.warterorder.WXAppletWarterOrderRestBaseDTO;
 import com.fnjz.front.entity.api.warterorder.WXAppletWarterOrderRestInfoDTO;
@@ -489,7 +488,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
     private HibernateTransactionManager transactionManager;
 
     @Override
-    public void insertv2(WarterOrderRestNewLabel charge) {
+    public FestivalTagsRestEntity insertv2(WarterOrderRestNewLabel charge) {
         charge = addLabelInfo(charge);
 
         //手动开启事务
@@ -505,12 +504,12 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             e.printStackTrace();
             transactionManager.rollback(status);
         }
-
-        //修改账本更新时间
-        createTokenUtils.updateABtime(charge.getAccountBookId());
         String userInfoId = charge.getCreateBy() + "";
         String sharecode = ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId));
+        Integer accountBookId = charge.getAccountBookId();
         taskExecutor.execute(() -> {
+            //修改账本更新时间
+            createTokenUtils.updateABtime(accountBookId);
             //引入当日任务 ---->记一笔账
             createTokenUtils.integralTask(userInfoId, null, CategoryOfBehaviorEnum.TodayTask, AcquisitionModeEnum.Write_down_an_account);
             //引入当日任务 ---->记账达3笔
@@ -520,6 +519,82 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             //记账挑战赛任务
             integralsActivityService.chargeToIntegralsActivity(userInfoId);
         });
+        return unlockTags(userInfoId);
+    }
+
+    /**
+     * 春节时间定义
+     */
+    private static LocalDateTime springBegin = LocalDateTime.of(2019,1,28,0,0,0);
+    private static LocalDateTime springEnd = LocalDateTime.of(2019,2,11,23,59,59);
+
+    /**
+     * 情人节时间定义
+     */
+    private static LocalDateTime dogBegin = LocalDateTime.of(2019,2,12,0,0,0);
+    private static LocalDateTime dogEnd = LocalDateTime.of(2019,2,14,23,59,59);
+    @Autowired
+    private UserIntegralRestDao userIntegralRestDao;
+    @Autowired
+    private UserFestivalTagsRestDao userFestivalTagsRestDao;
+    /**
+     * 1-28   2-11   2-12------2-14
+     * 春节/情人节解锁贴纸活动  前提 贴纸和标语按规则顺序录入
+     * @return
+     */
+    private FestivalTagsRestEntity unlockTags(String userInfoId){
+        LocalDateTime now = LocalDateTime.now();
+        //判断日期区间
+        if(now.isAfter(springBegin)&&now.isBefore(springEnd)){
+            //春节期间  贴纸+标语 共16
+           return unlockTags2(userInfoId,1,now);
+        }else if(now.isAfter(dogBegin)&&now.isBefore(dogEnd)){
+            //情人节期间  贴纸+标语 共8
+            return unlockTags2(userInfoId,2,now);
+        }
+        return null;
+    }
+
+    private FestivalTagsRestEntity unlockTags2(String userInfoId, int festivalType,LocalDateTime now){
+        //判断用户当前天是否已解锁贴纸
+        int count = userIntegralRestDao.checkTaskCompleteByTime(CategoryOfBehaviorEnum.TodayTask.getIndex(), AcquisitionModeEnum.Write_down_an_account.getIndex(), userInfoId,now.toLocalDate().toString());
+        if (count > 0) {
+            //已解锁
+            return null;
+        } else {
+            //未解锁
+            //获取用户当前最新解锁记录
+            UserFestivalTagsRestEntity entity = userFestivalTagsRestDao.getLatest(userInfoId);
+            if(entity!=null){
+                if(entity.getId()!=null){
+                    //判断id值  春节期间(其中贴纸前4个免费，标语前4个免费)  贴纸+标语 共16   情人节期间  贴纸+标语 共8
+                    if(festivalType==1){
+                        if(entity.getTagsId()<16){
+                            int id = entity.getTagsId()+ 1;
+                            userFestivalTagsRestDao.insert(userInfoId,id);
+                            return userFestivalTagsRestDao.getTagsById(id);
+                        }else{
+                            return null;
+                        }
+                    }else{
+                        if(entity.getTagsId()<=16){
+                            //首次 解锁情人节
+                            userFestivalTagsRestDao.insert(userInfoId,21);
+                            return userFestivalTagsRestDao.getTagsById(21);
+                        }else if(entity.getTagsId()>=21&&entity.getTagsId()<24){
+                            int id = entity.getTagsId()+ 1;
+                            userFestivalTagsRestDao.insert(userInfoId,id);
+                            return userFestivalTagsRestDao.getTagsById(id);
+                        }else {
+                            return null;
+                        }
+                    }
+                }
+            }
+            //首次 解锁春节
+            userFestivalTagsRestDao.insert(userInfoId,9);
+            return userFestivalTagsRestDao.getTagsById(9);
+        }
     }
 
     /**
@@ -564,6 +639,7 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
             UserPrivateLabelRestEntity userPrivateLabelRestEntity = userPrivateLabelRestDao.selectInfoByLabelId(charge.getUserPrivateLabelId());
             if (userPrivateLabelRestEntity != null) {
                 charge.setTypePid(userPrivateLabelRestEntity.getTypePid());
+                charge.setTypePname(userPrivateLabelRestEntity.getTypePname());
                 charge.setTypeId(userPrivateLabelRestEntity.getTypeId());
                 charge.setTypeName(userPrivateLabelRestEntity.getTypeName());
                 charge.setIcon(userPrivateLabelRestEntity.getIcon());

@@ -8,6 +8,7 @@ import com.fnjz.constants.RedisPrefix;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestDTO;
 import com.fnjz.front.entity.api.accountbook.AccountBookRestEntity;
 import com.fnjz.front.service.api.accountbook.AccountBookRestServiceI;
+import com.fnjz.front.utils.RedisTemplateUtils;
 import com.fnjz.front.utils.ShareCodeUtil;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +39,9 @@ public class AccountBookRestController extends BaseController {
 
     @Autowired
     private AccountBookRestServiceI accountBookRestService;
+
+    @Autowired
+    private RedisTemplateUtils redisTemplateUtils;
 
     /**
      * 获取 账本id对应成员数关系
@@ -351,6 +355,48 @@ public class AccountBookRestController extends BaseController {
         } else {
             return new ResultBean(ApiResultType.SERVER_ERROR, "此账本id查不到记录");
         }
+    }
 
+    /**
+     * 查看是否存在新上线账本类型
+     */
+    @RequestMapping(value = "/checkNewAB/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean checkNewAB(@PathVariable("type") String type, HttpServletRequest request) {
+        String shareCode = (String) request.getAttribute("shareCode");
+        try {
+            return new ResultBean(ApiResultType.OK, redisTemplateUtils.checkNewAB(shareCode));
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    /**
+     * 用户已查看新账本类型接口
+     */
+    @RequestMapping(value = "/knownNewAB/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean knownNewAB(@PathVariable("type") String type, HttpServletRequest request) {
+        String shareCode = (String) request.getAttribute("shareCode");
+        try {
+            redisTemplateUtils.knownNewAB(shareCode);
+            return new ResultBean(ApiResultType.OK, null);
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return new ResultBean(ApiResultType.SERVER_ERROR, null);
+        }
+    }
+
+    @RequestMapping(value = "/checkNewAB", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean checkNewAB(HttpServletRequest request) {
+        return this.checkNewAB(null, request);
+    }
+
+    @RequestMapping(value = "/knownNewAB", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean knownNewAB(HttpServletRequest request) {
+        return this.knownNewAB(null, request);
     }
 }

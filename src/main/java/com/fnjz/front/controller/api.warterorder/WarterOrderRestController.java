@@ -170,8 +170,7 @@ public class WarterOrderRestController extends BaseController {
             //设置记录状态
             charge.setDelflag(0);
             charge.setId(CommonUtils.getAccountOrder());
-            warterOrderRestService.insertv2(charge);
-            return CommonUtils.returnCharge(charge.getId());
+            return new ResultBean(ApiResultType.OK,warterOrderRestService.insertv2(charge));
         } else if (charge.getOrderType() == 1 && charge.getIsStaged() == 2) {
             Map map = new HashMap<>();
             map.put("msg", "分期功能未开放");
@@ -200,9 +199,7 @@ public class WarterOrderRestController extends BaseController {
         charge.setDelflag(0);
         charge.setId(CommonUtils.getAccountOrder());
         try {
-            warterOrderRestService.insertv2(charge);
-            //返回记账id
-            return CommonUtils.returnCharge(null);
+            return new ResultBean(ApiResultType.OK,warterOrderRestService.insertv2(charge));
         } catch (Exception e) {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);

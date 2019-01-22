@@ -83,6 +83,9 @@ public interface UserIntegralRestDao {
     @Sql("select count(id) from hbird_user_integral where user_info_id=:userInfoId and if(:categoryOfBehaviorEnum=1,type=:acquisitionModeEnum,type=:acquisitionModeEnum and create_date like concat(CURRENT_DATE,'%'));")
     int checkTaskComplete(@Param("categoryOfBehaviorEnum") int categoryOfBehaviorEnum,@Param("acquisitionModeEnum") int acquisitionModeEnum,@Param("userInfoId") String userInfoId);
 
+    @Sql("select count(id) from hbird_user_integral where user_info_id=:userInfoId and if(:categoryOfBehaviorEnum=1,type=:acquisitionModeEnum,type=:acquisitionModeEnum and create_date like concat(:time,'%'));")
+    int checkTaskCompleteByTime(@Param("categoryOfBehaviorEnum") int categoryOfBehaviorEnum,@Param("acquisitionModeEnum") int acquisitionModeEnum,@Param("userInfoId") String userInfoId,@Param("time")String time);
+
     /**
      * 查询任务完成情况
      * @param categoryOfBehaviorEnum

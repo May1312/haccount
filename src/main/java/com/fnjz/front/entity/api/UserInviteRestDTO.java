@@ -17,6 +17,8 @@ public class UserInviteRestDTO {
 
     private double integralNum;
 
+    private Integer type;
+
     @Column(name ="NICK_NAME",length=32)
     public String getNickName() {
         return nickName;
@@ -48,5 +50,13 @@ public class UserInviteRestDTO {
 
     public void setIntegralNum(double integralNum) {
         this.integralNum = integralNum;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }
