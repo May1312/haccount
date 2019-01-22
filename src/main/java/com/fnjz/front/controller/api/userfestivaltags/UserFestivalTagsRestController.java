@@ -34,7 +34,7 @@ public class UserFestivalTagsRestController {
      */
     @RequestMapping(value = "/getFestivalTags/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean warterOrderList(@PathVariable("type") String type, HttpServletRequest request, @RequestParam String festivalType) {
+    public ResultBean getFestivalTags(@PathVariable("type") String type, HttpServletRequest request, @RequestParam String festivalType) {
         String userInfoId = (String) request.getAttribute("userInfoId");
         try {
             List<FestivalTagsRestEntity> list = userFestivalTagsRestService.getFestivalTags(userInfoId,festivalType);
@@ -43,5 +43,11 @@ public class UserFestivalTagsRestController {
             logger.error(e.toString());
             return new ResultBean(ApiResultType.SERVER_ERROR, null);
         }
+    }
+
+    @RequestMapping(value = {"/getFestivalTags"}, method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBean getFestivalTags(HttpServletRequest request, @RequestParam String festivalType) {
+        return this.getFestivalTags(null, request, festivalType);
     }
 }
