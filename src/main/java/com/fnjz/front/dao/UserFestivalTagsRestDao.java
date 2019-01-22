@@ -20,7 +20,7 @@ public interface UserFestivalTagsRestDao {
     @Sql("insert into hbird_user_festival_tags (`user_info_id`,`tags_id`,`create_date`) values (:userInfoId,:tagsId,now());")
     void insert(@Param("userInfoId") String userInfoId,@Param("tagsId") int id);
 
-    @Sql("select festival_type,icon_type,icon,description from hbird_festival_tags where id=:id;")
+    @Sql("select id,festival_type,icon_type,icon,description from hbird_festival_tags where id=:id;")
     FestivalTagsRestEntity getTagsById(@Param("id") int id);
 
     @Sql("select * from hbird_festival_tags where festival_type=:festivalType;")
