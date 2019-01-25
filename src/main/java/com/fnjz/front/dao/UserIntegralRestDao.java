@@ -11,6 +11,7 @@ import org.jeecgframework.minidao.annotation.Sql;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by yhang on 2018/10/13.
@@ -134,4 +135,13 @@ public interface UserIntegralRestDao {
     //好友累计贡献积分
     @Sql("select sum(integral_num_double) from hbird_user_integral where user_info_id=:userInfoId and type=:type;")
     Double getIntegralByType(@Param("userInfoId") String userInfoId,@Param("type") int index);
+
+    /**
+     * 获取记账提醒用户id
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Sql("select base1.user_info_id as id from ( SELECT DISTINCT user_info_id FROM `hbird_user_integral` where type=3 and create_date BETWEEN :begin and :end ) as base1 LEFT JOIN (SELECT DISTINCT user_info_id FROM `hbird_user_integral` where type=3 and create_date BETWEEN :end and now()) as base2 on base1.user_info_id=base2.user_info_id where base2.user_info_id is null;")
+    List<Map<String,Integer>> getNotifyToChargeUsers(@Param("begin") String begin, @Param("end") String end);
 }
