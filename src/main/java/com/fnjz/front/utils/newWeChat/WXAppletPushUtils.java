@@ -56,13 +56,14 @@ public class WXAppletPushUtils {
      * @param templateId
      * @param openId
      */
-    public void wxappletPush(String templateId, String openId, String formId,String page, WXAppletMessageBean bean) {
+    public int wxappletPush(String templateId, String openId, String formId,String page, WXAppletMessageBean bean) {
         //获取accessToken
         String accessToken = this.checkAccessToken();
         //发送消息
         if(StringUtils.isNotEmpty(accessToken)){
-            sendPostMessage(accessToken, openId, templateId, page, formId, bean, "");
+            return sendPostMessage(accessToken, openId, templateId, page, formId, bean, "");
         }
+        return 0;
     }
 
     /**
@@ -94,7 +95,7 @@ public class WXAppletPushUtils {
      * @param formId
      * @param emphasisKeyword 模板需要放大的关键词
      */
-    private void sendPostMessage(String accessToken, String openId, String templateId, String page, String formId, WXAppletMessageBean bean, String emphasisKeyword) {
+    private int sendPostMessage(String accessToken, String openId, String templateId, String page, String formId, WXAppletMessageBean bean, String emphasisKeyword) {
         String hurl = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=" + accessToken;
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("touser", openId);
@@ -117,6 +118,9 @@ public class WXAppletPushUtils {
             redisTemplateUtils.cacheForString(RedisPrefix.PREFIX_WXAPPLET_ACCESS_TOKEN, accessToken, Long.valueOf(jsonObject.getString("expires_in")), TimeUnit.SECONDS);
             //重新调用
             sendPostMessage(accessToken, openId, templateId, page, formId, bean, emphasisKeyword);
+        }else if(StringUtils.equals(result.get("errcode") + "", "0")){
+            return 1;
         }
+        return 0;
     }
 }
