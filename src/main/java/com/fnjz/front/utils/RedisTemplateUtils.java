@@ -585,8 +585,10 @@ public class RedisTemplateUtils {
      */
     private static String value = "1";
     public void knownNewAB(String shareCode) {
-        Long expireForSeconds = this.getExpireForSeconds(RedisPrefix.PREFIX_SYS_NEW_ACCOUNT_BOOK);
-        this.cacheForString(RedisPrefix.PREFIX_USER_NEW_ACCOUNT_BOOK+shareCode,value,expireForSeconds,TimeUnit.SECONDS);
+        if(getForString(RedisPrefix.PREFIX_SYS_NEW_ACCOUNT_BOOK)!=null){
+            Long expireForSeconds = this.getExpireForSeconds(RedisPrefix.PREFIX_SYS_NEW_ACCOUNT_BOOK);
+            this.cacheForString(RedisPrefix.PREFIX_USER_NEW_ACCOUNT_BOOK+shareCode,value,expireForSeconds,TimeUnit.SECONDS);
+        }
     }
 }
 
