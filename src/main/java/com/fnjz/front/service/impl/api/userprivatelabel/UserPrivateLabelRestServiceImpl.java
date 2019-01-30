@@ -413,7 +413,8 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
                     }
                 }
                 //list排序
-                Collections.sort(incomeList, Comparator.comparing(UserPrivateIncomeLabelRestDTO::getPriority));
+                //Collections.sort(incomeList, Comparator.comparing(UserPrivateIncomeLabelRestDTO::getPriority));
+                incomeList.stream().sorted(Comparator.comparing(dto -> dto.getPriority(), Comparator.nullsLast(Integer::compareTo))).findFirst().get();
                 return incomeList;
             } else {
                 if (StringUtils.isNotEmpty(u.getRelation())) {
@@ -434,7 +435,8 @@ public class UserPrivateLabelRestServiceImpl extends CommonServiceImpl implement
                     }
                 }
                 //list排序
-                Collections.sort(spendList, Comparator.comparing(UserPrivateSpendLabelRestDTO::getPriority));
+                //Collections.sort(spendList, Comparator.comparing(UserPrivateSpendLabelRestDTO::getPriority));
+                spendList.stream().sorted(Comparator.comparing(dto -> dto.getPriority(), Comparator.nullsLast(Integer::compareTo))).findFirst().get();
                 return spendList;
             }
         }
