@@ -296,6 +296,8 @@ UPDATE hbird_income_type AS base2
 INNER JOIN ( SELECT icon, income_name AS typename FROM `hbird_income_type_bac` WHERE parent_id IS NOT NULL ) AS base1 ON base2.income_name = base1.typename
 SET base2.icon = base1.icon where parent_id is not null;
 
+-- 通讯--话费
+UPDATE hbird_user_private_label set type_name="话费" where type_name="通讯";
 
 -- 更新用户自有标签表
 UPDATE hbird_user_private_label AS base2
@@ -319,6 +321,8 @@ INNER JOIN (
 	) AS base1 ON base2.type_name = base1.typename
 	SET base2.icon = base1.icon where base2.property = base1.property;
 
+-- 通讯--话费
+UPDATE hbird_water_order set type_name="话费" where type_name="通讯";
 
 UPDATE hbird_water_order AS base2
 INNER JOIN (
