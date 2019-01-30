@@ -174,7 +174,7 @@ INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe363fc3f800163fd32fe130064', '
 INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe363fc3f800163fd5d2e6d0067', '舞蹈培训', '2c91dbe363f72fec0163f81b013e002b', 'http://label.image.fengniaojizhang.cn/1547099549319_icon_wdpx_normal@3x.png', '1', 86, 0, '2019-01-10 13:52:31', '2018-06-14 16:15:32', NULL, NULL);
 INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe363fc3f800163fd5e4ef50069', '外语', '2c91dbe363f72fec0163f81b013e002b', 'http://label.image.fengniaojizhang.cn/1547099563748_icon_waiyu_normal@3x.png', '1', 87, 0, '2019-01-10 13:52:47', '2018-06-14 16:16:46', NULL, NULL);
 INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe363fc3f800163fd5f6bbb006b', '证书', '2c91dbe363f72fec0163f81b013e002b', 'http://label.image.fengniaojizhang.cn/1547099577591_icon_zhengshu_normal@3x.png', '1', 88, 0, '2019-01-10 13:53:01', '2018-06-14 16:17:59', NULL, NULL);
-INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe363fc3f800163fd5fd4d9006d', '在线学习', '2c91dbe363f72fec0163f81b013e002b', 'http://label.image.fengniaojizhang.cn/1547186009282_在线学习_30px@3x.png', '1', 89, 1, '2019-01-11 13:53:31', '2018-06-14 16:18:26', NULL, NULL);
+INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe363fc3f800163fd5fd4d9006d', '在线学习', '2c91dbe363f72fec0163f81b013e002b', 'http://label.image.fengniaojizhang.cn/1548317968656_icon_zxxx_normal@3x.png', '1', 89, 1, '2019-01-11 13:53:31', '2018-06-14 16:18:26', NULL, NULL);
 INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe363fc3f800163fd6081cc006f', '学费', '2c91dbe363f72fec0163f81b013e002b', 'http://label.image.fengniaojizhang.cn/1547185902499_icon_xuefei_normal@3x.png', '1', 90, 0, '2019-01-11 13:51:44', '2018-06-14 16:19:10', NULL, NULL);
 INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe363fc3f800163fd61e3700071', '医疗', '2c91dbe363f81ded0163f81e65390000', 'http://label.image.fengniaojizhang.cn/1547099659039_icon_yiliao_normal@3x.png', '1', 91, 0, '2019-01-10 13:54:21', '2018-06-14 16:20:41', NULL, NULL);
 INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe363fc3f800163fd65fb720073', '体检', '2c91dbe363f81ded0163f81e65390000', 'http://label.image.fengniaojizhang.cn/1547099671014_icon_tijian_normal@3x.png', '1', 92, 0, '2019-01-10 13:54:33', '2018-06-14 16:25:09', NULL, NULL);
@@ -222,6 +222,9 @@ INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe7655b9af7016560776ecb00c1', '
 INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe7655b9af70165610bd67e011a', '股票', '2c91dbe363f81ded0163f81f0c8c0006', 'http://label.image.fengniaojizhang.cn/1547105624209_icon_zhicgp_normal@3x.png', '1', 134, 0, '2019-01-10 15:33:47', '2018-08-22 17:51:30', NULL, NULL);
 INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe7655b9af70165610c5b10011c', '基金', '2c91dbe363f81ded0163f81f0c8c0006', 'http://label.image.fengniaojizhang.cn/1547105813353_icon_zhicjj_normal@3x.png', '1', 135, 0, '2019-01-10 15:36:55', '2018-08-22 17:52:04', NULL, NULL);
 INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe7655b9af70165610cc296011e', '利率', '2c91dbe363f81ded0163f81f0c8c0006', 'http://label.image.fengniaojizhang.cn/1547105855569_icon_zhiclc_normal@3x.png', '1', 136, 0, '2019-01-10 15:37:41', '2018-08-22 17:52:31', NULL, NULL);
+-- 添加wifi
+INSERT INTO `hbird_spend_type_bac` VALUES ('2c91dbe7655b9af70165606f542f00a5', 'WIFI', '2c91dbe363f81ded0163f81ee5050004', 'http://label.image.fengniaojizhang.cn/1548317938621_icon_wangfei_normal@3x.png', '1', 124, 0, '2018-08-22 15:57:08', '2018-08-22 15:00:33', NULL, NULL);
+
 
 SET FOREIGN_KEY_CHECKS = 1;
 
