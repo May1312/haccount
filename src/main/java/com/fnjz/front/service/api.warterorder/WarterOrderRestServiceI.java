@@ -2,6 +2,7 @@ package com.fnjz.front.service.api.warterorder;
 
 import com.fnjz.front.entity.api.statistics.StatisticsIncomeTopDTO;
 import com.fnjz.front.entity.api.statistics.StatisticsSpendTopAndHappinessDTO;
+import com.fnjz.front.entity.api.userfestivaltags.FestivalTagsRestEntity;
 import com.fnjz.front.entity.api.warterorder.WXAppletWarterOrderRestInfoDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestDTO;
 import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
@@ -178,7 +179,7 @@ public interface WarterOrderRestServiceI extends CommonService{
      * v2 记账
      * @param charge
      */
-    void insertv2(WarterOrderRestNewLabel charge);
+    FestivalTagsRestEntity insertv2(WarterOrderRestNewLabel charge);
 
     /**
      * v2 统计日

@@ -200,4 +200,14 @@ public class RedisPrefix {
      * 缓存活动成功读取次数
      */
     public static final String PREFIX_INTEGRALS_ACTIVITY = "user_integrals_activity_success:";
+
+    /**
+     * 新账本创建 缓存标识
+     */
+    public static final String PREFIX_SYS_NEW_ACCOUNT_BOOK = "new_account_book:sys";
+
+    /**
+     * 用户查看新账本 标识
+     */
+    public static final String PREFIX_USER_NEW_ACCOUNT_BOOK = "new_account_book:user:";
 }

@@ -561,5 +561,32 @@ public class RedisTemplateUtils {
         }
         return false;
     }
+
+    /**
+     * 查看系统是否存在新账本
+     * @param shareCode
+     * @return
+     */
+    public boolean checkNewAB(String shareCode) {
+        if(StringUtils.isNotEmpty(this.getForString(RedisPrefix.PREFIX_SYS_NEW_ACCOUNT_BOOK))){
+            //系统存在新账本------>查看当前用户是否查看过
+            if(StringUtils.isNotEmpty(this.getForString(RedisPrefix.PREFIX_USER_NEW_ACCOUNT_BOOK+shareCode))){
+                return false;
+            }else{
+                return true;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * 标记指定用户已知悉新账本
+     */
+    private static String value = "1";
+    public void knownNewAB(String shareCode) {
+        Long expireForSeconds = this.getExpireForSeconds(RedisPrefix.PREFIX_SYS_NEW_ACCOUNT_BOOK);
+        this.cacheForString(RedisPrefix.PREFIX_USER_NEW_ACCOUNT_BOOK+shareCode,value,expireForSeconds,TimeUnit.SECONDS);
+    }
 }
 
