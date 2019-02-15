@@ -151,7 +151,8 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
             }
         });
         //排序 优先显示默认账户
-        Collections.sort(list2, Comparator.comparing(UserAssetsRestDTO::getMark).reversed().thenComparing(UserAssetsRestDTO::getPriority));
+        //Collections.sort(list2, Comparator.comparing(UserAssetsRestDTO::getMark).reversed().thenComparing(UserAssetsRestDTO::getPriority));
+        Collections.sort(list2, Comparator.comparing(UserAssetsRestDTO::getPriority));
         return list2;
     }
 
