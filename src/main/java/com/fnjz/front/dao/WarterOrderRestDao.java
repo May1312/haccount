@@ -318,7 +318,7 @@ public interface WarterOrderRestDao {
      * @param id
      * @return
      */
-    @Sql("SELECT base1.id, base1.money, base1.order_type, base1.spend_happiness, base1.type_name, base1.remark, base1.icon, base1.user_private_label_id, base1.charge_date,base1.create_date,base1.update_date,base1.update_by, base2.avatar_url AS reporter_avatar, base2.nick_name AS reporter_nick_name, base3.ab_name,base3.account_book_type_id as abTypeId,base1.assets_id,base1.assets_name FROM hbird_water_order AS base1 LEFT JOIN hbird_user_info AS base2 ON base1.update_by = base2.id LEFT JOIN hbird_account_book AS base3 ON base1.account_book_id = base3.id WHERE base1.id = :id;")
+    @Sql("SELECT base1.id, base1.money, base1.order_type, base1.spend_happiness, base1.type_name, base1.remark, base1.icon, base1.user_private_label_id, base1.charge_date,base1.create_date,base1.update_date,base1.update_by, base2.avatar_url AS reporter_avatar, IFNULL( base2.nick_name, INSERT ( base2.mobile, 4, 4, '****' ) ) AS reporter_nick_name, base3.ab_name,base3.account_book_type_id as abTypeId,base1.assets_id,base1.assets_name FROM hbird_water_order AS base1 LEFT JOIN hbird_user_info AS base2 ON base1.update_by = base2.id LEFT JOIN hbird_account_book AS base3 ON base1.account_book_id = base3.id WHERE base1.id = :id;")
     WXAppletWarterOrderRestInfoDTO findByIdv2(@Param("id") String id);
 
     /**
