@@ -94,7 +94,7 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
             List<UserAssetsRestDTO> allAssets = userAssetsRestDao.getSYSAssetsAll();
             allAssets = getList(assets, allAssets);
             //查询初始时间
-            List<UserAssetsRestEntity> initDate = userAssetsRestDao.getAssetsAll(userInfoId, 2);
+            /*List<UserAssetsRestEntity> initDate = userAssetsRestDao.getAssetsAll(userInfoId, 2);
             UserAssetsRestEntity userAssetsRestEntity = new UserAssetsRestEntity();
             if (initDate.size() == 0) {
                 //未设置初始时间 取用户注册时间开始计算
@@ -106,16 +106,16 @@ public class UserAssetsRestServiceImpl extends CommonServiceImpl implements User
                 }
             } else {
                 userAssetsRestEntity = initDate.get(0);
-            }
+            }*/
             //统计记账收支 余额
-            String chargeTotal = warterOrderRestDao.getTotalByDate(userAssetsRestEntity.getInitDate(), userInfoId);
+            //String chargeTotal = warterOrderRestDao.getTotalByDate(userAssetsRestEntity.getInitDate(), userInfoId);
             //统计资产 总额
             String assetsTotal = userAssetsRestDao.getAssetsTotal(userInfoId);
             jsonObject.put("assets", allAssets);
-            BigDecimal charge = new BigDecimal(chargeTotal == null ? "0" : chargeTotal);
+            //BigDecimal charge = new BigDecimal(chargeTotal == null ? "0" : chargeTotal);
             BigDecimal asset = new BigDecimal(assetsTotal == null ? "0" : assetsTotal);
-            jsonObject.put("netAssets", charge.add(asset));
-            jsonObject.put("initDate", userAssetsRestEntity.getInitDate());
+            jsonObject.put("netAssets", asset);
+            //jsonObject.put("initDate", userAssetsRestEntity.getInitDate());
             return jsonObject;
         } else {
             //查询资产

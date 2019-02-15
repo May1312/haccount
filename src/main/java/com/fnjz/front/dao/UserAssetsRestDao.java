@@ -44,7 +44,7 @@ public interface UserAssetsRestDao {
      * @param userInfoId
      * @return
      */
-    @Sql("SELECT SUM(money) from hbird_user_assets where user_info_id=:userInfoId and type=1")
+    @Sql("SELECT COALESCE(SUM(money),0) from hbird_user_assets where user_info_id=:userInfoId and type=1")
     String getAssetsTotal(@Param("userInfoId") String userInfoId);
 
     @Sql("insert into hbird_user_assets (`user_info_id`,`init_date`,`type`,`create_date`) values(:userInfoId,:initDate,2,NOW())")

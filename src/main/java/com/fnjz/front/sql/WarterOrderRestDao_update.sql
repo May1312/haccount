@@ -66,5 +66,19 @@ SET
 		<#if warterOrderRestEntity.remark ?exists>
 		   remark = :warterOrderRestEntity.remark,
 		</#if>
-
+    <#if warterOrderRestEntity.userPrivateLabelId ?exists>
+		   user_private_label_id = :warterOrderRestEntity.userPrivateLabelId,
+		</#if>
+    <#if warterOrderRestEntity.icon ?exists>
+		   icon = :warterOrderRestEntity.icon,
+		</#if>
+		<#if warterOrderRestEntity.assetsId ?exists>
+		   assets_id = :warterOrderRestEntity.assetsId,
+		</#if>
+		<#if warterOrderRestEntity.assetsName ?exists>
+		   assets_name = :warterOrderRestEntity.assetsName,
+		</#if>
+		<#if warterOrderRestEntity.clientId ?exists>
+		   client_id = :warterOrderRestEntity.clientId
+		</#if>
 WHERE id = :warterOrderRestEntity.id
