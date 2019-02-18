@@ -621,7 +621,6 @@ public class WarterOrderRestServiceImpl extends CommonServiceImpl implements War
                         redisTemplateUtils.updateForHashKey(shareCode, "chargeTime", System.currentTimeMillis());
                     }
                 }
-                redisTemplateUtils.incrementMyCountTotal(shareCode, "chargeTotal", 1);
             } else {
                 //查询累计记账天数
                 int totalChargeDays = warterOrderRestDao.getTotalChargeDays(userInfoId);
