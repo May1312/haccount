@@ -654,8 +654,9 @@ public class AccountBookBudgetRestServiceImpl extends CommonServiceImpl implemen
         LocalDate begin = localDate.minusMonths(Integer.valueOf(range) - 1);
         //取月初
         begin = begin.minusDays(begin.getDayOfMonth() - 1);
+        DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy-MM");
         //获取范围内预算
-        List<AccountBookBudgetRestEntity> list = accountBookBudgetRestDao.getBudgetByTimeRange(begin.toString(), end.toString(), abId);
+        List<AccountBookBudgetRestEntity> list = accountBookBudgetRestDao.getBudgetByTimeRange(begin.format(formatters), end.format(formatters), abId);
         JSONArray jsonArray = new JSONArray();
         list.forEach(v -> {
             //遍历预算期内数据
