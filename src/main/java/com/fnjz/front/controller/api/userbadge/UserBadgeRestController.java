@@ -36,7 +36,7 @@ public class UserBadgeRestController {
      */
     @RequestMapping(value = {"/myBadges/{type}"}, method = RequestMethod.GET)
     @ResponseBody
-    public ResultBean myBadges(@PathVariable("type") String type, HttpServletRequest request, @RequestParam Integer btId) {
+    public ResultBean myBadges(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(required = false) Integer btId) {
         logger.info("访问终端:" + type);
         String userInfoId = (String) request.getAttribute("userInfoId");
         if (btId == null) {
