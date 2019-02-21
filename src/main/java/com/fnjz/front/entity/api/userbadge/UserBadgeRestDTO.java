@@ -15,6 +15,11 @@ public class UserBadgeRestDTO {
     /**
      * 徽章类型名称
      */
+    private String badgeTypeName;
+
+    /**
+     * 徽章名称
+     */
     private String badgeName;
 
     /**
@@ -93,7 +98,7 @@ public class UserBadgeRestDTO {
             //判断是否是同类型的对象进行比较
             if (obj instanceof UserBadgeRestDTO) {
                 UserBadgeRestDTO dto = (UserBadgeRestDTO) obj;
-                if (StringUtils.equals(dto.badgeName,this.badgeName)) {
+                if (StringUtils.equals(dto.badgeTypeName,this.badgeTypeName)) {
                     return true;
                 }
             }
@@ -107,5 +112,13 @@ public class UserBadgeRestDTO {
 
     public void setBadgeTypeId(Integer badgeTypeId) {
         this.badgeTypeId = badgeTypeId;
+    }
+
+    public String getBadgeTypeName() {
+        return badgeTypeName;
+    }
+
+    public void setBadgeTypeName(String badgeTypeName) {
+        this.badgeTypeName = badgeTypeName;
     }
 }

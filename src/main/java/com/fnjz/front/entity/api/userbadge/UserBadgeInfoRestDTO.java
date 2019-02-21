@@ -1,5 +1,7 @@
 package com.fnjz.front.entity.api.userbadge;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Date;
 
 /**
@@ -16,6 +18,11 @@ public class UserBadgeInfoRestDTO {
      * 徽章名称
      */
     private String badgeName;
+
+    /**
+     * 徽章类型名称
+     */
+    private String badgeTypeName;
     /**
      * 进阶百分比 投资/工资/奖金/兼职徽章
      */
@@ -116,4 +123,37 @@ public class UserBadgeInfoRestDTO {
     public void setPriority(Integer priority) {
         this.priority = priority;
     }
+
+    public String getBadgeTypeName() {
+        return badgeTypeName;
+    }
+
+    public void setBadgeTypeName(String badgeTypeName) {
+        this.badgeTypeName = badgeTypeName;
+    }
+
+    /**
+     * 重新equals方法
+     * 徽章名称相等即为相等
+     *
+     * @return
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null) {
+            //自己和自己比较时,直接返回true
+            if (obj == this) {
+                return true;
+            }
+            //判断是否是同类型的对象进行比较
+            if (obj instanceof UserBadgeInfoRestDTO) {
+                UserBadgeInfoRestDTO dto = (UserBadgeInfoRestDTO) obj;
+                if (StringUtils.equals(dto.badgeTypeName,this.badgeTypeName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

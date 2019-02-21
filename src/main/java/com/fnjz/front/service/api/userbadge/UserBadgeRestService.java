@@ -15,7 +15,7 @@ public interface UserBadgeRestService {
      * @param userInfoId
      * @return
      */
-    List<UserBadgeRestDTO> getMyBadges(String userInfoId);
+    List<UserBadgeRestDTO> getMyBadges(String userInfoId,int status);
 
     /**
      * 获取某一具体徽章类型完成情况

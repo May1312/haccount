@@ -39,9 +39,14 @@ public class UserBadgeRestController {
     public ResultBean myBadges(@PathVariable("type") String type, HttpServletRequest request, @RequestParam(required = false) Integer btId) {
         logger.info("访问终端:" + type);
         String userInfoId = (String) request.getAttribute("userInfoId");
+        //定义 1 已登录   2 未登录
+        int status = 1;
+        if(request.getAttribute("containsToken")!=null){
+            status=2;
+        }
         if (btId == null) {
             try {
-                List<UserBadgeRestDTO> list = userBadgeRestService.getMyBadges(userInfoId);
+                List<UserBadgeRestDTO> list = userBadgeRestService.getMyBadges(userInfoId,status);
                 return new ResultBean(ApiResultType.OK, list);
             } catch (Exception e) {
                 logger.error(e.toString());

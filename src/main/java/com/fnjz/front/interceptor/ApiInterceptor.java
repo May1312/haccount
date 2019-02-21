@@ -63,6 +63,14 @@ public class ApiInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
+
+        //获取我的------>徽章获取情况 未登录可以访问
+        if(requestPath.indexOf("/myBadges")!=-1){
+            if(StringUtils.isEmpty(authHeader)){
+                request.setAttribute("containsToken",false);
+                return true;
+            }
+        }
         /*if(requestPath.indexOf("/signIn")!=-1){
             if(StringUtils.isEmpty(authHeader)){
                 return true;

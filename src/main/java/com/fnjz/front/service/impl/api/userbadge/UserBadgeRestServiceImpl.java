@@ -23,34 +23,41 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
     private UserBadgeRestDao userBadgeRestDao;
 
     @Override
-    public List<UserBadgeRestDTO> getMyBadges(String userInfoId) {
-        //获取已解锁数据
-        List<UserBadgeRestDTO> myBadges = userBadgeRestDao.getMyBadges(userInfoId);
+    public List<UserBadgeRestDTO> getMyBadges(String userInfoId, int status) {
         //获取所有类型徽章
-        List<UserBadgeRestDTO> allBadges= userBadgeRestDao.getAllBadges();
-        myBadges.forEach(v->{
-            if(allBadges.contains(v)){
-                //获取脚标
-                int i = allBadges.indexOf(v);
-                UserBadgeRestDTO userBadgeRestDTO = allBadges.get(i);
-                userBadgeRestDTO.setIcon(v.getIcon());
-                userBadgeRestDTO.setMyBadges(v.getMyBadges());
-                allBadges.set(i,userBadgeRestDTO);
-            }
-        });
-        //排序 优先显示点量的
-        Collections.sort(allBadges, Comparator.comparing(UserBadgeRestDTO::getPriority).reversed());
-        return allBadges;
+        List<UserBadgeRestDTO> allBadges = userBadgeRestDao.getAllBadges();
+        if (status == 1) {
+            //获取已解锁数据
+            List<UserBadgeRestDTO> myBadges = userBadgeRestDao.getMyBadges(userInfoId);
+            myBadges.forEach(v -> {
+                if (allBadges.contains(v)) {
+                    //获取脚标
+                    int i = allBadges.indexOf(v);
+                    UserBadgeRestDTO userBadgeRestDTO = allBadges.get(i);
+                    userBadgeRestDTO.setIcon(v.getIcon());
+                    userBadgeRestDTO.setMyBadges(v.getMyBadges());
+                    userBadgeRestDTO.setBadgeName(v.getBadgeName());
+                    allBadges.set(i, userBadgeRestDTO);
+                }
+            });
+            //排序
+            Collections.sort(allBadges, Comparator.comparing(UserBadgeRestDTO::getPriority).reversed());
+            return allBadges;
+        } else {
+            //未登录
+            Collections.sort(allBadges, Comparator.comparing(UserBadgeRestDTO::getPriority).reversed());
+            return allBadges;
+        }
     }
 
     @Override
-    public List<UserBadgeInfoRestDTO> getMyBadgeInfo(String userInfoId,Integer btId) {
+    public List<UserBadgeInfoRestDTO> getMyBadgeInfo(String userInfoId, Integer btId) {
         //获取已解锁数据
-        List<UserBadgeInfoRestDTO> myBadges = userBadgeRestDao.getMyBadgeInfoForUnlock(userInfoId,btId);
+        List<UserBadgeInfoRestDTO> myBadges = userBadgeRestDao.getMyBadgeInfoForUnlock(userInfoId, btId);
         //获取所有类型徽章
-        List<UserBadgeInfoRestDTO> allBadges= userBadgeRestDao.getMyBadgeInfoForAll(btId);
-        myBadges.forEach(v->{
-            if(allBadges.contains(v)){
+        List<UserBadgeInfoRestDTO> allBadges = userBadgeRestDao.getMyBadgeInfoForAll(btId);
+        myBadges.forEach(v -> {
+            if (allBadges.contains(v)) {
                 //获取脚标
                 int i = allBadges.indexOf(v);
                 UserBadgeInfoRestDTO userBadgeInfoRestDTO = allBadges.get(i);
@@ -58,7 +65,7 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
                 userBadgeInfoRestDTO.setCreateDate(v.getCreateDate());
                 userBadgeInfoRestDTO.setSalary(v.getSalary());
                 userBadgeInfoRestDTO.setRank(v.getRank());
-                allBadges.set(i,userBadgeInfoRestDTO);
+                allBadges.set(i, userBadgeInfoRestDTO);
             }
         });
         return allBadges;
