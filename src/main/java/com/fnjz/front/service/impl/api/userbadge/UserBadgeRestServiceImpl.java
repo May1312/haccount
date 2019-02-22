@@ -22,6 +22,8 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
     @Autowired
     private UserBadgeRestDao userBadgeRestDao;
 
+    //todo 暂时业务中定义 徽章类型的图标和描述  后期徽章如果增加,这两个字段放到db中
+
     @Override
     public List<UserBadgeRestDTO> getMyBadges(String userInfoId, int status) {
         //获取所有类型徽章

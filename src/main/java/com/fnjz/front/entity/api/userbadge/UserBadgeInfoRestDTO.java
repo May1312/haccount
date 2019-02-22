@@ -148,7 +148,7 @@ public class UserBadgeInfoRestDTO {
             //判断是否是同类型的对象进行比较
             if (obj instanceof UserBadgeInfoRestDTO) {
                 UserBadgeInfoRestDTO dto = (UserBadgeInfoRestDTO) obj;
-                if (StringUtils.equals(dto.badgeTypeName,this.badgeTypeName)) {
+                if (StringUtils.equals(dto.badgeName,this.badgeName)) {
                     return true;
                 }
             }
