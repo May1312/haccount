@@ -11,6 +11,7 @@ import com.fnjz.front.enums.AcquisitionModeEnum;
 import com.fnjz.front.enums.CategoryOfBehaviorEnum;
 import com.fnjz.front.service.api.integralsactivity.IntegralsActivityService;
 import com.fnjz.front.service.api.offlineSynchronized.OfflineSynchronizedRestServiceI;
+import com.fnjz.front.service.api.userbadge.UserBadgeRestService;
 import com.fnjz.front.service.api.warterorder.WarterOrderRestServiceI;
 import com.fnjz.front.utils.CreateTokenUtils;
 import com.fnjz.front.utils.RedisTemplateUtils;
@@ -57,6 +58,9 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
 
     @Autowired
     private UserAssetsRestDao userAssetsRestDao;
+
+    @Autowired
+    private UserBadgeRestService userBadgeRestService;
 
     /**
      * 获取最新同步时间
@@ -168,6 +172,11 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                     updateAssets(warter);
                     //同步数据
                     warterOrderRestDao.saveOrUpdateOfflineData(warter);
+                    //徽章解锁
+                    long abs = Math.abs(warter.getCreateDate().getTime() - warter.getUpdateDate().getTime());
+                    if(abs < 10 && warter.getDelflag() == 0){
+                        userBadgeRestService.unlockBadge(warter);
+                    }
                 }
                 //修改账本更新时间
                 createTokenUtils.updateABtime(list.get(0).getAccountBookId());

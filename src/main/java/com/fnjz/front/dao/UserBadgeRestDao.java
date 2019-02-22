@@ -1,5 +1,6 @@
 package com.fnjz.front.dao;
 
+import com.fnjz.front.entity.api.userbadge.BadgeLabelRestDTO;
 import com.fnjz.front.entity.api.userbadge.UserBadgeInfoRestDTO;
 import com.fnjz.front.entity.api.userbadge.UserBadgeRestDTO;
 import org.jeecgframework.minidao.annotation.MiniDao;
@@ -7,6 +8,7 @@ import org.jeecgframework.minidao.annotation.Param;
 import org.jeecgframework.minidao.annotation.ResultType;
 import org.jeecgframework.minidao.annotation.Sql;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -45,4 +47,39 @@ public interface UserBadgeRestDao {
 
     @Sql("SELECT badge_name,lock_icon as icon,percentage,words,priority FROM hbird_badge WHERE badge_type_id = :btId and status=1;")
     List<UserBadgeInfoRestDTO> getMyBadgeInfoForAll(@Param("btId") Integer btId);
+
+    /**
+     * 获取徽章类型 ---> 对应标签
+     * @return
+     */
+    @Sql("select base1.id as badge_type_id,base3.income_name as label_name,base3.id as label_id from hbird_badge_type as base1 inner join hbird_badge_type_label as base2 on base1.id=base2.badge_type_id inner join hbird_income_type as base3 on base2.type_id=base3.id;")
+    List<BadgeLabelRestDTO> getSysBadgeLabel();
+
+    /**
+     * 获取指定徽章类型 用户最新解锁情况
+     * @param updateBy
+     * @return
+     */
+    @Sql("SELECT base2.percentage, base1.salary, base1.rank FROM hbird_user_badge AS base1 INNER JOIN hbird_badge AS base2 ON base1.badge_id = base2.id WHERE base1.user_info_id = :userInfoId AND base1.badge_type_id = :btId order by base1.id desc limit 1;")
+    UserBadgeInfoRestDTO getLatestBadge(@Param("btId") Integer btId,@Param("userInfoId") Integer updateBy);
+
+    /**
+     * 获取下一徽章id
+     * @param badgeTypeId
+     * @param badgeId
+     * @return
+     */
+    @Sql("select id from hbird_badge where badge_type_id=:btId and id>:badgeId limit 1;")
+    Integer getNextBadgeId(@Param("btId")Integer badgeTypeId,@Param("badgeId") Integer badgeId);
+
+    /**
+     * 获取指定徽章类型  最大排名数
+     * @param badgeTypeId
+     * @return
+     */
+    @Sql("select rank from hbird_user_badge where badge_type_id=:btId order by id desc limit 1;")
+    Integer getRankBybtid(@Param("btId")Integer badgeTypeId);
+
+    @Sql("insert into hbird_user_badge ( `user_info_id`, `badge_id`, `badge_type_id`, `salary`, `rank`, `create_date`) VALUES (:userInfoId,:badgeId,:btId,:salary,:rank,now())")
+    void insert(@Param("userInfoId") Integer updateBy,@Param("badgeId") Integer badgeId,@Param("btId") Integer badgeTypeId,@Param("salary") BigDecimal money,@Param("rank") int i);
 }

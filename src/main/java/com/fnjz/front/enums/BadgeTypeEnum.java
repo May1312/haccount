@@ -9,30 +9,55 @@ public enum BadgeTypeEnum {
     /**
      * 攒钱徽章
      */
-    zanqhz("badgetype/Icon_zanqhz_disabled@2x.png","Save money"),
+    zanqhz("攒钱","http://label.image.fengniaojizhang.cn/badgetype/Icon_zanqhz_disabled@2x.png","Save money"),
     /**
      * 投资徽章
      */
-    tzhz("badgetype/Icon_tzhz_disabled@2x.png","Money-invested"),
+    tzhz("投资","http://label.image.fengniaojizhang.cn/badgetype/Icon_tzhz_disabled@2x.png","Money-invested"),
     /**
      * 奖金徽章
      */
-    jzhz("badgetype/Icon_jzhz_disabled@2x.png","Award-money"),
+    jzhz("奖金","http://label.image.fengniaojizhang.cn/badgetype/Icon_jzhz_disabled@2x.png","Award-money"),
     /**
      * 兼职徽章
      */
-    jjhz("badgetype/Icon_jjhz_disabled@2x.png","Pluralism"),
+    jjhz("兼职","http://label.image.fengniaojizhang.cn/badgetype/Icon_jjhz_disabled@2x.png","Pluralism"),
     /**
      * 工资徽章
      */
-    gzhz("badgetype/Icon_gzhz_disabled@2x.png","Pay-packet");
+    gzhz("工资","http://label.image.fengniaojizhang.cn/badgetype/Icon_gzhz_disabled@2x.png","Pay-packet");
 
-    private String badge;
-    private String desc;
+    private String badgeTypeName;
+    private String badgeTypeIcon;
+    private String badgeTypeDesc;
 
-    BadgeTypeEnum(String badge, String desc){
-        this.badge = badge;
-        this.desc = desc;
+    BadgeTypeEnum(String badgeTypeName,String badgeTypeIcon, String badgeTypeDesc){
+        this.badgeTypeName = badgeTypeName;
+        this.badgeTypeIcon = badgeTypeIcon;
+        this.badgeTypeDesc = badgeTypeDesc;
     }
 
+    public String getBadgeTypeName() {
+        return badgeTypeName;
+    }
+
+    public void setBadgeTypeName(String badgeTypeName) {
+        this.badgeTypeName = badgeTypeName;
+    }
+
+    public String getBadgeTypeIcon() {
+        return badgeTypeIcon;
+    }
+
+    public void setBadgeTypeIcon(String badgeTypeIcon) {
+        this.badgeTypeIcon = badgeTypeIcon;
+    }
+
+    public String getBadgeTypeDesc() {
+        return badgeTypeDesc;
+    }
+
+    public void setBadgeTypeDesc(String badgeTypeDesc) {
+        this.badgeTypeDesc = badgeTypeDesc;
+    }
 }

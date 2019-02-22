@@ -2,6 +2,7 @@ package com.fnjz.front.service.api.userbadge;
 
 import com.fnjz.front.entity.api.userbadge.UserBadgeInfoRestDTO;
 import com.fnjz.front.entity.api.userbadge.UserBadgeRestDTO;
+import com.fnjz.front.entity.api.warterorder.WarterOrderRestNewLabel;
 
 import java.util.List;
 
@@ -23,4 +24,6 @@ public interface UserBadgeRestService {
      * @return
      */
     List<UserBadgeInfoRestDTO> getMyBadgeInfo(String userInfoId,Integer btId);
+
+    void unlockBadge(WarterOrderRestNewLabel water);
 }

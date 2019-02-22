@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * 移动端离线同步消费
  * Created by yhang on 2018/9/14.
  */
 @Transactional

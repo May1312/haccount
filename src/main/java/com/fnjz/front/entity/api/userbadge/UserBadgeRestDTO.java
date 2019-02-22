@@ -42,6 +42,16 @@ public class UserBadgeRestDTO {
      */
     private Integer priority;
 
+    /**
+     * 徽章类型图标
+     */
+    private String badgeTypeIcon;
+
+    /**
+     * 徽章类型英文描述
+     */
+    private String badgeTypeDesc;
+
     public String getBadgeName() {
         return badgeName;
     }
@@ -120,5 +130,21 @@ public class UserBadgeRestDTO {
 
     public void setBadgeTypeName(String badgeTypeName) {
         this.badgeTypeName = badgeTypeName;
+    }
+
+    public String getBadgeTypeIcon() {
+        return badgeTypeIcon;
+    }
+
+    public void setBadgeTypeIcon(String badgeTypeIcon) {
+        this.badgeTypeIcon = badgeTypeIcon;
+    }
+
+    public String getBadgeTypeDesc() {
+        return badgeTypeDesc;
+    }
+
+    public void setBadgeTypeDesc(String badgeTypeDesc) {
+        this.badgeTypeDesc = badgeTypeDesc;
     }
 }
