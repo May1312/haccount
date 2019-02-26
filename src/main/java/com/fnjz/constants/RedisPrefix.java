@@ -210,4 +210,9 @@ public class RedisPrefix {
      * 用户查看新账本 标识
      */
     public static final String PREFIX_USER_NEW_ACCOUNT_BOOK = "new_account_book:user:";
+
+    /**
+     * 解锁新徽章前缀
+     */
+    public static final String PREFIX_USER_NEW_UNLOCK_BADGE = "user_new_unlock_badge:";
 }

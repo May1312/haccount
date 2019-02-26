@@ -551,6 +551,14 @@ public class RedisTemplateUtils {
     }
 
     /**
+     * 获取list长度
+     * @param prefix
+     * @return
+     */
+    public Long getSize(String prefix) {
+        return redisTemplate.opsForList().size(prefix);
+    }
+    /**
      * 判断是否有key
      * @param prefix
      * @return

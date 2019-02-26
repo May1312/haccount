@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -94,12 +93,13 @@ public class OfflineSynchronizedRestController extends BaseController {
             map.put("clientId", type);
             //发送消息队列
             logger.info("离线同步校验通过,发送消息");
-            if(map.get("synData")!=null){
-                List list = (List) map.get("synData");
-                if(list.size()>0){
+            //if(map.get("synData")!=null){
+             //   List list = (List) map.get("synData");
+             //   if(list.size()>0){
+            //不校验长度了   需要更新同步时间 即使空数据
                     rabbitmqUtils.publish("offline", map);
-                }
-            }
+             //   }
+            //}
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());

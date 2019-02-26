@@ -20,7 +20,7 @@ public interface OfflineSynchronizedRestDao {
      * @return
      */
     @ResultType(SynDateRestDTO.class)
-    @Sql("select max(syn_date) as synDate from hbird_offline_synchronized where mobile_device = :mobileDevice and user_info_id = :userInfoId")
+    @Sql("select syn_date as synDate from hbird_offline_synchronized where mobile_device = :mobileDevice and user_info_id = :userInfoId order by id desc limit 1;")
     SynDateRestDTO getLatelySynDate(@Param("mobileDevice") String mobileDevice, @Param("userInfoId") String userInfoId);
 
     /**

@@ -174,7 +174,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                     warterOrderRestDao.saveOrUpdateOfflineData(warter);
                     //徽章解锁
                     long abs = Math.abs(warter.getCreateDate().getTime() - warter.getUpdateDate().getTime());
-                    if(abs < 10 && warter.getDelflag() == 0){
+                    if (abs < 10 && warter.getDelflag() == 0) {
                         userBadgeRestService.unlockBadge(warter);
                     }
                 }

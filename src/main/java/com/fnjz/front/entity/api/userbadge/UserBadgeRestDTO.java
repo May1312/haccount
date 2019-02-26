@@ -2,6 +2,8 @@ package com.fnjz.front.entity.api.userbadge;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Date;
+
 /**
  * 我的页面--用户--徽章领取dto
  * Created by yhang on 2018/12/17.
@@ -51,6 +53,11 @@ public class UserBadgeRestDTO {
      * 徽章类型英文描述
      */
     private String badgeTypeDesc;
+
+    /**
+     * 获得时间
+     */
+    private Date createDate;
 
     public String getBadgeName() {
         return badgeName;
@@ -146,5 +153,13 @@ public class UserBadgeRestDTO {
 
     public void setBadgeTypeDesc(String badgeTypeDesc) {
         this.badgeTypeDesc = badgeTypeDesc;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 }
