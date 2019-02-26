@@ -176,7 +176,7 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
                 allBadges.get(0).setMyBadges(0);
                 return allBadges;
             } else {
-                //存钱效率 = (单月收入-当月总支出)/(当月总支出-当月固定支出)  左闭右闭
+                //存钱效率 = (当月总收入-当月总支出)/(当月总支出-当月固定支出)  左闭右闭
                 JSONArray arrays = savingEfficiency.getJSONArray("arrays");
                 BigDecimal monthSpend = arrays.getJSONObject(0).getBigDecimal("monthSpend");
                 BigDecimal monthIncome = arrays.getJSONObject(0).getBigDecimal("monthIncome");
