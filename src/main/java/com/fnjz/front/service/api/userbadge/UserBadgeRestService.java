@@ -23,7 +23,7 @@ public interface UserBadgeRestService {
      * @param btId
      * @return
      */
-    List<UserBadgeInfoRestDTO> getMyBadgeInfo(String userInfoId,Integer btId);
+    List<UserBadgeInfoRestDTO> getMyBadgeInfo(String userInfoId,Integer btId,Integer status);
 
     void unlockBadge(WarterOrderRestNewLabel water);
 }

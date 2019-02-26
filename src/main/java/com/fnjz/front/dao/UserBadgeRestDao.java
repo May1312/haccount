@@ -1,6 +1,7 @@
 package com.fnjz.front.dao;
 
 import com.fnjz.front.entity.api.userbadge.BadgeLabelRestDTO;
+import com.fnjz.front.entity.api.userbadge.UserBadgeInfoCheckRestDTO;
 import com.fnjz.front.entity.api.userbadge.UserBadgeInfoRestDTO;
 import com.fnjz.front.entity.api.userbadge.UserBadgeRestDTO;
 import org.jeecgframework.minidao.annotation.MiniDao;
@@ -57,12 +58,12 @@ public interface UserBadgeRestDao {
     List<BadgeLabelRestDTO> getSysBadgeLabel();
 
     /**
-     * 获取指定徽章类型 用户最新解锁情况
+     * 获取指定徽章类型 用户最新解锁情况(用户弹框分享)
      * @param updateBy
      * @return
      */
     @Sql("SELECT base2.badge_name, base2.unlock_icon AS icon, base2.percentage, base1.create_date, base1.salary, base2.words, base1.rank, base2.priority, base3.`name` AS badge_type_name,base2.id as badge_id FROM hbird_user_badge AS base1 INNER JOIN hbird_badge AS base2 ON base1.badge_id = base2.id INNER JOIN hbird_badge_type AS base3 ON base2.badge_type_id = base3.id  WHERE base1.user_info_id = :userInfoId AND base1.badge_type_id = :btId order by base1.id desc limit 1;")
-    UserBadgeInfoRestDTO getLatestBadge(@Param("btId") Integer btId,@Param("userInfoId") Integer updateBy);
+    UserBadgeInfoCheckRestDTO getLatestBadge(@Param("btId") Integer btId, @Param("userInfoId") Integer updateBy);
 
     /**
      * 获取下一徽章id
@@ -103,4 +104,6 @@ public interface UserBadgeRestDao {
     @Sql("select name from hbird_badge_type where id=:btId;")
     String getBadgeTypeNameById(@Param("btId") Integer btId);
 
+    @Sql("select count(base1.id) as myBadges,(select count(id) from hbird_badge where badge_type_id=:btId) as totalBadges from hbird_user_badge as base1 where user_info_id=:userInfoId and base1.badge_type_id=:btId;")
+    Map<String,Object> getMyBadgesAndTotalBadges(@Param("userInfoId") Integer userInfoId,@Param("btId")Integer btId);
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fnjz.commonbean.ResultBean;
 import com.fnjz.constants.ApiResultType;
 import com.fnjz.constants.RedisPrefix;
+import com.fnjz.front.entity.api.userbadge.UserBadgeInfoCheckRestDTO;
 import com.fnjz.front.entity.api.userbadge.UserBadgeInfoRestDTO;
 import com.fnjz.front.entity.api.userbadge.UserBadgeRestDTO;
 import com.fnjz.front.service.api.userbadge.UserBadgeRestService;
@@ -60,7 +61,7 @@ public class UserBadgeRestController {
                 return new ResultBean(ApiResultType.SERVER_ERROR, null);
             }
         } else {
-            List<UserBadgeInfoRestDTO> list = userBadgeRestService.getMyBadgeInfo(userInfoId, btId);
+            List<UserBadgeInfoRestDTO> list = userBadgeRestService.getMyBadgeInfo(userInfoId, btId,null);
             return new ResultBean(ApiResultType.OK, list);
         }
     }
@@ -78,11 +79,11 @@ public class UserBadgeRestController {
         String shareCode = ShareCodeUtil.id2sharecode(Integer.parseInt(userInfoId));
         try {
             Long size = redisTemplateUtils.getSize(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + shareCode);
-            List<UserBadgeInfoRestDTO> list = new ArrayList<>(Integer.parseInt(size+""));
+            List<UserBadgeInfoCheckRestDTO> list = new ArrayList<>(Integer.parseInt(size+""));
             if(size>0){
                 for(int i = 0 ; i<size;i++){
                     String string =(String) redisTemplateUtils.popListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + shareCode);
-                    list.add(JSONObject.parseObject(string,UserBadgeInfoRestDTO.class));
+                    list.add(JSONObject.parseObject(string,UserBadgeInfoCheckRestDTO.class));
                 }
             }
             return new ResultBean(ApiResultType.OK, list);
