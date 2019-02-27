@@ -130,22 +130,24 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
                     JSONArray arrays = savingEfficiency.getJSONArray("arrays");
                     BigDecimal monthSpend = arrays.getJSONObject(0).getBigDecimal("monthSpend");
                     BigDecimal monthIncome = arrays.getJSONObject(0).getBigDecimal("monthIncome");
-                    BigDecimal result = monthIncome.subtract(monthSpend).divide(monthSpend.subtract((fixedLargeExpenditure == null ? BigDecimal.ZERO : fixedLargeExpenditure).add(fixedLifeExpenditure == null ? BigDecimal.ZERO : fixedLifeExpenditure)), BigDecimal.ROUND_HALF_DOWN);
-                    //获取范围区间
+                    BigDecimal result2 = (fixedLargeExpenditure == null ? BigDecimal.ZERO : fixedLargeExpenditure).add(fixedLifeExpenditure == null ? BigDecimal.ZERO : fixedLifeExpenditure);
+                    if (monthSpend.doubleValue() == result2.doubleValue()) {
+                        //按不达标处理
+                        return allBadges;
+                    }
+                    BigDecimal result = (monthIncome.subtract(monthSpend)).divide(monthSpend.subtract(result2), BigDecimal.ROUND_HALF_DOWN);
+                    //获取徽章百分比范围区间
                     List<UserBadgeInfoRestDTO> myBadgeInfo = getMyBadgeInfo(userInfoId, allBadges.get(0).getBadgeTypeId(), 1);
                     //按百分比顺序
-                    myBadgeInfo.sort(Comparator.comparing(UserBadgeInfoRestDTO::getPercentage));
+                    myBadgeInfo.sort(Comparator.comparing(UserBadgeInfoRestDTO::getPercentage).reversed());
                     //查询所在区间  左闭右闭
                     UserBadgeInfoRestDTO dto;
-                    Optional<UserBadgeInfoRestDTO> first = myBadgeInfo.stream().filter(v -> (v.getPercentage() <= result.doubleValue())).skip(0).filter(v2 -> (v2.getPercentage() > result.doubleValue())).findFirst();
+                    double percentage = result.doubleValue();
+                    Optional<UserBadgeInfoRestDTO> first = null;
+                    first = myBadgeInfo.stream().filter(v -> (v.getPercentage() <= percentage)).skip(0).filter(v2 -> (v2.getPercentage() <= percentage)).findFirst();
                     if (!first.isPresent()) {
-                        //不存在符合值  有可能超过0.8 按0.8处理
-                        if ((myBadgeInfo.get(myBadgeInfo.size() - 1).getPercentage() < result.doubleValue())) {
-                            dto = myBadgeInfo.get(myBadgeInfo.size() - 1);
-                        } else {
-                            //按不达标处理
-                            return allBadges;
-                        }
+                        //按不达标处理
+                        return allBadges;
                     } else {
                         dto = first.get();
                     }
@@ -177,8 +179,8 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
                         //设置总徽章数+已获得徽章数
                         Map<String, Object> map = userBadgeRestDao.getMyBadgesAndTotalBadges(Integer.valueOf(userInfoId), latestBadge.getBadgeTypeId());
                         if (map != null) {
-                            latestBadge.setMyBadges(Integer.valueOf(map.get("mybadges")+""));
-                            latestBadge.setTotalBadges(Integer.valueOf(map.get("totalBadges")+""));
+                            latestBadge.setMyBadges(Integer.valueOf(map.get("mybadges") + ""));
+                            latestBadge.setTotalBadges(Integer.valueOf(map.get("totalBadges") + ""));
                         }
                         list.add(JSONObject.toJSONString(latestBadge));
                         redisTemplateUtils.setListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), list, 1, 30L);
@@ -201,24 +203,24 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
                 JSONArray arrays = savingEfficiency.getJSONArray("arrays");
                 BigDecimal monthSpend = arrays.getJSONObject(0).getBigDecimal("monthSpend");
                 BigDecimal monthIncome = arrays.getJSONObject(0).getBigDecimal("monthIncome");
-                BigDecimal result = (monthIncome.subtract(monthSpend)).divide(monthSpend.subtract((fixedLargeExpenditure == null ? BigDecimal.ZERO : fixedLargeExpenditure).add(fixedLifeExpenditure == null ? BigDecimal.ZERO : fixedLifeExpenditure)), BigDecimal.ROUND_HALF_DOWN);
+                BigDecimal result2 = (fixedLargeExpenditure == null ? BigDecimal.ZERO : fixedLargeExpenditure).add(fixedLifeExpenditure == null ? BigDecimal.ZERO : fixedLifeExpenditure);
+                if (monthSpend.doubleValue() == result2.doubleValue()) {
+                    //按不达标处理
+                    return allBadges;
+                }
+                BigDecimal result = (monthIncome.subtract(monthSpend)).divide(monthSpend.subtract(result2), BigDecimal.ROUND_HALF_DOWN);
                 //获取徽章百分比范围区间
                 List<UserBadgeInfoRestDTO> myBadgeInfo = getMyBadgeInfo(userInfoId, allBadges.get(0).getBadgeTypeId(), 1);
                 //按百分比顺序
-                myBadgeInfo.sort(Comparator.comparing(UserBadgeInfoRestDTO::getPercentage));
+                myBadgeInfo.sort(Comparator.comparing(UserBadgeInfoRestDTO::getPercentage).reversed());
                 //查询所在区间  左闭右闭
                 UserBadgeInfoRestDTO dto;
-                //final double percentage = result.doubleValue();
-                final double percentage=0.41;
-                Optional<UserBadgeInfoRestDTO> first = myBadgeInfo.stream().filter(v -> (percentage>=v.getPercentage())).skip(0).filter(v2 -> (percentage<v2.getPercentage())).findFirst();
-                 if (!first.isPresent()) {
-                    //不存在符合值  有可能超过0.8 按0.8处理
-                    if ((myBadgeInfo.get(myBadgeInfo.size() - 1).getPercentage() < result.doubleValue())) {
-                        dto = myBadgeInfo.get(myBadgeInfo.size() - 1);
-                    } else {
-                        //按不达标处理
-                        return allBadges;
-                    }
+                double percentage = result.doubleValue();
+                Optional<UserBadgeInfoRestDTO> first = null;
+                first = myBadgeInfo.stream().filter(v -> (v.getPercentage() <= percentage)).skip(0).filter(v2 -> (v2.getPercentage() <= percentage)).findFirst();
+                if (!first.isPresent()) {
+                    //按不达标处理
+                    return allBadges;
                 } else {
                     dto = first.get();
                 }
@@ -251,8 +253,8 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
                     //设置总徽章数+已获得徽章数
                     Map<String, Object> map = userBadgeRestDao.getMyBadgesAndTotalBadges(Integer.valueOf(userInfoId), latestBadge.getBadgeTypeId());
                     if (map != null) {
-                        latestBadge.setMyBadges(Integer.valueOf(map.get("mybadges")+""));
-                        latestBadge.setTotalBadges(Integer.valueOf(map.get("totalBadges")+""));
+                        latestBadge.setMyBadges(Integer.valueOf(map.get("mybadges") + ""));
+                        latestBadge.setTotalBadges(Integer.valueOf(map.get("totalBadges") + ""));
                     }
                     list.add(JSONObject.toJSONString(latestBadge));
                     redisTemplateUtils.setListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), list, 1, 30L);
@@ -264,8 +266,9 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
 
     /**
      * 获取指定徽章类型下所有数据
+     * 区分1为我的页面接口调用 其他为详情调用
      *
-     * @param status     区分1为我的页面接口调用 其他为详情调用
+     * @param status
      * @param userInfoId
      * @param btId
      * @return
@@ -354,8 +357,8 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
                             //设置总徽章数+已获得徽章数
                             Map<String, Object> map2 = userBadgeRestDao.getMyBadgesAndTotalBadges(water.getUpdateBy(), badgeLabelRestDTO.getBadgeTypeId());
                             if (map2 != null) {
-                                latestBadge.setMyBadges(Integer.valueOf(map2.get("mybadges")+""));
-                                latestBadge.setTotalBadges(Integer.valueOf(map2.get("totalBadges")+""));
+                                latestBadge.setMyBadges(Integer.valueOf(map2.get("mybadges") + ""));
+                                latestBadge.setTotalBadges(Integer.valueOf(map2.get("totalBadges") + ""));
                             }
                             list2.add(JSONObject.toJSONString(latestBadge));
                             redisTemplateUtils.setListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + ShareCodeUtil.id2sharecode(water.getUpdateBy()), list2, 1, 30L);
@@ -387,8 +390,8 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
                     //设置总徽章数+已获得徽章数
                     Map<String, Object> map2 = userBadgeRestDao.getMyBadgesAndTotalBadges(water.getUpdateBy(), badgeLabelRestDTO.getBadgeTypeId());
                     if (map2 != null) {
-                        latestBadge.setMyBadges(Integer.valueOf(map2.get("mybadges")+""));
-                        latestBadge.setTotalBadges(Integer.valueOf(map2.get("totalBadges")+""));
+                        latestBadge.setMyBadges(Integer.valueOf(map2.get("mybadges") + ""));
+                        latestBadge.setTotalBadges(Integer.valueOf(map2.get("totalBadges") + ""));
                     }
                     list2.add(JSONObject.toJSONString(latestBadge));
                     redisTemplateUtils.setListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + ShareCodeUtil.id2sharecode(water.getUpdateBy()), list2, 1, 30L);
