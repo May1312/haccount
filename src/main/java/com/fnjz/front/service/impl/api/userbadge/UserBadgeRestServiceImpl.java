@@ -192,7 +192,7 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
             //首次调用
             //调用获取存钱效率接口
             JSONObject savingEfficiency = accountBookBudgetRestServiceI.getSavingEfficiencyv2(userInfoId, LocalDate.now().minusMonths(1).getMonthValue() + "", "1", null);
-            if(savingEfficiency==null){
+            if (savingEfficiency == null) {
                 return allBadges;
             }
             //固定支出不存在时不统计
@@ -204,6 +204,10 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
             } else {
                 //存钱效率 = (当月总收入-当月总支出)/(当月总支出-当月固定支出)  左闭右闭
                 JSONArray arrays = savingEfficiency.getJSONArray("arrays");
+                if (arrays.size() < 1) {
+                    allBadges.get(0).setMyBadges(0);
+                    return allBadges;
+                }
                 BigDecimal monthSpend = arrays.getJSONObject(0).getBigDecimal("monthSpend");
                 BigDecimal monthIncome = arrays.getJSONObject(0).getBigDecimal("monthIncome");
                 BigDecimal result2 = (fixedLargeExpenditure == null ? BigDecimal.ZERO : fixedLargeExpenditure).add(fixedLifeExpenditure == null ? BigDecimal.ZERO : fixedLifeExpenditure);
