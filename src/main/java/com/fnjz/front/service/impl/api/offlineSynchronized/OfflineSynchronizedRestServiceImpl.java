@@ -185,7 +185,9 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 //list排序  正序
                 list.sort(Comparator.naturalOrder());
                 for (WarterOrderRestNewLabel warter : list) {
-                    warter = addLabelInfo(warter);
+                    if(warter.getDelflag()==0){
+                        warter = addLabelInfo(warter);
+                    }
                     warter.setClientId(clientId);
                     //修改资产
                     updateAssets(warter);
