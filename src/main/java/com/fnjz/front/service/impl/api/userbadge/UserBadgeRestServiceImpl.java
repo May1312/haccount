@@ -192,6 +192,9 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
             //首次调用
             //调用获取存钱效率接口
             JSONObject savingEfficiency = accountBookBudgetRestServiceI.getSavingEfficiencyv2(userInfoId, LocalDate.now().minusMonths(1).getMonthValue() + "", "1", null);
+            if(savingEfficiency==null){
+                return allBadges;
+            }
             //固定支出不存在时不统计
             BigDecimal fixedLargeExpenditure = savingEfficiency.getJSONObject("fixedSpend").getBigDecimal("fixedLargeExpenditure");
             BigDecimal fixedLifeExpenditure = savingEfficiency.getJSONObject("fixedSpend").getBigDecimal("fixedLifeExpenditure");
