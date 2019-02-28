@@ -157,14 +157,16 @@ public class AccountBookBudgetRestController extends BaseController {
                     return new ResultBean(ApiResultType.SERVER_ERROR, null);
                 }
 
-                //更新流程执行成功之后发送消息推送
+                //更新流程执行成功之后发送消息推送   预算值设为-1情况为取消预算
                 if (type!=null && type != "wxapplet"){
-                    new Thread() {
-                        public void run() {
-                            BigDecimal prebudgetMoney = budgetResult.getBudgetMoney();
-                            accountBookBudgetRestService.reviseBudgetNotification(Integer.parseInt(userInfoId), budget, prebudgetMoney,type);
-                        }
-                    }.start();
+                    if(budgetResult.getBudgetMoney().intValue()!=-1){
+                        new Thread() {
+                            public void run() {
+                                BigDecimal prebudgetMoney = budgetResult.getBudgetMoney();
+                                accountBookBudgetRestService.reviseBudgetNotification(Integer.parseInt(userInfoId), budget, prebudgetMoney,type);
+                            }
+                        }.start();
+                    }
                 }
 
 
