@@ -159,7 +159,7 @@ public class AccountBookBudgetRestController extends BaseController {
 
                 //更新流程执行成功之后发送消息推送   预算值设为-1情况为取消预算
                 if (type!=null && type != "wxapplet"){
-                    if(budgetResult.getBudgetMoney().intValue()!=-1){
+                    if(budget.getBudgetMoney().intValue()!=-1){
                         new Thread() {
                             public void run() {
                                 BigDecimal prebudgetMoney = budgetResult.getBudgetMoney();
