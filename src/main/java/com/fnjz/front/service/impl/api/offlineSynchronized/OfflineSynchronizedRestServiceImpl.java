@@ -173,7 +173,9 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
                 //list排序  正序
                 list.sort(Comparator.naturalOrder());
                 for (WarterOrderRestNewLabel warter : list) {
-                    warter = addLabelInfo(warter);
+                    if(warter.getDelflag()==0){
+                        warter = addLabelInfo(warter);
+                    }
                     warter.setClientId(clientId);
                     //修改资产
                     updateAssets(warter);
@@ -227,6 +229,10 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
         } else if (abs > 10 && water.getDelflag() == 0) {
             //更新情况  获取原纪录
             WarterOrderRestNewLabel oldWater = warterOrderRestDao.findWaterOrderByIdForMoneyAndUpdateBy(water.getId());
+            //此种情况下  无法处理
+            if(oldWater==null){
+                return;
+            }
             //第一层判断  更新自己数据  or  更新他人数据
             if (water.getUpdateBy().intValue() == oldWater.getUpdateBy()) {
                 //自有数据   判断订单类型
