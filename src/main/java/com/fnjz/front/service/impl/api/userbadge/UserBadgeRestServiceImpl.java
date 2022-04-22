@@ -55,7 +55,7 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
 
-    //todo 暂时业务中定义 徽章类型的图标和描述  后期徽章如果增加,这两个字段放到db中
+    //todo 暂时业务中定义 徽章类型的图标和描述  后期徽章如果增加,这两个字段放到db中 BadgeTypeEnum枚举类
 
     @Override
     public List<UserBadgeRestDTO> getMyBadges(String userInfoId, int status) {
@@ -97,6 +97,89 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
             //未登录
             Collections.sort(allBadges, Comparator.comparing(UserBadgeRestDTO::getPriority).reversed());
             return allBadges;
+        }
+    }
+
+    /**
+     * 获取指定徽章类型下所有数据
+     * 区分1为我的页面接口调用 其他为详情调用
+     *
+     * @param status
+     * @param userInfoId
+     * @param btId
+     * @return
+     */
+    @Override
+    public List<UserBadgeInfoRestDTO> getMyBadgeInfo(String userInfoId, Integer btId, Integer status) {
+        //获取所有类型徽章
+        List<UserBadgeInfoRestDTO> allBadges = userBadgeRestDao.getMyBadgeInfoForAll(btId);
+        //获取已解锁数据
+        List<UserBadgeInfoRestDTO> myBadges = userBadgeRestDao.getMyBadgeInfoForUnlock(userInfoId, btId);
+        myBadges.forEach(v -> {
+            if (allBadges.contains(v)) {
+                //获取脚标
+                int i = allBadges.indexOf(v);
+                UserBadgeInfoRestDTO userBadgeInfoRestDTO = allBadges.get(i);
+                userBadgeInfoRestDTO.setIcon(v.getIcon());
+                userBadgeInfoRestDTO.setCreateDate(v.getCreateDate());
+                userBadgeInfoRestDTO.setSalary(v.getSalary());
+                userBadgeInfoRestDTO.setRank(v.getRank());
+                allBadges.set(i, userBadgeInfoRestDTO);
+            }
+        });
+        //判断是否为攒钱徽章类型请求
+        String btName = userBadgeRestDao.getBadgeTypeNameById(btId);
+        if (StringUtils.contains(btName, BadgeTypeEnum.zanqhz.getBadgeTypeName())) {
+            //攒钱徽章
+            Optional<UserBadgeInfoRestDTO> first = allBadges.stream().filter(v -> v.getRank() != null).findFirst();
+            if (first.isPresent()) {
+                return allBadges.stream().filter(v -> v.getPercentage() >= first.get().getPercentage()).collect(toList());
+            } else {
+                if (status != null && status == 1) {
+                    return allBadges;
+                } else {
+                    //不存在解锁
+                    return null;
+                }
+            }
+        } else {
+            return allBadges;
+        }
+    }
+
+    /**
+     * 工资/兼职/奖金/投资 徽章解锁公用方法
+     *
+     * @param water
+     */
+    private static String msg = "恭喜您获得新的";
+
+    @Override
+    public void unlockBadge(WarterOrderRestNewLabel water) {
+        if (water.getOrderType() == 2) {
+            //收入类型  获取徽章类型绑定的标签集合
+            List<BadgeLabelRestDTO> list = userBadgeRestDao.getSysBadgeLabel();
+            BadgeLabelRestDTO badgeLabelRestDTO = list.stream().filter(v -> (StringUtils.contains(v.getLabelName(), water.getTypeName()))).findFirst().get();
+            //匹配
+            if (badgeLabelRestDTO != null) {
+                //查看用户当前徽章领取情况
+                UserBadgeInfoRestDTO userBadgeInfoRestDTO = userBadgeRestDao.getLatestBadge(badgeLabelRestDTO.getBadgeTypeId(), water.getUpdateBy());
+                if (userBadgeInfoRestDTO != null) {
+                    //已解锁 判断是否解锁下一徽章
+                    if ((water.getMoney().subtract(BigDecimal.valueOf(userBadgeInfoRestDTO.getSalary()))).doubleValue() >= userBadgeInfoRestDTO.getPercentage()) {
+                        //解锁 获取下一徽章id
+                        Map<String, Object> map = userBadgeRestDao.getNextBadgeId(badgeLabelRestDTO.getBadgeTypeId(), userBadgeInfoRestDTO.getBadgeId());
+                        if (map.get("id") != null) {
+                            //获取当前最新排名
+                            sendOtherBadgesMessages(water, badgeLabelRestDTO, map);
+                        }
+                    }
+                } else {
+                    //首次解锁该徽章
+                    Map<String, Object> map = userBadgeRestDao.getNextBadgeId(badgeLabelRestDTO.getBadgeTypeId(), 0);
+                    sendOtherBadgesMessages(water, badgeLabelRestDTO, map);
+                }
+            }
         }
     }
 
@@ -158,32 +241,7 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
                     taskExecutor.execute(() -> {
                         //攒钱徽章类型 只保留一条记录吧   执行更新
                         userBadgeRestDao.updateBadgeId(userInfoId, allBadges.get(0).getBadgeTypeId(), dto.getBadgeId());
-                        //消息
-                        MessageEntity messageEntity = new MessageEntity();
-                        messageEntity.setUserInfoId(Integer.valueOf(userInfoId));
-                        messageEntity.setContent(msg + "攒钱徽章" + "\"" + dto.getBadgeName() + "\"。");
-                        messageEntity.setCreateBy(Integer.valueOf(userInfoId));
-                        messageEntity.setStatus(2);
-                        integralsActivityRestDao.insertMessage(messageEntity);
-                        //此条消息放入redis
-                        List<String> list = new ArrayList(1);
-                        UserBadgeInfoCheckRestDTO latestBadge = userBadgeRestDao.getLatestBadge(allBadges.get(0).getBadgeTypeId(), Integer.valueOf(userInfoId));
-                        //设置徽章类型id
-                        latestBadge.setBadgeTypeId(allBadges.get(0).getBadgeTypeId());
-                        //匹配徽章类型描述
-                        BadgeTypeEnum enum1 = Arrays.stream(BadgeTypeEnum.values()).filter(v -> (StringUtils.contains(latestBadge.getBadgeTypeName(), v.getBadgeTypeName()))).findFirst().get();
-                        if (enum1 != null) {
-                            latestBadge.setBadgeTypeIcon(enum1.getBadgeTypeIcon());
-                            latestBadge.setBadgeTypeDesc(enum1.getBadgeTypeDesc());
-                        }
-                        //设置总徽章数+已获得徽章数
-                        Map<String, Object> map = userBadgeRestDao.getMyBadgesAndTotalBadges(Integer.valueOf(userInfoId), latestBadge.getBadgeTypeId());
-                        if (map != null) {
-                            latestBadge.setMyBadges(Integer.valueOf(map.get("mybadges") + ""));
-                            latestBadge.setTotalBadges(Integer.valueOf(map.get("totalBadges") + ""));
-                        }
-                        list.add(JSONObject.toJSONString(latestBadge));
-                        redisTemplateUtils.setListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), list, 1, 30L);
+                        sendSaveMoneyBadgeMessages(userInfoId, allBadges, dto);
                     });
                     return allBadges;
                 }
@@ -240,31 +298,7 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
                     //插入徽章
                     userBadgeRestDao.insert(Integer.valueOf(userInfoId), dto.getBadgeId(), allBadges.get(0).getBadgeTypeId(), result, 1);
                     //消息
-                    MessageEntity messageEntity = new MessageEntity();
-                    messageEntity.setUserInfoId(Integer.valueOf(userInfoId));
-                    messageEntity.setContent(msg + "攒钱徽章" + "\"" + dto.getBadgeName() + "\"。");
-                    messageEntity.setCreateBy(Integer.valueOf(userInfoId));
-                    messageEntity.setStatus(2);
-                    integralsActivityRestDao.insertMessage(messageEntity);
-                    //此条消息放入redis
-                    List<String> list = new ArrayList(1);
-                    UserBadgeInfoCheckRestDTO latestBadge = userBadgeRestDao.getLatestBadge(allBadges.get(0).getBadgeTypeId(), Integer.valueOf(userInfoId));
-                    //设置徽章类型id
-                    latestBadge.setBadgeTypeId(allBadges.get(0).getBadgeTypeId());
-                    //匹配徽章类型描述
-                    BadgeTypeEnum enum1 = Arrays.stream(BadgeTypeEnum.values()).filter(v -> (StringUtils.contains(latestBadge.getBadgeTypeName(), v.getBadgeTypeName()))).findFirst().get();
-                    if (enum1 != null) {
-                        latestBadge.setBadgeTypeIcon(enum1.getBadgeTypeIcon());
-                        latestBadge.setBadgeTypeDesc(enum1.getBadgeTypeDesc());
-                    }
-                    //设置总徽章数+已获得徽章数
-                    Map<String, Object> map = userBadgeRestDao.getMyBadgesAndTotalBadges(Integer.valueOf(userInfoId), latestBadge.getBadgeTypeId());
-                    if (map != null) {
-                        latestBadge.setMyBadges(Integer.valueOf(map.get("mybadges") + ""));
-                        latestBadge.setTotalBadges(Integer.valueOf(map.get("totalBadges") + ""));
-                    }
-                    list.add(JSONObject.toJSONString(latestBadge));
-                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), list, 1, 30L);
+                    sendSaveMoneyBadgeMessages(userInfoId, allBadges, dto);
                 });
                 return allBadges;
             }
@@ -272,138 +306,74 @@ public class UserBadgeRestServiceImpl implements UserBadgeRestService {
     }
 
     /**
-     * 获取指定徽章类型下所有数据
-     * 区分1为我的页面接口调用 其他为详情调用
-     *
-     * @param status
+     * 攒钱徽章解锁 消息处理通用方法
      * @param userInfoId
-     * @param btId
-     * @return
+     * @param allBadges
+     * @param dto
      */
-    @Override
-    public List<UserBadgeInfoRestDTO> getMyBadgeInfo(String userInfoId, Integer btId, Integer status) {
-        //获取所有类型徽章
-        List<UserBadgeInfoRestDTO> allBadges = userBadgeRestDao.getMyBadgeInfoForAll(btId);
-        //获取已解锁数据
-        List<UserBadgeInfoRestDTO> myBadges = userBadgeRestDao.getMyBadgeInfoForUnlock(userInfoId, btId);
-        myBadges.forEach(v -> {
-            if (allBadges.contains(v)) {
-                //获取脚标
-                int i = allBadges.indexOf(v);
-                UserBadgeInfoRestDTO userBadgeInfoRestDTO = allBadges.get(i);
-                userBadgeInfoRestDTO.setIcon(v.getIcon());
-                userBadgeInfoRestDTO.setCreateDate(v.getCreateDate());
-                userBadgeInfoRestDTO.setSalary(v.getSalary());
-                userBadgeInfoRestDTO.setRank(v.getRank());
-                allBadges.set(i, userBadgeInfoRestDTO);
-            }
-        });
-        //判断是否为攒钱徽章类型请求
-        String btName = userBadgeRestDao.getBadgeTypeNameById(btId);
-        if (StringUtils.contains(btName, BadgeTypeEnum.zanqhz.getBadgeTypeName())) {
-            //攒钱徽章
-            Optional<UserBadgeInfoRestDTO> first = allBadges.stream().filter(v -> v.getRank() != null).findFirst();
-            if (first.isPresent()) {
-                return allBadges.stream().filter(v -> v.getPercentage() >= first.get().getPercentage()).collect(toList());
-            } else {
-                if (status != null && status == 1) {
-                    return allBadges;
-                } else {
-                    //不存在解锁
-                    return null;
-                }
-            }
-        } else {
-            return allBadges;
+    private void sendSaveMoneyBadgeMessages(String userInfoId, List<UserBadgeRestDTO> allBadges, UserBadgeInfoRestDTO dto) {
+        //消息
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setUserInfoId(Integer.valueOf(userInfoId));
+        messageEntity.setContent(msg + "攒钱徽章" + "\"" + dto.getBadgeName() + "\"。");
+        messageEntity.setCreateBy(Integer.valueOf(userInfoId));
+        messageEntity.setStatus(2);
+        integralsActivityRestDao.insertMessage(messageEntity);
+        //此条消息放入redis
+        List<String> list = new ArrayList(1);
+        UserBadgeInfoCheckRestDTO latestBadge = userBadgeRestDao.getLatestBadge(allBadges.get(0).getBadgeTypeId(), Integer.valueOf(userInfoId));
+        //设置徽章类型id
+        latestBadge.setBadgeTypeId(allBadges.get(0).getBadgeTypeId());
+        //匹配徽章类型描述
+        BadgeTypeEnum enum1 = Arrays.stream(BadgeTypeEnum.values()).filter(v -> (StringUtils.contains(latestBadge.getBadgeTypeName(), v.getBadgeTypeName()))).findFirst().get();
+        if (enum1 != null) {
+            latestBadge.setBadgeTypeIcon(enum1.getBadgeTypeIcon());
+            latestBadge.setBadgeTypeDesc(enum1.getBadgeTypeDesc());
         }
+        //设置总徽章数+已获得徽章数
+        Map<String, Object> map = userBadgeRestDao.getMyBadgesAndTotalBadges(Integer.valueOf(userInfoId), latestBadge.getBadgeTypeId());
+        if (map != null) {
+            latestBadge.setMyBadges(Integer.valueOf(map.get("mybadges") + ""));
+            latestBadge.setTotalBadges(Integer.valueOf(map.get("totalBadges") + ""));
+        }
+        list.add(JSONObject.toJSONString(latestBadge));
+        redisTemplateUtils.setListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + ShareCodeUtil.id2sharecode(Integer.valueOf(userInfoId)), list, 1, 30L);
     }
 
     /**
-     * 攒钱（根据预算）/工资/兼职/奖金/投资 徽章解锁公用方法
-     *
+     * 除攒钱徽章外解锁 消息处理通用方法
      * @param water
+     * @param badgeLabelRestDTO
+     * @param map
      */
-    private static String msg = "恭喜您获得新的";
-
-    @Override
-    public void unlockBadge(WarterOrderRestNewLabel water) {
-        if (water.getOrderType() == 2) {
-            //收入类型  获取徽章类型绑定的标签集合
-            List<BadgeLabelRestDTO> list = userBadgeRestDao.getSysBadgeLabel();
-            BadgeLabelRestDTO badgeLabelRestDTO = list.stream().filter(v -> (StringUtils.contains(v.getLabelName(), water.getTypeName()))).findFirst().get();
-            //匹配
-            if (badgeLabelRestDTO != null) {
-                //查看用户当前徽章领取情况
-                UserBadgeInfoRestDTO userBadgeInfoRestDTO = userBadgeRestDao.getLatestBadge(badgeLabelRestDTO.getBadgeTypeId(), water.getUpdateBy());
-                if (userBadgeInfoRestDTO != null) {
-                    //已解锁 判断是否解锁下一徽章
-                    if ((water.getMoney().subtract(BigDecimal.valueOf(userBadgeInfoRestDTO.getSalary()))).doubleValue() >= userBadgeInfoRestDTO.getPercentage()) {
-                        //解锁 获取下一徽章id
-                        Map<String, Object> map = userBadgeRestDao.getNextBadgeId(badgeLabelRestDTO.getBadgeTypeId(), userBadgeInfoRestDTO.getBadgeId());
-                        if (map.get("id") != null) {
-                            //获取当前最新排名
-                            Integer rank = userBadgeRestDao.getRankBybtid(badgeLabelRestDTO.getBadgeTypeId());
-                            userBadgeRestDao.insert(water.getUpdateBy(), Integer.valueOf(map.get("id") + ""), badgeLabelRestDTO.getBadgeTypeId(), water.getMoney(), rank == null ? 1 : rank + 1);
-                            MessageEntity messageEntity = new MessageEntity();
-                            messageEntity.setUserInfoId(water.getUpdateBy());
-                            messageEntity.setContent(msg + map.get("badge_type_name") + "\"" + map.get("badge_name") + "\"");
-                            messageEntity.setCreateBy(water.getUpdateBy());
-                            messageEntity.setStatus(2);
-                            integralsActivityRestDao.insertMessage(messageEntity);
-                            //此条消息放入redis
-                            List<String> list2 = new ArrayList(1);
-                            UserBadgeInfoCheckRestDTO latestBadge = userBadgeRestDao.getLatestBadge(badgeLabelRestDTO.getBadgeTypeId(), water.getUpdateBy());
-                            //设置徽章类型id
-                            latestBadge.setBadgeTypeId(badgeLabelRestDTO.getBadgeTypeId());
-                            //匹配徽章类型描述
-                            BadgeTypeEnum enum1 = Arrays.stream(BadgeTypeEnum.values()).filter(v -> (StringUtils.contains(latestBadge.getBadgeTypeName(), v.getBadgeTypeName()))).findFirst().get();
-                            if (enum1 != null) {
-                                latestBadge.setBadgeTypeIcon(enum1.getBadgeTypeIcon());
-                                latestBadge.setBadgeTypeDesc(enum1.getBadgeTypeDesc());
-                            }
-                            //设置总徽章数+已获得徽章数
-                            Map<String, Object> map2 = userBadgeRestDao.getMyBadgesAndTotalBadges(water.getUpdateBy(), badgeLabelRestDTO.getBadgeTypeId());
-                            if (map2 != null) {
-                                latestBadge.setMyBadges(Integer.valueOf(map2.get("mybadges") + ""));
-                                latestBadge.setTotalBadges(Integer.valueOf(map2.get("totalBadges") + ""));
-                            }
-                            list2.add(JSONObject.toJSONString(latestBadge));
-                            redisTemplateUtils.setListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + ShareCodeUtil.id2sharecode(water.getUpdateBy()), list2, 1, 30L);
-                        }
-                    }
-                } else {
-                    //首次解锁该徽章
-                    Map<String, Object> map = userBadgeRestDao.getNextBadgeId(badgeLabelRestDTO.getBadgeTypeId(), 0);
-                    //获取当前最新排名
-                    Integer rank = userBadgeRestDao.getRankBybtid(badgeLabelRestDTO.getBadgeTypeId());
-                    userBadgeRestDao.insert(water.getUpdateBy(), Integer.valueOf(map.get("id") + ""), badgeLabelRestDTO.getBadgeTypeId(), water.getMoney(), rank == null ? 1 : rank + 1);
-                    MessageEntity messageEntity = new MessageEntity();
-                    messageEntity.setUserInfoId(water.getUpdateBy());
-                    messageEntity.setContent(msg + map.get("badge_type_name") + "\"" + map.get("badge_name") + "\"。");
-                    messageEntity.setCreateBy(water.getUpdateBy());
-                    messageEntity.setStatus(2);
-                    integralsActivityRestDao.insertMessage(messageEntity);
-                    //此条消息放入redis
-                    List<String> list2 = new ArrayList(1);
-                    UserBadgeInfoCheckRestDTO latestBadge = userBadgeRestDao.getLatestBadge(badgeLabelRestDTO.getBadgeTypeId(), water.getUpdateBy());
-                    //设置徽章类型id
-                    latestBadge.setBadgeTypeId(badgeLabelRestDTO.getBadgeTypeId());
-                    //匹配徽章类型描述
-                    BadgeTypeEnum enum1 = Arrays.stream(BadgeTypeEnum.values()).filter(v -> (StringUtils.contains(latestBadge.getBadgeTypeName(), v.getBadgeTypeName()))).findFirst().get();
-                    if (enum1 != null) {
-                        latestBadge.setBadgeTypeIcon(enum1.getBadgeTypeIcon());
-                        latestBadge.setBadgeTypeDesc(enum1.getBadgeTypeDesc());
-                    }
-                    //设置总徽章数+已获得徽章数
-                    Map<String, Object> map2 = userBadgeRestDao.getMyBadgesAndTotalBadges(water.getUpdateBy(), badgeLabelRestDTO.getBadgeTypeId());
-                    if (map2 != null) {
-                        latestBadge.setMyBadges(Integer.valueOf(map2.get("mybadges") + ""));
-                        latestBadge.setTotalBadges(Integer.valueOf(map2.get("totalBadges") + ""));
-                    }
-                    list2.add(JSONObject.toJSONString(latestBadge));
-                    redisTemplateUtils.setListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + ShareCodeUtil.id2sharecode(water.getUpdateBy()), list2, 1, 30L);
-                }
-            }
+    private void sendOtherBadgesMessages(WarterOrderRestNewLabel water, BadgeLabelRestDTO badgeLabelRestDTO, Map<String, Object> map) {
+        //获取当前最新排名
+        Integer rank = userBadgeRestDao.getRankBybtid(badgeLabelRestDTO.getBadgeTypeId());
+        userBadgeRestDao.insert(water.getUpdateBy(), Integer.valueOf(map.get("id") + ""), badgeLabelRestDTO.getBadgeTypeId(), water.getMoney(), rank == null ? 1 : rank + 1);
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setUserInfoId(water.getUpdateBy());
+        messageEntity.setContent(msg + map.get("badge_type_name") + "\"" + map.get("badge_name") + "\"。");
+        messageEntity.setCreateBy(water.getUpdateBy());
+        messageEntity.setStatus(2);
+        integralsActivityRestDao.insertMessage(messageEntity);
+        //此条消息放入redis
+        List<String> list2 = new ArrayList(1);
+        UserBadgeInfoCheckRestDTO latestBadge = userBadgeRestDao.getLatestBadge(badgeLabelRestDTO.getBadgeTypeId(), water.getUpdateBy());
+        //设置徽章类型id
+        latestBadge.setBadgeTypeId(badgeLabelRestDTO.getBadgeTypeId());
+        //匹配徽章类型描述
+        BadgeTypeEnum enum1 = Arrays.stream(BadgeTypeEnum.values()).filter(v -> (StringUtils.contains(latestBadge.getBadgeTypeName(), v.getBadgeTypeName()))).findFirst().get();
+        if (enum1 != null) {
+            latestBadge.setBadgeTypeIcon(enum1.getBadgeTypeIcon());
+            latestBadge.setBadgeTypeDesc(enum1.getBadgeTypeDesc());
         }
+        //设置总徽章数+已获得徽章数
+        Map<String, Object> map2 = userBadgeRestDao.getMyBadgesAndTotalBadges(water.getUpdateBy(), badgeLabelRestDTO.getBadgeTypeId());
+        if (map2 != null) {
+            latestBadge.setMyBadges(Integer.valueOf(map2.get("mybadges") + ""));
+            latestBadge.setTotalBadges(Integer.valueOf(map2.get("totalBadges") + ""));
+        }
+        list2.add(JSONObject.toJSONString(latestBadge));
+        redisTemplateUtils.setListRight(RedisPrefix.PREFIX_USER_NEW_UNLOCK_BADGE + ShareCodeUtil.id2sharecode(water.getUpdateBy()), list2, 1, 30L);
     }
 }
