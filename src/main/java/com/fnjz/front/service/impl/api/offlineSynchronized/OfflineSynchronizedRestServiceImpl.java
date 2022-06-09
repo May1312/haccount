@@ -119,6 +119,7 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
         //第一次同步  为null情况下 获取当前时间戳为同步时间
         Date date = new Date();
         Map<String, Object> map = new HashMap<String, Object>();
+<<<<<<< HEAD
         if (latelySynDate == null) {
             latelySynDate = new SynDateRestDTO();
             offlineSynchronizedRestDao.firstInsert(mobileDevice, userInfoId, date);
@@ -128,6 +129,17 @@ public class OfflineSynchronizedRestServiceImpl extends CommonServiceImpl implem
         if (latelySynDate != null && latelySynDate.getSynDate() == null) {
             offlineSynchronizedRestDao.firstInsert(mobileDevice, userInfoId, date);
             latelySynDate.setSynDate(date);
+=======
+        if(latelySynDate==null){
+            latelySynDate = new SynDateRestDTO();
+            offlineSynchronizedRestDao.firstInsert(mobileDevice, userInfoId, date);
+            latelySynDate.setSynDate(date);
+            map.put("synDate", date);
+        }
+        if (latelySynDate!=null&&latelySynDate.getSynDate() == null) {
+            offlineSynchronizedRestDao.firstInsert(mobileDevice, userInfoId, date);
+            latelySynDate.setSynDate(date);
+>>>>>>> 4dc0f96d... 离线同步时间修改
             map.put("synDate", date);
         } else {
             map.put("synDate", latelySynDate.getSynDate());
