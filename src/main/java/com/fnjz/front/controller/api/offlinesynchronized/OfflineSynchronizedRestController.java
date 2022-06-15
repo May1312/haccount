@@ -93,20 +93,7 @@ public class OfflineSynchronizedRestController extends BaseController {
             map.put("clientId", type);
             //发送消息队列
             logger.info("离线同步校验通过,发送消息");
-            //if(map.get("synData")!=null){
-<<<<<<< HEAD
-             //   List list = (List) map.get("synData");
-             //   if(list.size()>0){
-            //不校验长度了   需要更新同步时间 即使空数据
-                    rabbitmqUtils.publish("offline", map);
-             //   }
-=======
-            //    List list = (List) map.get("synData");
-            //    if(list.size()>0){
-                    rabbitmqUtils.publish("offline", map);
-            //    }
->>>>>>> 4dc0f96d... 离线同步时间修改
-            //}
+            rabbitmqUtils.publish("offline", map);
             return new ResultBean(ApiResultType.OK, null);
         } catch (Exception e) {
             logger.error(e.toString());
